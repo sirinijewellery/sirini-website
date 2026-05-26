@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -17,7 +17,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingBag, MapPin, Lock, ChevronRight } from "lucide-react";
+import { ShoppingBag, MapPin, Lock, ChevronRight, CreditCard, Banknote } from "lucide-react";
 
 /* ── Types ──────────────────────────────────────────────────────────── */
 
@@ -39,6 +39,150 @@ declare global {
   interface Window {
     Razorpay: new (options: Record<string, unknown>) => { open: () => void };
   }
+}
+
+/* ── India States / UTs ─────────────────────────────────────────────── */
+
+const INDIA_STATES = [
+  "Andaman and Nicobar Islands",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chandigarh",
+  "Chhattisgarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu and Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Ladakh",
+  "Lakshadweep",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Puducherry",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
+/* ── StateCombobox ──────────────────────────────────────────────────── */
+
+interface StateComboboxProps {
+  value: string;
+  onChange: (val: string) => void;
+  error?: string;
+}
+
+function StateCombobox({ value, onChange, error }: StateComboboxProps) {
+  const [inputValue, setInputValue] = useState(value);
+  const [isOpen, setIsOpen] = useState(false);
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Keep inputValue in sync when an external value change arrives
+  // (e.g. selectSavedAddress sets the RHF value, which flows in as `value`)
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  const filtered =
+    inputValue.trim() === ""
+      ? INDIA_STATES
+      : INDIA_STATES.filter((s) =>
+          s.toLowerCase().includes(inputValue.trim().toLowerCase())
+        );
+
+  function handleSelect(state: string) {
+    setInputValue(state);
+    onChange(state);
+    setIsOpen(false);
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputValue(e.target.value);
+    onChange(e.target.value); // keep RHF in sync while typing
+    setIsOpen(true);
+  }
+
+  function handleBlur() {
+    // Delay so a click on a list item fires before the dropdown closes
+    blurTimerRef.current = setTimeout(() => {
+      // Fuzzy autocorrect: if the typed text matches exactly one state, use it
+      const typed = inputValue.trim().toLowerCase();
+      if (typed !== "") {
+        const matches = INDIA_STATES.filter((s) =>
+          s.toLowerCase().includes(typed)
+        );
+        if (matches.length === 1) {
+          setInputValue(matches[0]);
+          onChange(matches[0]);
+        }
+      }
+      setIsOpen(false);
+    }, 150);
+  }
+
+  function handleFocus() {
+    if (blurTimerRef.current) {
+      clearTimeout(blurTimerRef.current);
+    }
+    setIsOpen(true);
+  }
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        value={inputValue}
+        onChange={handleInputChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder="Maharashtra"
+        autoComplete="off"
+        aria-invalid={!!error}
+        aria-autocomplete="list"
+        className={`flex h-10 w-full rounded-md border bg-background px-3 py-2 text-sm ring-offset-background placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 font-sans transition-colors ${
+          error ? "border-destructive" : "border-input"
+        }`}
+      />
+      {isOpen && filtered.length > 0 && (
+        <ul
+          className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md max-h-52 overflow-y-auto"
+          role="listbox"
+        >
+          {filtered.map((state) => (
+            <li
+              key={state}
+              role="option"
+              aria-selected={state === value}
+              onMouseDown={() => handleSelect(state)}
+              className={`cursor-pointer px-3 py-2 font-sans text-sm text-foreground hover:bg-primary/10 transition-colors ${
+                state === value ? "bg-primary/10 font-medium" : ""
+              }`}
+            >
+              {state}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
 }
 
 /* ── Zod schema ─────────────────────────────────────────────────────── */
@@ -78,6 +222,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
     savedAddresses.length > 0 ? savedAddresses[0].id : "new"
   );
   const [isLoading, setIsLoading] = useState(false);
+  const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod" | null>(null);
 
   const subtotal = getTotal();
   const discount = appliedCoupon?.discountAmount ?? 0;
@@ -87,6 +232,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
     register,
     handleSubmit,
     setValue,
+    watch,
     reset,
     formState: { errors },
   } = useForm<CheckoutFields>({
@@ -96,6 +242,8 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
       customerEmail: "",
     },
   });
+
+  const stateValue = watch("state") ?? "";
 
   // Session may resolve after mount — backfill name/email once available
   useEffect(() => {
@@ -126,6 +274,13 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
 
     setIsLoading(true);
 
+    // Payment method guard
+    if (!paymentMethod) {
+      toast.error("Don't get too excited! Please pick a payment method.");
+      setIsLoading(false);
+      return;
+    }
+
     const address = {
       line1: values.line1,
       city: values.city,
@@ -133,6 +288,47 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
       pincode: values.pincode,
       label: values.label,
     };
+
+    /* ── COD flow ─────────────────────────────────────────────────── */
+    if (paymentMethod === "cod") {
+      try {
+        const res = await fetch("/api/checkout/cod", {
+          method: "POST",
+          headers: { "Content-Type": "application/json" },
+          body: JSON.stringify({
+            items: items.map((item) => ({
+              productId: item.productId,
+              variantId: item.variantId,
+              quantity: item.quantity,
+            })),
+            address,
+            customerName: values.customerName,
+            customerEmail: values.customerEmail,
+            customerPhone: values.customerPhone,
+            couponCode: appliedCoupon?.code,
+            totalAmount: total,
+            notes: values.notes,
+          }),
+        });
+
+        const data = await res.json();
+
+        if (!res.ok) {
+          toast.error(data.error ?? "Failed to place order");
+          setIsLoading(false);
+          return;
+        }
+
+        clearCart();
+        router.push(`/order-confirmation?orderId=${data.orderId}`);
+      } catch {
+        toast.error("Network error. Please check your connection and try again.");
+        setIsLoading(false);
+      }
+      return;
+    }
+
+    /* ── Razorpay flow ────────────────────────────────────────────── */
 
     // Step 1 — create Razorpay order on server
     let orderData: {
@@ -188,79 +384,79 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
     let rzp: { open: () => void };
     try {
       rzp = new window.Razorpay({
-      key: orderData.keyId,
-      order_id: orderData.razorpayOrderId,
-      amount: Math.round(orderData.amount * 100),
-      currency: "INR",
-      name: "Sirini Jewellery",
-      description: "Thank you for shopping with us",
-      prefill: {
-        name: values.customerName,
-        email: values.customerEmail,
-        contact: values.customerPhone,
-      },
-      theme: { color: "#B76E79" },
-
-      handler: async (response: {
-        razorpay_payment_id: string;
-        razorpay_order_id: string;
-        razorpay_signature: string;
-      }) => {
-        // Step 3 — verify payment + write order to DB
-        try {
-          const verifyRes = await fetch("/api/checkout/verify", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              razorpayOrderId: response.razorpay_order_id,
-              razorpayPaymentId: response.razorpay_payment_id,
-              razorpaySignature: response.razorpay_signature,
-              items: items.map((item) => ({
-                productId: item.productId,
-                variantId: item.variantId,
-                quantity: item.quantity,
-                priceAtPurchase: item.price,
-              })),
-              address,
-              customerName: values.customerName,
-              customerEmail: values.customerEmail,
-              customerPhone: values.customerPhone,
-              couponCode: appliedCoupon?.code,
-              discountAmount: orderData.discountAmount,
-              totalAmount: orderData.amount,
-              notes: values.notes,
-              userId: session?.user?.id,
-            }),
-          });
-
-          const verifyData = await verifyRes.json();
-
-          if (!verifyRes.ok) {
-            toast.error(verifyData.error ?? "Payment verification failed");
-            setIsLoading(false);
-            return;
-          }
-
-          clearCart();
-          trackPurchaseCompleted(verifyData.orderId, orderData.amount);
-          router.push(`/order-confirmation?orderId=${verifyData.orderId}`);
-        } catch {
-          toast.error("Payment succeeded but we couldn't confirm your order. Please contact support.");
-          setIsLoading(false);
-        }
-      },
-
-      modal: {
-        ondismiss: () => {
-          setIsLoading(false);
-          // Notify failed endpoint (fire and forget)
-          fetch("/api/checkout/failed", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({ razorpayOrderId: orderData.razorpayOrderId }),
-          }).catch(() => {});
+        key: orderData.keyId,
+        order_id: orderData.razorpayOrderId,
+        amount: Math.round(orderData.amount * 100),
+        currency: "INR",
+        name: "Sirini Jewellery",
+        description: "Thank you for shopping with us",
+        prefill: {
+          name: values.customerName,
+          email: values.customerEmail,
+          contact: values.customerPhone,
         },
-      },
+        theme: { color: "#B76E79" },
+
+        handler: async (response: {
+          razorpay_payment_id: string;
+          razorpay_order_id: string;
+          razorpay_signature: string;
+        }) => {
+          // Step 3 — verify payment + write order to DB
+          try {
+            const verifyRes = await fetch("/api/checkout/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                items: items.map((item) => ({
+                  productId: item.productId,
+                  variantId: item.variantId,
+                  quantity: item.quantity,
+                  priceAtPurchase: item.price,
+                })),
+                address,
+                customerName: values.customerName,
+                customerEmail: values.customerEmail,
+                customerPhone: values.customerPhone,
+                couponCode: appliedCoupon?.code,
+                discountAmount: orderData.discountAmount,
+                totalAmount: orderData.amount,
+                notes: values.notes,
+                userId: session?.user?.id,
+              }),
+            });
+
+            const verifyData = await verifyRes.json();
+
+            if (!verifyRes.ok) {
+              toast.error(verifyData.error ?? "Payment verification failed");
+              setIsLoading(false);
+              return;
+            }
+
+            clearCart();
+            trackPurchaseCompleted(verifyData.orderId, orderData.amount);
+            router.push(`/order-confirmation?orderId=${verifyData.orderId}`);
+          } catch {
+            toast.error("Payment succeeded but we couldn't confirm your order. Please contact support.");
+            setIsLoading(false);
+          }
+        },
+
+        modal: {
+          ondismiss: () => {
+            setIsLoading(false);
+            // Notify failed endpoint (fire and forget)
+            fetch("/api/checkout/failed", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({ razorpayOrderId: orderData.razorpayOrderId }),
+            }).catch(() => {});
+          },
+        },
       });
       rzp.open();
       trackCheckoutStarted(total);
@@ -449,14 +645,13 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                     )}
                   </div>
 
-                  {/* State */}
+                  {/* State — combobox */}
                   <div className="space-y-1.5">
                     <Label htmlFor="state">State</Label>
-                    <Input
-                      id="state"
-                      placeholder="Maharashtra"
-                      aria-invalid={!!errors.state}
-                      {...register("state")}
+                    <StateCombobox
+                      value={stateValue}
+                      onChange={(val) => setValue("state", val, { shouldValidate: true })}
+                      error={errors.state?.message}
                     />
                     {errors.state && (
                       <p className="text-xs text-destructive font-sans">{errors.state.message}</p>
@@ -514,6 +709,70 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                   className="resize-none min-h-24"
                   {...register("notes")}
                 />
+              </div>
+            </section>
+
+            <Separator />
+
+            {/* Payment method */}
+            <section>
+              <h2 className="font-display text-2xl font-light text-foreground mb-5">
+                Payment Method
+              </h2>
+              <div className="space-y-3">
+                {/* Razorpay option */}
+                <label
+                  className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
+                    paymentMethod === "razorpay"
+                      ? "border-primary bg-blush/30"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="razorpay"
+                    checked={paymentMethod === "razorpay"}
+                    onChange={() => setPaymentMethod("razorpay")}
+                    className="mt-0.5 accent-primary"
+                  />
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <CreditCard className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-sans text-sm font-medium text-foreground">Pay Online</p>
+                      <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                        UPI, credit/debit cards, net banking via Razorpay
+                      </p>
+                    </div>
+                  </div>
+                </label>
+
+                {/* COD option */}
+                <label
+                  className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
+                    paymentMethod === "cod"
+                      ? "border-primary bg-blush/30"
+                      : "border-border hover:border-primary/50"
+                  }`}
+                >
+                  <input
+                    type="radio"
+                    name="paymentMethod"
+                    value="cod"
+                    checked={paymentMethod === "cod"}
+                    onChange={() => setPaymentMethod("cod")}
+                    className="mt-0.5 accent-primary"
+                  />
+                  <div className="flex items-start gap-3 flex-1 min-w-0">
+                    <Banknote className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                    <div>
+                      <p className="font-sans text-sm font-medium text-foreground">Cash on Delivery</p>
+                      <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                        Pay in cash when your order arrives
+                      </p>
+                    </div>
+                  </div>
+                </label>
               </div>
             </section>
           </div>
@@ -627,6 +886,11 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                     </svg>
                     Processing…
                   </span>
+                ) : paymentMethod === "cod" ? (
+                  <span className="flex items-center gap-2">
+                    Place Order
+                    <ChevronRight className="h-4 w-4" />
+                  </span>
                 ) : (
                   <span className="flex items-center gap-2">
                     Pay {formatINR(total)}
@@ -638,7 +902,9 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
               {/* Trust signal */}
               <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground font-sans">
                 <Lock className="h-3 w-3" />
-                <span>Secured by Razorpay</span>
+                <span>
+                  {paymentMethod === "cod" ? "Secure checkout" : "Secured by Razorpay"}
+                </span>
               </div>
             </div>
           </div>

@@ -13,7 +13,7 @@ export async function RelatedProducts({ category, excludeId }: RelatedProductsPr
   return (
     <section className="mt-20">
       <h2 className="font-display text-3xl font-light text-foreground mb-8">
-        You May Also Like
+        You Can Pair This With
       </h2>
       <div className="grid grid-cols-2 md:grid-cols-4 gap-6">
         {products.map((product) => (

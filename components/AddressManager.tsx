@@ -1,11 +1,148 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { PencilIcon, TrashIcon, PlusIcon, MapPinIcon, StarIcon } from "lucide-react";
+
+// ── India States / UTs ─────────────────────────────────────────────────────────
+
+const INDIA_STATES = [
+  "Andaman and Nicobar Islands",
+  "Andhra Pradesh",
+  "Arunachal Pradesh",
+  "Assam",
+  "Bihar",
+  "Chandigarh",
+  "Chhattisgarh",
+  "Dadra and Nagar Haveli and Daman and Diu",
+  "Delhi",
+  "Goa",
+  "Gujarat",
+  "Haryana",
+  "Himachal Pradesh",
+  "Jammu and Kashmir",
+  "Jharkhand",
+  "Karnataka",
+  "Kerala",
+  "Ladakh",
+  "Lakshadweep",
+  "Madhya Pradesh",
+  "Maharashtra",
+  "Manipur",
+  "Meghalaya",
+  "Mizoram",
+  "Nagaland",
+  "Odisha",
+  "Puducherry",
+  "Punjab",
+  "Rajasthan",
+  "Sikkim",
+  "Tamil Nadu",
+  "Telangana",
+  "Tripura",
+  "Uttar Pradesh",
+  "Uttarakhand",
+  "West Bengal",
+];
+
+// ── StateCombobox ──────────────────────────────────────────────────────────────
+
+interface StateComboboxProps {
+  value: string;
+  onChange: (val: string) => void;
+  error?: string;
+  inputClass?: string;
+}
+
+function StateCombobox({ value, onChange, error, inputClass }: StateComboboxProps) {
+  const [inputValue, setInputValue] = useState(value);
+  const [isOpen, setIsOpen] = useState(false);
+  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  useEffect(() => {
+    setInputValue(value);
+  }, [value]);
+
+  const filtered =
+    inputValue.trim() === ""
+      ? INDIA_STATES
+      : INDIA_STATES.filter((s) =>
+          s.toLowerCase().includes(inputValue.trim().toLowerCase())
+        );
+
+  function handleSelect(state: string) {
+    setInputValue(state);
+    onChange(state);
+    setIsOpen(false);
+  }
+
+  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
+    setInputValue(e.target.value);
+    onChange(e.target.value);
+    setIsOpen(true);
+  }
+
+  function handleBlur() {
+    blurTimerRef.current = setTimeout(() => {
+      const typed = inputValue.trim().toLowerCase();
+      if (typed !== "") {
+        const matches = INDIA_STATES.filter((s) =>
+          s.toLowerCase().includes(typed)
+        );
+        if (matches.length === 1) {
+          setInputValue(matches[0]);
+          onChange(matches[0]);
+        }
+      }
+      setIsOpen(false);
+    }, 150);
+  }
+
+  function handleFocus() {
+    if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
+    setIsOpen(true);
+  }
+
+  return (
+    <div className="relative">
+      <input
+        type="text"
+        value={inputValue}
+        onChange={handleInputChange}
+        onFocus={handleFocus}
+        onBlur={handleBlur}
+        placeholder="Maharashtra"
+        autoComplete="off"
+        aria-invalid={!!error}
+        aria-autocomplete="list"
+        className={inputClass}
+      />
+      {isOpen && filtered.length > 0 && (
+        <ul
+          className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md max-h-52 overflow-y-auto"
+          role="listbox"
+        >
+          {filtered.map((state) => (
+            <li
+              key={state}
+              role="option"
+              aria-selected={state === value}
+              onMouseDown={() => handleSelect(state)}
+              className={`cursor-pointer px-3 py-2 font-sans text-sm text-foreground hover:bg-primary/10 transition-colors ${
+                state === value ? "bg-primary/10 font-medium" : ""
+              }`}
+            >
+              {state}
+            </li>
+          ))}
+        </ul>
+      )}
+    </div>
+  );
+}
 
 // ── Types ──────────────────────────────────────────────────────────────────────
 
@@ -125,6 +262,8 @@ function AddressForm({
   const {
     register,
     handleSubmit,
+    setValue,
+    watch,
     formState: { errors },
   } = useForm<AddressFormValues>({
     resolver: zodResolver(addressSchema),
@@ -138,6 +277,8 @@ function AddressForm({
       ...defaultValues,
     },
   });
+
+  const stateValue = watch("state") ?? "";
 
   const inputClass =
     "w-full rounded-lg border border-input bg-background px-3.5 py-2.5 font-sans text-sm text-foreground placeholder:text-muted-foreground focus:outline-none focus:ring-2 focus:ring-ring/50 transition-shadow";
@@ -190,11 +331,11 @@ function AddressForm({
           <label className={labelClass}>
             State <span className="text-destructive">*</span>
           </label>
-          <input
-            {...register("state")}
-            placeholder="Maharashtra"
-            className={inputClass}
-            aria-invalid={!!errors.state}
+          <StateCombobox
+            value={stateValue}
+            onChange={(val) => setValue("state", val, { shouldValidate: true })}
+            error={errors.state?.message}
+            inputClass={`${inputClass}${errors.state ? " border-red-500" : ""}`}
           />
           {errors.state && <p className={errorClass}>{errors.state.message}</p>}
         </div>

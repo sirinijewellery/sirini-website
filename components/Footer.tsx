@@ -9,7 +9,7 @@ export function Footer() {
         <div className="flex flex-col gap-4 md:col-span-1">
           <div className="font-display-lg text-display-lg text-primary mb-4">Sirini</div>
           <p className="font-body-md text-body-md text-on-surface">
-            © 2024 Sirini Jewellery. Handcrafted with Heritage and Intention.
+            © Sirini Jewellery, Est. 2015. Handcrafted with Heritage and Intention.
           </p>
         </div>
 
