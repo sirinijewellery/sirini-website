@@ -71,6 +71,19 @@ export function selectCardImages(images: string[]): {
   return { primary, hover };
 }
 
+/**
+ * Returns ALL images sorted for the product detail gallery:
+ *   model → main full-set → detail close-ups → other
+ * The first image matches what the shop card shows by default.
+ */
+export function sortAllImages(images: string[]): string[] {
+  const model   = images.filter(isModel);
+  const main    = images.filter(isMain);
+  const detail  = images.filter(isDetailShot);
+  const other   = images.filter(u => !isModel(u) && !isMain(u) && !isDetailShot(u));
+  return [...model, ...main, ...detail, ...other];
+}
+
 /** @deprecated use selectCardImages */
 export function splitModelAndProduct(images: string[]) {
   const { primary, hover } = selectCardImages(images);

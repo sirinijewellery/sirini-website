@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ImageGallery } from "@/components/ImageGallery";
 import { RelatedProducts } from "@/components/RelatedProducts";
 import { getProductBySlug, parseImages } from "@/lib/queries/products";
+import { sortAllImages } from "@/lib/parseImages";
 import ProductDetailClient from "./ProductDetailClient";
 import { ProductJsonLd } from "@/components/ProductJsonLd";
 
@@ -17,7 +18,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const product = await getProductBySlug(slug);
   if (!product) return { title: "Product Not Found" };
 
-  const images = parseImages(product.images);
+  const images = sortAllImages(parseImages(product.images));
   return {
     title: product.name,
     description: product.description.slice(0, 160),
@@ -35,7 +36,8 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) notFound();
 
-  const images = parseImages(product.images);
+  // Sort: model image first (matches shop card default), then full-set, then detail shots
+  const images = sortAllImages(parseImages(product.images));
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">

@@ -207,21 +207,18 @@ export function Navbar() {
                     {/* Mobile nav links */}
                     <nav className="flex flex-col gap-1 mt-6">
                       {navLinks.map((link) => (
-                        <SheetClose
-                          key={link.href}
-                          render={
-                            <Link
-                              href={link.href}
-                              className={`py-3 px-2 font-label-caps text-label-caps font-semibold border-b border-outline-variant transition-colors ${
-                                pathname === link.href
-                                  ? "text-primary"
-                                  : "text-on-surface-variant hover:text-primary"
-                              }`}
-                            >
-                              {link.label}
-                            </Link>
-                          }
-                        />
+                        <SheetClose key={link.href} asChild>
+                          <Link
+                            href={link.href}
+                            className={`py-3 px-2 font-label-caps text-label-caps font-semibold border-b border-outline-variant transition-colors ${
+                              pathname === link.href
+                                ? "text-primary"
+                                : "text-on-surface-variant hover:text-primary"
+                            }`}
+                          >
+                            {link.label}
+                          </Link>
+                        </SheetClose>
                       ))}
                     </nav>
 
@@ -232,15 +229,13 @@ export function Navbar() {
                           <p className="text-sm font-label-caps text-on-surface-variant px-2">
                             Hi, {session.user.name || session.user.email}
                           </p>
-                          <SheetClose
-                            render={
-                              <Link href="/account">
-                                <Button variant="outline" className="w-full font-label-caps text-label-caps">
-                                  My Account
-                                </Button>
-                              </Link>
-                            }
-                          />
+                          <SheetClose asChild>
+                            <Link href="/account">
+                              <Button variant="outline" className="w-full font-label-caps text-label-caps">
+                                My Account
+                              </Button>
+                            </Link>
+                          </SheetClose>
                           <Button
                             variant="ghost"
                             className="w-full font-label-caps text-label-caps"
@@ -251,22 +246,18 @@ export function Navbar() {
                         </>
                       ) : (
                         <>
-                          <SheetClose
-                            render={
-                              <Link href="/login">
-                                <Button className="w-full font-label-caps text-label-caps">Sign In</Button>
-                              </Link>
-                            }
-                          />
-                          <SheetClose
-                            render={
-                              <Link href="/register">
-                                <Button variant="outline" className="w-full font-label-caps text-label-caps">
-                                  Create Account
-                                </Button>
-                              </Link>
-                            }
-                          />
+                          <SheetClose asChild>
+                            <Link href="/login">
+                              <Button className="w-full font-label-caps text-label-caps">Sign In</Button>
+                            </Link>
+                          </SheetClose>
+                          <SheetClose asChild>
+                            <Link href="/register">
+                              <Button variant="outline" className="w-full font-label-caps text-label-caps">
+                                Create Account
+                              </Button>
+                            </Link>
+                          </SheetClose>
                         </>
                       )}
                     </div>
