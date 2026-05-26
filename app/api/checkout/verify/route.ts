@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyRazorpaySignature } from "@/lib/payment";
+import { auth } from "@/lib/auth";
 
 const bodySchema = z.object({
   razorpayOrderId: z.string().min(1),
@@ -33,6 +34,9 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Use server-side session for userId — never trust client-supplied value
+  const session = await auth();
+
   let body: unknown;
   try {
     body = await req.json();
@@ -60,8 +64,10 @@ export async function POST(req: NextRequest) {
     couponCode,
     totalAmount,
     notes,
-    userId,
   } = parsed.data;
+
+  // Always use authenticated session userId — ignore client-supplied value
+  const userId = session?.user?.id ?? null;
 
   // 1. Verify Razorpay signature — proves the payment is authentic
   const isValid = verifyRazorpaySignature(
@@ -101,7 +107,8 @@ export async function POST(req: NextRequest) {
       const now = new Date();
       const notExpired = !coupon.expiresAt || coupon.expiresAt > now;
       const hasUses = coupon.maxUses === null || coupon.usedCount < coupon.maxUses;
-      if (notExpired && hasUses) {
+      const meetsMin = coupon.minOrderAmount === null || recalculatedSubtotal >= coupon.minOrderAmount;
+      if (notExpired && hasUses && meetsMin) {
         if (coupon.discountType === "percentage") {
           recalculatedDiscount = (recalculatedSubtotal * coupon.discountValue) / 100;
         } else {
@@ -126,7 +133,9 @@ export async function POST(req: NextRequest) {
   }
 
   // 5. Write everything atomically — order + stock + coupon in one transaction
-  const order = await prisma.$transaction(async (tx) => {
+  let order: { id: string };
+  try {
+  order = await prisma.$transaction(async (tx) => {
     // Idempotency guard — reject duplicate payment IDs
     const duplicate = await tx.order.findFirst({
       where: { paymentId: razorpayPaymentId },
@@ -162,8 +171,24 @@ export async function POST(req: NextRequest) {
       },
     });
 
+    // Re-check stock inside transaction to prevent race conditions (overselling)
+    const variantItems = items.filter((i) => i.variantId);
+    if (variantItems.length > 0) {
+      const freshVariants = await tx.productVariant.findMany({
+        where: { id: { in: variantItems.map((i) => i.variantId!) } },
+        select: { id: true, stockQuantity: true },
+      });
+      const freshVariantMap = new Map(freshVariants.map((v) => [v.id, v]));
+      for (const item of variantItems) {
+        const fresh = freshVariantMap.get(item.variantId!);
+        if (!fresh || fresh.stockQuantity < item.quantity) {
+          throw new Error(`Insufficient stock for variant ${item.variantId}`);
+        }
+      }
+    }
+
     // Decrement stock for variants
-    for (const item of items.filter((i) => i.variantId)) {
+    for (const item of variantItems) {
       await tx.productVariant.update({
         where: { id: item.variantId! },
         data: { stockQuantity: { decrement: item.quantity } },
@@ -180,6 +205,13 @@ export async function POST(req: NextRequest) {
 
     return newOrder;
   });
+  } catch (err) {
+    const msg = err instanceof Error ? err.message : "Order creation failed";
+    if (msg.includes("Insufficient stock")) {
+      return NextResponse.json({ error: "Sorry, an item went out of stock. Please update your cart." }, { status: 409 });
+    }
+    throw err; // re-throw unexpected errors
+  }
 
   return NextResponse.json({ orderId: order.id });
 }

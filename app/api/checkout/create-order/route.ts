@@ -70,7 +70,7 @@ export async function POST(req: NextRequest) {
     variantIds.length > 0
       ? await prisma.productVariant.findMany({
           where: { id: { in: variantIds } },
-          select: { id: true, stockQuantity: true },
+          select: { id: true, stockQuantity: true, productId: true },
         })
       : [];
   const variantMap = new Map(variants.map((v) => [v.id, v]));
@@ -81,6 +81,13 @@ export async function POST(req: NextRequest) {
       if (!variant) {
         return NextResponse.json(
           { error: `Variant not found for product ${item.productId}` },
+          { status: 400 }
+        );
+      }
+      // Bug fix: ensure the variant actually belongs to the requested product
+      if (variant.productId !== item.productId) {
+        return NextResponse.json(
+          { error: "Invalid variant for product" },
           { status: 400 }
         );
       }
