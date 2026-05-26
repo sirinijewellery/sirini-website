@@ -2,8 +2,10 @@
 // Warm-editorial: full-bleed photography with bottom gradient overlay,
 // centered serif headline with staggered animate-slide-up-fade entrance.
 
+// Cloudinary crop: w_1920,h_900,c_fill,g_auto — fills the hero at any viewport
+// while auto-centering on the subject (face/jewellery detection).
 const HERO_IMAGE_URL =
-  "https://lh3.googleusercontent.com/aida-public/AB6AXuAWMaEqByOBVCNBeLpz8JVfjZe42ddTRzhPtx_S3NX-4jF925KUeWSjokorfppTntnV9d5gqvqGk6UQIQzX7dfrbXW0qgW3-Ugk3-cc1FIFeI7WL_UKg708SJpysn5PHSdPCgsJPG2tdImvDRcqndOL4okEn-teGjqN0XU7f95baeTQMuVtDtin2vNuts18RxyRc67TKBpRCrQnB19v3gZJIedA6FU-_yRWIImNsy7npP7NCiSo2KbuwLMTKCqzrbJCyfad2EM4J-6s";
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1920,h_900,c_fill,g_auto/v1779795103/sirini-jewellery/10ns787/10NS787-11225-Model.jpg";
 
 export function HeroSection() {
   return (
