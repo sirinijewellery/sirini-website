@@ -48,7 +48,7 @@ export function Navbar() {
 
       {/* Sticky header */}
       <header className="bg-background/90 backdrop-blur-md w-full top-0 sticky z-50">
-        <div className="flex justify-between items-center w-full px-6 md:px-16 py-6 max-w-screen-2xl mx-auto">
+        <div className="flex justify-between items-center w-full px-6 md:px-16 py-2 max-w-screen-2xl mx-auto">
 
           {/* Logo */}
           <Link href="/" aria-label="Sirini Jewellery — Home">
@@ -57,18 +57,18 @@ export function Navbar() {
               alt="Sirini Jewellery"
               width={500}
               height={500}
-              className="h-14 w-auto object-contain"
+              className="h-20 w-auto object-contain"
               priority
             />
           </Link>
 
           {/* Desktop nav — centered absolutely */}
-          <nav className="hidden md:flex gap-6 items-center absolute left-1/2 -translate-x-1/2">
+          <nav className="hidden md:flex gap-8 items-center absolute left-1/2 -translate-x-1/2">
             {navLinks.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-label-caps text-label-caps font-semibold transition-colors duration-300 ${
+                className={`font-label-caps text-sm font-semibold tracking-widest uppercase transition-colors duration-300 ${
                   pathname === link.href
                     ? "text-primary border-b border-primary/30 pb-1"
                     : "text-on-surface-variant hover:text-primary"
@@ -99,7 +99,7 @@ export function Navbar() {
                     className="text-primary hover:scale-[1.02] transition-all duration-300"
                     aria-label="Close search"
                   >
-                    <X className="h-5 w-5" />
+                    <X className="h-6 w-6" />
                   </button>
                 </form>
               ) : (
@@ -108,7 +108,7 @@ export function Navbar() {
                   className="text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
                   aria-label="Search"
                 >
-                  <Search className="h-5 w-5" />
+                  <Search className="h-6 w-6" />
                 </button>
               )}
 
@@ -118,7 +118,7 @@ export function Navbar() {
                 className="text-primary hover:scale-[1.02] transition-all duration-300"
                 aria-label="Wishlist"
               >
-                <Heart className="h-5 w-5" />
+                <Heart className="h-6 w-6" />
               </Link>
 
               {/* Account — desktop only */}
@@ -129,7 +129,7 @@ export function Navbar() {
                       className="text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
                       aria-label="Account"
                     >
-                      <User className="h-5 w-5" />
+                      <User className="h-6 w-6" />
                     </button>
                     {/* Dropdown */}
                     <div className="absolute right-0 top-full mt-2 w-48 border border-outline-variant bg-background shadow-md opacity-0 invisible group-hover:opacity-100 group-hover:visible transition-all duration-200 z-50">
@@ -168,7 +168,7 @@ export function Navbar() {
                     className="text-primary hover:scale-[1.02] transition-all duration-300"
                     aria-label="Sign in"
                   >
-                    <User className="h-5 w-5" />
+                    <User className="h-6 w-6" />
                   </Link>
                 )}
               </div>
@@ -179,7 +179,7 @@ export function Navbar() {
                 className="relative text-primary hover:scale-[1.02] transition-all duration-300"
                 aria-label="Cart"
               >
-                <ShoppingBag className="h-5 w-5" />
+                <ShoppingBag className="h-6 w-6" />
                 <CartBadge />
               </Link>
 
@@ -189,7 +189,7 @@ export function Navbar() {
                   className="md:hidden text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
                   aria-label="Menu"
                 >
-                  <Menu className="h-5 w-5" />
+                  <Menu className="h-6 w-6" />
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72 bg-background">
                   <div className="flex flex-col h-full">
@@ -200,7 +200,7 @@ export function Navbar() {
                         alt="Sirini Jewellery"
                         width={500}
                         height={500}
-                        className="h-12 w-auto object-contain"
+                        className="h-16 w-auto object-contain"
                       />
                     </div>
 
