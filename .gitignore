@@ -51,4 +51,8 @@ sirini-claude-code-prompt.md
 *.tsbuildinfo
 next-env.d.ts
 
+# SQLite (old dev database, not used — project runs on Neon PostgreSQL)
+*.db
+*.db-journal
+
 /lib/generated/prisma
