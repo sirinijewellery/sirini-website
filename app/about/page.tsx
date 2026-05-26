@@ -1,90 +1,141 @@
-import { Separator } from "@/components/ui/separator";
+import Image from "next/image";
 import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { pageMetadata } from "@/lib/seo";
 
 export const metadata = pageMetadata(
   "Our Story — Sirini Jewellery",
-  "Born in Mumbai, Sirini Jewellery blends traditional craftsmanship with modern style. Discover our story.",
+  "Born in Mumbai in 2015, Sirini Jewellery blends traditional craftsmanship with modern elegance. A family. A craft. A promise.",
 );
+
+// Hero: necklace model shot — cropped chest-up to show the jewellery clearly
+const HERO_IMAGE =
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1400,h_800,c_fill,g_center,y_80/v1779795103/sirini-jewellery/10ns787/10NS787-11225-Model.jpg";
+
+// Artisan at the workshop
+const ARTISAN_IMAGE =
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/v1779797844/sirini-jewellery/brand/artisan-workshop.jpg";
 
 export default function AboutPage() {
   return (
-    <div className="max-w-4xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
-      {/* Hero */}
-      <div className="text-center mb-16">
-        <p className="font-sans text-xs uppercase tracking-[0.25em] text-primary mb-4">Our Story</p>
-        <h1 className="font-display text-5xl md:text-6xl font-light text-foreground leading-tight">
-          Born from a love of jewellery
-        </h1>
-        <p className="font-sans text-base md:text-lg text-muted-foreground mt-6 max-w-2xl mx-auto leading-relaxed">
-          Sirini Jewellery is a Mumbai-based fashion jewellery brand dedicated to creating elegant,
-          accessible pieces that help every woman express her unique style.
-        </p>
-      </div>
+    <div className="bg-background text-on-surface">
 
-      <Separator className="mb-16" />
+      {/* ── Hero ──────────────────────────────────────────────────── */}
+      <section className="relative w-full h-[70vh] min-h-[500px] overflow-hidden">
+        <Image
+          src={HERO_IMAGE}
+          alt="Model wearing Sirini jewellery"
+          fill
+          priority
+          className="object-cover object-center"
+          sizes="100vw"
+        />
+        {/* Gradient overlay */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+        {/* Headline over image */}
+        <div className="absolute bottom-0 left-0 right-0 px-6 md:px-16 pb-16 max-w-screen-2xl mx-auto">
+          <p className="font-label-caps text-label-caps tracking-[0.25em] text-primary mb-3 uppercase">
+            Since 2015
+          </p>
+          <h1 className="font-display-lg text-display-lg md:text-[56px] md:leading-[1.1] text-on-surface max-w-2xl">
+            A Family. A Craft. A Promise.
+          </h1>
+        </div>
+      </section>
 
-      {/* Story sections */}
-      <div className="space-y-16">
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-          <div>
-            <h2 className="font-display text-3xl font-light text-foreground mb-4">
-              Crafted with intention
-            </h2>
-            <p className="font-sans text-sm leading-relaxed text-muted-foreground">
-              Every piece in the Sirini collection is thoughtfully designed to complement the modern Indian woman
-              — versatile enough for everyday wear, special enough for celebrations. We believe jewellery is
-              more than an accessory; it&apos;s a form of self-expression.
+      {/* ── Intro ─────────────────────────────────────────────────── */}
+      <section className="py-20 px-6 md:px-16 max-w-screen-2xl mx-auto">
+        <div className="max-w-2xl">
+          <p className="font-label-caps text-label-caps tracking-widest text-primary uppercase mb-4">
+            The Story
+          </p>
+          <h2 className="font-headline-lg text-headline-lg text-on-surface mb-6">
+            The Mumbai Workshop
+          </h2>
+          <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed mb-4">
+            Sirini Jewellery was born in the bustling lanes of Mumbai in 2015 — not in a factory,
+            but at a family workbench. What started as a passion for preserving traditional
+            goldsmithing techniques grew into a brand worn by women across India.
+          </p>
+          <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+            Every piece we create carries the fingerprints of artisans who have inherited their craft
+            across generations. We do not cut corners — we cut metal, shape wire, and set stones
+            the way it has always been done: with patience, skill, and love.
+          </p>
+        </div>
+      </section>
+
+      {/* ── Artisan image + Materials ──────────────────────────────── */}
+      <section className="py-0 pb-24 px-6 md:px-16 max-w-screen-2xl mx-auto">
+        <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
+          {/* Artisan image */}
+          <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
+            <Image
+              src={ARTISAN_IMAGE}
+              alt="Artisan crafting jewellery at the Mumbai workshop"
+              fill
+              className="object-cover"
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </div>
+
+          {/* Materials text */}
+          <div className="flex flex-col gap-6">
+            <p className="font-label-caps text-label-caps tracking-widest text-primary uppercase">
+              Materials &amp; Intention
             </p>
-          </div>
-          <div className="aspect-square rounded-2xl bg-blush flex items-center justify-center">
-            <span className="font-display text-8xl text-primary opacity-20">S</span>
-          </div>
-        </div>
-
-        <div className="grid grid-cols-1 md:grid-cols-2 gap-8 md:gap-12 items-center">
-          <div className="order-2 md:order-1 aspect-square rounded-2xl bg-muted flex items-center justify-center">
-            <span className="font-display text-8xl text-primary opacity-20">✦</span>
-          </div>
-          <div className="order-1 md:order-2">
-            <h2 className="font-display text-3xl font-light text-foreground mb-4">
-              Quality you can feel
+            <h2 className="font-headline-lg text-headline-lg text-on-surface">
+              Crafted to Last
             </h2>
-            <p className="font-sans text-sm leading-relaxed text-muted-foreground">
-              We source only high-quality materials — from gleaming gold-tone and rose-gold plating to
-              intricate Kundan, Meenakari, and oxidised silver work. Each piece is carefully finished
-              to ensure it looks and feels beautiful from the first wear.
+            <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              Sirini uses only ethically sourced materials — from gleaming 22kt gold plating
+              and intricate Kundan stonework to hand-painted Meenakari enamel and premium
+              oxidised silver. Every material is chosen for how it wears, not just how it looks.
             </p>
+            <ul className="space-y-3">
+              {[
+                "Ethically sourced gold &amp; silver plating",
+                "Hand-set Kundan &amp; Meenakari stones",
+                "Rigorous quality checks before dispatch",
+              ].map((item) => (
+                <li key={item} className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
+                  <span className="text-primary mt-1">✦</span>
+                  <span dangerouslySetInnerHTML={{ __html: item }} />
+                </li>
+              ))}
+            </ul>
           </div>
         </div>
+      </section>
 
-        {/* Values */}
-        <div className="bg-muted/30 rounded-2xl p-8 md:p-12">
-          <h2 className="font-display text-3xl font-light text-foreground text-center mb-10">What we stand for</h2>
-          <div className="grid grid-cols-1 sm:grid-cols-3 gap-6 md:gap-8 text-center">
-            {[
-              { icon: "💎", title: "Quality First", desc: "Every piece passes quality checks before it reaches you." },
-              { icon: "🎁", title: "Thoughtful Gifting", desc: "Beautiful packaging — ready to give as a gift." },
-              { icon: "🌸", title: "Indian Heritage", desc: "Designs rooted in India's rich jewellery tradition." },
-            ].map((v) => (
-              <div key={v.title} className="space-y-3">
-                <span className="text-3xl">{v.icon}</span>
-                <h3 className="font-display text-xl text-foreground">{v.title}</h3>
-                <p className="font-sans text-xs text-muted-foreground leading-relaxed">{v.desc}</p>
-              </div>
-            ))}
-          </div>
+      {/* ── Values strip ──────────────────────────────────────────── */}
+      <section className="bg-surface-container py-20 px-6 md:px-16">
+        <div className="max-w-screen-2xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-12 text-center">
+          {[
+            { title: "Quality First", body: "Every piece passes hands-on quality inspection before it reaches you." },
+            { title: "Heritage Craft", body: "Techniques passed down through generations of Mumbai artisans." },
+            { title: "Thoughtful Gifting", body: "Beautiful packaging — every order is gift-ready from the box." },
+          ].map((v) => (
+            <div key={v.title}>
+              <h3 className="font-headline-md text-headline-md text-on-surface mb-3">{v.title}</h3>
+              <p className="font-body-md text-body-md text-on-surface-variant">{v.body}</p>
+            </div>
+          ))}
         </div>
-      </div>
+      </section>
 
-      {/* CTA */}
-      <div className="text-center mt-16">
-        <h2 className="font-display text-3xl font-light text-foreground mb-4">Ready to find your piece?</h2>
-        <Link href="/shop">
-          <Button size="lg" className="font-sans h-12 px-8">Shop the Collection</Button>
+      {/* ── CTA ───────────────────────────────────────────────────── */}
+      <section className="py-24 px-6 md:px-16 text-center max-w-screen-2xl mx-auto">
+        <h2 className="font-headline-lg text-headline-lg text-on-surface mb-6">
+          Find your piece of heritage.
+        </h2>
+        <Link
+          href="/shop"
+          className="inline-flex items-center justify-center px-8 py-4 bg-primary text-on-primary font-label-caps text-label-caps font-semibold hover:bg-on-primary-fixed-variant transition-colors duration-300"
+        >
+          Shop the Collection
         </Link>
-      </div>
+      </section>
+
     </div>
   );
 }

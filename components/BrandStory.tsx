@@ -8,7 +8,7 @@ export function BrandStory() {
         {/* Image */}
         <div className="aspect-square bg-surface-container relative overflow-hidden border border-outline-variant/50 p-4">
           <Image
-            src="https://lh3.googleusercontent.com/aida-public/AB6AXuAlM7I9r_cJpTM5mqDVrAyXaM5WNbm7fF7ZHNdscda4WitmKxj6B-TuRxJrBRQGNamyB6coqBv_1sjEmybPNfyRzGXFgk8ttHWkXY4bbYzVgsvPeVFoPX6T8EAaQz7S4QmrBFSXhbzotPHgdkzyDB0ixKyDI2yavaK0plibHw8ytsfzoPex9-vPfZGcD20dVWR8OydBcR-rVOJvewtjX3AnrTMbmHb80nVFWNlwV0c0Ia1YfBqIhxr76XLcwnVMZiEYJ_cIuLdal6rl"
+            src="https://res.cloudinary.com/dp8a2lvxg/image/upload/v1779797844/sirini-jewellery/brand/artisan-workshop.jpg"
             alt="Artisan crafting jewellery"
             fill
             className="object-cover"
@@ -30,7 +30,7 @@ export function BrandStory() {
             href="/about"
             className="inline-flex items-center gap-2 font-label-caps text-label-caps font-semibold text-primary hover:text-on-primary-fixed-variant transition-colors w-fit border-b border-primary/30 pb-1 hover:border-primary"
           >
-            Read Our Story
+            Our Story →
             <svg xmlns="http://www.w3.org/2000/svg" width="16" height="16" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true"><line x1="5" y1="12" x2="19" y2="12"/><polyline points="12 5 19 12 12 19"/></svg>
           </Link>
         </div>
