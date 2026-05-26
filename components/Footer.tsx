@@ -1,13 +1,23 @@
 // Server component — static footer matching Stitch HTML exactly.
 // 4-column grid: Brand, Legal, Customer Care, Connect (Instagram + Email icons).
 
+import Image from "next/image";
+
 export function Footer() {
   return (
     <footer className="bg-surface-container">
       <div className="grid grid-cols-1 md:grid-cols-4 gap-6 px-16 py-[120px] w-full max-w-screen-2xl mx-auto">
         {/* Brand Column */}
         <div className="flex flex-col gap-4 md:col-span-1">
-          <div className="font-display-lg text-display-lg text-primary mb-4">Sirini</div>
+          <div className="mb-2">
+            <Image
+              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/sirini-jewellery/logo.jpg"
+              alt="Sirini Jewellery"
+              width={500}
+              height={500}
+              className="h-16 w-auto object-contain"
+            />
+          </div>
           <p className="font-body-md text-body-md text-on-surface">
             © Sirini Jewellery, Est. 2015. Handcrafted with Heritage and Intention.
           </p>

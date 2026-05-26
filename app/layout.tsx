@@ -23,7 +23,14 @@ const dmSans = DM_Sans({
   display: "swap",
 });
 
-export const metadata = baseMetadata();
+export const metadata = {
+  ...baseMetadata(),
+  icons: {
+    icon: "/logo.jpeg",
+    shortcut: "/logo.jpeg",
+    apple: "/logo.jpeg",
+  },
+};
 
 export default function RootLayout({
   children,

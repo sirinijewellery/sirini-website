@@ -1,6 +1,7 @@
 "use client";
 
 import Link from "next/link";
+import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
@@ -50,12 +51,16 @@ export function Navbar() {
         <div className="flex justify-between items-center w-full px-6 md:px-16 py-6 max-w-screen-2xl mx-auto">
 
           {/* Logo */}
-          <a
-            className="font-display-lg text-display-lg text-primary tracking-tight cursor-pointer"
-            href="/"
-          >
-            Sirini
-          </a>
+          <Link href="/" aria-label="Sirini Jewellery — Home">
+            <Image
+              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/sirini-jewellery/logo.jpg"
+              alt="Sirini Jewellery"
+              width={500}
+              height={500}
+              className="h-14 w-auto object-contain"
+              priority
+            />
+          </Link>
 
           {/* Desktop nav — centered absolutely */}
           <nav className="hidden md:flex gap-6 items-center absolute left-1/2 -translate-x-1/2">
@@ -189,8 +194,14 @@ export function Navbar() {
                 <SheetContent side="right" className="w-72 bg-background">
                   <div className="flex flex-col h-full">
                     {/* Mobile logo */}
-                    <div className="font-display-lg text-headline-lg text-primary tracking-tight py-2">
-                      Sirini
+                    <div className="py-2">
+                      <Image
+                        src="https://res.cloudinary.com/dp8a2lvxg/image/upload/sirini-jewellery/logo.jpg"
+                        alt="Sirini Jewellery"
+                        width={500}
+                        height={500}
+                        className="h-12 w-auto object-contain"
+                      />
                     </div>
 
                     {/* Mobile nav links */}
