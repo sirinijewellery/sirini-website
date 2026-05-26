@@ -1,0 +1,649 @@
+"use client";
+
+import { useState, useEffect } from "react";
+import { useForm } from "react-hook-form";
+import { zodResolver } from "@hookform/resolvers/zod";
+import { z } from "zod";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Script from "next/script";
+import Image from "next/image";
+import Link from "next/link";
+import { toast } from "sonner";
+import { useCartStore } from "@/lib/store/cart";
+import { trackCheckoutStarted, trackPurchaseCompleted } from "@/lib/analytics";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Label } from "@/components/ui/label";
+import { Textarea } from "@/components/ui/textarea";
+import { Separator } from "@/components/ui/separator";
+import { ShoppingBag, MapPin, Lock, ChevronRight } from "lucide-react";
+
+/* ── Types ──────────────────────────────────────────────────────────── */
+
+interface Address {
+  id: string;
+  label: string | null;
+  line1: string;
+  city: string;
+  state: string;
+  pincode: string;
+  isDefault: boolean;
+}
+
+interface CheckoutFormProps {
+  savedAddresses: Address[];
+}
+
+declare global {
+  interface Window {
+    Razorpay: new (options: Record<string, unknown>) => { open: () => void };
+  }
+}
+
+/* ── Zod schema ─────────────────────────────────────────────────────── */
+
+const checkoutSchema = z.object({
+  customerName: z.string().min(1, "Full name is required"),
+  customerEmail: z.string().email("Enter a valid email address"),
+  customerPhone: z.string().regex(/^\d{10}$/, "Phone must be exactly 10 digits"),
+  line1: z.string().min(1, "Street address is required"),
+  city: z.string().min(1, "City is required"),
+  state: z.string().min(1, "State is required"),
+  pincode: z.string().regex(/^\d{6}$/, "Pincode must be 6 digits"),
+  label: z.string().optional(),
+  notes: z.string().optional(),
+});
+
+type CheckoutFields = z.infer<typeof checkoutSchema>;
+
+/* ── Helpers ─────────────────────────────────────────────────────────── */
+
+function formatINR(price: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+  }).format(price);
+}
+
+/* ── Component ───────────────────────────────────────────────────────── */
+
+export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
+  const router = useRouter();
+  const { data: session } = useSession();
+  const { items, getTotal, appliedCoupon, clearCart } = useCartStore();
+
+  const [selectedSavedId, setSelectedSavedId] = useState<string | "new">(
+    savedAddresses.length > 0 ? savedAddresses[0].id : "new"
+  );
+  const [isLoading, setIsLoading] = useState(false);
+
+  const subtotal = getTotal();
+  const discount = appliedCoupon?.discountAmount ?? 0;
+  const total = Math.max(0, subtotal - discount);
+
+  const {
+    register,
+    handleSubmit,
+    setValue,
+    reset,
+    formState: { errors },
+  } = useForm<CheckoutFields>({
+    resolver: zodResolver(checkoutSchema),
+    defaultValues: {
+      customerName: "",
+      customerEmail: "",
+    },
+  });
+
+  // Session may resolve after mount — backfill name/email once available
+  useEffect(() => {
+    if (session?.user) {
+      reset((prev) => ({
+        ...prev,
+        customerName: prev.customerName || session.user!.name || "",
+        customerEmail: prev.customerEmail || session.user!.email || "",
+      }));
+    }
+  }, [session?.user?.id, reset]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // When user picks a saved address, populate the hidden form fields
+  function selectSavedAddress(addr: Address) {
+    setSelectedSavedId(addr.id);
+    setValue("line1", addr.line1);
+    setValue("city", addr.city);
+    setValue("state", addr.state);
+    setValue("pincode", addr.pincode);
+    setValue("label", addr.label ?? "");
+  }
+
+  async function onSubmit(values: CheckoutFields) {
+    if (items.length === 0) {
+      toast.error("Your cart is empty");
+      return;
+    }
+
+    setIsLoading(true);
+
+    const address = {
+      line1: values.line1,
+      city: values.city,
+      state: values.state,
+      pincode: values.pincode,
+      label: values.label,
+    };
+
+    // Step 1 — create Razorpay order on server
+    let orderData: {
+      razorpayOrderId: string;
+      amount: number;
+      discountAmount: number;
+      keyId: string;
+    };
+
+    try {
+      const res = await fetch("/api/checkout/create-order", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          items: items.map((item) => ({
+            productId: item.productId,
+            variantId: item.variantId,
+            quantity: item.quantity,
+          })),
+          address,
+          customerName: values.customerName,
+          customerEmail: values.customerEmail,
+          customerPhone: values.customerPhone,
+          couponCode: appliedCoupon?.code,
+          notes: values.notes,
+          savedAddressId:
+            selectedSavedId !== "new" ? selectedSavedId : undefined,
+        }),
+      });
+
+      const data = await res.json();
+
+      if (!res.ok) {
+        toast.error(data.error ?? "Failed to initiate payment");
+        setIsLoading(false);
+        return;
+      }
+
+      orderData = data;
+    } catch {
+      toast.error("Network error. Please check your connection and try again.");
+      setIsLoading(false);
+      return;
+    }
+
+    // Step 2 — open Razorpay modal
+    if (typeof window.Razorpay === "undefined") {
+      toast.error("Payment system is not ready yet. Please wait a moment and try again.");
+      setIsLoading(false);
+      return;
+    }
+
+    let rzp: { open: () => void };
+    try {
+      rzp = new window.Razorpay({
+      key: orderData.keyId,
+      order_id: orderData.razorpayOrderId,
+      amount: Math.round(orderData.amount * 100),
+      currency: "INR",
+      name: "Sirini Jewellery",
+      description: "Thank you for shopping with us",
+      prefill: {
+        name: values.customerName,
+        email: values.customerEmail,
+        contact: values.customerPhone,
+      },
+      theme: { color: "#B76E79" },
+
+      handler: async (response: {
+        razorpay_payment_id: string;
+        razorpay_order_id: string;
+        razorpay_signature: string;
+      }) => {
+        // Step 3 — verify payment + write order to DB
+        try {
+          const verifyRes = await fetch("/api/checkout/verify", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              razorpayOrderId: response.razorpay_order_id,
+              razorpayPaymentId: response.razorpay_payment_id,
+              razorpaySignature: response.razorpay_signature,
+              items: items.map((item) => ({
+                productId: item.productId,
+                variantId: item.variantId,
+                quantity: item.quantity,
+                priceAtPurchase: item.price,
+              })),
+              address,
+              customerName: values.customerName,
+              customerEmail: values.customerEmail,
+              customerPhone: values.customerPhone,
+              couponCode: appliedCoupon?.code,
+              discountAmount: orderData.discountAmount,
+              totalAmount: orderData.amount,
+              notes: values.notes,
+              userId: session?.user?.id,
+            }),
+          });
+
+          const verifyData = await verifyRes.json();
+
+          if (!verifyRes.ok) {
+            toast.error(verifyData.error ?? "Payment verification failed");
+            setIsLoading(false);
+            return;
+          }
+
+          clearCart();
+          trackPurchaseCompleted(verifyData.orderId, orderData.amount);
+          router.push(`/order-confirmation?orderId=${verifyData.orderId}`);
+        } catch {
+          toast.error("Payment succeeded but we couldn't confirm your order. Please contact support.");
+          setIsLoading(false);
+        }
+      },
+
+      modal: {
+        ondismiss: () => {
+          setIsLoading(false);
+          // Notify failed endpoint (fire and forget)
+          fetch("/api/checkout/failed", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({ razorpayOrderId: orderData.razorpayOrderId }),
+          }).catch(() => {});
+        },
+      },
+      });
+      rzp.open();
+      trackCheckoutStarted(total);
+    } catch {
+      toast.error("Failed to open payment window. Please refresh and try again.");
+      setIsLoading(false);
+    }
+  }
+
+  /* ── Empty cart guard ─────────────────────────────────────────────── */
+  if (items.length === 0) {
+    return (
+      <div className="py-24 text-center space-y-4">
+        <div className="w-20 h-20 rounded-full bg-muted flex items-center justify-center mx-auto">
+          <ShoppingBag className="h-10 w-10 text-muted-foreground" />
+        </div>
+        <p className="font-display text-2xl font-light text-foreground">Your cart is empty</p>
+        <p className="font-sans text-muted-foreground text-sm">Add items before checking out.</p>
+        <Link href="/shop">
+          <Button className="mt-2">Browse Collection</Button>
+        </Link>
+      </div>
+    );
+  }
+
+  /* ── Main form ────────────────────────────────────────────────────── */
+  return (
+    <>
+      {/* Razorpay checkout.js — loaded once */}
+      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
+
+      <form onSubmit={handleSubmit(onSubmit)}>
+        <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 items-start">
+          {/* ── LEFT COLUMN ─────────────────────────────────────────── */}
+          <div className="flex-1 min-w-0 space-y-10">
+
+            {/* Contact details */}
+            <section>
+              <h2 className="font-display text-2xl font-light text-foreground mb-5">
+                Contact Details
+              </h2>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                {/* Full name */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="customerName">Full Name</Label>
+                  <Input
+                    id="customerName"
+                    placeholder="e.g. Priya Sharma"
+                    aria-invalid={!!errors.customerName}
+                    {...register("customerName")}
+                  />
+                  {errors.customerName && (
+                    <p className="text-xs text-destructive font-sans">{errors.customerName.message}</p>
+                  )}
+                </div>
+
+                {/* Phone */}
+                <div className="space-y-1.5">
+                  <Label htmlFor="customerPhone">Mobile Number</Label>
+                  <Input
+                    id="customerPhone"
+                    type="tel"
+                    inputMode="numeric"
+                    placeholder="10-digit number"
+                    maxLength={10}
+                    aria-invalid={!!errors.customerPhone}
+                    {...register("customerPhone")}
+                  />
+                  {errors.customerPhone && (
+                    <p className="text-xs text-destructive font-sans">{errors.customerPhone.message}</p>
+                  )}
+                </div>
+
+                {/* Email — full width */}
+                <div className="space-y-1.5 sm:col-span-2">
+                  <Label htmlFor="customerEmail">Email Address</Label>
+                  <Input
+                    id="customerEmail"
+                    type="email"
+                    placeholder="you@example.com"
+                    aria-invalid={!!errors.customerEmail}
+                    {...register("customerEmail")}
+                  />
+                  {errors.customerEmail && (
+                    <p className="text-xs text-destructive font-sans">{errors.customerEmail.message}</p>
+                  )}
+                </div>
+              </div>
+            </section>
+
+            <Separator />
+
+            {/* Shipping address */}
+            <section>
+              <div className="flex items-center gap-2 mb-5">
+                <MapPin className="h-4 w-4 text-primary" />
+                <h2 className="font-display text-2xl font-light text-foreground">
+                  Shipping Address
+                </h2>
+              </div>
+
+              {/* Saved address picker */}
+              {savedAddresses.length > 0 && (
+                <div className="space-y-3 mb-6">
+                  {savedAddresses.map((addr) => (
+                    <label
+                      key={addr.id}
+                      className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
+                        selectedSavedId === addr.id
+                          ? "border-primary bg-blush/30"
+                          : "border-border hover:border-primary/50"
+                      }`}
+                      onClick={() => selectSavedAddress(addr)}
+                    >
+                      <input
+                        type="radio"
+                        name="savedAddress"
+                        value={addr.id}
+                        checked={selectedSavedId === addr.id}
+                        onChange={() => selectSavedAddress(addr)}
+                        className="mt-0.5 accent-primary"
+                      />
+                      <div className="flex-1 min-w-0">
+                        {addr.label && (
+                          <span className="text-xs font-sans font-semibold text-primary uppercase tracking-wide">
+                            {addr.label}
+                          </span>
+                        )}
+                        <p className="font-sans text-sm text-foreground mt-0.5">
+                          {addr.line1}, {addr.city}, {addr.state} — {addr.pincode}
+                        </p>
+                      </div>
+                    </label>
+                  ))}
+
+                  {/* New address option */}
+                  <label
+                    className={`flex items-center gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
+                      selectedSavedId === "new"
+                        ? "border-primary bg-blush/30"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                    onClick={() => setSelectedSavedId("new")}
+                  >
+                    <input
+                      type="radio"
+                      name="savedAddress"
+                      value="new"
+                      checked={selectedSavedId === "new"}
+                      onChange={() => setSelectedSavedId("new")}
+                      className="accent-primary"
+                    />
+                    <span className="font-sans text-sm text-foreground">Use a new address</span>
+                  </label>
+                </div>
+              )}
+
+              {/* Address form — shown when "new" or no saved addresses */}
+              {(selectedSavedId === "new" || savedAddresses.length === 0) && (
+                <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+                  {/* Street address — full width */}
+                  <div className="space-y-1.5 sm:col-span-2">
+                    <Label htmlFor="line1">Street Address</Label>
+                    <Input
+                      id="line1"
+                      placeholder="Flat/House no., Street, Area"
+                      aria-invalid={!!errors.line1}
+                      {...register("line1")}
+                    />
+                    {errors.line1 && (
+                      <p className="text-xs text-destructive font-sans">{errors.line1.message}</p>
+                    )}
+                  </div>
+
+                  {/* City */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="city">City</Label>
+                    <Input
+                      id="city"
+                      placeholder="Mumbai"
+                      aria-invalid={!!errors.city}
+                      {...register("city")}
+                    />
+                    {errors.city && (
+                      <p className="text-xs text-destructive font-sans">{errors.city.message}</p>
+                    )}
+                  </div>
+
+                  {/* State */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="state">State</Label>
+                    <Input
+                      id="state"
+                      placeholder="Maharashtra"
+                      aria-invalid={!!errors.state}
+                      {...register("state")}
+                    />
+                    {errors.state && (
+                      <p className="text-xs text-destructive font-sans">{errors.state.message}</p>
+                    )}
+                  </div>
+
+                  {/* Pincode */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="pincode">Pincode</Label>
+                    <Input
+                      id="pincode"
+                      type="text"
+                      inputMode="numeric"
+                      placeholder="400001"
+                      maxLength={6}
+                      aria-invalid={!!errors.pincode}
+                      {...register("pincode")}
+                    />
+                    {errors.pincode && (
+                      <p className="text-xs text-destructive font-sans">{errors.pincode.message}</p>
+                    )}
+                  </div>
+
+                  {/* Label (optional) */}
+                  <div className="space-y-1.5">
+                    <Label htmlFor="label">
+                      Address Label{" "}
+                      <span className="text-muted-foreground font-normal">(optional)</span>
+                    </Label>
+                    <Input
+                      id="label"
+                      placeholder="Home / Office / Other"
+                      {...register("label")}
+                    />
+                  </div>
+                </div>
+              )}
+            </section>
+
+            <Separator />
+
+            {/* Order notes */}
+            <section>
+              <h2 className="font-display text-2xl font-light text-foreground mb-5">
+                Order Notes
+              </h2>
+              <div className="space-y-1.5">
+                <Label htmlFor="notes">
+                  Special Instructions{" "}
+                  <span className="text-muted-foreground font-normal">(optional)</span>
+                </Label>
+                <Textarea
+                  id="notes"
+                  placeholder="Gift wrapping request, delivery instructions, etc."
+                  className="resize-none min-h-24"
+                  {...register("notes")}
+                />
+              </div>
+            </section>
+          </div>
+
+          {/* ── RIGHT COLUMN — Order Summary (sticky) ───────────────── */}
+          <div className="w-full lg:w-[360px] shrink-0">
+            <div className="rounded-xl border border-border bg-card p-6 space-y-5 lg:sticky lg:top-24">
+              <h2 className="font-display text-2xl font-light text-foreground">
+                Order Summary
+              </h2>
+
+              {/* Items list */}
+              <div className="space-y-4">
+                {items.map((item) => (
+                  <div
+                    key={`${item.productId}-${item.variantId ?? "default"}`}
+                    className="flex gap-3 items-start"
+                  >
+                    <div className="relative w-14 h-14 rounded-lg overflow-hidden bg-muted shrink-0">
+                      {item.image ? (
+                        <Image
+                          src={item.image}
+                          alt={item.name}
+                          fill
+                          sizes="56px"
+                          className="object-cover"
+                        />
+                      ) : (
+                        <div className="w-full h-full flex items-center justify-center bg-blush">
+                          <span className="font-display text-primary text-lg font-light">S</span>
+                        </div>
+                      )}
+                    </div>
+                    <div className="flex-1 min-w-0">
+                      <p className="font-sans text-sm font-medium text-foreground leading-tight line-clamp-2">
+                        {item.name}
+                      </p>
+                      {(item.size || item.colour) && (
+                        <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                          {[item.size, item.colour].filter(Boolean).join(" · ")}
+                        </p>
+                      )}
+                      <p className="font-sans text-xs text-muted-foreground">
+                        Qty: {item.quantity}
+                      </p>
+                    </div>
+                    <span className="font-sans text-sm font-medium text-foreground shrink-0">
+                      {formatINR(item.price * item.quantity)}
+                    </span>
+                  </div>
+                ))}
+              </div>
+
+              <Separator />
+
+              {/* Pricing breakdown */}
+              <div className="space-y-2 font-sans text-sm">
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Subtotal</span>
+                  <span>{formatINR(subtotal)}</span>
+                </div>
+                {discount > 0 && appliedCoupon && (
+                  <div className="flex justify-between text-emerald-600">
+                    <span>Coupon ({appliedCoupon.code})</span>
+                    <span>− {formatINR(discount)}</span>
+                  </div>
+                )}
+                <div className="flex justify-between text-muted-foreground">
+                  <span>Shipping</span>
+                  <span className="text-emerald-600">Free</span>
+                </div>
+              </div>
+
+              <Separator />
+
+              <div className="flex justify-between items-center">
+                <span className="font-sans font-semibold text-foreground">Total</span>
+                <span className="font-display text-2xl font-semibold text-primary">
+                  {formatINR(total)}
+                </span>
+              </div>
+
+              {/* Pay button */}
+              <Button
+                type="submit"
+                size="lg"
+                disabled={isLoading}
+                className="w-full h-12 text-base font-sans font-medium"
+              >
+                {isLoading ? (
+                  <span className="flex items-center gap-2">
+                    <svg
+                      className="animate-spin h-4 w-4"
+                      xmlns="http://www.w3.org/2000/svg"
+                      fill="none"
+                      viewBox="0 0 24 24"
+                    >
+                      <circle
+                        className="opacity-25"
+                        cx="12"
+                        cy="12"
+                        r="10"
+                        stroke="currentColor"
+                        strokeWidth="4"
+                      />
+                      <path
+                        className="opacity-75"
+                        fill="currentColor"
+                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
+                      />
+                    </svg>
+                    Processing…
+                  </span>
+                ) : (
+                  <span className="flex items-center gap-2">
+                    Pay {formatINR(total)}
+                    <ChevronRight className="h-4 w-4" />
+                  </span>
+                )}
+              </Button>
+
+              {/* Trust signal */}
+              <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground font-sans">
+                <Lock className="h-3 w-3" />
+                <span>Secured by Razorpay</span>
+              </div>
+            </div>
+          </div>
+        </div>
+      </form>
+    </>
+  );
+}

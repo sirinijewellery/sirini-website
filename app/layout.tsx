@@ -1,0 +1,51 @@
+import { EB_Garamond, DM_Sans } from "next/font/google";
+import "./globals.css";
+import { Toaster } from "@/components/ui/sonner";
+import { AuthProvider } from "@/components/AuthProvider";
+import { NavbarWrapper } from "@/components/NavbarWrapper";
+import { FooterWrapper } from "@/components/FooterWrapper";
+import { WhatsAppWrapper } from "@/components/WhatsAppWrapper";
+import { GoogleAnalytics } from "@next/third-parties/google";
+import { baseMetadata } from "@/lib/seo";
+
+const ebGaramond = EB_Garamond({
+  variable: "--font-eb-garamond",
+  subsets: ["latin"],
+  weight: ["400", "500", "600", "700"],
+  style: ["normal", "italic"],
+  display: "swap",
+});
+
+const dmSans = DM_Sans({
+  variable: "--font-dm-sans",
+  subsets: ["latin"],
+  weight: ["300", "400", "500", "600", "700"],
+  display: "swap",
+});
+
+export const metadata = baseMetadata();
+
+export default function RootLayout({
+  children,
+}: Readonly<{
+  children: React.ReactNode;
+}>) {
+  return (
+    <html lang="en">
+      <body
+        className={`${ebGaramond.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
+      >
+        <AuthProvider>
+          <NavbarWrapper />
+          <main className="flex-1">{children}</main>
+          <FooterWrapper />
+          <WhatsAppWrapper />
+          <Toaster />
+        </AuthProvider>
+        {process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID && (
+          <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID} />
+        )}
+      </body>
+    </html>
+  );
+}

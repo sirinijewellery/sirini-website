@@ -1,0 +1,257 @@
+@import "tailwindcss";
+@import "tw-animate-css";
+
+@custom-variant dark (&:is(.dark *));
+
+@theme inline {
+  /* ── Fonts ─────────────────────────────────── */
+  --font-display: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  --font-sans: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+
+  /* ── Stitch Heritage Opulence palette ───────── */
+  --color-primary: #8a4853;
+  --color-on-primary: #ffffff;
+  --color-primary-container: #a6606b;
+  --color-on-primary-container: #fffbff;
+  --color-on-primary-fixed-variant: #70343e;
+  --color-primary-fixed: #ffd9dd;
+  --color-primary-fixed-dim: #ffb2bc;
+  --color-inverse-primary: #ffb2bc;
+
+  --color-secondary: #396752;
+  --color-on-secondary: #ffffff;
+  --color-secondary-container: #bbeed3;
+  --color-on-secondary-container: #3f6d58;
+  --color-success-emerald: #043927;
+
+  --color-tertiary: #735c00;
+  --color-on-tertiary: #ffffff;
+  --color-tertiary-container: #cba72f;
+  --color-tertiary-fixed: #ffe088;
+  --color-tertiary-fixed-dim: #e9c349;
+
+  --color-background: #fff8f5;
+  --color-on-background: #221a15;
+  --color-surface: #fff8f5;
+  --color-on-surface: #221a15;
+  --color-on-surface-variant: #524345;
+  --color-surface-dim: #e6d7cf;
+  --color-surface-bright: #fff8f5;
+  --color-surface-container-lowest: #ffffff;
+  --color-surface-container-low: #fff1ea;
+  --color-surface-container: #fbebe3;
+  --color-surface-container-high: #f5e5dd;
+  --color-surface-container-highest: #efdfd8;
+  --color-surface-variant: #efdfd8;
+  --color-surface-tint: #8c4b55;
+  --color-inverse-surface: #382f29;
+  --color-inverse-on-surface: #feeee6;
+
+  --color-outline: #857374;
+  --color-outline-variant: #d7c1c3;
+
+  /* Legacy aliases — kept for existing components that use these */
+  --color-rose-gold: #8a4853;
+  --color-rose-gold-light: #a6606b;
+  --color-rose-gold-dark: #70343e;
+  --color-blush: #ffd9dd;
+  --color-blush-dark: #ffb2bc;
+  --color-cream: #fff8f5;
+  --color-cream-dark: #fbebe3;
+  --color-charcoal-text: #221a15;
+  --color-muted-gray: #524345;
+
+  /* ── Shadcn/ui semantic tokens (updated to match Stitch) ─── */
+  --color-card: #ffffff;
+  --color-card-foreground: #221a15;
+  --color-popover: #ffffff;
+  --color-popover-foreground: #221a15;
+  --color-foreground: #221a15;
+  --color-primary-foreground: #ffffff;
+  --color-secondary-foreground: #ffffff;
+  --color-muted: #fff1ea;
+  --color-muted-foreground: #524345;
+  --color-accent: #fbebe3;
+  --color-accent-foreground: #221a15;
+  --color-destructive: #ba1a1a;
+  --color-border: #d7c1c3;
+  --color-input: #d7c1c3;
+  --color-ring: #8a4853;
+
+  /* ── Spacing & Shape ──────────────────────────── */
+  --spacing-gutter: 24px;
+  --spacing-section-gap: 120px;
+  --spacing-margin-mobile: 16px;
+  --spacing-margin-desktop: 64px;
+  --radius: 0.25rem;
+
+  /* Sidebar (admin) */
+  --color-sidebar: #1e293b;
+  --color-sidebar-foreground: #f8fafc;
+  --color-sidebar-primary: #8a4853;
+  --color-sidebar-primary-foreground: #ffffff;
+  --color-sidebar-accent: #334155;
+  --color-sidebar-accent-foreground: #f8fafc;
+  --color-sidebar-border: #334155;
+  --color-sidebar-ring: #8a4853;
+
+  /* ── Stitch typography scale ─────────────────────────────── */
+  --text-display-lg: 48px;
+  --text-display-lg--line-height: 1.1;
+  --text-display-lg--letter-spacing: -0.02em;
+
+  --text-headline-lg: 32px;
+  --text-headline-lg--line-height: 1.2;
+
+  --text-headline-lg-mobile: 28px;
+  --text-headline-lg-mobile--line-height: 1.2;
+
+  --text-headline-md: 24px;
+  --text-headline-md--line-height: 1.3;
+
+  --text-label-caps: 12px;
+  --text-label-caps--line-height: 1;
+  --text-label-caps--letter-spacing: 0.1em;
+
+  --text-body-lg: 18px;
+  --text-body-lg--line-height: 1.6;
+
+  --text-body-md: 16px;
+  --text-body-md--line-height: 1.5;
+
+  --text-price-display: 18px;
+  --text-price-display--line-height: 1;
+
+  /* ── Stitch font-family tokens ───────────────────────────── */
+  --font-display-lg: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  --font-headline-lg: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  --font-headline-md: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  --font-headline-lg-mobile: var(--font-eb-garamond), "EB Garamond", Georgia, serif;
+  --font-body-md: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --font-body-lg: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --font-label-caps: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+  --font-price-display: var(--font-dm-sans), "DM Sans", system-ui, sans-serif;
+
+  /* ── Border radius (Stitch spec) ─────────────────────────── */
+  --radius-DEFAULT: 0.125rem;
+  --radius-lg: 0.25rem;
+  --radius-xl: 0.5rem;
+}
+
+/* ── Stitch label-caps helper (font-weight + tracking) ─────── */
+.label-caps {
+  font-weight: 600;
+  letter-spacing: 0.1em;
+  text-transform: uppercase;
+}
+
+/* ── Scroll reveal ───────────────────────────────── */
+.reveal {
+  opacity: 0;
+  transform: translateY(30px);
+  transition: opacity 800ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 800ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.reveal.active {
+  opacity: 1;
+  transform: translateY(0);
+}
+
+/* ── Keyframes ────────────────────────────────────── */
+@keyframes slideUpFade {
+  0%   { opacity: 0; transform: translateY(30px); }
+  100% { opacity: 1; transform: translateY(0); }
+}
+.animate-slide-up-fade {
+  animation: slideUpFade 1s cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+
+@keyframes shimmerBtn {
+  0%   { background-position: -200% 0; }
+  100% { background-position: 200% 0; }
+}
+.animate-shimmer-btn {
+  background: linear-gradient(110deg, #8a4853 20%, #a6606b 50%, #8a4853 80%);
+  background-size: 200% 100%;
+  animation: shimmerBtn 3s infinite linear;
+  color: white;
+}
+
+@keyframes bounceEntrance {
+  0%   { opacity: 0; transform: scale(0.3) translateY(50px); }
+  50%  { opacity: 1; transform: scale(1.1) translateY(-10px); }
+  70%  { transform: scale(0.9) translateY(5px); }
+  100% { opacity: 1; transform: scale(1) translateY(0); }
+}
+.animate-bounce-entrance {
+  animation: bounceEntrance 0.8s cubic-bezier(0.16, 1, 0.3, 1) 1.5s forwards;
+  opacity: 0;
+}
+
+/* ── Gradient title underline (Stitch effect) ─────── */
+.gradient-title-bg {
+  position: relative;
+  display: inline-block;
+  z-index: 1;
+}
+.gradient-title-bg::after {
+  content: '';
+  position: absolute;
+  bottom: 4px;
+  left: -2%;
+  width: 104%;
+  height: 35%;
+  background: linear-gradient(90deg, #ffb2bc, #e9c349);
+  opacity: 0.25;
+  z-index: -1;
+  border-radius: 2px;
+  transition: opacity 0.3s ease;
+}
+.group:hover .gradient-title-bg::after {
+  opacity: 0.4;
+}
+
+/* ── No-scrollbar utility ─────────────────────────── */
+.no-scrollbar::-webkit-scrollbar { display: none; }
+.no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
+
+.dark {
+  --color-background: oklch(0.14 0.01 30);
+  --color-foreground: oklch(0.96 0.005 40);
+  --color-card: oklch(0.17 0.01 30);
+  --color-card-foreground: oklch(0.96 0.005 40);
+  --color-popover: oklch(0.17 0.01 30);
+  --color-popover-foreground: oklch(0.96 0.005 40);
+  --color-primary: oklch(0.68 0.09 10);
+  --color-primary-foreground: oklch(0.14 0.01 30);
+  --color-secondary: oklch(0.22 0.01 30);
+  --color-secondary-foreground: oklch(0.96 0.005 40);
+  --color-muted: oklch(0.22 0.01 30);
+  --color-muted-foreground: oklch(0.65 0.02 30);
+  --color-accent: oklch(0.22 0.01 30);
+  --color-accent-foreground: oklch(0.96 0.005 40);
+  --color-destructive: oklch(0.65 0.22 25);
+  --color-border: oklch(0.26 0.01 30);
+  --color-input: oklch(0.26 0.01 30);
+  --color-ring: oklch(0.68 0.09 10);
+  --color-sidebar: oklch(0.17 0.01 30);
+  --color-sidebar-foreground: oklch(0.96 0.005 40);
+  --color-sidebar-primary: oklch(0.68 0.09 10);
+  --color-sidebar-primary-foreground: oklch(0.14 0.01 30);
+  --color-sidebar-accent: oklch(0.22 0.01 30);
+  --color-sidebar-accent-foreground: oklch(0.96 0.005 40);
+  --color-sidebar-border: oklch(0.26 0.01 30);
+  --color-sidebar-ring: oklch(0.68 0.09 10);
+}
+
+@layer base {
+  * {
+    @apply border-border outline-ring/50;
+  }
+  body {
+    @apply bg-background text-foreground font-sans;
+  }
+  h1, h2, h3, h4, h5, h6 {
+    @apply font-display;
+  }
+}

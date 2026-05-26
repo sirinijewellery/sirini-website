@@ -1,0 +1,18 @@
+import type { Metadata } from "next";
+import { getCategories } from "@/lib/queries/products";
+import { ProductForm } from "@/components/admin/ProductForm";
+
+export const metadata: Metadata = { title: "New Product" };
+
+export default async function NewProductPage() {
+  const categories = await getCategories();
+
+  return (
+    <div className="p-6 lg:p-8 max-w-4xl">
+      <h1 className="text-2xl font-semibold text-slate-900 font-sans mb-6">
+        Add New Product
+      </h1>
+      <ProductForm categories={categories} />
+    </div>
+  );
+}

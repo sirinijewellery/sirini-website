@@ -1,0 +1,183 @@
+"use client";
+
+import Link from "next/link";
+import Image from "next/image";
+import { useState } from "react";
+import { useSession } from "next-auth/react";
+import { useRouter } from "next/navigation";
+import { toast } from "sonner";
+import { parseImages } from "@/lib/parseImages";
+
+interface ProductCardProps {
+  product: {
+    id: string;
+    name: string;
+    slug: string;
+    price: number;
+    category: string;
+    images: unknown;
+    badge?: string | null;
+    variants?: { stockQuantity: number }[];
+  };
+}
+
+function formatPrice(price: number) {
+  return new Intl.NumberFormat("en-IN", {
+    style: "currency",
+    currency: "INR",
+    minimumFractionDigits: 0,
+  }).format(price);
+}
+
+// SVG heart icon — no emoji, accessible
+function HeartIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      xmlns="http://www.w3.org/2000/svg"
+      viewBox="0 0 24 24"
+      fill="none"
+      stroke="currentColor"
+      strokeWidth={1.5}
+      strokeLinecap="round"
+      strokeLinejoin="round"
+      className={className}
+      aria-hidden="true"
+    >
+      <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+export function ProductCard({ product }: ProductCardProps) {
+  const { data: session } = useSession();
+  const router = useRouter();
+  const [wishlisted, setWishlisted] = useState(false);
+  const [wishlistLoading, setWishlistLoading] = useState(false);
+
+  const images = parseImages(product.images);
+  const primaryImage = images[0] || null;
+  const secondImage = images[1] || null;
+
+  const totalStock =
+    product.variants?.reduce((sum, v) => sum + v.stockQuantity, 0) ?? 0;
+  const isOutOfStock =
+    product.variants && product.variants.length > 0 && totalStock === 0;
+
+  async function handleWishlist(e: React.MouseEvent) {
+    e.preventDefault();
+    e.stopPropagation();
+    if (!session?.user) {
+      router.push(`/login?callbackUrl=/shop`);
+      return;
+    }
+    setWishlistLoading(true);
+    try {
+      const method = wishlisted ? "DELETE" : "POST";
+      const res = await fetch("/api/wishlist", {
+        method,
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ productId: product.id }),
+      });
+      if (res.ok) {
+        setWishlisted(!wishlisted);
+        toast.success(wishlisted ? "Removed from wishlist" : "Added to wishlist");
+      }
+    } catch {
+      toast.error("Something went wrong");
+    } finally {
+      setWishlistLoading(false);
+    }
+  }
+
+  return (
+    <Link href={`/shop/${product.slug}`} className="group block cursor-pointer">
+      {/* ── Image container ─────────────────────────────────────── */}
+      <div className="relative aspect-[4/5] bg-surface-container overflow-hidden border border-outline-variant group-hover:border-primary/30 transition-colors duration-300 mb-4">
+
+        {/* Primary image */}
+        {primaryImage ? (
+          <>
+            <Image
+              src={primaryImage}
+              alt={product.name}
+              fill
+              sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+              className={`object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08] ${
+                secondImage ? "group-hover:opacity-0 transition-opacity duration-300" : ""
+              }`}
+            />
+            {/* Secondary hover image */}
+            {secondImage && (
+              <Image
+                src={secondImage}
+                alt={product.name}
+                fill
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
+                className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:scale-[1.08] transition-transform duration-700 ease-out"
+              />
+            )}
+          </>
+        ) : (
+          /* Fallback placeholder */
+          <div className="absolute inset-0 flex items-center justify-center bg-surface-container-low">
+            <span className="font-display text-5xl text-primary opacity-30 select-none">S</span>
+          </div>
+        )}
+
+        {/* ── Badge — Stitch outline style, no fill ─────────────── */}
+        {product.badge && (
+          <div className="absolute top-4 left-4 border border-outline-variant bg-background/80 backdrop-blur-sm px-2 py-1">
+            <span
+              className={`font-sans text-[10px] font-semibold uppercase tracking-wider ${
+                product.badge === "NEW"
+                  ? "text-success-emerald"
+                  : product.badge === "SALE"
+                  ? "text-primary"
+                  : "text-on-surface"
+              }`}
+            >
+              {product.badge}
+            </span>
+          </div>
+        )}
+
+        {/* ── Wishlist heart ─────────────────────────────────────── */}
+        {/* Always visible on mobile (touch), opacity-0→100 on hover for desktop */}
+        <button
+          type="button"
+          aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
+          disabled={wishlistLoading}
+          className={`absolute top-4 right-4 p-1.5 backdrop-blur-sm border
+            transition-all duration-200 cursor-pointer disabled:cursor-wait
+            opacity-100 md:opacity-0 md:group-hover:opacity-100
+            ${wishlisted
+              ? "bg-primary/10 border-primary text-primary"
+              : "bg-background/80 border-outline-variant text-on-surface-variant hover:text-primary hover:border-primary/40"
+            }`}
+          onClick={handleWishlist}
+        >
+          <HeartIcon className={`w-4 h-4 ${wishlisted ? "fill-current" : ""}`} />
+        </button>
+
+        {/* ── Out of stock overlay ───────────────────────────────── */}
+        {isOutOfStock && (
+          <div className="absolute inset-0 bg-background/60 flex items-center justify-center">
+            <span className="font-sans text-[10px] uppercase tracking-widest text-on-surface-variant border border-outline-variant px-3 py-1 bg-background/90">
+              Out of Stock
+            </span>
+          </div>
+        )}
+      </div>
+
+      {/* ── Product info ─────────────────────────────────────────── */}
+      <div className="flex flex-col gap-1">
+        <h4 className="font-sans text-sm text-on-surface leading-snug line-clamp-2">
+          {product.name}
+        </h4>
+        <p className="font-sans text-base font-bold text-on-surface">
+          {formatPrice(product.price)}
+        </p>
+      </div>
+    </Link>
+  );
+}
