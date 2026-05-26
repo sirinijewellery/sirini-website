@@ -11,7 +11,7 @@ export function Footer() {
         <div className="flex flex-col gap-4 md:col-span-1">
           <div className="mb-2">
             <Image
-              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/sirini-jewellery/logo.jpg"
+              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/sirini-jewellery/logo.png"
               alt="Sirini Jewellery"
               width={500}
               height={500}

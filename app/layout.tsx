@@ -26,9 +26,9 @@ const dmSans = DM_Sans({
 export const metadata = {
   ...baseMetadata(),
   icons: {
-    icon: "/logo.jpeg",
-    shortcut: "/logo.jpeg",
-    apple: "/logo.jpeg",
+    icon: "/logo.png",
+    shortcut: "/logo.png",
+    apple: "/logo.png",
   },
 };
 
