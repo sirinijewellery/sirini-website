@@ -6,7 +6,7 @@ import { useState } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
-import { parseImages, splitModelAndProduct } from "@/lib/parseImages";
+import { parseImages, selectCardImages } from "@/lib/parseImages";
 
 interface ProductCardProps {
   product: {
@@ -55,15 +55,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const [wishlistLoading, setWishlistLoading] = useState(false);
 
   const images = parseImages(product.images);
-  const { modelImage, productImage } = splitModelAndProduct(images);
-
-  // Default (static) = model shot; hover = plain product shot.
-  // If only one type exists, use it for both states (no swap).
-  const primaryImage = modelImage ?? productImage ?? images[0] ?? null;
-  const secondImage =
-    modelImage && productImage
-      ? productImage          // swap to plain product on hover
-      : images[1] ?? null;   // old behaviour: second image if any
+  const { primary: primaryImage, hover: secondImage } = selectCardImages(images);
 
   const totalStock =
     product.variants?.reduce((sum, v) => sum + v.stockQuantity, 0) ?? 0;

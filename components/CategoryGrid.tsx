@@ -8,8 +8,6 @@ import { getCategories } from "@/lib/queries/products";
 
 export async function CategoryGrid() {
   const categories = await getCategories();
-  const displayCats = categories.slice(0, 3);
-  const placeholderCount = Math.max(0, 3 - displayCats.length);
 
   if (categories.length === 0) return null;
 
@@ -20,9 +18,20 @@ export async function CategoryGrid() {
     "linear-gradient(160deg, #f5e5dd 0%, #efdfd8 100%)",
   ];
 
+  // Responsive equal-width grid — grows to accommodate all categories.
+  // 2 cols mobile → 3 tablet → 5 desktop (or however many cats exist).
+  const count = categories.length;
+  const desktopCols =
+    count <= 3 ? `lg:grid-cols-${count}` :
+    count === 4 ? "lg:grid-cols-4" :
+    "lg:grid-cols-5";
+
+  // Sizing: taller aspect ratio when fewer cols, shorter when spreading across 5
+  const aspectRatio = count >= 5 ? "aspect-[3/4]" : "aspect-[3/4]";
+
   return (
     <section className="py-[120px] px-4 md:px-16 max-w-screen-2xl mx-auto group reveal">
-      {/* Section header — split layout: title left, "View All" right */}
+      {/* Section header */}
       <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
         <div>
           <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2 gradient-title-bg">
@@ -40,14 +49,12 @@ export async function CategoryGrid() {
         </a>
       </div>
 
-      {/* 3-column portrait grid — middle card offset downward for editorial depth */}
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-        {displayCats.map((cat, i) => (
+      {/* Equal-height grid — all categories, same size, no offset */}
+      <div className={`grid grid-cols-2 md:grid-cols-3 ${desktopCols} gap-4 md:gap-6`}>
+        {categories.map((cat) => (
           <a
             key={cat.id}
-            className={`group/card relative aspect-[3/4] overflow-hidden bg-surface-container${
-              i === 1 ? " md:translate-y-8" : ""
-            }`}
+            className={`group/card relative ${aspectRatio} overflow-hidden bg-surface-container`}
             href={`/shop?category=${cat.slug}`}
           >
             {/* Image or branded gradient placeholder */}
@@ -56,13 +63,13 @@ export async function CategoryGrid() {
                 src={cat.image}
                 alt={cat.name}
                 fill
-                sizes="(max-width: 768px) 100vw, 33vw"
+                sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 20vw"
                 className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/card:scale-[1.08]"
               />
             ) : (
               <div
                 className="absolute inset-0 flex items-center justify-center transition-transform duration-700 ease-out group-hover/card:scale-[1.04]"
-                style={{ background: placeholderGradients[i % 3] }}
+                style={{ background: placeholderGradients[cat.id.charCodeAt(0) % 3] }}
               >
                 <span className="font-headline-lg text-[80px] text-primary/20 select-none leading-none">
                   {cat.name.charAt(0).toUpperCase()}
@@ -71,43 +78,19 @@ export async function CategoryGrid() {
             )}
 
             {/* Dark gradient overlay for text legibility */}
-            <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
+            <div className="absolute inset-0 bg-gradient-to-t from-black/60 via-transparent to-transparent" />
 
             {/* Category text — bottom left */}
-            <div className="absolute bottom-8 left-8">
-              <h3 className="font-headline-md text-headline-md text-white mb-2">
+            <div className="absolute bottom-6 left-6">
+              <h3 className="font-headline-md text-headline-md text-white mb-1 leading-tight">
                 {cat.name}
               </h3>
-              <span className="font-label-caps text-label-caps font-semibold text-white/80 group-hover/card:text-white transition-colors">
-                Explore Category
+              <span className="font-label-caps text-label-caps font-semibold text-white/70 group-hover/card:text-white transition-colors">
+                Explore →
               </span>
             </div>
           </a>
         ))}
-
-        {/* Placeholder cards if fewer than 3 categories in DB */}
-        {Array.from({ length: placeholderCount }).map((_, i) => {
-          const cardIndex = displayCats.length + i;
-          return (
-            <div
-              key={`placeholder-${i}`}
-              className={`group/card relative aspect-[3/4] overflow-hidden bg-surface-container${
-                cardIndex === 1 ? " md:translate-y-8" : ""
-              }`}
-            >
-              <div
-                className="absolute inset-0 flex items-center justify-center"
-                style={{ background: placeholderGradients[cardIndex % 3] }}
-              >
-                <span className="font-headline-lg text-[80px] text-primary/20 select-none leading-none">
-                  S
-                </span>
-              </div>
-              {/* Gradient overlay */}
-              <div className="absolute inset-0 bg-gradient-to-t from-black/40 via-transparent to-transparent opacity-60" />
-            </div>
-          );
-        })}
       </div>
     </section>
   );
