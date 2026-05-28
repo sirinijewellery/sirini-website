@@ -23,6 +23,7 @@ model Product {
   variants      ProductVariant[]
   orderItems    OrderItem[]
   wishlistItems WishlistItem[]
+  reviews       Review[]
 
   @@index([category])
   @@index([material])
@@ -99,6 +100,7 @@ model User {
   addresses     Address[]
   wishlistItems WishlistItem[]
   orders        Order[]
+  reviews       Review[]
 }
 
 model Address {
@@ -144,4 +146,21 @@ model NewsletterSubscriber {
   id        String   @id @default(cuid())
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+model Review {
+  id          String   @id @default(cuid())
+  productId   String
+  userId      String?
+  authorName  String
+  rating      Int      // 1–5
+  body        String?
+  isPublished Boolean  @default(true)
+  createdAt   DateTime @default(now())
+
+  product Product @relation(fields: [productId], references: [id], onDelete: Cascade)
+  user    User?   @relation(fields: [userId], references: [id], onDelete: SetNull)
+
+  @@index([productId])
+  @@index([userId])
 }

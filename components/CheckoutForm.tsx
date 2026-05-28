@@ -6,7 +6,6 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { useRouter } from "next/navigation";
 import { useSession } from "next-auth/react";
-import Script from "next/script";
 import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
@@ -17,7 +16,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingBag, MapPin, Lock, ChevronRight, CreditCard, Banknote } from "lucide-react";
+import { ShoppingBag, MapPin, Lock, ChevronRight, CreditCard, Banknote, ExternalLink } from "lucide-react";
 
 /* ── Types ──────────────────────────────────────────────────────────── */
 
@@ -33,12 +32,6 @@ interface Address {
 
 interface CheckoutFormProps {
   savedAddresses: Address[];
-}
-
-declare global {
-  interface Window {
-    Razorpay: new (options: Record<string, unknown>) => { open: () => void };
-  }
 }
 
 /* ── India States / UTs ─────────────────────────────────────────────── */
@@ -223,6 +216,8 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
   );
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod" | null>(null);
+  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  const pendingValuesRef = useRef<CheckoutFields | null>(null);
 
   const subtotal = getTotal();
   const discount = appliedCoupon?.discountAmount ?? 0;
@@ -328,18 +323,30 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
       return;
     }
 
-    /* ── Razorpay flow ────────────────────────────────────────────── */
+    /* ── Payment Link (Razorpay.me) flow ────────────────────────── */
+    const paymentUrl = `https://razorpay.me/@hemantjethalalsavla?amount=${Math.round(total)}`;
+    window.open(paymentUrl, "_blank", "noopener,noreferrer");
+    pendingValuesRef.current = { ...values };
+    trackCheckoutStarted(total);
+    setIsLoading(false);
+    setAwaitingConfirmation(true);
+  }
 
-    // Step 1 — create Razorpay order on server
-    let orderData: {
-      razorpayOrderId: string;
-      amount: number;
-      discountAmount: number;
-      keyId: string;
+  async function handleConfirmPayment() {
+    const values = pendingValuesRef.current;
+    if (!values) return;
+
+    setIsLoading(true);
+    const address = {
+      line1: values.line1,
+      city: values.city,
+      state: values.state,
+      pincode: values.pincode,
+      label: values.label,
     };
 
     try {
-      const res = await fetch("/api/checkout/create-order", {
+      const res = await fetch("/api/checkout/payment-link", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
@@ -353,115 +360,24 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
           customerEmail: values.customerEmail,
           customerPhone: values.customerPhone,
           couponCode: appliedCoupon?.code,
+          totalAmount: total,
           notes: values.notes,
-          savedAddressId:
-            selectedSavedId !== "new" ? selectedSavedId : undefined,
         }),
       });
 
       const data = await res.json();
 
       if (!res.ok) {
-        toast.error(data.error ?? "Failed to initiate payment");
+        toast.error(data.error ?? "Failed to confirm order");
         setIsLoading(false);
         return;
       }
 
-      orderData = data;
+      clearCart();
+      trackPurchaseCompleted(data.orderId, total);
+      router.push(`/order-confirmation?orderId=${data.orderId}`);
     } catch {
       toast.error("Network error. Please check your connection and try again.");
-      setIsLoading(false);
-      return;
-    }
-
-    // Step 2 — open Razorpay modal
-    if (typeof window.Razorpay === "undefined") {
-      toast.error("Payment system is not ready yet. Please wait a moment and try again.");
-      setIsLoading(false);
-      return;
-    }
-
-    let rzp: { open: () => void };
-    try {
-      rzp = new window.Razorpay({
-        key: orderData.keyId,
-        order_id: orderData.razorpayOrderId,
-        amount: Math.round(orderData.amount * 100),
-        currency: "INR",
-        name: "Sirini Jewellery",
-        description: "Thank you for shopping with us",
-        prefill: {
-          name: values.customerName,
-          email: values.customerEmail,
-          contact: values.customerPhone,
-        },
-        theme: { color: "#B76E79" },
-
-        handler: async (response: {
-          razorpay_payment_id: string;
-          razorpay_order_id: string;
-          razorpay_signature: string;
-        }) => {
-          // Step 3 — verify payment + write order to DB
-          try {
-            const verifyRes = await fetch("/api/checkout/verify", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({
-                razorpayOrderId: response.razorpay_order_id,
-                razorpayPaymentId: response.razorpay_payment_id,
-                razorpaySignature: response.razorpay_signature,
-                items: items.map((item) => ({
-                  productId: item.productId,
-                  variantId: item.variantId,
-                  quantity: item.quantity,
-                  priceAtPurchase: item.price,
-                })),
-                address,
-                customerName: values.customerName,
-                customerEmail: values.customerEmail,
-                customerPhone: values.customerPhone,
-                couponCode: appliedCoupon?.code,
-                discountAmount: orderData.discountAmount,
-                totalAmount: orderData.amount,
-                notes: values.notes,
-                userId: session?.user?.id,
-              }),
-            });
-
-            const verifyData = await verifyRes.json();
-
-            if (!verifyRes.ok) {
-              toast.error(verifyData.error ?? "Payment verification failed");
-              setIsLoading(false);
-              return;
-            }
-
-            clearCart();
-            trackPurchaseCompleted(verifyData.orderId, orderData.amount);
-            router.push(`/order-confirmation?orderId=${verifyData.orderId}`);
-          } catch {
-            toast.error("Payment succeeded but we couldn't confirm your order. Please contact support.");
-            setIsLoading(false);
-          }
-        },
-
-        modal: {
-          ondismiss: () => {
-            setIsLoading(false);
-            // Notify failed endpoint (fire and forget)
-            fetch("/api/checkout/failed", {
-              method: "POST",
-              headers: { "Content-Type": "application/json" },
-              body: JSON.stringify({ razorpayOrderId: orderData.razorpayOrderId }),
-            }).catch(() => {});
-          },
-        },
-      });
-      rzp.open();
-      trackCheckoutStarted(total);
-    } catch {
-      toast.error("Failed to open payment window. Please refresh and try again.");
       setIsLoading(false);
     }
   }
@@ -485,9 +401,6 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
   /* ── Main form ────────────────────────────────────────────────────── */
   return (
     <>
-      {/* Razorpay checkout.js — loaded once */}
-      <Script src="https://checkout.razorpay.com/v1/checkout.js" strategy="afterInteractive" />
-
       <form onSubmit={handleSubmit(onSubmit)}>
         <div className="flex flex-col lg:flex-row gap-10 lg:gap-14 items-start">
           {/* ── LEFT COLUMN ─────────────────────────────────────────── */}
@@ -741,7 +654,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                     <div>
                       <p className="font-sans text-sm font-medium text-foreground">Pay Online</p>
                       <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                        UPI, credit/debit cards, net banking via Razorpay
+                        UPI, credit/debit cards, net banking — secure Razorpay link
                       </p>
                     </div>
                   </div>
@@ -855,57 +768,105 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                 </span>
               </div>
 
-              {/* Pay button */}
-              <Button
-                type="submit"
-                size="lg"
-                disabled={isLoading}
-                className="w-full h-12 text-base font-sans font-medium"
-              >
-                {isLoading ? (
-                  <span className="flex items-center gap-2">
-                    <svg
-                      className="animate-spin h-4 w-4"
-                      xmlns="http://www.w3.org/2000/svg"
-                      fill="none"
-                      viewBox="0 0 24 24"
+              {/* Pay button / Confirmation step */}
+              {awaitingConfirmation ? (
+                /* ── Step 2: user opened payment link, awaiting confirmation ── */
+                <div className="space-y-4">
+                  <div className="rounded-lg bg-blush/40 border border-primary/20 p-4 space-y-2">
+                    <p className="font-sans text-sm font-semibold text-primary">
+                      Payment page opened ✓
+                    </p>
+                    <p className="font-sans text-xs text-on-surface-variant leading-relaxed">
+                      Complete your {formatINR(total)} payment in the tab that just opened.
+                      Once done, tap the button below to confirm your order.
+                    </p>
+                    <a
+                      href={`https://razorpay.me/@hemantjethalalsavla?amount=${Math.round(total)}`}
+                      target="_blank"
+                      rel="noopener noreferrer"
+                      className="inline-flex items-center gap-1.5 text-xs text-primary underline underline-offset-2 hover:no-underline transition-all font-sans"
                     >
-                      <circle
-                        className="opacity-25"
-                        cx="12"
-                        cy="12"
-                        r="10"
-                        stroke="currentColor"
-                        strokeWidth="4"
-                      />
-                      <path
-                        className="opacity-75"
-                        fill="currentColor"
-                        d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z"
-                      />
-                    </svg>
-                    Processing…
-                  </span>
-                ) : paymentMethod === "cod" ? (
-                  <span className="flex items-center gap-2">
-                    Place Order
-                    <ChevronRight className="h-4 w-4" />
-                  </span>
-                ) : (
-                  <span className="flex items-center gap-2">
-                    Pay {formatINR(total)}
-                    <ChevronRight className="h-4 w-4" />
-                  </span>
-                )}
-              </Button>
+                      <ExternalLink className="h-3 w-3" />
+                      Reopen payment page
+                    </a>
+                  </div>
 
-              {/* Trust signal */}
-              <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground font-sans">
-                <Lock className="h-3 w-3" />
-                <span>
-                  {paymentMethod === "cod" ? "Secure checkout" : "Secured by Razorpay"}
-                </span>
-              </div>
+                  <Button
+                    type="button"
+                    size="lg"
+                    onClick={handleConfirmPayment}
+                    disabled={isLoading}
+                    className="w-full h-12 text-base font-sans font-medium"
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Confirming Order…
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        I&apos;ve Completed My Payment
+                        <ChevronRight className="h-4 w-4" />
+                      </span>
+                    )}
+                  </Button>
+
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    size="sm"
+                    onClick={() => { setAwaitingConfirmation(false); setIsLoading(false); }}
+                    className="w-full font-sans text-xs text-muted-foreground"
+                  >
+                    ← Go back
+                  </Button>
+
+                  <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground font-sans">
+                    <Lock className="h-3 w-3" />
+                    <span>Secured by Razorpay</span>
+                  </div>
+                </div>
+              ) : (
+                /* ── Step 1: normal pay / place order button ── */
+                <>
+                  <Button
+                    type="submit"
+                    size="lg"
+                    disabled={isLoading}
+                    className="w-full h-12 text-base font-sans font-medium"
+                  >
+                    {isLoading ? (
+                      <span className="flex items-center gap-2">
+                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
+                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
+                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
+                        </svg>
+                        Processing…
+                      </span>
+                    ) : paymentMethod === "cod" ? (
+                      <span className="flex items-center gap-2">
+                        Place Order
+                        <ChevronRight className="h-4 w-4" />
+                      </span>
+                    ) : (
+                      <span className="flex items-center gap-2">
+                        Pay {formatINR(total)}
+                        <ChevronRight className="h-4 w-4" />
+                      </span>
+                    )}
+                  </Button>
+
+                  <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground font-sans">
+                    <Lock className="h-3 w-3" />
+                    <span>
+                      {paymentMethod === "cod" ? "Secure checkout" : "Secured by Razorpay"}
+                    </span>
+                  </div>
+                </>
+              )}
             </div>
           </div>
         </div>

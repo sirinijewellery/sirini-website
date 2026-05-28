@@ -23,8 +23,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.8,
   }));
 
+  // Category filter URLs — use encodeURIComponent to be safe, mark as canonical entry
   const categoryRoutes: MetadataRoute.Sitemap = categories.map((c) => ({
-    url: `${BASE_URL}/shop?category=${c.slug}`,
+    url: `${BASE_URL}/shop?category=${encodeURIComponent(c.slug)}`,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));

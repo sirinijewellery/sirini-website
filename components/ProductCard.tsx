@@ -101,18 +101,18 @@ export function ProductCard({ product }: ProductCardProps) {
               alt={product.name}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-              className={`object-cover transition-transform duration-700 ease-out group-hover:scale-[1.08] ${
-                secondImage ? "group-hover:opacity-0 transition-opacity duration-300" : ""
+              className={`object-cover [transition:opacity_300ms_ease-out,transform_700ms_ease-out] group-hover:scale-[1.08] ${
+                secondImage ? "group-hover:opacity-0" : ""
               }`}
             />
-            {/* Secondary hover image */}
+            {/* Secondary hover image — fades in over the primary */}
             {secondImage && (
               <Image
                 src={secondImage}
                 alt={product.name}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
-                className="object-cover opacity-0 transition-opacity duration-300 group-hover:opacity-100 group-hover:scale-[1.08] transition-transform duration-700 ease-out"
+                className="object-cover opacity-0 [transition:opacity_300ms_ease-out,transform_700ms_ease-out] group-hover:opacity-100 group-hover:scale-[1.08]"
               />
             )}
           </>

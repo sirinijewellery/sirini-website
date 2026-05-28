@@ -8,7 +8,7 @@ import { signOut, useSession } from "next-auth/react";
 import { ShoppingBag, Heart, Search, Menu, User, LogOut, Settings, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Sheet, SheetContent, SheetTrigger, SheetClose } from "@/components/ui/sheet";
+import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CartBadge } from "@/components/CartBadge";
 
 const navLinks = [
@@ -24,6 +24,7 @@ export function Navbar() {
   const { data: session } = useSession();
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [mobileOpen, setMobileOpen] = useState(false);
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
@@ -184,7 +185,7 @@ export function Navbar() {
               </Link>
 
               {/* Mobile hamburger */}
-              <Sheet>
+              <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetTrigger
                   className="md:hidden text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
                   aria-label="Menu"
@@ -204,21 +205,21 @@ export function Navbar() {
                       />
                     </div>
 
-                    {/* Mobile nav links */}
+                    {/* Mobile nav links — onClick closes the sheet */}
                     <nav className="flex flex-col gap-1 mt-6">
                       {navLinks.map((link) => (
-                        <SheetClose key={link.href} asChild>
-                          <Link
-                            href={link.href}
-                            className={`py-3 px-2 font-label-caps text-label-caps font-semibold border-b border-outline-variant transition-colors ${
-                              pathname === link.href
-                                ? "text-primary"
-                                : "text-on-surface-variant hover:text-primary"
-                            }`}
-                          >
-                            {link.label}
-                          </Link>
-                        </SheetClose>
+                        <Link
+                          key={link.href}
+                          href={link.href}
+                          onClick={() => setMobileOpen(false)}
+                          className={`py-3 px-2 font-label-caps text-label-caps font-semibold border-b border-outline-variant transition-colors ${
+                            pathname === link.href
+                              ? "text-primary"
+                              : "text-on-surface-variant hover:text-primary"
+                          }`}
+                        >
+                          {link.label}
+                        </Link>
                       ))}
                     </nav>
 
@@ -229,35 +230,29 @@ export function Navbar() {
                           <p className="text-sm font-label-caps text-on-surface-variant px-2">
                             Hi, {session.user.name || session.user.email}
                           </p>
-                          <SheetClose asChild>
-                            <Link href="/account">
-                              <Button variant="outline" className="w-full font-label-caps text-label-caps">
-                                My Account
-                              </Button>
-                            </Link>
-                          </SheetClose>
+                          <Link href="/account" onClick={() => setMobileOpen(false)}>
+                            <Button variant="outline" className="w-full font-label-caps text-label-caps">
+                              My Account
+                            </Button>
+                          </Link>
                           <Button
                             variant="ghost"
                             className="w-full font-label-caps text-label-caps"
-                            onClick={() => signOut({ callbackUrl: "/" })}
+                            onClick={() => { setMobileOpen(false); signOut({ callbackUrl: "/" }); }}
                           >
                             Sign Out
                           </Button>
                         </>
                       ) : (
                         <>
-                          <SheetClose asChild>
-                            <Link href="/login">
-                              <Button className="w-full font-label-caps text-label-caps">Sign In</Button>
-                            </Link>
-                          </SheetClose>
-                          <SheetClose asChild>
-                            <Link href="/register">
-                              <Button variant="outline" className="w-full font-label-caps text-label-caps">
-                                Create Account
-                              </Button>
-                            </Link>
-                          </SheetClose>
+                          <Link href="/login" onClick={() => setMobileOpen(false)}>
+                            <Button className="w-full font-label-caps text-label-caps">Sign In</Button>
+                          </Link>
+                          <Link href="/register" onClick={() => setMobileOpen(false)}>
+                            <Button variant="outline" className="w-full font-label-caps text-label-caps">
+                              Create Account
+                            </Button>
+                          </Link>
                         </>
                       )}
                     </div>

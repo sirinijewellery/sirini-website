@@ -6,8 +6,11 @@ import { ImageGallery } from "@/components/ImageGallery";
 import { RelatedProducts } from "@/components/RelatedProducts";
 import { getProductBySlug, parseImages } from "@/lib/queries/products";
 import { sortAllImages } from "@/lib/parseImages";
+import { productMetadata, siteConfig } from "@/lib/seo";
 import ProductDetailClient from "./ProductDetailClient";
 import { ProductJsonLd } from "@/components/ProductJsonLd";
+import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
+import { ProductReviews } from "@/components/ProductReviews";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -19,15 +22,14 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Product Not Found" };
 
   const images = sortAllImages(parseImages(product.images));
-  return {
-    title: product.name,
-    description: product.description.slice(0, 160),
-    openGraph: {
-      title: `${product.name} | Sirini Jewellery`,
-      description: product.description.slice(0, 160),
-      images: images[0] ? [{ url: images[0] }] : [],
-    },
-  };
+  return productMetadata({
+    name: product.name,
+    description: product.description,
+    images,
+    price: product.price,
+    category: product.category,
+    slug: product.slug,
+  });
 }
 
 export default async function ProductPage({ params }: Props) {
@@ -36,12 +38,14 @@ export default async function ProductPage({ params }: Props) {
 
   if (!product) notFound();
 
-  // Sort: model image first (matches shop card default), then full-set, then detail shots
+  // Sort: model first → full set → detail close-ups
   const images = sortAllImages(parseImages(product.images));
+
+  const siteUrl = siteConfig.url;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
-      {/* Breadcrumb */}
+      {/* Breadcrumb — visible nav */}
       <nav className="flex items-center gap-2 text-xs font-sans text-muted-foreground mb-6">
         <Link href="/" className="hover:text-primary transition-colors">
           Home
@@ -84,11 +88,17 @@ export default async function ProductPage({ params }: Props) {
         />
       </div>
 
-      {/* Related products */}
+      {/* Related / pairing products */}
       <Suspense fallback={null}>
         <RelatedProducts category={product.category} excludeId={product.id} />
       </Suspense>
 
+      {/* Product reviews */}
+      <Suspense fallback={null}>
+        <ProductReviews productId={product.id} />
+      </Suspense>
+
+      {/* Structured data */}
       <ProductJsonLd
         product={{
           name: product.name,
@@ -97,7 +107,16 @@ export default async function ProductPage({ params }: Props) {
           price: product.price,
           sku: product.sku,
           slug: product.slug,
+          material: product.material,
         }}
+      />
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteUrl },
+          { name: "Shop", url: `${siteUrl}/shop` },
+          { name: product.category, url: `${siteUrl}/shop?category=${encodeURIComponent(product.category)}` },
+          { name: product.name, url: `${siteUrl}/shop/${product.slug}` },
+        ]}
       />
     </div>
   );

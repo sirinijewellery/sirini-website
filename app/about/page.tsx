@@ -11,9 +11,9 @@ export const metadata = pageMetadata(
 const HERO_IMAGE =
   "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1400,h_800,c_fill,g_center,y_80/v1779795103/sirini-jewellery/10ns787/10NS787-11225-Model.jpg";
 
-// Artisan at the workshop
+// Artisan close-up — hands setting kundan stones
 const ARTISAN_IMAGE =
-  "https://res.cloudinary.com/dp8a2lvxg/image/upload/v1779797844/sirini-jewellery/brand/artisan-workshop.jpg";
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/v1779798780/sirini-jewellery/brand/artisan-craft.jpg";
 
 export default function AboutPage() {
   return (

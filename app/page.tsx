@@ -6,16 +6,19 @@ import { BrandStory } from "@/components/BrandStory";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { ScrollReveal } from "@/components/ScrollReveal";
-import { pageMetadata } from "@/lib/seo";
+import { OrganizationJsonLd } from "@/components/OrganizationJsonLd";
+import { pageMetadata, siteConfig } from "@/lib/seo";
 
 export const metadata = pageMetadata(
   "Sirini Jewellery — Handcrafted Fashion Jewellery",
-  "Shop elegant necklaces, earrings, bangles, rings and bridal jewellery. Free shipping in India.",
+  "Shop handcrafted Kundan, Meenakari, and gold-plated jewellery — necklace sets, earrings, bangles, finger rings and anklets. Pan India free shipping.",
+  { canonical: siteConfig.url },
 );
 
 export default function HomePage() {
   return (
     <>
+      <OrganizationJsonLd />
       <ScrollReveal />
       <HeroSection />
       <Suspense fallback={<div className="h-96 bg-muted animate-pulse" />}>

@@ -96,6 +96,50 @@ export async function getRelatedProducts(category: string, excludeId: string, li
   });
 }
 
+/**
+ * "You Can Pair This With" — fetches 2 products each from 2 DIFFERENT categories
+ * so the section always shows complementary categories, not the same one.
+ */
+export async function getPairingProducts(currentCategory: string, excludeId: string) {
+  // Find up to 2 other categories that actually have products in the DB
+  const rows = await prisma.product.findMany({
+    where: { category: { not: currentCategory } },
+    select: { category: true },
+    distinct: ["category"],
+    take: 2,
+    orderBy: { createdAt: "desc" },
+  });
+
+  if (rows.length === 0) return [];
+
+  // Fetch 2 products per pairing category in parallel
+  const groups = await Promise.all(
+    rows.map(({ category }) =>
+      prisma.product.findMany({
+        where: { category, id: { not: excludeId } },
+        take: 2,
+        orderBy: { createdAt: "desc" },
+        include: {
+          variants: {
+            select: { id: true, size: true, colour: true, stockQuantity: true },
+          },
+        },
+      })
+    )
+  );
+
+  // Interleave: [cat1[0], cat2[0], cat1[1], cat2[1]] so the grid
+  // alternates between the two pairing categories visually
+  const maxLen = Math.max(...groups.map((g) => g.length));
+  const interleaved = [];
+  for (let i = 0; i < maxLen; i++) {
+    for (const group of groups) {
+      if (group[i]) interleaved.push(group[i]);
+    }
+  }
+  return interleaved;
+}
+
 export async function getFeaturedProducts(limit = 8) {
   return prisma.product.findMany({
     where: { isFeatured: true },

@@ -1,49 +1,61 @@
 // Server component — no "use client"
-// Warm-editorial: full-bleed photography with bottom gradient overlay,
-// centered serif headline with staggered animate-slide-up-fade entrance.
-
-// Cloudinary crop: w_1920,h_900,c_fill,g_south — anchors to bottom of image
-// so the necklace/chest area is the focal point, not the face.
+// Editorial flat-lay hero: jewellery set on blush pink fabric.
+// c_pad fills the landscape frame by extending the pink background to the sides —
+// keeping the full jewellery arrangement intact with no cropping.
 const HERO_IMAGE_URL =
-  "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1920,h_900,c_fill,g_south/v1779795103/sirini-jewellery/10ns787/10NS787-11225-Model.jpg";
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1920,h_900,c_pad,b_rgb:F8D5CF,g_center/v1779954722/sirini-jewellery/brand/hero-flatlay.jpg";
 
 export function HeroSection() {
   return (
-    <section className="relative w-full h-[819px] min-h-[600px] flex items-center justify-center overflow-hidden reveal">
+    <section className="relative w-full h-[680px] min-h-[520px] overflow-hidden reveal">
 
-      {/* Full-bleed background image with bottom-fade overlay */}
+      {/* Full-bleed background */}
       <div
         className="absolute inset-0 z-0 bg-cover bg-center"
         style={{ backgroundImage: `url('${HERO_IMAGE_URL}')` }}
       >
-        <div className="absolute inset-0 bg-gradient-to-t from-background/80 to-transparent" />
+        {/* Left-to-right gradient — gives text a clean dark panel on the left */}
+        <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
+        {/* Bottom fade for depth */}
+        <div className="absolute inset-0 bg-gradient-to-t from-background/40 to-transparent" />
       </div>
 
-      {/* Hero content */}
-      <div className="relative z-10 text-center px-4 md:px-16 max-w-4xl mx-auto flex flex-col items-center gap-8 mt-20">
+      {/* Hero content — left aligned */}
+      <div className="relative z-10 h-full flex items-center px-6 md:px-16 max-w-screen-2xl mx-auto">
+        <div className="flex flex-col gap-6 max-w-xl">
 
-        {/* Display headline */}
-        <h1 className="font-display-lg text-display-lg md:text-[72px] md:leading-[1.1] text-on-surface animate-slide-up-fade">
-          The Heritage of Elegance
-        </h1>
+          {/* Eyebrow label */}
+          <p className="font-label-caps text-label-caps tracking-[0.3em] text-primary uppercase animate-slide-up-fade">
+            Handcrafted Since 2015
+          </p>
 
-        {/* Subtitle */}
-        <p
-          className="font-body-lg text-body-lg text-on-surface-variant max-w-lg animate-slide-up-fade"
-          style={{ animationDelay: "200ms" }}
-        >
-          Discover handcrafted jewelry that bridges centuries of artisanal tradition with modern minimalist design.
-        </p>
+          {/* Display headline */}
+          <h1
+            className="font-display-lg text-[48px] sm:text-[60px] md:text-[72px] leading-[1.05] text-on-surface animate-slide-up-fade"
+            style={{ animationDelay: "100ms" }}
+          >
+            The Heritage<br className="hidden sm:block" /> of Elegance
+          </h1>
 
-        {/* CTA */}
-        <a
-          className="mt-4 inline-flex items-center justify-center px-8 py-4 bg-primary text-on-primary font-label-caps text-label-caps font-semibold hover:bg-on-primary-fixed-variant transition-colors duration-300 animate-slide-up-fade cursor-pointer"
-          href="/shop"
-          style={{ animationDelay: "400ms" }}
-        >
-          Shop the Collection
-        </a>
+          {/* Subtitle */}
+          <p
+            className="font-body-lg text-body-lg text-on-surface-variant max-w-sm leading-relaxed animate-slide-up-fade"
+            style={{ animationDelay: "220ms" }}
+          >
+            Kundan, Meenakari &amp; gold-plated jewellery —<br className="hidden md:block" />
+            crafted in Mumbai for every occasion.
+          </p>
 
+          {/* CTA */}
+          <a
+            href="/shop"
+            className="w-fit inline-flex items-center justify-center gap-2 px-8 py-4 bg-primary text-on-primary font-label-caps text-label-caps font-semibold hover:bg-on-primary-fixed-variant transition-colors duration-300 animate-slide-up-fade cursor-pointer"
+            style={{ animationDelay: "360ms" }}
+          >
+            Shop the Collection
+          </a>
+
+        </div>
       </div>
     </section>
   );
