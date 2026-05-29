@@ -12,6 +12,7 @@ import { ProductJsonLd } from "@/components/ProductJsonLd";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 import { FAQJsonLd } from "@/components/FAQJsonLd";
 import { ProductReviews } from "@/components/ProductReviews";
+import { RecentlyViewedStrip } from "@/components/RecentlyViewedStrip";
 import { prisma } from "@/lib/prisma";
 
 interface Props {
@@ -105,6 +106,9 @@ export default async function ProductPage({ params }: Props) {
       <Suspense fallback={null}>
         <ProductReviews productId={product.id} />
       </Suspense>
+
+      {/* Recently viewed */}
+      <RecentlyViewedStrip currentProductId={product.id} />
 
       {/* Structured data */}
       <ProductJsonLd

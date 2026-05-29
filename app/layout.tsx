@@ -9,6 +9,8 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { baseMetadata } from "@/lib/seo";
 import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
 import { CartDrawer } from "@/components/CartDrawer";
+import NextTopLoader from "nextjs-toploader";
+import { MobileBottomNav } from "@/components/MobileBottomNav";
 
 const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
@@ -44,14 +46,16 @@ export default function RootLayout({
       <body
         className={`${ebGaramond.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
+        <NextTopLoader color="#B76E79" height={3} showSpinner={false} crawl={true} />
         <WebSiteJsonLd />
         <AuthProvider>
           <NavbarWrapper />
-          <main className="flex-1">{children}</main>
+          <main className="flex-1 pb-16 md:pb-0">{children}</main>
           <FooterWrapper />
           <WhatsAppWrapper />
           <Toaster />
           <CartDrawer />
+          <MobileBottomNav />
         </AuthProvider>
         {process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID} />

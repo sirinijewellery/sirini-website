@@ -7,6 +7,7 @@ import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
 import { parseImages, selectCardImages } from "@/lib/parseImages";
+import { QuickViewModal } from "@/components/QuickViewModal";
 
 interface ProductCardProps {
   product: {
@@ -53,6 +54,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const router = useRouter();
   const [wishlisted, setWishlisted] = useState(false);
   const [wishlistLoading, setWishlistLoading] = useState(false);
+  const [quickViewOpen, setQuickViewOpen] = useState(false);
 
   const images = parseImages(product.images);
   const { primary: primaryImage, hover: secondImage } = selectCardImages(images);
@@ -89,6 +91,7 @@ export function ProductCard({ product }: ProductCardProps) {
   }
 
   return (
+    <>
     <Link href={`/shop/${product.slug}`} className="group block cursor-pointer">
       {/* ── Image container ─────────────────────────────────────── */}
       <div className="relative aspect-[4/5] bg-surface-container overflow-hidden border border-outline-variant group-hover:border-primary/30 transition-colors duration-300 mb-4">
@@ -166,6 +169,20 @@ export function ProductCard({ product }: ProductCardProps) {
             </span>
           </div>
         )}
+
+        {/* ── Quick view button — desktop hover only ─────────────── */}
+        <button
+          type="button"
+          onClick={(e) => {
+            e.preventDefault();
+            e.stopPropagation();
+            setQuickViewOpen(true);
+          }}
+          className="absolute bottom-3 left-1/2 -translate-x-1/2 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hidden md:flex items-center gap-1.5 px-4 py-2 bg-background/95 backdrop-blur-sm border border-outline-variant text-on-surface text-xs font-label-caps tracking-wider uppercase hover:bg-primary hover:text-on-primary hover:border-primary whitespace-nowrap z-10 cursor-pointer"
+          aria-label={`Quick view ${product.name}`}
+        >
+          Quick View
+        </button>
       </div>
 
       {/* ── Product info ─────────────────────────────────────────── */}
@@ -178,5 +195,12 @@ export function ProductCard({ product }: ProductCardProps) {
         </p>
       </div>
     </Link>
+
+    <QuickViewModal
+      slug={product.slug}
+      isOpen={quickViewOpen}
+      onClose={() => setQuickViewOpen(false)}
+    />
+    </>
   );
 }

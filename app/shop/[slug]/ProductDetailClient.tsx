@@ -5,6 +5,7 @@ import { VariantSelector } from "@/components/VariantSelector";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { WishlistButton } from "@/components/WishlistButton";
 import { Separator } from "@/components/ui/separator";
+import { useRecentlyViewedStore } from "@/lib/store/recentlyViewed";
 
 interface Variant {
   id: string;
@@ -53,6 +54,20 @@ export default function ProductDetailClient({
 
   const ctaRef = useRef<HTMLDivElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
+
+  const addRecentlyViewed = useRecentlyViewedStore((s) => s.addItem);
+
+  useEffect(() => {
+    addRecentlyViewed({
+      id: product.id,
+      name: product.name,
+      slug: product.slug,
+      price: product.price,
+      image: images[0] ?? "",
+      category: product.category,
+    });
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [product.id]); // run once when product changes
 
   useEffect(() => {
     const el = ctaRef.current;
@@ -156,7 +171,7 @@ export default function ProductDetailClient({
 
     {/* Sticky mobile CTA — visible when main button is off screen */}
       <div
-        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t border-outline-variant shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-transform duration-300 ${
+        className={`md:hidden fixed bottom-16 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t border-outline-variant shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-transform duration-300 ${
           showStickyBar ? "translate-y-0" : "translate-y-full"
         }`}
       >
