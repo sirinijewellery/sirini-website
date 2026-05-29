@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useRef, useEffect } from "react";
 import { VariantSelector } from "@/components/VariantSelector";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { WishlistButton } from "@/components/WishlistButton";
@@ -51,11 +51,26 @@ export default function ProductDetailClient({
     product.variants.length === 1 ? product.variants[0].id : null
   );
 
+  const ctaRef = useRef<HTMLDivElement>(null);
+  const [showStickyBar, setShowStickyBar] = useState(false);
+
+  useEffect(() => {
+    const el = ctaRef.current;
+    if (!el) return;
+    const observer = new IntersectionObserver(
+      ([entry]) => setShowStickyBar(!entry.isIntersecting),
+      { threshold: 0, rootMargin: "0px" }
+    );
+    observer.observe(el);
+    return () => observer.disconnect();
+  }, []);
+
   const selectedVariant =
     product.variants.find((v) => v.id === selectedVariantId) ?? null;
   const hasVariants = product.variants.length > 0;
 
   return (
+    <>
     <div className="space-y-6">
       {/* Badge + Category */}
       <div className="flex items-center gap-2">
@@ -95,7 +110,7 @@ export default function ProductDetailClient({
       )}
 
       {/* Add to cart + Wishlist */}
-      <div className="flex gap-3">
+      <div ref={ctaRef} className="flex gap-3">
         <div className="flex-1">
           <AddToCartButton
             product={{
@@ -138,5 +153,36 @@ export default function ProductDetailClient({
         </div>
       </div>
     </div>
+
+    {/* Sticky mobile CTA — visible when main button is off screen */}
+      <div
+        className={`md:hidden fixed bottom-0 left-0 right-0 z-40 bg-background/95 backdrop-blur-sm border-t border-outline-variant shadow-[0_-4px_20px_rgba(0,0,0,0.08)] transition-transform duration-300 ${
+          showStickyBar ? "translate-y-0" : "translate-y-full"
+        }`}
+      >
+        <div className="flex items-center gap-3 px-4 py-3 max-w-screen-2xl mx-auto">
+          {/* Product info */}
+          <div className="flex-1 min-w-0">
+            <p className="font-sans text-sm font-medium text-on-surface truncate">{product.name}</p>
+            <p className="font-sans text-sm font-semibold text-primary">{formatPrice(product.price)}</p>
+          </div>
+          {/* CTA button — same props as main AddToCartButton */}
+          <div className="shrink-0 w-40">
+            <AddToCartButton
+              product={{
+                id: product.id,
+                name: product.name,
+                slug: product.slug,
+                price: product.price,
+                images,
+                category: product.category,
+              }}
+              selectedVariant={selectedVariant}
+              hasVariants={hasVariants}
+            />
+          </div>
+        </div>
+      </div>
+    </>
   );
 }

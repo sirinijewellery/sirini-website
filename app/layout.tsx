@@ -8,6 +8,7 @@ import { WhatsAppWrapper } from "@/components/WhatsAppWrapper";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { baseMetadata } from "@/lib/seo";
 import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
+import { CartDrawer } from "@/components/CartDrawer";
 
 const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
@@ -50,6 +51,7 @@ export default function RootLayout({
           <FooterWrapper />
           <WhatsAppWrapper />
           <Toaster />
+          <CartDrawer />
         </AuthProvider>
         {process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID} />

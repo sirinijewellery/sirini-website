@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CartBadge } from "@/components/CartBadge";
+import { useCartStore } from "@/lib/store/cart";
 
 const navLinks = [
   { href: "/", label: "Home" },
@@ -18,18 +19,33 @@ const navLinks = [
   { href: "/contact", label: "Contact" },
 ];
 
+const ANNOUNCEMENTS = [
+  "Free Pan-India Shipping on All Orders",
+  "Handcrafted Since 2015 · Genuine Kundan & Meenakari",
+  "Cash on Delivery Available · First Order: Flat 10% OFF",
+];
+
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
+  const openDrawer = useCartStore((s) => s.openDrawer);
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
   const [mobileOpen, setMobileOpen] = useState(false);
+  const [announcementIdx, setAnnouncementIdx] = useState(0);
   const searchRef = useRef<HTMLInputElement>(null);
 
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus();
   }, [searchOpen]);
+
+  useEffect(() => {
+    const timer = setInterval(() => {
+      setAnnouncementIdx((prev) => (prev + 1) % ANNOUNCEMENTS.length);
+    }, 4000);
+    return () => clearInterval(timer);
+  }, []);
 
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
@@ -42,9 +58,21 @@ export function Navbar() {
 
   return (
     <>
-      {/* Announcement bar */}
+      {/* Announcement bar — rotating messages */}
       <div className="bg-primary text-on-primary py-2 px-4 text-center text-[10px] md:text-xs font-label-caps tracking-[0.2em] uppercase">
-        Heritage Opulence: Flat 10% OFF on Your First Order | Pan India Free Shipping
+        <span className="relative block h-[1.4em]">
+          {ANNOUNCEMENTS.map((msg, i) => (
+            <span
+              key={i}
+              aria-hidden={i !== announcementIdx}
+              className={`absolute inset-0 flex items-center justify-center transition-opacity duration-500 ${
+                i === announcementIdx ? "opacity-100" : "opacity-0"
+              }`}
+            >
+              {msg}
+            </span>
+          ))}
+        </span>
       </div>
 
       {/* Sticky header */}
@@ -175,14 +203,14 @@ export function Navbar() {
               </div>
 
               {/* Cart */}
-              <Link
-                href="/cart"
-                className="relative text-primary hover:scale-[1.02] transition-all duration-300"
+              <button
+                onClick={openDrawer}
+                className="relative text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
                 aria-label="Cart"
               >
                 <ShoppingBag className="h-6 w-6" />
                 <CartBadge />
-              </Link>
+              </button>
 
               {/* Mobile hamburger */}
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>

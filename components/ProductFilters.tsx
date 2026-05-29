@@ -1,14 +1,20 @@
 "use client";
 
 import { useRouter, useSearchParams } from "next/navigation";
-import { useCallback, useEffect, useRef, useState } from "react";
-import { Label } from "@/components/ui/label";
-import { Separator } from "@/components/ui/separator";
+import { useCallback } from "react";
 
 interface ProductFiltersProps {
   categories: { id: string; name: string; slug: string }[];
   materials: string[];
 }
+
+// Price presets — [label, priceMin, priceMax]
+const PRICE_PRESETS: [string, string, string][] = [
+  ["Under ₹500", "", "500"],
+  ["₹500–1000", "500", "1000"],
+  ["₹1000–2000", "1000", "2000"],
+  ["₹2000+", "2000", ""],
+];
 
 export function ProductFilters({ categories, materials }: ProductFiltersProps) {
   const router = useRouter();
@@ -19,28 +25,7 @@ export function ProductFilters({ categories, materials }: ProductFiltersProps) {
   const priceMin = searchParams.get("priceMin") || "";
   const priceMax = searchParams.get("priceMax") || "";
 
-  // Local state for price inputs — debounced to avoid router.push on every keystroke
-  const [localMin, setLocalMin] = useState(priceMin);
-  const [localMax, setLocalMax] = useState(priceMax);
-  const priceDebounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  // Keep local state in sync when URL params change externally (e.g. "Clear all")
-  useEffect(() => { setLocalMin(priceMin); }, [priceMin]);
-  useEffect(() => { setLocalMax(priceMax); }, [priceMax]);
-
-  function handlePriceChange(key: "priceMin" | "priceMax", value: string) {
-    if (key === "priceMin") setLocalMin(value);
-    else setLocalMax(value);
-
-    if (priceDebounceRef.current) clearTimeout(priceDebounceRef.current);
-    priceDebounceRef.current = setTimeout(() => {
-      const params = new URLSearchParams(searchParams.toString());
-      if (value) params.set(key, value);
-      else params.delete(key);
-      params.delete("page");
-      router.push(`/shop?${params.toString()}`);
-    }, 600);
-  }
+  const hasFilters = activeCategory || activeMaterial || priceMin || priceMax;
 
   const updateParam = useCallback(
     (key: string, value: string) => {
@@ -56,120 +41,111 @@ export function ProductFilters({ categories, materials }: ProductFiltersProps) {
     [router, searchParams]
   );
 
+  function handlePricePreset(min: string, max: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    min ? params.set("priceMin", min) : params.delete("priceMin");
+    max ? params.set("priceMax", max) : params.delete("priceMax");
+    params.delete("page");
+    router.push(`/shop?${params.toString()}`);
+  }
+
   function clearAll() {
     router.push("/shop");
   }
 
-  const hasFilters = activeCategory || activeMaterial || priceMin || priceMax;
+  // Check if a price preset is currently active
+  function isPricePresetActive(min: string, max: string) {
+    return priceMin === min && priceMax === max;
+  }
+
+  // Base pill classes — shared by all pills
+  const pillBase =
+    "shrink-0 px-4 py-1.5 rounded-full text-sm font-sans border transition-colors duration-200 cursor-pointer whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1";
+
+  // Inactive pill
+  const pillInactive =
+    "border-border text-muted-foreground hover:border-primary hover:text-primary bg-background";
+
+  // Active pill — rose gold fill
+  const pillActive =
+    "border-primary bg-primary text-primary-foreground";
+
+  // Separator between groups
+  const separator = "shrink-0 w-px h-5 bg-border mx-1 self-center";
 
   return (
-    <aside className="w-full lg:w-56 shrink-0 space-y-6">
-      <div className="flex items-center justify-between">
-        <h2 className="font-display text-lg text-foreground">Filters</h2>
-        {hasFilters && (
+    <div className="w-full">
+      {/* Horizontal scrollable pill bar — no-scrollbar hides the track on all browsers */}
+      <div
+        className="flex items-center gap-2 overflow-x-auto pb-1"
+        style={{ scrollbarWidth: "none", msOverflowStyle: "none" }}
+      >
+        {/* ── Group 1: Categories ── */}
+        <button
+          onClick={() => updateParam("category", "")}
+          className={`${pillBase} ${!activeCategory ? pillActive : pillInactive}`}
+          aria-pressed={!activeCategory}
+        >
+          All Jewellery
+        </button>
+
+        {categories.map((cat) => (
           <button
-            onClick={clearAll}
-            className="text-xs font-sans text-muted-foreground hover:text-primary transition-colors underline"
+            key={cat.id}
+            onClick={() => updateParam("category", cat.name)}
+            className={`${pillBase} ${activeCategory === cat.name ? pillActive : pillInactive}`}
+            aria-pressed={activeCategory === cat.name}
           >
-            Clear all
+            {cat.name}
           </button>
+        ))}
+
+        {/* ── Separator ── */}
+        <div className={separator} aria-hidden="true" />
+
+        {/* ── Group 2: Price presets ── */}
+        {PRICE_PRESETS.map(([label, min, max]) => (
+          <button
+            key={label}
+            onClick={() => handlePricePreset(min, max)}
+            className={`${pillBase} ${isPricePresetActive(min, max) ? pillActive : pillInactive}`}
+            aria-pressed={isPricePresetActive(min, max)}
+          >
+            {label}
+          </button>
+        ))}
+
+        {/* ── Separator ── */}
+        {materials.length > 0 && (
+          <div className={separator} aria-hidden="true" />
+        )}
+
+        {/* ── Group 3: Materials ── */}
+        {materials.map((m) => (
+          <button
+            key={m}
+            onClick={() => updateParam("material", m)}
+            className={`${pillBase} ${activeMaterial === m ? pillActive : pillInactive}`}
+            aria-pressed={activeMaterial === m}
+          >
+            {m}
+          </button>
+        ))}
+
+        {/* ── Separator + Clear all (only when a filter is active) ── */}
+        {hasFilters && (
+          <>
+            <div className={separator} aria-hidden="true" />
+            <button
+              onClick={clearAll}
+              className={`${pillBase} border-destructive/40 text-destructive hover:bg-destructive/10`}
+              aria-label="Clear all filters"
+            >
+              <span aria-hidden="true" className="mr-1">×</span>Clear All
+            </button>
+          </>
         )}
       </div>
-
-      {/* Category */}
-      <div className="space-y-2">
-        <Label className="font-sans text-xs uppercase tracking-widest text-muted-foreground">Category</Label>
-        <div className="flex flex-col gap-1">
-          <button
-            onClick={() => updateParam("category", "")}
-            className={`text-left text-sm font-sans py-1 transition-colors ${!activeCategory ? "text-primary font-medium" : "text-foreground hover:text-primary"}`}
-          >
-            All Jewellery
-          </button>
-          {categories.map((cat) => (
-            <button
-              key={cat.id}
-              onClick={() => updateParam("category", cat.name)}
-              className={`text-left text-sm font-sans py-1 transition-colors ${activeCategory === cat.name ? "text-primary font-medium" : "text-foreground hover:text-primary"}`}
-            >
-              {cat.name}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Price range */}
-      <div className="space-y-3">
-        <Label className="font-sans text-xs uppercase tracking-widest text-muted-foreground">Price (₹)</Label>
-        <div className="grid grid-cols-2 gap-2">
-          <div>
-            <input
-              type="number"
-              placeholder="Min"
-              value={localMin}
-              onChange={(e) => handlePriceChange("priceMin", e.target.value)}
-              className="w-full h-8 px-2 text-sm border border-border rounded bg-background font-sans focus:outline-none focus:ring-1 focus:ring-ring"
-            />
-          </div>
-          <div>
-            <input
-              type="number"
-              placeholder="Max"
-              value={localMax}
-              onChange={(e) => handlePriceChange("priceMax", e.target.value)}
-              className="w-full h-8 px-2 text-sm border border-border rounded bg-background font-sans focus:outline-none focus:ring-1 focus:ring-ring"
-            />
-          </div>
-        </div>
-        <div className="flex flex-wrap gap-1">
-          {[
-            ["Under ₹500", "", "500"],
-            ["₹500–1000", "500", "1000"],
-            ["₹1000–2000", "1000", "2000"],
-            ["₹2000+", "2000", ""],
-          ].map(([label, min, max]) => (
-            <button
-              key={label}
-              onClick={() => {
-                const params = new URLSearchParams(searchParams.toString());
-                min ? params.set("priceMin", min) : params.delete("priceMin");
-                max ? params.set("priceMax", max) : params.delete("priceMax");
-                params.delete("page");
-                router.push(`/shop?${params.toString()}`);
-              }}
-              className="text-xs font-sans px-2 py-1 rounded border border-border hover:border-primary hover:text-primary transition-colors"
-            >
-              {label}
-            </button>
-          ))}
-        </div>
-      </div>
-
-      <Separator />
-
-      {/* Material */}
-      <div className="space-y-2">
-        <Label className="font-sans text-xs uppercase tracking-widest text-muted-foreground">Material</Label>
-        <div className="flex flex-col gap-1">
-          <button
-            onClick={() => updateParam("material", "")}
-            className={`text-left text-sm font-sans py-1 transition-colors ${!activeMaterial ? "text-primary font-medium" : "text-foreground hover:text-primary"}`}
-          >
-            All Materials
-          </button>
-          {materials.map((m) => (
-            <button
-              key={m}
-              onClick={() => updateParam("material", m)}
-              className={`text-left text-sm font-sans py-1 transition-colors ${activeMaterial === m ? "text-primary font-medium" : "text-foreground hover:text-primary"}`}
-            >
-              {m}
-            </button>
-          ))}
-        </div>
-      </div>
-    </aside>
+    </div>
   );
 }

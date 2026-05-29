@@ -69,48 +69,45 @@ async function ShopContent({ searchParams }: ShopPageProps) {
         <p className="text-sm text-muted-foreground mt-1 font-sans">{total} products</p>
       </div>
 
-      <div className="flex flex-col lg:flex-row gap-8">
-        {/* Filters sidebar */}
+      <div className="space-y-6">
+        {/* Pill filter bar — full width, scrollable on mobile */}
         <ProductFilters categories={categories} materials={materials} />
 
-        {/* Product grid area */}
-        <div className="flex-1 min-w-0">
-          {/* Sort bar */}
-          <div className="flex items-center justify-between mb-6">
-            <p className="text-sm text-muted-foreground font-sans hidden sm:block">
-              Showing {total === 0 ? 0 : Math.min((page - 1) * 20 + 1, total)}–
-              {Math.min(page * 20, total)} of {total}
-            </p>
-            <div className="ml-auto">
-              <SortSelect currentSort={currentSort} />
-            </div>
+        {/* Sort bar */}
+        <div className="flex items-center justify-between">
+          <p className="text-sm text-muted-foreground font-sans hidden sm:block">
+            Showing {total === 0 ? 0 : Math.min((page - 1) * 20 + 1, total)}–
+            {Math.min(page * 20, total)} of {total}
+          </p>
+          <div className="ml-auto">
+            <SortSelect currentSort={currentSort} />
           </div>
-
-          <ProductGrid products={products} />
-
-          {/* Pagination */}
-          {totalPages > 1 && (
-            <div className="flex justify-center gap-2 mt-12">
-              {page > 1 && (
-                <PaginationLink href={buildHref(params, page - 1)} label="← Previous" />
-              )}
-              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-                const p = i + 1;
-                return (
-                  <PaginationLink
-                    key={p}
-                    href={buildHref(params, p)}
-                    label={String(p)}
-                    active={p === page}
-                  />
-                );
-              })}
-              {page < totalPages && (
-                <PaginationLink href={buildHref(params, page + 1)} label="Next →" />
-              )}
-            </div>
-          )}
         </div>
+
+        <ProductGrid products={products} />
+
+        {/* Pagination */}
+        {totalPages > 1 && (
+          <div className="flex justify-center gap-2 mt-12">
+            {page > 1 && (
+              <PaginationLink href={buildHref(params, page - 1)} label="← Previous" />
+            )}
+            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+              const p = i + 1;
+              return (
+                <PaginationLink
+                  key={p}
+                  href={buildHref(params, p)}
+                  label={String(p)}
+                  active={p === page}
+                />
+              );
+            })}
+            {page < totalPages && (
+              <PaginationLink href={buildHref(params, page + 1)} label="Next →" />
+            )}
+          </div>
+        )}
       </div>
     </div>
   );
@@ -164,23 +161,27 @@ export default function ShopPage(props: ShopPageProps) {
 
 function ShopSkeleton() {
   return (
-    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
-      <div className="h-10 w-48 bg-muted rounded animate-pulse mb-8" />
-      <div className="flex gap-8">
-        <div className="w-56 shrink-0 space-y-4">
-          {[...Array(4)].map((_, i) => (
-            <div key={i} className="h-4 bg-muted rounded animate-pulse" />
-          ))}
-        </div>
-        <div className="flex-1 grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
-          {[...Array(8)].map((_, i) => (
-            <div key={i} className="space-y-2">
-              <div className="aspect-square bg-muted rounded-lg animate-pulse" />
-              <div className="h-3 bg-muted rounded animate-pulse" />
-              <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
-            </div>
-          ))}
-        </div>
+    <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
+      <div className="h-10 w-48 bg-muted rounded animate-pulse" />
+      {/* Pill bar skeleton */}
+      <div className="flex gap-2 overflow-hidden">
+        {[...Array(8)].map((_, i) => (
+          <div
+            key={i}
+            className="h-8 bg-muted rounded-full animate-pulse shrink-0"
+            style={{ width: `${70 + (i % 3) * 20}px` }}
+          />
+        ))}
+      </div>
+      {/* Product grid skeleton */}
+      <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
+        {[...Array(8)].map((_, i) => (
+          <div key={i} className="space-y-2">
+            <div className="aspect-square bg-muted rounded-lg animate-pulse" />
+            <div className="h-3 bg-muted rounded animate-pulse" />
+            <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+          </div>
+        ))}
       </div>
     </div>
   );

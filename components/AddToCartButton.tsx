@@ -1,7 +1,6 @@
 "use client";
 
 import { useState } from "react";
-import { useRouter } from "next/navigation";
 import { useCartStore } from "@/lib/store/cart";
 import { Button } from "@/components/ui/button";
 import { toast } from "sonner";
@@ -31,12 +30,11 @@ export function AddToCartButton({
   selectedVariant,
   hasVariants,
 }: AddToCartButtonProps) {
-  const router = useRouter();
-
   const items = useCartStore((state) => state.items);
   const addItem = useCartStore((state) => state.addItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
   const removeItem = useCartStore((state) => state.removeItem);
+  const openDrawer = useCartStore((state) => state.openDrawer);
 
   // Local state only for the typed input value while editing
   const [inputValue, setInputValue] = useState<string>("");
@@ -79,14 +77,12 @@ export function AddToCartButton({
       quantity: 1,
     });
 
+    openDrawer();
+
     toast.success(`${product.name} added to cart`, {
       description: selectedVariant?.colour
         ? `Finish: ${selectedVariant.colour}`
         : undefined,
-      action: {
-        label: "View Cart",
-        onClick: () => router.push("/cart"),
-      },
     });
   }
 

@@ -30,6 +30,10 @@ interface CartStore {
   getTotal: () => number;
   getItemCount: () => number;
   setCoupon: (coupon: CouponResult | null) => void;
+  // Drawer state — transient, not persisted
+  isDrawerOpen: boolean;
+  openDrawer: () => void;
+  closeDrawer: () => void;
 }
 
 function isSameItem(a: CartItem, b: { productId: string; variantId?: string }) {
@@ -81,9 +85,18 @@ export const useCartStore = create<CartStore>()(
 
       getItemCount: () =>
         get().items.reduce((sum, item) => sum + item.quantity, 0),
+
+      // Drawer — transient state, excluded from persistence via partialize
+      isDrawerOpen: false,
+      openDrawer: () => set({ isDrawerOpen: true }),
+      closeDrawer: () => set({ isDrawerOpen: false }),
     }),
     {
       name: "sirini-cart",
+      partialize: (state) => ({
+        items: state.items,
+        appliedCoupon: state.appliedCoupon,
+      }),
     }
   )
 );
