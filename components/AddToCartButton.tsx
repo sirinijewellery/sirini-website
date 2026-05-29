@@ -64,6 +64,7 @@ export function AddToCartButton({
       slug: product.slug,
       price: product.price,
       image: product.images[0] ?? "",
+      category: product.category,
       size: selectedVariant?.size ?? undefined,
       colour: selectedVariant?.colour ?? undefined,
       quantity: 1,

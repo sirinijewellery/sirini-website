@@ -11,6 +11,16 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Minus, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { useState, useEffect } from "react";
+
+interface SuggestionProduct {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  images: string[];
+  category: string;
+}
 
 const formatPrice = (price: number) =>
   new Intl.NumberFormat("en-IN", {
@@ -28,6 +38,30 @@ export function CartDrawer() {
   const getTotal = useCartStore((s) => s.getTotal);
 
   const subtotal = getTotal();
+
+  const [suggestions, setSuggestions] = useState<SuggestionProduct[]>([]);
+
+  useEffect(() => {
+    if (items.length === 0) {
+      setSuggestions([]);
+      return;
+    }
+
+    // Find the most expensive item's category
+    const topItem = [...items].sort((a, b) => b.price - a.price)[0];
+    const cartProductIds = new Set(items.map((i) => i.productId));
+
+    const searchTerm = topItem.category ?? topItem.name;
+    fetch(`/api/search?q=${encodeURIComponent(searchTerm)}`)
+      .then((r) => r.json())
+      .then((data) => {
+        const filtered = (data.results ?? [])
+          .filter((p: SuggestionProduct) => !cartProductIds.has(p.id))
+          .slice(0, 3);
+        setSuggestions(filtered);
+      })
+      .catch(() => setSuggestions([]));
+  }, [items]);
 
   return (
     <Sheet
@@ -93,7 +127,7 @@ export function CartDrawer() {
                   >
                     {/* Thumbnail */}
                     <Link
-                      href={`/products/${item.slug}`}
+                      href={`/shop/${item.slug}`}
                       onClick={closeDrawer}
                       className="shrink-0"
                     >
@@ -111,7 +145,7 @@ export function CartDrawer() {
                     {/* Info */}
                     <div className="flex-1 min-w-0">
                       <Link
-                        href={`/products/${item.slug}`}
+                        href={`/shop/${item.slug}`}
                         onClick={closeDrawer}
                       >
                         <p className="text-sm font-sans font-medium text-[#2C2C2C] truncate hover:text-[#B76E79] transition-colors duration-150">
@@ -188,6 +222,47 @@ export function CartDrawer() {
                 );
               })}
             </ul>
+
+            {/* ── Complete the Look upsell ─────────────────────────────────── */}
+            {suggestions.length > 0 && (
+              <div className="border-t border-[#E8D5B0] px-6 py-4 bg-[#FDF9F6]">
+                <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#8A8078] mb-3">
+                  Complete the Look
+                </p>
+                <div className="space-y-3">
+                  {suggestions.map((s) => (
+                    <Link
+                      key={s.id}
+                      href={`/shop/${s.slug}`}
+                      onClick={closeDrawer}
+                      className="flex items-center gap-3 group"
+                    >
+                      {/* Thumbnail */}
+                      <div className="w-12 h-12 shrink-0 overflow-hidden bg-[#F2E8E0] border border-[#E8D5B0]">
+                        {s.images[0] && (
+                          <img
+                            src={s.images[0]}
+                            alt={s.name}
+                            className="w-full h-full object-cover group-hover:scale-105 transition-transform duration-300"
+                          />
+                        )}
+                      </div>
+                      {/* Info */}
+                      <div className="flex-1 min-w-0">
+                        <p className="text-xs font-sans text-[#2C2C2C] truncate group-hover:text-[#B76E79] transition-colors duration-150">
+                          {s.name}
+                        </p>
+                        <p className="text-xs font-sans font-semibold text-[#B76E79] mt-0.5">
+                          {formatPrice(s.price)}
+                        </p>
+                      </div>
+                      {/* Arrow */}
+                      <span className="text-[#8A8078] group-hover:text-[#B76E79] transition-colors shrink-0 text-sm">→</span>
+                    </Link>
+                  ))}
+                </div>
+              </div>
+            )}
 
             {/* ── Footer ────────────────────────────────────────────────────── */}
             <div className="border-t border-[#E8D5B0] px-6 py-4 space-y-3 bg-[#FAF7F2]">

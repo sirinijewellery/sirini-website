@@ -12,6 +12,19 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CartBadge } from "@/components/CartBadge";
 import { useCartStore } from "@/lib/store/cart";
 
+// ─── Types ──────────────────────────────────────────────────────────────────
+
+interface SearchResult {
+  id: string;
+  name: string;
+  slug: string;
+  price: number;
+  images: string[];
+  category: string;
+}
+
+// ─── Constants ──────────────────────────────────────────────────────────────
+
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
@@ -25,21 +38,42 @@ const ANNOUNCEMENTS = [
   "Cash on Delivery Available · First Order: Flat 10% OFF",
 ];
 
+const inrFormatter = new Intl.NumberFormat("en-IN", {
+  style: "currency",
+  currency: "INR",
+  minimumFractionDigits: 0,
+});
+
+// ─── Component ───────────────────────────────────────────────────────────────
+
 export function Navbar() {
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
   const openDrawer = useCartStore((s) => s.openDrawer);
+
+  // Search state
   const [searchOpen, setSearchOpen] = useState(false);
   const [searchQuery, setSearchQuery] = useState("");
+  const [searchResults, setSearchResults] = useState<SearchResult[]>([]);
+  const [isSearching, setIsSearching] = useState(false);
+  const [activeIndex, setActiveIndex] = useState(-1);
+
+  // Other state
   const [mobileOpen, setMobileOpen] = useState(false);
   const [announcementIdx, setAnnouncementIdx] = useState(0);
-  const searchRef = useRef<HTMLInputElement>(null);
 
+  // Refs
+  const searchRef = useRef<HTMLInputElement>(null);
+  const debounceRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const searchContainerRef = useRef<HTMLDivElement>(null);
+
+  // Focus input when search opens
   useEffect(() => {
     if (searchOpen) searchRef.current?.focus();
   }, [searchOpen]);
 
+  // Rotating announcements
   useEffect(() => {
     const timer = setInterval(() => {
       setAnnouncementIdx((prev) => (prev + 1) % ANNOUNCEMENTS.length);
@@ -47,14 +81,91 @@ export function Navbar() {
     return () => clearInterval(timer);
   }, []);
 
+  // Click-outside to close search dropdown
+  useEffect(() => {
+    function handleClickOutside(e: MouseEvent) {
+      if (
+        searchContainerRef.current &&
+        !searchContainerRef.current.contains(e.target as Node)
+      ) {
+        if (searchOpen) closeSearch();
+      }
+    }
+    document.addEventListener("mousedown", handleClickOutside);
+    return () => document.removeEventListener("mousedown", handleClickOutside);
+  }, [searchOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // ─── Helpers ────────────────────────────────────────────────────────────────
+
+  function closeSearch() {
+    setSearchOpen(false);
+    setSearchQuery("");
+    setSearchResults([]);
+    setActiveIndex(-1);
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+  }
+
   function handleSearch(e: React.FormEvent) {
     e.preventDefault();
+    if (activeIndex >= 0 && searchResults[activeIndex]) {
+      // Keyboard-selected item — navigate to product
+      router.push(`/shop/${searchResults[activeIndex].slug}`);
+      closeSearch();
+      return;
+    }
     if (searchQuery.trim()) {
       router.push(`/shop?search=${encodeURIComponent(searchQuery.trim())}`);
-      setSearchOpen(false);
-      setSearchQuery("");
+      closeSearch();
     }
   }
+
+  function handleSearchInput(e: React.ChangeEvent<HTMLInputElement>) {
+    const val = e.target.value;
+    setSearchQuery(val);
+    setActiveIndex(-1);
+
+    if (debounceRef.current) clearTimeout(debounceRef.current);
+
+    if (val.trim().length < 2) {
+      setSearchResults([]);
+      setIsSearching(false);
+      return;
+    }
+
+    setIsSearching(true);
+    debounceRef.current = setTimeout(async () => {
+      try {
+        const res = await fetch(`/api/search?q=${encodeURIComponent(val.trim())}`);
+        const data = await res.json();
+        setSearchResults(data.results ?? []);
+      } catch {
+        setSearchResults([]);
+      } finally {
+        setIsSearching(false);
+      }
+    }, 300);
+  }
+
+  function handleSearchKeyDown(e: React.KeyboardEvent<HTMLInputElement>) {
+    if (e.key === "ArrowDown") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.min(i + 1, searchResults.length - 1));
+    } else if (e.key === "ArrowUp") {
+      e.preventDefault();
+      setActiveIndex((i) => Math.max(i - 1, -1));
+    } else if (e.key === "Enter") {
+      if (activeIndex >= 0 && searchResults[activeIndex]) {
+        e.preventDefault();
+        router.push(`/shop/${searchResults[activeIndex].slug}`);
+        closeSearch();
+      }
+      // else: let the form submit handler run (navigates to /shop?search=...)
+    } else if (e.key === "Escape") {
+      closeSearch();
+    }
+  }
+
+  // ─── Render ─────────────────────────────────────────────────────────────────
 
   return (
     <>
@@ -112,34 +223,130 @@ export function Navbar() {
           <div className="flex gap-8 items-center ml-auto">
             <div className="flex gap-4 items-center">
 
-              {/* Search */}
-              {searchOpen ? (
-                <form onSubmit={handleSearch} className="flex items-center gap-2">
-                  <Input
-                    ref={searchRef}
-                    value={searchQuery}
-                    onChange={(e) => setSearchQuery(e.target.value)}
-                    placeholder="Search jewellery…"
-                    className="h-8 w-40 sm:w-52 text-sm"
-                  />
+              {/* ── Search ─────────────────────────────────────────────────── */}
+              <div className="relative" ref={searchContainerRef}>
+                {searchOpen ? (
+                  <form onSubmit={handleSearch} className="flex items-center gap-2">
+                    <Input
+                      ref={searchRef}
+                      value={searchQuery}
+                      onChange={handleSearchInput}
+                      onKeyDown={handleSearchKeyDown}
+                      placeholder="Search jewellery…"
+                      className="h-8 w-40 sm:w-52 text-sm"
+                      autoComplete="off"
+                      aria-label="Search jewellery"
+                      aria-autocomplete="list"
+                      aria-expanded={searchResults.length > 0 || isSearching}
+                      aria-activedescendant={
+                        activeIndex >= 0 ? `search-result-${activeIndex}` : undefined
+                      }
+                    />
+                    <button
+                      type="button"
+                      onClick={closeSearch}
+                      className="text-primary hover:scale-[1.02] transition-all duration-300"
+                      aria-label="Close search"
+                    >
+                      <X className="h-6 w-6" />
+                    </button>
+                  </form>
+                ) : (
                   <button
-                    type="button"
-                    onClick={() => setSearchOpen(false)}
-                    className="text-primary hover:scale-[1.02] transition-all duration-300"
-                    aria-label="Close search"
+                    onClick={() => setSearchOpen(true)}
+                    className="text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                    aria-label="Search"
                   >
-                    <X className="h-6 w-6" />
+                    <Search className="h-6 w-6" />
                   </button>
-                </form>
-              ) : (
-                <button
-                  onClick={() => setSearchOpen(true)}
-                  className="text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
-                  aria-label="Search"
-                >
-                  <Search className="h-6 w-6" />
-                </button>
-              )}
+                )}
+
+                {/* Search dropdown */}
+                {searchOpen && (searchResults.length > 0 || isSearching) && (
+                  <div
+                    role="listbox"
+                    aria-label="Search results"
+                    className="absolute top-full right-0 mt-1 w-[320px] sm:w-[380px] bg-background border border-outline-variant shadow-lg z-50 max-h-[400px] overflow-y-auto"
+                  >
+                    {/* Searching spinner row */}
+                    {isSearching && searchResults.length === 0 && (
+                      <div className="px-4 py-3 text-sm text-muted-foreground font-sans">
+                        Searching…
+                      </div>
+                    )}
+
+                    {/* No results row — only shown when not loading */}
+                    {!isSearching && searchResults.length === 0 && searchQuery.length >= 2 && (
+                      <div className="px-4 py-3 text-sm text-muted-foreground font-sans">
+                        No results for &ldquo;{searchQuery}&rdquo;
+                      </div>
+                    )}
+
+                    {/* Result rows */}
+                    {searchResults.map((result, i) => (
+                      <button
+                        key={result.id}
+                        id={`search-result-${i}`}
+                        role="option"
+                        aria-selected={i === activeIndex}
+                        type="button"
+                        onClick={() => {
+                          router.push(`/shop/${result.slug}`);
+                          closeSearch();
+                        }}
+                        className={`w-full flex items-center gap-3 px-4 py-3 text-left transition-colors duration-150 border-b border-outline-variant/40 last:border-b-0 cursor-pointer ${
+                          i === activeIndex
+                            ? "bg-surface-container"
+                            : "hover:bg-surface-container"
+                        }`}
+                      >
+                        {/* Thumbnail */}
+                        {result.images[0] && (
+                          <div className="w-10 h-10 shrink-0 overflow-hidden bg-surface-container-low border border-outline-variant/30">
+                            <img
+                              src={result.images[0]}
+                              alt={result.name}
+                              className="w-full h-full object-cover"
+                            />
+                          </div>
+                        )}
+
+                        {/* Info */}
+                        <div className="flex-1 min-w-0">
+                          <p className="text-sm font-sans text-on-surface truncate">
+                            {result.name}
+                          </p>
+                          <p className="text-xs text-muted-foreground font-sans">
+                            {result.category}
+                          </p>
+                        </div>
+
+                        {/* Price */}
+                        <span className="text-sm font-sans font-semibold text-primary shrink-0">
+                          {inrFormatter.format(result.price)}
+                        </span>
+                      </button>
+                    ))}
+
+                    {/* "See all results" footer */}
+                    {searchResults.length > 0 && (
+                      <button
+                        type="button"
+                        onClick={() => {
+                          router.push(
+                            `/shop?search=${encodeURIComponent(searchQuery)}`
+                          );
+                          closeSearch();
+                        }}
+                        className="w-full px-4 py-2.5 text-xs font-label-caps tracking-wider uppercase text-primary hover:bg-surface-container transition-colors border-t border-outline-variant cursor-pointer"
+                      >
+                        See all results for &ldquo;{searchQuery}&rdquo; →
+                      </button>
+                    )}
+                  </div>
+                )}
+              </div>
+              {/* ── /Search ────────────────────────────────────────────────── */}
 
               {/* Wishlist */}
               <Link
@@ -266,7 +473,10 @@ export function Navbar() {
                           <Button
                             variant="ghost"
                             className="w-full font-label-caps text-label-caps"
-                            onClick={() => { setMobileOpen(false); signOut({ callbackUrl: "/" }); }}
+                            onClick={() => {
+                              setMobileOpen(false);
+                              signOut({ callbackUrl: "/" });
+                            }}
                           >
                             Sign Out
                           </Button>
@@ -274,7 +484,9 @@ export function Navbar() {
                       ) : (
                         <>
                           <Link href="/login" onClick={() => setMobileOpen(false)}>
-                            <Button className="w-full font-label-caps text-label-caps">Sign In</Button>
+                            <Button className="w-full font-label-caps text-label-caps">
+                              Sign In
+                            </Button>
                           </Link>
                           <Link href="/register" onClick={() => setMobileOpen(false)}>
                             <Button variant="outline" className="w-full font-label-caps text-label-caps">
