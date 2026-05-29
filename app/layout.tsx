@@ -7,6 +7,7 @@ import { FooterWrapper } from "@/components/FooterWrapper";
 import { WhatsAppWrapper } from "@/components/WhatsAppWrapper";
 import { GoogleAnalytics } from "@next/third-parties/google";
 import { baseMetadata } from "@/lib/seo";
+import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
 
 const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
@@ -42,6 +43,7 @@ export default function RootLayout({
       <body
         className={`${ebGaramond.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
+        <WebSiteJsonLd />
         <AuthProvider>
           <NavbarWrapper />
           <main className="flex-1">{children}</main>

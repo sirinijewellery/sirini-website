@@ -10,7 +10,9 @@ import { productMetadata, siteConfig } from "@/lib/seo";
 import ProductDetailClient from "./ProductDetailClient";
 import { ProductJsonLd } from "@/components/ProductJsonLd";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
+import { FAQJsonLd } from "@/components/FAQJsonLd";
 import { ProductReviews } from "@/components/ProductReviews";
+import { prisma } from "@/lib/prisma";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -37,6 +39,12 @@ export default async function ProductPage({ params }: Props) {
   const product = await getProductBySlug(slug);
 
   if (!product) notFound();
+
+  const reviewStats = await prisma.review.aggregate({
+    where: { productId: product.id, isPublished: true },
+    _avg: { rating: true },
+    _count: { id: true },
+  });
 
   // Sort: model first → full set → detail close-ups
   const images = sortAllImages(parseImages(product.images));
@@ -109,7 +117,13 @@ export default async function ProductPage({ params }: Props) {
           slug: product.slug,
           material: product.material,
         }}
+        reviewSummary={
+          reviewStats._count.id > 0
+            ? { ratingValue: reviewStats._avg.rating ?? 0, reviewCount: reviewStats._count.id }
+            : undefined
+        }
       />
+      <FAQJsonLd />
       <BreadcrumbJsonLd
         items={[
           { name: "Home", url: siteUrl },
