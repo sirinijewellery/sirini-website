@@ -215,6 +215,55 @@
 .no-scrollbar::-webkit-scrollbar { display: none; }
 .no-scrollbar { -ms-overflow-style: none; scrollbar-width: none; }
 
+/* ── Subtle noise texture — makes flat cream sections feel editorial ── */
+.noise-texture {
+  position: relative;
+}
+.noise-texture::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 1;
+  opacity: 0.04;
+  background-image: url("data:image/svg+xml,%3Csvg viewBox='0 0 256 256' xmlns='http://www.w3.org/2000/svg'%3E%3Cfilter id='noise'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.9' numOctaves='4' stitchTiles='stitch'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23noise)'/%3E%3C/svg%3E");
+  background-repeat: repeat;
+  background-size: 128px 128px;
+}
+
+/* ── Stagger grid — per-card reveal with 60ms offset per child ── */
+/* Works alongside .reveal/.reveal.active (which handles the parent section).
+   .stagger-grid > * rules override .reveal.active opacity/transform for children. */
+.stagger-grid > * {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 500ms cubic-bezier(0.16, 1, 0.3, 1),
+              transform 500ms cubic-bezier(0.16, 1, 0.3, 1);
+}
+.stagger-grid.active > * {
+  opacity: 1;
+  transform: translateY(0);
+}
+.stagger-grid.active > *:nth-child(1)  { transition-delay: 0ms; }
+.stagger-grid.active > *:nth-child(2)  { transition-delay: 60ms; }
+.stagger-grid.active > *:nth-child(3)  { transition-delay: 120ms; }
+.stagger-grid.active > *:nth-child(4)  { transition-delay: 180ms; }
+.stagger-grid.active > *:nth-child(5)  { transition-delay: 240ms; }
+.stagger-grid.active > *:nth-child(6)  { transition-delay: 300ms; }
+.stagger-grid.active > *:nth-child(7)  { transition-delay: 360ms; }
+.stagger-grid.active > *:nth-child(8)  { transition-delay: 420ms; }
+.stagger-grid.active > *:nth-child(n+9) { transition-delay: 480ms; }
+
+/* ── Section gold rule — 40px gold line above section headings ── */
+.section-gold-rule::before {
+  content: '';
+  display: block;
+  width: 40px;
+  height: 1px;
+  background-color: #C9A96E;
+  margin-bottom: 14px;
+}
+
 .dark {
   --color-background: oklch(0.14 0.01 30);
   --color-foreground: oklch(0.96 0.005 40);

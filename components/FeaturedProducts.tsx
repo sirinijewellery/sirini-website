@@ -39,12 +39,14 @@ export async function FeaturedProducts() {
   if (products.length === 0) return null;
 
   return (
-    <section className="py-[120px] bg-surface-container-low pl-4 md:pl-16 reveal">
+    <section className="py-[120px] bg-surface-container-low pl-4 md:pl-16 reveal noise-texture">
       {/* Section header — no "View All" per Stitch design */}
       <div className="max-w-screen-2xl mx-auto pr-4 md:pr-16 mb-12">
-        <h2 className="font-headline-lg text-headline-lg text-on-surface gradient-title-bg">
-          New Arrivals
-        </h2>
+        <div className="section-gold-rule">
+          <h2 className="font-headline-lg text-headline-lg text-on-surface gradient-title-bg">
+            New Arrivals
+          </h2>
+        </div>
       </div>
 
       {/* Horizontal scroll rail */}
