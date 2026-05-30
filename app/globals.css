@@ -264,6 +264,27 @@
   margin-bottom: 14px;
 }
 
+/* ── Warm vignette on product card hover ── */
+.vignette-overlay {
+  position: absolute;
+  inset: 0;
+  background: radial-gradient(
+    ellipse at center,
+    transparent 30%,
+    rgba(34, 26, 21, 0.38) 100%
+  );
+  opacity: 0;
+  transition: opacity 280ms ease-out;
+  pointer-events: none;
+  z-index: 6;
+}
+.group:hover .vignette-overlay {
+  opacity: 1;
+}
+@media (prefers-reduced-motion: reduce) {
+  .vignette-overlay { transition: none; }
+}
+
 .dark {
   --color-background: oklch(0.14 0.01 30);
   --color-foreground: oklch(0.96 0.005 40);

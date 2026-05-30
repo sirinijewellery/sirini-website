@@ -43,9 +43,12 @@ export async function FeaturedProducts() {
       {/* Section header — no "View All" per Stitch design */}
       <div className="max-w-screen-2xl mx-auto pr-4 md:pr-16 mb-12">
         <div className="section-gold-rule">
-          <h2 className="font-headline-lg text-headline-lg text-on-surface gradient-title-bg">
+          <h2 className="font-headline-lg text-[48px] md:text-[64px] leading-[1.0] tracking-[-0.02em] font-light text-on-surface gradient-title-bg">
             New Arrivals
           </h2>
+          <p className="font-label-caps text-[10px] tracking-[0.25em] uppercase text-on-surface-variant mt-3">
+            Freshly crafted · Just in
+          </p>
         </div>
       </div>
 

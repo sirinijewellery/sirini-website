@@ -35,11 +35,11 @@ export async function CategoryGrid() {
       <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
         <div>
           <div className="section-gold-rule">
-            <h2 className="font-headline-lg text-headline-lg text-on-surface mb-2 gradient-title-bg">
+            <h2 className="font-headline-lg text-[48px] md:text-[64px] leading-[1.0] tracking-[-0.02em] font-light text-on-surface mb-2 gradient-title-bg">
               Curated Collections
             </h2>
           </div>
-          <p className="font-body-md text-body-md text-on-surface-variant">
+          <p className="font-label-caps text-[11px] tracking-[0.2em] uppercase text-on-surface-variant mt-2">
             Intentional pieces for the modern aesthete.
           </p>
         </div>

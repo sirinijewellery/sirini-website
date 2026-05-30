@@ -183,6 +183,9 @@ export function ProductCard({ product }: ProductCardProps) {
         >
           Quick View
         </button>
+
+        {/* Vignette — warm spotlight on hover */}
+        <div className="vignette-overlay" aria-hidden="true" />
       </div>
 
       {/* ── Product info ─────────────────────────────────────────── */}
