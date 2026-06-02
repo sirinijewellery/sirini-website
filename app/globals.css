@@ -285,6 +285,22 @@
   .vignette-overlay { transition: none; }
 }
 
+/* ── Branded skeleton shimmer — warm cream sweep, matches site palette ── */
+@keyframes skeletonShimmer {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    #FFF1EA 25%,
+    #FAF0EC 50%,
+    #FFF1EA 75%
+  );
+  background-size: 200% 100%;
+  animation: skeletonShimmer 1.6s ease-in-out infinite;
+}
+
 .dark {
   --color-background: oklch(0.14 0.01 30);
   --color-foreground: oklch(0.96 0.005 40);

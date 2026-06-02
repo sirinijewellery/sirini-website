@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useCallback } from "react";
+import { useState, useEffect, useCallback, useRef } from "react";
 import { createPortal } from "react-dom";
 import Image from "next/image";
 import { X, ChevronLeft, ChevronRight } from "lucide-react";
@@ -146,6 +146,22 @@ function Lightbox({ images, productName, startIndex, onClose }: LightboxProps) {
 export function ImageGallery({ images, productName }: ImageGalleryProps) {
   const [activeIndex, setActiveIndex] = useState(0);
   const [lightboxOpen, setLightboxOpen] = useState(false);
+  const mainImageWrapperRef = useRef<HTMLDivElement>(null);
+  const [lens, setLens] = useState({ visible: false, x: 0, y: 0, bgX: 50, bgY: 50 });
+
+  function handleMouseMove(e: React.MouseEvent<HTMLDivElement>) {
+    const el = mainImageWrapperRef.current;
+    if (!el) return;
+    const rect = el.getBoundingClientRect();
+    const relX = e.clientX - rect.left;
+    const relY = e.clientY - rect.top;
+    const pctX = (relX / rect.width) * 100;
+    const pctY = (relY / rect.height) * 100;
+    const LENS = 128;
+    const lensLeft = Math.min(Math.max(relX - LENS / 2, 0), rect.width - LENS);
+    const lensTop = Math.min(Math.max(relY - LENS / 2, 0), rect.height - LENS);
+    setLens({ visible: true, x: lensLeft, y: lensTop, bgX: pctX, bgY: pctY });
+  }
 
   /* Images arrive pre-sorted (model → full jewellery → detail shots).
      Do not re-sort here. */
@@ -162,21 +178,46 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
     <>
       <div className="space-y-3">
         {/* Main image — zoom cursor signals it's clickable */}
-        <button
-          type="button"
-          onClick={() => setLightboxOpen(true)}
-          className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted cursor-zoom-in focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
-          aria-label={`View ${productName} image ${activeIndex + 1} in full screen`}
+        <div
+          ref={mainImageWrapperRef}
+          className="relative w-full"
+          onMouseMove={handleMouseMove}
+          onMouseEnter={() => setLens((l) => ({ ...l, visible: true }))}
+          onMouseLeave={() => setLens((l) => ({ ...l, visible: false }))}
         >
-          <Image
-            src={images[activeIndex]}
-            alt={`${productName} — image ${activeIndex + 1}`}
-            fill
-            className="object-cover transition-transform duration-300 hover:scale-[1.02]"
-            priority
-            sizes="(max-width: 768px) 100vw, 50vw"
-          />
-        </button>
+          <button
+            type="button"
+            onClick={() => setLightboxOpen(true)}
+            className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted cursor-crosshair focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
+            aria-label={`View ${productName} image ${activeIndex + 1} in full screen`}
+          >
+            <Image
+              src={images[activeIndex]}
+              alt={`${productName} — image ${activeIndex + 1}`}
+              fill
+              className="object-cover transition-transform duration-300 hover:scale-[1.02]"
+              priority
+              sizes="(max-width: 768px) 100vw, 50vw"
+            />
+          </button>
+
+          {/* Zoom lens — desktop only, sits outside button to avoid overflow-hidden clip */}
+          {lens.visible && (
+            <div
+              className="hidden md:block absolute pointer-events-none border border-[#C9A96E]/70 z-10"
+              style={{
+                width: 128,
+                height: 128,
+                left: lens.x,
+                top: lens.y,
+                backgroundImage: `url(${images[activeIndex]})`,
+                backgroundSize: "300% 300%",
+                backgroundPosition: `${lens.bgX}% ${lens.bgY}%`,
+              }}
+              aria-hidden="true"
+            />
+          )}
+        </div>
 
         {/* Thumbnails — unchanged from original */}
         {images.length > 1 && (

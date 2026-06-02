@@ -161,6 +161,32 @@ export default function ProductDetailClient({
         <WishlistButton productId={product.id} />
       </div>
 
+      {/* ── Trust microbar ─────────────────────────────────────────── */}
+      <div className="flex flex-wrap gap-x-6 gap-y-2">
+        <span className="flex items-center gap-1.5 text-[10px] font-sans tracking-[0.12em] uppercase text-on-surface-variant">
+          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+          </svg>
+          Secure Payment
+        </span>
+        <span className="flex items-center gap-1.5 text-[10px] font-sans tracking-[0.12em] uppercase text-on-surface-variant">
+          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <rect x="1" y="3" width="15" height="13" />
+            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+            <circle cx="5.5" cy="18.5" r="2.5" />
+            <circle cx="18.5" cy="18.5" r="2.5" />
+          </svg>
+          Free Delivery
+        </span>
+        <span className="flex items-center gap-1.5 text-[10px] font-sans tracking-[0.12em] uppercase text-on-surface-variant">
+          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+            <polyline points="1 4 1 10 7 10" />
+            <path d="M3.51 15a9 9 0 1 0 .49-4.5" />
+          </svg>
+          Easy Returns
+        </span>
+      </div>
+
       <Separator />
 
       {/* Share on WhatsApp */}

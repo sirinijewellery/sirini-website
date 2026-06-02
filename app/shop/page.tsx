@@ -60,13 +60,22 @@ async function ShopContent({ searchParams }: ShopPageProps) {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {/* Header */}
-      <div className="mb-8">
-        <h1 className="font-display text-4xl font-light text-foreground">
-          {params.search
-            ? `Results for "${params.search}"`
-            : params.category || "All Jewellery"}
-        </h1>
-        <p className="text-sm text-muted-foreground mt-1 font-sans">{total} products</p>
+      <div className="mb-10">
+        <div className="section-gold-rule">
+          <h1 className="font-display text-[40px] md:text-[56px] font-light leading-[1.0] tracking-[-0.02em] text-on-surface">
+            {params.search ? (
+              <>
+                <em style={{ fontStyle: "italic" }}>Results for</em>{" "}
+                &ldquo;{params.search}&rdquo;
+              </>
+            ) : (
+              params.category || "All Jewellery"
+            )}
+          </h1>
+        </div>
+        <p className="font-sans text-[10px] tracking-[0.25em] uppercase text-on-surface-variant mt-3">
+          {total} {total === 1 ? "piece" : "pieces"}
+        </p>
       </div>
 
       <div className="space-y-6">
@@ -162,13 +171,13 @@ export default function ShopPage(props: ShopPageProps) {
 function ShopSkeleton() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 space-y-6">
-      <div className="h-10 w-48 bg-muted rounded animate-pulse" />
+      <div className="h-12 w-56 skeleton-shimmer" />
       {/* Pill bar skeleton */}
       <div className="flex gap-2 overflow-hidden">
         {[...Array(8)].map((_, i) => (
           <div
             key={i}
-            className="h-8 bg-muted rounded-full animate-pulse shrink-0"
+            className="h-8 skeleton-shimmer rounded-full shrink-0"
             style={{ width: `${70 + (i % 3) * 20}px` }}
           />
         ))}
@@ -177,9 +186,9 @@ function ShopSkeleton() {
       <div className="grid grid-cols-2 md:grid-cols-3 lg:grid-cols-4 gap-4">
         {[...Array(8)].map((_, i) => (
           <div key={i} className="space-y-2">
-            <div className="aspect-square bg-muted rounded-lg animate-pulse" />
-            <div className="h-3 bg-muted rounded animate-pulse" />
-            <div className="h-4 bg-muted rounded animate-pulse w-3/4" />
+            <div className="aspect-[4/5] skeleton-shimmer" />
+            <div className="h-3 skeleton-shimmer rounded" />
+            <div className="h-4 skeleton-shimmer rounded w-3/4" />
           </div>
         ))}
       </div>
