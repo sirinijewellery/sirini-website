@@ -17,6 +17,11 @@ const testimonials = [
   { title: "A Beautiful Blend", quote: "A beautiful blend of tradition and modernity. I wore their necklace set for my wedding and felt like absolute royalty. Every guest asked about it.", author: "Aditi S." },
   { title: "Unparalleled Craftsmanship", quote: "The craftsmanship is unparalleled. Each piece feels like a cherished heirloom that has been passed down through generations. Simply breathtaking.", author: "Riya G." },
   { title: "Timeless Designs", quote: "Exceptional quality and timeless designs. The quiet luxury aesthetic they offer is hard to find anywhere else. I will definitely be returning for more.", author: "Sana K." },
+  { title: "Bridal Set of My Dreams", quote: "I bought a Kundan bridal set for my wedding and it was beyond beautiful. The pearls and stonework looked so rich in every photo. Worth every rupee.", author: "Nidhi Agarwal" },
+  { title: "Festive Favourite", quote: "Wore the jhumkas for Diwali and got endless compliments. Lightweight enough to wear all evening, yet they sparkle like real gold. Absolutely love them.", author: "Tanvi Mehta" },
+  { title: "Fast Delivery, Lovely Packaging", quote: "The order arrived earlier than expected and the packaging was so elegant — it felt like opening a gift. The anklets are dainty and gorgeous.", author: "Shruti Nair" },
+  { title: "Gifted & Loved", quote: "I gifted a Meenakari necklace set to my mother and she was overjoyed. The enamel work is so detailed and the colours are stunning in person.", author: "Ananya Iyer" },
+  { title: "My Go-To for Ethnic Wear", quote: "Every time I have a function, Sirini is my first stop. The pieces pair beautifully with sarees and lehengas, and the quality never disappoints.", author: "Divya Reddy" },
 ];
 
 export function TestimonialsSection() {
@@ -111,22 +116,37 @@ export function TestimonialsSection() {
               className="shrink-0 w-[85%] md:w-[60%] lg:w-[45%] px-4 transition-all duration-700 ease-in-out"
               style={{ opacity: 0.4, transform: "scale(0.9)" }}
             >
-              <div className="p-8 md:p-12 h-full flex flex-col justify-center items-center text-center">
-                {/* Gold rating bar — 5 stars shown as filled line segments */}
-                <div className="flex gap-1 mb-8" aria-label="5 out of 5 stars">
+              <div className="relative h-full flex flex-col justify-center items-center text-center bg-[#FFFDFB] border border-[#E8D9CE] rounded-2xl shadow-[0_8px_30px_rgba(120,80,60,0.08)] px-7 py-10 md:px-12 md:py-14">
+                {/* Decorative opening quote mark */}
+                <span
+                  className="absolute top-5 left-6 font-display text-[64px] leading-none text-[#C9A96E]/25 select-none"
+                  aria-hidden="true"
+                >
+                  &ldquo;
+                </span>
+
+                {/* Gold star rating */}
+                <div className="flex gap-1 mb-6" aria-label="5 out of 5 stars">
                   {[...Array(5)].map((_, i) => (
-                    <div key={i} className="w-5 h-px bg-[#C9A96E]" aria-hidden="true" />
+                    <svg key={i} viewBox="0 0 24 24" className="w-4 h-4 fill-[#C9A96E]" aria-hidden="true">
+                      <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77 5.82 21.02 7 14.14 2 9.27l7.1-1.01L12 2z" />
+                    </svg>
                   ))}
                 </div>
 
-                {/* Quote in large italic EB Garamond */}
-                <blockquote className="font-display text-[20px] md:text-[24px] leading-[1.5] italic font-light text-on-surface mb-6 max-w-lg">
-                  &ldquo;{t.quote}&rdquo;
+                {/* Title */}
+                <h3 className="font-sans text-[13px] tracking-[0.12em] uppercase text-primary font-semibold mb-4">
+                  {t.title}
+                </h3>
+
+                {/* Quote */}
+                <blockquote className="font-display text-[19px] md:text-[22px] leading-[1.55] italic font-light text-on-surface mb-7 max-w-md">
+                  {t.quote}
                 </blockquote>
 
-                {/* Author in tiny DM Sans caps */}
+                {/* Author */}
                 <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-on-surface-variant font-medium">
-                  {t.author}
+                  — {t.author}
                 </p>
               </div>
             </div>
