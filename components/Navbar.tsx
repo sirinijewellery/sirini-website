@@ -28,6 +28,7 @@ interface SearchResult {
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
+  { href: "/occasions", label: "Shop by Occasion" },
   { href: "/about", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];

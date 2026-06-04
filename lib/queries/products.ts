@@ -13,6 +13,7 @@ export interface GetProductsOptions {
   sort?: "newest" | "price_asc" | "price_desc" | "name_asc";
   search?: string;
   featuredOnly?: boolean;
+  occasion?: string;
 }
 
 export async function getProducts(options: GetProductsOptions = {}) {
@@ -26,6 +27,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
     sort = "newest",
     search,
     featuredOnly,
+    occasion,
   } = options;
 
   // Only show products from active (image-bearing) categories
@@ -41,6 +43,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
       : { in: activeSlugs },        // all active categories when no filter
     ...(material && { material }),
     ...(featuredOnly && { isFeatured: true }),
+    ...(occasion && { occasions: { has: occasion } }),
     ...(priceMin !== undefined || priceMax !== undefined
       ? {
           price: {
@@ -182,6 +185,22 @@ export async function getCategories() {
     if (!aIsNecklace && bIsNecklace) return 1;
     return 0;
   });
+}
+
+export const OCCASIONS = [
+  { slug: "bridal", label: "Bridal & Wedding", blurb: "Heirloom Kundan, Polki & Jadau statement sets for the big day." },
+  { slug: "festive", label: "Festive Edit", blurb: "Meenakari, temple & jhumka pieces to light up every celebration." },
+] as const;
+
+export async function getOccasionCoverImage(occasion: string): Promise<string | null> {
+  const p = await prisma.product.findFirst({
+    where: { occasions: { has: occasion } },
+    orderBy: { price: "desc" },
+    select: { images: true },
+  });
+  if (!p) return null;
+  const { parseImages } = await import("@/lib/parseImages");
+  return parseImages(p.images)[0] ?? null;
 }
 
 // Re-exported so server-side code can still import from this module

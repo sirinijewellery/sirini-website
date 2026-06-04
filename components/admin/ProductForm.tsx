@@ -51,9 +51,15 @@ interface ProductDB {
   images: unknown;
   badge?: string | null;
   isFeatured: boolean;
+  occasions: string[];
   createdAt: Date;
   variants: ProductVariantDB[];
 }
+
+const OCCASION_OPTIONS = [
+  { slug: "bridal", label: "Bridal & Wedding" },
+  { slug: "festive", label: "Festive Edit" },
+] as const;
 
 interface ProductFormProps {
   product?: ProductDB;
@@ -79,6 +85,7 @@ const productFormSchema = z.object({
   images: z.array(z.string()).min(1, "At least one image is required"),
   badge: z.enum(["", "NEW", "HOT", "SALE"]).optional(),
   isFeatured: z.boolean(),
+  occasions: z.array(z.string()),
   variants: z.array(variantSchema).min(1, "At least one variant is required"),
 });
 
@@ -153,6 +160,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       images: parseImages(product?.images),
       badge: (product?.badge as "NEW" | "HOT" | "SALE" | "") ?? "",
       isFeatured: product?.isFeatured ?? false,
+      occasions: product?.occasions ?? [],
       variants: defaultVariants,
     },
   });
@@ -399,6 +407,48 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             </Label>
           </div>
         </div>
+
+        {/* Occasions */}
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-gray-700">Occasions</legend>
+          <p className="text-xs text-gray-400">
+            Tag this product for occasion collections shown on the site.
+          </p>
+          <Controller
+            control={control}
+            name="occasions"
+            render={({ field }) => (
+              <div className="flex flex-col sm:flex-row gap-x-6 gap-y-3 pt-1">
+                {OCCASION_OPTIONS.map((opt) => {
+                  const checked = field.value.includes(opt.slug);
+                  return (
+                    <div key={opt.slug} className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id={`occasion-${opt.slug}`}
+                        checked={checked}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            field.onChange([...field.value, opt.slug]);
+                          } else {
+                            field.onChange(field.value.filter((s) => s !== opt.slug));
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 accent-primary cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                      <Label
+                        htmlFor={`occasion-${opt.slug}`}
+                        className="cursor-pointer text-sm text-gray-700"
+                      >
+                        {opt.label}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          />
+        </fieldset>
       </section>
 
       {/* ── Section: Images ── */}

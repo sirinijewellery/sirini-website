@@ -18,6 +18,7 @@ model Product {
   images      Json
   badge       String?
   isFeatured  Boolean  @default(false)
+  occasions   String[] @default([])
   createdAt   DateTime @default(now())
 
   variants      ProductVariant[]

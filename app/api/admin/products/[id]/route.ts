@@ -22,6 +22,7 @@ const productSchema = z.object({
   images: z.array(z.string()).min(1, "At least one image is required"),
   badge: z.enum(["NEW", "HOT", "SALE"]).optional().nullable(),
   isFeatured: z.boolean(),
+  occasions: z.array(z.string()).optional(),
   variants: z.array(variantSchema).min(1, "At least one variant is required"),
 });
 
@@ -107,6 +108,7 @@ export async function PUT(
         ...fields,
         badge: fields.badge ?? null,
         images: fields.images,
+        occasions: fields.occasions ?? [],
         variants: { create: variants },
       },
       include: { variants: true },

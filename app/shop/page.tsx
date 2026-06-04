@@ -6,6 +6,7 @@ import {
   getProducts,
   getCategories,
   getMaterials,
+  OCCASIONS,
   type GetProductsOptions,
 } from "@/lib/queries/products";
 import Link from "next/link";
@@ -20,11 +21,28 @@ interface ShopPageProps {
     priceMax?: string;
     sort?: string;
     search?: string;
+    occasion?: string;
   }>;
 }
 
 export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
   const params = await searchParams;
+  if (params.occasion) {
+    const occ = OCCASIONS.find((o) => o.slug === params.occasion);
+    const title =
+      params.occasion === "bridal"
+        ? "Bridal & Wedding Jewellery"
+        : params.occasion === "festive"
+          ? "Festive Jewellery"
+          : `${occ?.label ?? params.occasion} Jewellery`;
+    return {
+      title: `${title} | Sirini Jewellery`,
+      description:
+        occ?.blurb ??
+        `Shop handcrafted jewellery for ${params.occasion} occasions. Free shipping across India.`,
+      robots: { index: true, follow: true },
+    };
+  }
   if (params.category) {
     return {
       title: `${params.category} — Handcrafted Indian Jewellery`,
@@ -53,6 +71,7 @@ async function ShopContent({ searchParams }: ShopPageProps) {
     priceMax: params.priceMax ? parseFloat(params.priceMax) : undefined,
     sort: (params.sort as GetProductsOptions["sort"]) || "newest",
     search: params.search,
+    occasion: params.occasion,
   };
 
   const [{ products, total, totalPages }, categories] = await Promise.all([
@@ -74,6 +93,9 @@ async function ShopContent({ searchParams }: ShopPageProps) {
                 <em style={{ fontStyle: "italic" }}>Results for</em>{" "}
                 &ldquo;{params.search}&rdquo;
               </>
+            ) : params.occasion ? (
+              OCCASIONS.find((o) => o.slug === params.occasion)?.label ||
+              params.occasion
             ) : (
               params.category || "All Jewellery"
             )}
@@ -162,6 +184,7 @@ function buildHref(
   if (params.priceMax) p.set("priceMax", params.priceMax);
   if (params.sort) p.set("sort", params.sort);
   if (params.search) p.set("search", params.search);
+  if (params.occasion) p.set("occasion", params.occasion);
   if (page > 1) p.set("page", String(page));
   return `/shop?${p.toString()}`;
 }
