@@ -154,7 +154,10 @@ export async function getFeaturedProducts(limit = 8) {
 }
 
 export async function getCategories() {
-  const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
+    where: { image: { not: null } },
+  });
   // Always put Necklace Sets (or any necklace category) first
   return categories.sort((a, b) => {
     const aIsNecklace = a.name.toLowerCase().includes("necklace");

@@ -4,7 +4,7 @@ import { useEffect, useRef } from "react";
 // Hero model: woman in green saree wearing Kundan necklace set.
 // Subject on right, clean blush-cream on left for text overlay.
 const HERO_IMAGE_URL =
-  "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1920,h_900,c_fill,g_auto,q_auto,f_auto/v1780555156/sirini-jewellery/brand/hero-model.jpg";
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/q_auto,f_auto,w_1920/v1780555156/sirini-jewellery/brand/hero-model.jpg";
 
 export function HeroSection() {
   const bgRef = useRef<HTMLDivElement>(null);
