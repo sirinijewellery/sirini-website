@@ -2,9 +2,9 @@ import type { Metadata } from "next";
 
 const siteConfig = {
   name: "Sirini Jewellery",
-  tagline: "Handcrafted Fashion Jewellery",
+  tagline: "Handcrafted Kundan & Gold-Plated Jewellery",
   description:
-    "Shop handcrafted fashion jewellery — necklaces, earrings, bangles, finger rings, and anklets. Kundan, Meenakari, and gold-plated jewellery for everyday wear, gifting, and bridal. Pan India free shipping.",
+    "Shop authentic Kundan, Meenakari & gold-plated handcrafted jewellery from Mumbai. Bridal sets, earrings, bangles, rings & anklets. Free pan-India shipping.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   // Cloudinary brand hero used as the site-wide social sharing card
   defaultOgImage:
@@ -70,7 +70,12 @@ export function baseMetadata(): Metadata {
 export function pageMetadata(
   title: string,
   description: string,
-  options?: { noindex?: boolean; ogImage?: string; canonical?: string }
+  options?: {
+    noindex?: boolean;
+    ogImage?: string;
+    canonical?: string;
+    openGraph?: Partial<NonNullable<Metadata["openGraph"]>>;
+  }
 ): Metadata {
   const image = options?.ogImage ?? siteConfig.defaultOgImage;
   return {
@@ -81,6 +86,7 @@ export function pageMetadata(
       description,
       type: "website",
       images: [{ url: image, width: 1200, height: 630 }],
+      ...options?.openGraph,
     },
     twitter: {
       card: "summary_large_image",
@@ -114,7 +120,9 @@ export function productMetadata(product: {
     : undefined;
 
   return {
-    title: product.name,
+    title: product.category
+      ? `${product.name} — ${product.category}`
+      : product.name,
     description,
     keywords: [
       product.name,

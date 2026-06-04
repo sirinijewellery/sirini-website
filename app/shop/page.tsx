@@ -25,11 +25,17 @@ interface ShopPageProps {
 
 export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
   const params = await searchParams;
-  const title = params.category ? `Shop ${params.category}` : "Shop All Jewellery";
+  if (params.category) {
+    return {
+      title: `${params.category} — Handcrafted Indian Jewellery`,
+      description: `Shop handcrafted ${params.category.toLowerCase()} — Kundan, Meenakari & gold-plated designs. Free shipping across India.`,
+      robots: { index: true, follow: true },
+    };
+  }
   return {
-    title,
+    title: "Shop Handcrafted Indian Jewellery — Kundan, Meenakari & Gold-Plated",
     description:
-      "Browse our complete collection of handcrafted fashion jewellery — necklaces, earrings, bangles, rings and more.",
+      "Browse 100+ handcrafted jewellery pieces — Kundan necklace sets, gold-plated earrings, bangles, rings & anklets. Free shipping across India.",
     robots: { index: true, follow: true },
   };
 }
