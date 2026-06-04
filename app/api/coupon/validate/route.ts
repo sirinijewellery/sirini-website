@@ -39,7 +39,7 @@ export async function POST(request: Request) {
     }
 
     const discountAmount =
-      coupon.discountType === "percentage"
+      coupon.discountType.toUpperCase() === "PERCENTAGE"
         ? Math.round((orderAmount * coupon.discountValue) / 100)
         : Math.min(coupon.discountValue, orderAmount);
 

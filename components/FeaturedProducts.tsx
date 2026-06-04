@@ -118,13 +118,29 @@ export async function FeaturedProducts() {
                 <h4 className="font-body-md text-body-md text-on-surface">
                   {product.name}
                 </h4>
-                <div className="flex flex-col gap-0">
-                  <span className="font-sans text-xs text-red-500 line-through leading-tight">
-                    {formatPrice(product.price + 1299)}
-                  </span>
+                <div className="flex flex-col gap-0.5">
+                  {/* Real price — larger, black, shown first */}
                   <p className="font-price-display text-price-display font-bold text-on-surface leading-tight">
                     {formatPrice(product.price)}
                   </p>
+                  {/* MRP — smaller, red, diagonal strikethrough */}
+                  <span className="relative inline-block text-red-500 text-xs leading-tight w-fit">
+                    {formatPrice((product.price * 2) + 1299)}
+                    <span
+                      className="absolute pointer-events-none"
+                      aria-hidden="true"
+                      style={{
+                        top: '50%',
+                        left: '-2%',
+                        width: '104%',
+                        height: '1px',
+                        background: 'rgb(239 68 68)',
+                        transform: 'rotate(-12deg)',
+                        transformOrigin: 'center',
+                        display: 'block',
+                      }}
+                    />
+                  </span>
                 </div>
               </div>
             </Link>

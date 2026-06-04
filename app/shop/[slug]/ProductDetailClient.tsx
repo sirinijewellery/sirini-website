@@ -128,12 +128,28 @@ export default function ProductDetailClient({
 
       {/* Price */}
       <div className="flex flex-col gap-0.5">
-        <span className="font-sans text-sm text-red-500 line-through leading-tight">
-          {formatPrice(product.price + 1299)}
-        </span>
+        {/* Real price — larger, black, shown first */}
         <p className="font-sans text-2xl font-semibold text-on-surface leading-tight">
           {formatPrice(product.price)}
         </p>
+        {/* MRP — smaller, red, diagonal strikethrough */}
+        <span className="relative inline-block text-red-500 text-sm leading-tight w-fit">
+          {formatPrice((product.price * 2) + 1299)}
+          <span
+            className="absolute pointer-events-none"
+            aria-hidden="true"
+            style={{
+              top: '50%',
+              left: '-2%',
+              width: '104%',
+              height: '1px',
+              background: 'rgb(239 68 68)',
+              transform: 'rotate(-12deg)',
+              transformOrigin: 'center',
+              display: 'block',
+            }}
+          />
+        </span>
       </div>
 
       <Separator />

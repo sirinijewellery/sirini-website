@@ -224,7 +224,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
   const discountedSubtotal = Math.max(0, subtotal - discount);
   const gst = Math.round(discountedSubtotal * 0.03);
   const shipping = 0; // Free shipping
-  const total = discountedSubtotal + gst + shipping;
+  const total = Math.max(1, discountedSubtotal + gst + shipping);
 
   const {
     register,
