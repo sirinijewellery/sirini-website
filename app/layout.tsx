@@ -11,6 +11,7 @@ import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
 import { CartDrawer } from "@/components/CartDrawer";
 import NextTopLoader from "nextjs-toploader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
+import { ScrollReveal } from "@/components/ScrollReveal";
 
 const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
@@ -50,6 +51,7 @@ export default function RootLayout({
         className={`${ebGaramond.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
         <NextTopLoader color="#B76E79" height={3} showSpinner={false} crawl={true} />
+        <ScrollReveal />
         <WebSiteJsonLd />
         <AuthProvider>
           <NavbarWrapper />

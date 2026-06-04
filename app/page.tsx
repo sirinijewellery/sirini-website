@@ -5,7 +5,6 @@ import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { BrandStory } from "@/components/BrandStory";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
-import { ScrollReveal } from "@/components/ScrollReveal";
 import { TrustStrip } from "@/components/TrustStrip";
 import { OrganizationJsonLd } from "@/components/OrganizationJsonLd";
 import { PullQuote } from "@/components/PullQuote";
@@ -21,7 +20,6 @@ export default function HomePage() {
   return (
     <>
       <OrganizationJsonLd />
-      <ScrollReveal />
 
       {/* Zone 1 — Cream */}
       <HeroSection />
