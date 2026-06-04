@@ -7,13 +7,13 @@ export const metadata = pageMetadata(
   "Born in Mumbai in 2015, Sirini Jewellery blends traditional craftsmanship with modern elegance. A family. A craft. A promise.",
 );
 
-// Hero: necklace model shot — cropped chest-up to show the jewellery clearly
+// Hero: editorial lifestyle shot for brand story section
 const HERO_IMAGE =
-  "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1400,h_800,c_fill,g_center,y_80/v1779795103/sirini-jewellery/10ns787/10NS787-11225-Model.jpg";
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1400,h_800,c_fill,g_auto,q_auto,f_auto/v1780555162/sirini-jewellery/brand/about-hero.jpg";
 
 // Artisan close-up — hands setting kundan stones
 const ARTISAN_IMAGE =
-  "https://res.cloudinary.com/dp8a2lvxg/image/upload/v1779798780/sirini-jewellery/brand/artisan-craft.jpg";
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/q_auto,f_auto/v1779798780/sirini-jewellery/brand/artisan-craft.jpg";
 
 export default function AboutPage() {
   return (

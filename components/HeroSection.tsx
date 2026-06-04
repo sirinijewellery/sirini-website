@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useRef } from "react";
 
-// Editorial flat-lay hero: jewellery set on blush pink fabric.
-// c_pad fills the landscape frame by extending the pink background to the sides —
-// keeping the full jewellery arrangement intact with no cropping.
+// Hero model: woman in green saree wearing Kundan necklace set.
+// Subject on right, clean blush-cream on left for text overlay.
 const HERO_IMAGE_URL =
-  "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1920,h_900,c_pad,b_rgb:F8D5CF,g_center/v1779954722/sirini-jewellery/brand/hero-flatlay.jpg";
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1920,h_900,c_fill,g_auto,q_auto,f_auto/v1780555156/sirini-jewellery/brand/hero-model.jpg";
 
 export function HeroSection() {
   const bgRef = useRef<HTMLDivElement>(null);
