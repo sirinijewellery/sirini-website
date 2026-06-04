@@ -11,6 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Minus, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
+import { PriceDisplay, formatPrice } from "@/components/PriceDisplay";
 import { useState, useEffect } from "react";
 
 interface SuggestionProduct {
@@ -21,13 +22,6 @@ interface SuggestionProduct {
   images: string[];
   category: string;
 }
-
-const formatPrice = (price: number) =>
-  new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-  }).format(price);
 
 export function CartDrawer() {
   const isDrawerOpen = useCartStore((s) => s.isDrawerOpen);
@@ -161,9 +155,9 @@ export function CartDrawer() {
                       )}
 
                       {/* Price */}
-                      <p className="text-sm font-sans font-semibold text-[#B76E79] mt-1">
-                        {formatPrice(item.price)}
-                      </p>
+                      <div className="mt-1">
+                        <PriceDisplay price={item.price} size="sm" />
+                      </div>
 
                       {/* Quantity controls + remove */}
                       <div className="flex items-center gap-2 mt-2">

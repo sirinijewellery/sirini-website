@@ -4,14 +4,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { Minus, Plus, X } from "lucide-react";
 import { useCartStore, type CartItem } from "@/lib/store/cart";
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-  }).format(price);
-}
+import { PriceDisplay, getMrp } from "@/components/PriceDisplay";
 
 export function CartItemRow({ item }: { item: CartItem }) {
   const { removeItem, updateQuantity } = useCartStore();
@@ -78,9 +71,12 @@ export function CartItemRow({ item }: { item: CartItem }) {
           </div>
 
           {/* Line total */}
-          <p className="font-sans font-medium text-primary">
-            {formatPrice(item.price * item.quantity)}
-          </p>
+          <PriceDisplay
+            price={item.price * item.quantity}
+            mrp={getMrp(item.price) * item.quantity}
+            size="md"
+            layout="col"
+          />
         </div>
       </div>
     </div>

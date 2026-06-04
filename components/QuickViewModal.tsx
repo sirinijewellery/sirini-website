@@ -11,6 +11,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { AddToCartButton } from "@/components/AddToCartButton";
+import { PriceDisplay } from "@/components/PriceDisplay";
 
 interface ProductData {
   id: string;
@@ -34,14 +35,6 @@ interface QuickViewModalProps {
   slug: string;
   isOpen: boolean;
   onClose: () => void;
-}
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-  }).format(price);
 }
 
 export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
@@ -183,14 +176,7 @@ export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
                 </DialogTitle>
 
                 {/* Price */}
-                <div className="flex flex-col gap-0.5">
-                  <span className="font-sans text-xs text-red-500 line-through leading-tight">
-                    {formatPrice(product.price + 1299)}
-                  </span>
-                  <p className="font-sans text-lg font-semibold text-on-surface leading-tight">
-                    {formatPrice(product.price)}
-                  </p>
-                </div>
+                <PriceDisplay price={product.price} size="lg" />
               </DialogHeader>
 
               {/* Description */}

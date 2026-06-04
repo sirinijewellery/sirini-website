@@ -8,14 +8,7 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-  }).format(price);
-}
+import { getMrp, formatPrice } from "@/components/PriceDisplay";
 
 export default function CartPage() {
   // Zustand `persist` hydrates after the first render — guard against flash of empty cart
@@ -27,6 +20,7 @@ export default function CartPage() {
   const subtotal = getTotal();
   const discount = appliedCoupon?.discountAmount ?? 0;
   const total = Math.max(0, subtotal - discount);
+  const mrpTotal = items.reduce((s, i) => s + getMrp(i.price) * i.quantity, 0);
 
   if (!hydrated) {
     return (
@@ -87,6 +81,10 @@ export default function CartPage() {
               <div className="flex justify-between text-muted-foreground">
                 <span>Subtotal</span>
                 <span>{formatPrice(subtotal)}</span>
+              </div>
+              <div className="flex justify-between text-sm">
+                <span className="text-muted-foreground">You save</span>
+                <span className="text-green-600">{formatPrice(mrpTotal - subtotal)}</span>
               </div>
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-600">

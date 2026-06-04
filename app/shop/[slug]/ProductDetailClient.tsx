@@ -5,6 +5,7 @@ import { VariantSelector } from "@/components/VariantSelector";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { WishlistButton } from "@/components/WishlistButton";
 import { Separator } from "@/components/ui/separator";
+import { PriceDisplay, formatPrice } from "@/components/PriceDisplay";
 import { useRecentlyViewedStore } from "@/lib/store/recentlyViewed";
 
 interface Variant {
@@ -28,14 +29,6 @@ interface ProductDetailClientProps {
     variants: Variant[];
   };
   images: string[];
-}
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-  }).format(price);
 }
 
 const badgeStyle: Record<string, string> = {
@@ -127,29 +120,15 @@ export default function ProductDetailClient({
       </h1>
 
       {/* Price */}
-      <div className="flex flex-col gap-0.5">
-        {/* Real price — larger, black, shown first */}
-        <p className="font-sans text-2xl font-semibold text-on-surface leading-tight">
-          {formatPrice(product.price)}
-        </p>
-        {/* MRP — smaller, red, diagonal strikethrough */}
-        <span className="relative inline-block text-red-500 text-sm leading-tight w-fit">
-          {formatPrice((product.price * 2) + 1299)}
-          <span
-            className="absolute pointer-events-none"
-            aria-hidden="true"
-            style={{
-              top: '50%',
-              left: '-2%',
-              width: '104%',
-              height: '1px',
-              background: 'rgb(239 68 68)',
-              transform: 'rotate(-12deg)',
-              transformOrigin: 'center',
-              display: 'block',
-            }}
-          />
+      <PriceDisplay price={product.price} size="xl" />
+
+      {/* Social proof / urgency */}
+      <div className="flex items-center gap-2 text-[13px] font-sans text-rose-600">
+        <span className="relative flex h-2 w-2" aria-hidden="true">
+          <span className="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75 animate-ping" />
+          <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
         </span>
+        <span>High demand — lots of shoppers love this piece. Order soon before it sells out.</span>
       </div>
 
       <Separator />

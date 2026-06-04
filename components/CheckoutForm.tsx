@@ -17,6 +17,7 @@ import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
 import { ShoppingBag, MapPin, Lock, ChevronRight, CreditCard, Banknote, ExternalLink } from "lucide-react";
+import { getMrp, formatPrice } from "@/components/PriceDisplay";
 
 /* ── Types ──────────────────────────────────────────────────────────── */
 
@@ -225,6 +226,8 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
   const gst = Math.round(discountedSubtotal * 0.03);
   const shipping = 0; // Free shipping
   const total = Math.max(1, discountedSubtotal + gst + shipping);
+  const mrpTotal = items.reduce((s, i) => s + getMrp(i.price) * i.quantity, 0);
+  const savings = mrpTotal - subtotal;
 
   const {
     register,
@@ -750,6 +753,12 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                   <span>Subtotal</span>
                   <span>{formatINR(subtotal)}</span>
                 </div>
+                {savings > 0 && (
+                  <div className="flex justify-between">
+                    <span className="text-muted-foreground">You save</span>
+                    <span className="text-green-600">{formatPrice(savings)}</span>
+                  </div>
+                )}
                 {discount > 0 && appliedCoupon && (
                   <div className="flex justify-between text-emerald-600">
                     <span>Coupon ({appliedCoupon.code})</span>

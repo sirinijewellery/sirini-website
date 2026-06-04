@@ -28,8 +28,17 @@ export async function getProducts(options: GetProductsOptions = {}) {
     featuredOnly,
   } = options;
 
-  const where = {
-    ...(category && { category }),
+  // Only show products from active (image-bearing) categories
+  const activeCats = await prisma.category.findMany({
+    where: { image: { not: null } },
+    select: { slug: true },
+  });
+  const activeSlugs = activeCats.map((c) => c.slug);
+
+  const where: Prisma.ProductWhereInput = {
+    category: category
+      ? category                    // exact slug passed by caller
+      : { in: activeSlugs },        // all active categories when no filter
     ...(material && { material }),
     ...(featuredOnly && { isFeatured: true }),
     ...(priceMin !== undefined || priceMax !== undefined
@@ -141,8 +150,15 @@ export async function getPairingProducts(currentCategory: string, excludeId: str
 }
 
 export async function getFeaturedProducts(limit = 8) {
+  // Only show featured products from active (image-bearing) categories
+  const activeCats = await prisma.category.findMany({
+    where: { image: { not: null } },
+    select: { slug: true },
+  });
+  const activeSlugs = activeCats.map((c) => c.slug);
+
   return prisma.product.findMany({
-    where: { isFeatured: true },
+    where: { isFeatured: true, category: { in: activeSlugs } },
     take: limit,
     orderBy: { createdAt: "desc" },
     include: {

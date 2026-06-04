@@ -5,6 +5,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { toast } from "sonner";
 import { parseImages } from "@/lib/parseImages";
+import { PriceDisplay } from "@/components/PriceDisplay";
 import type { WishlistItemWithProduct } from "@/lib/queries/wishlist";
 
 interface WishlistItemCardProps {
@@ -16,14 +17,6 @@ const badgeConfig: Record<string, { label: string; classes: string }> = {
   HOT: { label: "Hot", classes: "bg-amber-100 text-amber-700 border-amber-200" },
   SALE: { label: "Sale", classes: "bg-rose-100 text-rose-700 border-rose-200" },
 };
-
-function formatPrice(price: number) {
-  return new Intl.NumberFormat("en-IN", {
-    style: "currency",
-    currency: "INR",
-    minimumFractionDigits: 0,
-  }).format(price);
-}
 
 export function WishlistItemCard({ item }: WishlistItemCardProps) {
   const [removed, setRemoved] = useState(false);
@@ -127,9 +120,7 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
           <h3 className="font-display text-base leading-snug text-foreground line-clamp-2">
             {product.name}
           </h3>
-          <p className="font-sans text-sm font-medium text-primary">
-            {formatPrice(product.price)}
-          </p>
+          <PriceDisplay price={product.price} size="sm" />
         </div>
 
         {/* Action buttons */}
