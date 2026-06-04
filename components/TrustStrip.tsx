@@ -1,4 +1,4 @@
-import { ShieldCheck, Truck, RefreshCw, Lock } from "lucide-react";
+import { ShieldCheck, Truck, RefreshCw, Lock, BadgeCheck } from "lucide-react";
 
 const trustItems = [
   {
@@ -21,12 +21,17 @@ const trustItems = [
     title: "Secure Payments",
     sub: "UPI, Cards, COD accepted",
   },
+  {
+    Icon: BadgeCheck,
+    title: "Trusted Seller on Flipkart",
+    sub: "Official verified seller",
+  },
 ];
 
 export function TrustStrip() {
   return (
     <section className="py-8 px-4 md:px-16 bg-surface-container-low border-y border-outline-variant/30">
-      <div className="grid grid-cols-2 md:grid-cols-4 gap-6 max-w-screen-2xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-6 max-w-screen-2xl mx-auto">
         {trustItems.map(({ Icon, title, sub }) => (
           <div key={title} className="flex items-start md:items-center gap-3">
             <Icon className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />

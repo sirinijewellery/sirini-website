@@ -183,9 +183,14 @@ export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
                 </DialogTitle>
 
                 {/* Price */}
-                <p className="text-primary text-xl font-semibold font-sans">
-                  {formatPrice(product.price)}
-                </p>
+                <div className="flex flex-col gap-0.5">
+                  <span className="font-sans text-xs text-red-500 line-through leading-tight">
+                    {formatPrice(product.price + 1299)}
+                  </span>
+                  <p className="font-sans text-lg font-semibold text-on-surface leading-tight">
+                    {formatPrice(product.price)}
+                  </p>
+                </div>
               </DialogHeader>
 
               {/* Description */}

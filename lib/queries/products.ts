@@ -154,7 +154,15 @@ export async function getFeaturedProducts(limit = 8) {
 }
 
 export async function getCategories() {
-  return prisma.category.findMany({ orderBy: { name: "asc" } });
+  const categories = await prisma.category.findMany({ orderBy: { name: "asc" } });
+  // Always put Necklace Sets (or any necklace category) first
+  return categories.sort((a, b) => {
+    const aIsNecklace = a.name.toLowerCase().includes("necklace");
+    const bIsNecklace = b.name.toLowerCase().includes("necklace");
+    if (aIsNecklace && !bIsNecklace) return -1;
+    if (!aIsNecklace && bIsNecklace) return 1;
+    return 0;
+  });
 }
 
 // Re-exported so server-side code can still import from this module

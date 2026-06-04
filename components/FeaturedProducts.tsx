@@ -118,9 +118,14 @@ export async function FeaturedProducts() {
                 <h4 className="font-body-md text-body-md text-on-surface">
                   {product.name}
                 </h4>
-                <p className="font-price-display text-price-display font-bold text-on-surface">
-                  {formatPrice(product.price)}
-                </p>
+                <div className="flex flex-col gap-0">
+                  <span className="font-sans text-xs text-red-500 line-through leading-tight">
+                    {formatPrice(product.price + 1299)}
+                  </span>
+                  <p className="font-price-display text-price-display font-bold text-on-surface leading-tight">
+                    {formatPrice(product.price)}
+                  </p>
+                </div>
               </div>
             </Link>
           );

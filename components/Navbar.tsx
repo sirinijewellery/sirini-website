@@ -208,10 +208,10 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`font-label-caps text-sm font-semibold tracking-widest uppercase transition-colors duration-300 ${
+                className={`relative font-label-caps text-sm font-semibold tracking-widest uppercase transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
                   pathname === link.href
-                    ? "text-primary border-b border-primary/30 pb-1"
-                    : "text-on-surface-variant hover:text-primary"
+                    ? "text-primary after:scale-x-100"
+                    : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
                 }`}
               >
                 {link.label}

@@ -1,4 +1,6 @@
-// Server component — no "use client"
+"use client";
+import { useEffect, useRef } from "react";
+
 // Editorial flat-lay hero: jewellery set on blush pink fabric.
 // c_pad fills the landscape frame by extending the pink background to the sides —
 // keeping the full jewellery arrangement intact with no cropping.
@@ -6,13 +8,28 @@ const HERO_IMAGE_URL =
   "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1920,h_900,c_pad,b_rgb:F8D5CF,g_center/v1779954722/sirini-jewellery/brand/hero-flatlay.jpg";
 
 export function HeroSection() {
+  const bgRef = useRef<HTMLDivElement>(null);
+
+  useEffect(() => {
+    function handleScroll() {
+      if (!bgRef.current) return;
+      // Move background at 30% of scroll speed — creates depth
+      bgRef.current.style.transform = `translateY(${window.scrollY * 0.3}px)`;
+    }
+    window.addEventListener("scroll", handleScroll, { passive: true });
+    // Set initial position
+    handleScroll();
+    return () => window.removeEventListener("scroll", handleScroll);
+  }, []);
+
   return (
     <section className="relative w-full h-[680px] min-h-[520px] overflow-hidden reveal">
 
       {/* Full-bleed background */}
       <div
+        ref={bgRef}
         className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${HERO_IMAGE_URL}')` }}
+        style={{ backgroundImage: `url('${HERO_IMAGE_URL}')`, willChange: "transform" }}
       >
         {/* Left-to-right gradient — gives text a clean dark panel on the left */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />

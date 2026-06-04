@@ -127,9 +127,14 @@ export default function ProductDetailClient({
       </h1>
 
       {/* Price */}
-      <p className="font-sans text-2xl font-semibold text-primary">
-        {formatPrice(product.price)}
-      </p>
+      <div className="flex flex-col gap-0.5">
+        <span className="font-sans text-sm text-red-500 line-through leading-tight">
+          {formatPrice(product.price + 1299)}
+        </span>
+        <p className="font-sans text-2xl font-semibold text-on-surface leading-tight">
+          {formatPrice(product.price)}
+        </p>
+      </div>
 
       <Separator />
 

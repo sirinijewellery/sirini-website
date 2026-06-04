@@ -221,7 +221,10 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
 
   const subtotal = getTotal();
   const discount = appliedCoupon?.discountAmount ?? 0;
-  const total = Math.max(0, subtotal - discount);
+  const discountedSubtotal = Math.max(0, subtotal - discount);
+  const gst = Math.round(discountedSubtotal * 0.03);
+  const shipping = 0; // Free shipping
+  const total = discountedSubtotal + gst + shipping;
 
   const {
     register,
@@ -753,9 +756,15 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                     <span>− {formatINR(discount)}</span>
                   </div>
                 )}
+                {/* GST */}
+                <div className="flex justify-between text-muted-foreground">
+                  <span>GST (3%)</span>
+                  <span>{formatINR(gst)}</span>
+                </div>
+                {/* Shipping */}
                 <div className="flex justify-between text-muted-foreground">
                   <span>Shipping</span>
-                  <span className="text-emerald-600">Free</span>
+                  <span className="text-emerald-600 font-medium">Free</span>
                 </div>
               </div>
 

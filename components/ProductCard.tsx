@@ -126,20 +126,25 @@ export function ProductCard({ product }: ProductCardProps) {
           </div>
         )}
 
-        {/* ── Badge — Stitch outline style, no fill ─────────────── */}
+        {/* ── Badge ─────────────────────────────────────────────── */}
         {product.badge && (
-          <div className="absolute top-4 left-4 border border-outline-variant bg-background/80 backdrop-blur-sm px-2 py-1">
-            <span
-              className={`font-sans text-[10px] font-semibold uppercase tracking-wider ${
-                product.badge === "NEW"
-                  ? "text-success-emerald"
-                  : product.badge === "SALE"
-                  ? "text-primary"
-                  : "text-on-surface"
-              }`}
-            >
-              {product.badge}
-            </span>
+          <div className="absolute top-3 left-3">
+            {product.badge === "NEW" && (
+              <div className="flex items-center gap-1.5 bg-background/90 backdrop-blur-sm px-2 py-1">
+                <span className="w-1.5 h-1.5 rounded-full bg-[#C9A96E] shrink-0" aria-hidden="true" />
+                <span className="font-sans text-[9px] font-semibold uppercase tracking-[0.15em] text-success-emerald">New</span>
+              </div>
+            )}
+            {product.badge === "SALE" && (
+              <div className="bg-primary px-2.5 py-1">
+                <span className="font-sans text-[9px] font-semibold italic tracking-wide text-on-primary">Sale</span>
+              </div>
+            )}
+            {product.badge !== "NEW" && product.badge !== "SALE" && (
+              <div className="bg-[#C9A96E] px-2 py-1">
+                <span className="font-sans text-[9px] font-semibold uppercase tracking-[0.15em] text-[#221A15]">{product.badge}</span>
+              </div>
+            )}
           </div>
         )}
 
@@ -193,9 +198,14 @@ export function ProductCard({ product }: ProductCardProps) {
         <h4 className="font-sans text-sm text-on-surface leading-snug line-clamp-2">
           {product.name}
         </h4>
-        <p className="font-sans text-base font-bold text-on-surface">
-          {formatPrice(product.price)}
-        </p>
+        <div className="flex flex-col gap-0">
+          <span className="font-sans text-xs text-red-500 line-through leading-tight">
+            {formatPrice(product.price + 1299)}
+          </span>
+          <p className="font-sans text-base font-bold text-on-surface leading-tight">
+            {formatPrice(product.price)}
+          </p>
+        </div>
       </div>
     </Link>
 

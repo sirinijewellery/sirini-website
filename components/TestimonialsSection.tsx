@@ -85,10 +85,10 @@ export function TestimonialsSection() {
     <section className="py-[120px] w-full overflow-hidden relative reveal">
       {/* Header */}
       <div className="text-center mb-16 px-4 md:px-16 max-w-screen-2xl mx-auto">
-        <h2 className="font-headline-lg text-headline-lg text-on-surface gradient-title-bg">
+        <h2 className="font-display text-[48px] md:text-[64px] font-light leading-[1.0] tracking-[-0.02em] text-on-surface gradient-title-bg">
           Voices of Sirini
         </h2>
-        <p className="font-body-md text-body-md text-on-surface-variant mt-4">
+        <p className="font-sans text-[11px] tracking-[0.2em] uppercase text-on-surface-variant mt-3">
           Discover what our patrons have to say.
         </p>
       </div>
@@ -111,16 +111,23 @@ export function TestimonialsSection() {
               className="shrink-0 w-[85%] md:w-[60%] lg:w-[45%] px-4 transition-all duration-700 ease-in-out"
               style={{ opacity: 0.4, transform: "scale(0.9)" }}
             >
-              <div className="bg-[#F8E8E0] p-10 md:p-14 h-full flex flex-col justify-center items-center text-center border border-outline-variant/30">
-                <h4 className="font-label-caps text-label-caps font-semibold text-primary mb-6 tracking-widest uppercase">
-                  {t.title}
-                </h4>
-                <p className="font-headline-md text-headline-md text-on-surface italic mb-8 leading-relaxed">
+              <div className="p-8 md:p-12 h-full flex flex-col justify-center items-center text-center">
+                {/* Gold rating bar — 5 stars shown as filled line segments */}
+                <div className="flex gap-1 mb-8" aria-label="5 out of 5 stars">
+                  {[...Array(5)].map((_, i) => (
+                    <div key={i} className="w-5 h-px bg-[#C9A96E]" aria-hidden="true" />
+                  ))}
+                </div>
+
+                {/* Quote in large italic EB Garamond */}
+                <blockquote className="font-display text-[20px] md:text-[24px] leading-[1.5] italic font-light text-on-surface mb-6 max-w-lg">
                   &ldquo;{t.quote}&rdquo;
+                </blockquote>
+
+                {/* Author in tiny DM Sans caps */}
+                <p className="font-sans text-[10px] tracking-[0.2em] uppercase text-on-surface-variant font-medium">
+                  {t.author}
                 </p>
-                <span className="font-body-md text-body-md text-on-surface-variant">
-                  — {t.author}
-                </span>
               </div>
             </div>
           ))}
