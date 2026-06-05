@@ -17,6 +17,8 @@ interface Review {
   rating: number;
   body: string | null;
   createdAt: string;
+  isVerified: boolean;
+  images: string[];
 }
 
 interface ReviewsData {
@@ -60,9 +62,11 @@ interface StarProps {
   filled: boolean;
   size?: number;
   className?: string;
+  /** Use the brand gold (#C9A96E) instead of amber for the filled state. */
+  gold?: boolean;
 }
 
-function Star({ filled, size = 16, className = "" }: StarProps) {
+function Star({ filled, size = 16, className = "", gold = false }: StarProps) {
   return (
     <svg
       viewBox="0 0 24 24"
@@ -70,7 +74,9 @@ function Star({ filled, size = 16, className = "" }: StarProps) {
       height={size}
       className={
         filled
-          ? `text-amber-400 fill-amber-400 ${className}`
+          ? gold
+            ? `fill-[#C9A96E] ${className}`
+            : `text-amber-400 fill-amber-400 ${className}`
           : `text-muted-foreground fill-none stroke-current ${className}`
       }
       strokeWidth={filled ? 0 : 1.5}
@@ -93,6 +99,37 @@ function StarRow({ rating, size = 16, gap = "gap-0.5" }: StarRowProps) {
       {[1, 2, 3, 4, 5].map((n) => (
         <Star key={n} filled={n <= rating} size={size} />
       ))}
+    </span>
+  );
+}
+
+/**
+ * Row of 5 stars filled proportionally to a fractional average (e.g. 4.7).
+ * Uses a gold clip-overlay so half/partial stars read correctly.
+ */
+function PartialStarRow({ rating, size = 24 }: { rating: number; size?: number }) {
+  const pct = Math.max(0, Math.min(100, (rating / 5) * 100));
+  return (
+    <span
+      className="relative inline-flex"
+      aria-label={`${rating.toFixed(1)} out of 5 stars`}
+    >
+      {/* Empty base */}
+      <span className="inline-flex gap-1">
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Star key={n} filled={false} size={size} />
+        ))}
+      </span>
+      {/* Gold fill clipped to the average percentage */}
+      <span
+        className="absolute inset-0 inline-flex gap-1 overflow-hidden"
+        style={{ width: `${pct}%` }}
+        aria-hidden="true"
+      >
+        {[1, 2, 3, 4, 5].map((n) => (
+          <Star key={n} filled gold size={size} className="shrink-0" />
+        ))}
+      </span>
     </span>
   );
 }
@@ -139,9 +176,17 @@ function ReviewCard({ review }: { review: Review }) {
       {/* Header row */}
       <div className="flex items-start justify-between gap-2">
         <div className="space-y-0.5">
-          <p className="font-sans text-sm font-semibold text-foreground leading-tight">
-            {review.authorName}
-          </p>
+          <div className="flex items-center gap-2">
+            <p className="font-sans text-sm font-semibold text-foreground leading-tight">
+              {review.authorName}
+            </p>
+            {review.isVerified && (
+              <span className="inline-flex items-center gap-1 rounded-full border border-[#C9A96E]/40 bg-[#C9A96E]/10 px-1.5 py-0.5 font-sans text-[9px] font-semibold uppercase tracking-[0.1em] text-[#9c7d4a]">
+                <span aria-hidden="true">✓</span>
+                Verified Buyer
+              </span>
+            )}
+          </div>
           <time
             dateTime={review.createdAt}
             className="font-sans text-xs text-muted-foreground"
@@ -157,6 +202,29 @@ function ReviewCard({ review }: { review: Review }) {
         <p className="font-sans text-sm text-foreground/80 leading-relaxed">
           {review.body}
         </p>
+      )}
+
+      {/* Photo thumbnails */}
+      {review.images.length > 0 && (
+        <div className="flex flex-wrap gap-2 pt-1">
+          {review.images.map((src, i) => (
+            <a
+              key={i}
+              href={src}
+              target="_blank"
+              rel="noopener noreferrer"
+              className="block h-16 w-16 overflow-hidden rounded-md border border-border transition-colors hover:border-[#C9A96E]"
+            >
+              {/* eslint-disable-next-line @next/next/no-img-element */}
+              <img
+                src={src}
+                alt={`Photo from ${review.authorName}'s review`}
+                className="h-full w-full object-cover"
+                loading="lazy"
+              />
+            </a>
+          ))}
+        </div>
       )}
     </article>
   );
@@ -332,15 +400,23 @@ export function ProductReviews({ productId }: Props) {
             </p>
           ) : (
             <div className="mb-8 space-y-3">
-              {/* Aggregate rating */}
-              <div className="flex items-center gap-3 pb-4 border-b border-border">
-                <StarRow rating={Math.round(data.averageRating)} size={20} gap="gap-1" />
-                <span className="font-sans text-sm text-muted-foreground">
-                  {data.averageRating.toFixed(1)}{" "}
-                  <span className="text-foreground/60">
-                    ({data.totalCount} {data.totalCount === 1 ? "review" : "reviews"})
+              {/* Rating summary header */}
+              <div className="flex items-center gap-5 rounded-lg border border-border bg-secondary/40 px-5 py-4">
+                <div className="flex flex-col items-center">
+                  <span className="font-display text-4xl font-light leading-none text-foreground">
+                    {data.averageRating.toFixed(1)}
                   </span>
-                </span>
+                  <span className="mt-1 font-sans text-[10px] uppercase tracking-widest text-muted-foreground">
+                    out of 5
+                  </span>
+                </div>
+                <div className="space-y-1.5">
+                  <PartialStarRow rating={data.averageRating} size={22} />
+                  <p className="font-sans text-sm text-muted-foreground">
+                    Based on {data.totalCount}{" "}
+                    {data.totalCount === 1 ? "review" : "reviews"}
+                  </p>
+                </div>
               </div>
 
               {/* Individual reviews */}

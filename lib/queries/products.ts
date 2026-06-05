@@ -14,6 +14,7 @@ export interface GetProductsOptions {
   search?: string;
   featuredOnly?: boolean;
   occasion?: string;
+  style?: string;
 }
 
 export async function getProducts(options: GetProductsOptions = {}) {
@@ -28,6 +29,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
     search,
     featuredOnly,
     occasion,
+    style,
   } = options;
 
   // Only show products from active (image-bearing) categories
@@ -44,6 +46,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
     ...(material && { material }),
     ...(featuredOnly && { isFeatured: true }),
     ...(occasion && { occasions: { has: occasion } }),
+    ...(style && { styles: { has: style } }),
     ...(priceMin !== undefined || priceMax !== undefined
       ? {
           price: {
@@ -83,7 +86,33 @@ export async function getProducts(options: GetProductsOptions = {}) {
     prisma.product.count({ where }),
   ]);
 
-  return { products, total, page, limit, totalPages: Math.ceil(total / limit) };
+  const productsWithRatings = await attachRatings(products);
+
+  return { products: productsWithRatings, total, page, limit, totalPages: Math.ceil(total / limit) };
+}
+
+/**
+ * Attaches { avgRating, reviewCount } to each product via a single grouped query.
+ * Used by listing grids so cards can show ⭐ ratings without N+1 lookups.
+ */
+async function attachRatings<T extends { id: string }>(
+  products: T[]
+): Promise<(T & { avgRating: number; reviewCount: number })[]> {
+  if (products.length === 0) return [];
+  const grouped = await prisma.review.groupBy({
+    by: ["productId"],
+    where: { productId: { in: products.map((p) => p.id) }, isPublished: true },
+    _avg: { rating: true },
+    _count: { _all: true },
+  });
+  const map = new Map(
+    grouped.map((g) => [g.productId, { avg: g._avg.rating ?? 0, count: g._count._all }])
+  );
+  return products.map((p) => ({
+    ...p,
+    avgRating: map.get(p.id)?.avg ?? 0,
+    reviewCount: map.get(p.id)?.count ?? 0,
+  }));
 }
 
 export async function getProductBySlug(slug: string) {
@@ -172,6 +201,40 @@ export async function getFeaturedProducts(limit = 8) {
   });
 }
 
+/**
+ * Bestsellers — products ranked by number of reviews (social proof).
+ * Returns products with avgRating + reviewCount attached.
+ */
+export async function getBestsellers(limit = 8) {
+  const activeCats = await prisma.category.findMany({
+    where: { image: { not: null } },
+    select: { slug: true },
+  });
+  const activeSlugs = activeCats.map((c) => c.slug);
+
+  // Rank product ids by review count
+  const ranked = await prisma.review.groupBy({
+    by: ["productId"],
+    where: { isPublished: true },
+    _count: { _all: true },
+    orderBy: { _count: { productId: "desc" } },
+    take: limit * 2, // over-fetch, then filter to active categories
+  });
+
+  const products = await prisma.product.findMany({
+    where: { id: { in: ranked.map((r) => r.productId) }, category: { in: activeSlugs } },
+    include: {
+      variants: { select: { id: true, size: true, colour: true, stockQuantity: true } },
+    },
+  });
+
+  // Preserve the ranked order
+  const order = new Map(ranked.map((r, i) => [r.productId, i]));
+  products.sort((a, b) => (order.get(a.id) ?? 99) - (order.get(b.id) ?? 99));
+
+  return attachRatings(products.slice(0, limit));
+}
+
 export async function getCategories() {
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
@@ -187,11 +250,6 @@ export async function getCategories() {
   });
 }
 
-export const OCCASIONS = [
-  { slug: "bridal", label: "Bridal & Wedding", blurb: "Heirloom Kundan, Polki & Jadau statement sets for the big day." },
-  { slug: "festive", label: "Festive Edit", blurb: "Meenakari, temple & jhumka pieces to light up every celebration." },
-] as const;
-
 export async function getOccasionCoverImage(occasion: string): Promise<string | null> {
   const p = await prisma.product.findFirst({
     where: { occasions: { has: occasion } },
@@ -202,6 +260,21 @@ export async function getOccasionCoverImage(occasion: string): Promise<string | 
   const { parseImages } = await import("@/lib/parseImages");
   return parseImages(p.images)[0] ?? null;
 }
+
+/* ── Shop by Material (style) ───────────────────────────────── */
+export async function getStyleCoverImage(style: string): Promise<string | null> {
+  const p = await prisma.product.findFirst({
+    where: { styles: { has: style } },
+    orderBy: { price: "desc" },
+    select: { images: true },
+  });
+  if (!p) return null;
+  const { parseImages } = await import("@/lib/parseImages");
+  return parseImages(p.images)[0] ?? null;
+}
+
+// Taxonomy constants live in a client-safe module; re-export for server callers.
+export { OCCASIONS, STYLES, PRICE_BUCKETS } from "@/lib/taxonomy";
 
 // Re-exported so server-side code can still import from this module
 export { parseImages, getMaterials } from "@/lib/parseImages";

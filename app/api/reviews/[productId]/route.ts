@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { parseImages } from "@/lib/parseImages";
 
 const reviewSchema = z.object({
   authorName: z.string().min(1, "Name is required").max(100),
@@ -17,16 +18,23 @@ export async function GET(_req: Request, { params }: RouteContext) {
   try {
     const { productId } = await params;
 
-    const reviews = await prisma.review.findMany({
+    const rawReviews = await prisma.review.findMany({
       where: { productId, isPublished: true },
       orderBy: { createdAt: "desc" },
     });
 
-    const totalCount = reviews.length;
+    const totalCount = rawReviews.length;
     const averageRating =
       totalCount > 0
-        ? Math.round((reviews.reduce((sum, r) => sum + r.rating, 0) / totalCount) * 10) / 10
+        ? Math.round((rawReviews.reduce((sum, r) => sum + r.rating, 0) / totalCount) * 10) / 10
         : 0;
+
+    // Normalise the JSON images field to a string[] and surface isVerified
+    const reviews = rawReviews.map((r) => ({
+      ...r,
+      isVerified: r.isVerified,
+      images: parseImages(r.images),
+    }));
 
     return NextResponse.json({ reviews, averageRating, totalCount });
   } catch (error) {

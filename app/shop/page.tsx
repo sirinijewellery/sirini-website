@@ -7,6 +7,7 @@ import {
   getCategories,
   getMaterials,
   OCCASIONS,
+  STYLES,
   type GetProductsOptions,
 } from "@/lib/queries/products";
 import Link from "next/link";
@@ -22,6 +23,7 @@ interface ShopPageProps {
     sort?: string;
     search?: string;
     occasion?: string;
+    style?: string;
   }>;
 }
 
@@ -40,6 +42,15 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
       description:
         occ?.blurb ??
         `Shop handcrafted jewellery for ${params.occasion} occasions. Free shipping across India.`,
+      robots: { index: true, follow: true },
+    };
+  }
+  if (params.style) {
+    const st = STYLES.find((s) => s.slug === params.style);
+    return {
+      title: `${st?.label ?? params.style} Jewellery | Sirini Jewellery`,
+      description:
+        `Shop handcrafted ${st?.label ?? params.style} jewellery — necklace sets, earrings, bangles & more. Free shipping across India.`,
       robots: { index: true, follow: true },
     };
   }
@@ -72,6 +83,7 @@ async function ShopContent({ searchParams }: ShopPageProps) {
     sort: (params.sort as GetProductsOptions["sort"]) || "newest",
     search: params.search,
     occasion: params.occasion,
+    style: params.style,
   };
 
   const [{ products, total, totalPages }, categories] = await Promise.all([
@@ -96,6 +108,8 @@ async function ShopContent({ searchParams }: ShopPageProps) {
             ) : params.occasion ? (
               OCCASIONS.find((o) => o.slug === params.occasion)?.label ||
               params.occasion
+            ) : params.style ? (
+              `${STYLES.find((s) => s.slug === params.style)?.label || params.style} Jewellery`
             ) : (
               params.category || "All Jewellery"
             )}
@@ -185,6 +199,7 @@ function buildHref(
   if (params.sort) p.set("sort", params.sort);
   if (params.search) p.set("search", params.search);
   if (params.occasion) p.set("occasion", params.occasion);
+  if (params.style) p.set("style", params.style);
   if (page > 1) p.set("page", String(page));
   return `/shop?${p.toString()}`;
 }

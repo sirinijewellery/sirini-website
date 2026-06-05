@@ -2,6 +2,9 @@ import { Suspense } from "react";
 import { HeroSection } from "@/components/HeroSection";
 import { CategoryGrid } from "@/components/CategoryGrid";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
+import { ShopByMaterial } from "@/components/ShopByMaterial";
+import { BestsellersRail } from "@/components/BestsellersRail";
+import { ShopByPrice } from "@/components/ShopByPrice";
 import { BrandStory } from "@/components/BrandStory";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
@@ -33,6 +36,10 @@ export default function HomePage() {
         <Suspense fallback={<div className="h-96 bg-[#FAF0EC] animate-pulse" />}>
           <CategoryGrid />
         </Suspense>
+        {/* Discovery: browse by craft/material (transparent — sits on blush) */}
+        <Suspense fallback={<div className="h-96 bg-[#FAF0EC] animate-pulse" />}>
+          <ShopByMaterial />
+        </Suspense>
       </div>
 
       {/* Gradient bridge: warm blush → cream */}
@@ -42,6 +49,14 @@ export default function HomePage() {
       <Suspense fallback={<div className="h-96 bg-muted animate-pulse" />}>
         <FeaturedProducts />
       </Suspense>
+
+      {/* Social proof — bestsellers follow new arrivals */}
+      <Suspense fallback={<div className="h-96 bg-muted animate-pulse" />}>
+        <BestsellersRail />
+      </Suspense>
+
+      {/* Compact price-discovery band (transparent — sits on cream) */}
+      <ShopByPrice />
 
       {/* Pull quote — editorial interruption */}
       <PullQuote />

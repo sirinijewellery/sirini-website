@@ -20,6 +20,8 @@ interface ProductCardProps {
     images: unknown;
     badge?: string | null;
     variants?: { stockQuantity: number }[];
+    avgRating?: number;
+    reviewCount?: number;
   };
 }
 
@@ -38,6 +40,20 @@ function HeartIcon({ className }: { className?: string }) {
       aria-hidden="true"
     >
       <path d="M20.84 4.61a5.5 5.5 0 0 0-7.78 0L12 5.67l-1.06-1.06a5.5 5.5 0 0 0-7.78 7.78l1.06 1.06L12 21.23l7.78-7.78 1.06-1.06a5.5 5.5 0 0 0 0-7.78z" />
+    </svg>
+  );
+}
+
+// Gold star icon — filled, used for the card rating row
+function StarIcon({ className }: { className?: string }) {
+  return (
+    <svg
+      viewBox="0 0 24 24"
+      className={className}
+      fill="#C9A96E"
+      aria-hidden="true"
+    >
+      <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z" />
     </svg>
   );
 }
@@ -226,6 +242,20 @@ export function ProductCard({ product }: ProductCardProps) {
           {product.name}
         </h4>
         <PriceDisplay price={product.price} size="md" />
+
+        {/* ── Rating row — only when reviews exist ─────────────────── */}
+        {product.reviewCount && product.reviewCount > 0 ? (
+          <div className="flex items-center gap-1 font-sans text-xs text-on-surface-variant">
+            <StarIcon className="w-3.5 h-3.5 shrink-0" />
+            <span className="text-on-surface font-medium">
+              {(product.avgRating ?? 0).toFixed(1)}
+            </span>
+            <span className="text-on-surface-variant/70">·</span>
+            <span className="text-on-surface-variant/70">
+              ({product.reviewCount})
+            </span>
+          </div>
+        ) : null}
       </div>
     </Link>
 

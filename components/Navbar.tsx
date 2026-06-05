@@ -10,7 +10,9 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CartBadge } from "@/components/CartBadge";
+import { MegaMenu } from "@/components/MegaMenu";
 import { useCartStore } from "@/lib/store/cart";
+import { STYLES, OCCASIONS, PRICE_BUCKETS } from "@/lib/taxonomy";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -25,13 +27,34 @@ interface SearchResult {
 
 // ─── Constants ──────────────────────────────────────────────────────────────
 
-const navLinks = [
+// Links shown BEFORE the "Shop" mega-menu trigger in the desktop nav.
+const navLinksLeading = [
   { href: "/", label: "Home" },
-  { href: "/shop", label: "Shop" },
-  { href: "/occasions", label: "Shop by Occasion" },
+];
+
+// Links shown AFTER the "Shop" mega-menu trigger.
+// "Shop by Occasion" is intentionally omitted — occasions live inside the mega menu now.
+const navLinksTrailing = [
   { href: "/about", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];
+
+// Flat list used by the mobile sheet (mega menu is desktop-only).
+const navLinks = [
+  { href: "/", label: "Home" },
+  { href: "/shop", label: "Shop" },
+  { href: "/about", label: "Our Story" },
+  { href: "/contact", label: "Contact" },
+];
+
+// Helper for the mobile sheet: build a /shop URL from a price bucket.
+function priceHref(priceMin?: number, priceMax?: number): string {
+  const params = new URLSearchParams();
+  if (priceMin !== undefined) params.set("priceMin", String(priceMin));
+  if (priceMax !== undefined) params.set("priceMax", String(priceMax));
+  const qs = params.toString();
+  return qs ? `/shop?${qs}` : "/shop";
+}
 
 const ANNOUNCEMENTS = [
   "Free Pan-India Shipping on All Orders",
@@ -205,7 +228,24 @@ export function Navbar() {
 
           {/* Desktop nav — centered absolutely */}
           <nav className="hidden md:flex gap-8 items-center absolute left-1/2 -translate-x-1/2">
-            {navLinks.map((link) => (
+            {navLinksLeading.map((link) => (
+              <Link
+                key={link.href}
+                href={link.href}
+                className={`relative font-label-caps text-sm font-semibold tracking-widest uppercase transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
+                  pathname === link.href
+                    ? "text-primary after:scale-x-100"
+                    : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
+                }`}
+              >
+                {link.label}
+              </Link>
+            ))}
+
+            {/* Shop mega-menu trigger */}
+            <MegaMenu />
+
+            {navLinksTrailing.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
@@ -442,21 +482,100 @@ export function Navbar() {
                     </div>
 
                     {/* Mobile nav links — onClick closes the sheet */}
-                    <nav className="flex flex-col gap-1 mt-6">
-                      {navLinks.map((link) => (
-                        <Link
-                          key={link.href}
-                          href={link.href}
-                          onClick={() => setMobileOpen(false)}
-                          className={`py-3 px-2 font-label-caps text-label-caps font-semibold border-b border-outline-variant transition-colors ${
-                            pathname === link.href
-                              ? "text-primary"
-                              : "text-on-surface-variant hover:text-primary"
-                          }`}
-                        >
-                          {link.label}
-                        </Link>
-                      ))}
+                    <nav className="flex flex-col gap-1 mt-6 overflow-y-auto">
+                      {navLinks.map((link) =>
+                        link.href === "/shop" ? (
+                          <div
+                            key={link.href}
+                            className="border-b border-outline-variant"
+                          >
+                            <Link
+                              href={link.href}
+                              onClick={() => setMobileOpen(false)}
+                              className={`block py-3 px-2 font-label-caps text-label-caps font-semibold transition-colors ${
+                                pathname === link.href
+                                  ? "text-primary"
+                                  : "text-on-surface-variant hover:text-primary"
+                              }`}
+                            >
+                              {link.label}
+                            </Link>
+
+                            {/* Compact grouped shop links */}
+                            <div className="pb-3 pl-4 flex flex-col gap-3">
+                              {/* Material */}
+                              <div>
+                                <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
+                                  Material
+                                </p>
+                                <div className="flex flex-col gap-0.5">
+                                  {STYLES.map((s) => (
+                                    <Link
+                                      key={s.slug}
+                                      href={`/shop?style=${s.slug}`}
+                                      onClick={() => setMobileOpen(false)}
+                                      className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                                    >
+                                      {s.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Occasion */}
+                              <div>
+                                <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
+                                  Occasion
+                                </p>
+                                <div className="flex flex-col gap-0.5">
+                                  {OCCASIONS.map((o) => (
+                                    <Link
+                                      key={o.slug}
+                                      href={`/shop?occasion=${o.slug}`}
+                                      onClick={() => setMobileOpen(false)}
+                                      className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                                    >
+                                      {o.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+
+                              {/* Price */}
+                              <div>
+                                <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
+                                  Price
+                                </p>
+                                <div className="flex flex-col gap-0.5">
+                                  {PRICE_BUCKETS.map((b) => (
+                                    <Link
+                                      key={b.slug}
+                                      href={priceHref(b.priceMin, b.priceMax)}
+                                      onClick={() => setMobileOpen(false)}
+                                      className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                                    >
+                                      {b.label}
+                                    </Link>
+                                  ))}
+                                </div>
+                              </div>
+                            </div>
+                          </div>
+                        ) : (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setMobileOpen(false)}
+                            className={`py-3 px-2 font-label-caps text-label-caps font-semibold border-b border-outline-variant transition-colors ${
+                              pathname === link.href
+                                ? "text-primary"
+                                : "text-on-surface-variant hover:text-primary"
+                            }`}
+                          >
+                            {link.label}
+                          </Link>
+                        )
+                      )}
                     </nav>
 
                     {/* Mobile auth */}

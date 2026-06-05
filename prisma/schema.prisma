@@ -19,6 +19,7 @@ model Product {
   badge       String?
   isFeatured  Boolean  @default(false)
   occasions   String[] @default([])
+  styles      String[] @default([])
   createdAt   DateTime @default(now())
 
   variants      ProductVariant[]
@@ -156,6 +157,8 @@ model Review {
   authorName  String
   rating      Int      // 1–5
   body        String?
+  images      Json     @default("[]")
+  isVerified  Boolean  @default(false)
   isPublished Boolean  @default(true)
   createdAt   DateTime @default(now())
 

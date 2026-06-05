@@ -6,6 +6,7 @@ import { AddToCartButton } from "@/components/AddToCartButton";
 import { WishlistButton } from "@/components/WishlistButton";
 import { Separator } from "@/components/ui/separator";
 import { PriceDisplay, formatPrice } from "@/components/PriceDisplay";
+import { PincodeEstimator } from "@/components/PincodeEstimator";
 import { useRecentlyViewedStore } from "@/lib/store/recentlyViewed";
 
 interface Variant {
@@ -161,30 +162,77 @@ export default function ProductDetailClient({
         <WishlistButton productId={product.id} />
       </div>
 
-      {/* ── Trust microbar ─────────────────────────────────────────── */}
-      <div className="flex flex-wrap gap-x-6 gap-y-2">
-        <span className="flex items-center gap-1.5 text-[10px] font-sans tracking-[0.12em] uppercase text-on-surface-variant">
-          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
-          </svg>
-          Secure Payment
-        </span>
-        <span className="flex items-center gap-1.5 text-[10px] font-sans tracking-[0.12em] uppercase text-on-surface-variant">
-          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <rect x="1" y="3" width="15" height="13" />
-            <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
-            <circle cx="5.5" cy="18.5" r="2.5" />
-            <circle cx="18.5" cy="18.5" r="2.5" />
-          </svg>
-          Free Delivery
-        </span>
-        <span className="flex items-center gap-1.5 text-[10px] font-sans tracking-[0.12em] uppercase text-on-surface-variant">
-          <svg viewBox="0 0 24 24" className="w-3.5 h-3.5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
-            <polyline points="1 4 1 10 7 10" />
-            <path d="M3.51 15a9 9 0 1 0 .49-4.5" />
-          </svg>
-          Easy Returns
-        </span>
+      {/* Pincode delivery-date estimator */}
+      <PincodeEstimator />
+
+      {/* ── Trust badges block ─────────────────────────────────────── */}
+      <div className="rounded-xl border border-outline-variant bg-surface-container-low p-4">
+        <div className="grid grid-cols-2 gap-x-4 gap-y-4 sm:grid-cols-4">
+          {/* 1-Year Warranty — Shield */}
+          <div className="flex items-start gap-2.5">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M12 22s8-4 8-10V5l-8-3-8 3v7c0 6 8 10 8 10z" />
+            </svg>
+            <div className="min-w-0">
+              <p className="text-[10px] font-sans font-semibold tracking-[0.12em] uppercase text-on-surface leading-tight">
+                1-Year Warranty
+              </p>
+              <p className="text-[10px] font-sans text-on-surface-variant leading-tight mt-0.5">
+                On plating &amp; polish
+              </p>
+            </div>
+          </div>
+
+          {/* Free Shipping — Truck */}
+          <div className="flex items-start gap-2.5">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <rect x="1" y="3" width="15" height="13" />
+              <polygon points="16 8 20 8 23 11 23 16 16 16 16 8" />
+              <circle cx="5.5" cy="18.5" r="2.5" />
+              <circle cx="18.5" cy="18.5" r="2.5" />
+            </svg>
+            <div className="min-w-0">
+              <p className="text-[10px] font-sans font-semibold tracking-[0.12em] uppercase text-on-surface leading-tight">
+                Free Shipping
+              </p>
+              <p className="text-[10px] font-sans text-on-surface-variant leading-tight mt-0.5">
+                Across India
+              </p>
+            </div>
+          </div>
+
+          {/* 7-Day Returns — Refresh */}
+          <div className="flex items-start gap-2.5">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <polyline points="1 4 1 10 7 10" />
+              <path d="M3.51 15a9 9 0 1 0 .49-4.5" />
+            </svg>
+            <div className="min-w-0">
+              <p className="text-[10px] font-sans font-semibold tracking-[0.12em] uppercase text-on-surface leading-tight">
+                7-Day Returns
+              </p>
+              <p className="text-[10px] font-sans text-on-surface-variant leading-tight mt-0.5">
+                Easy &amp; hassle-free
+              </p>
+            </div>
+          </div>
+
+          {/* 100% Genuine — BadgeCheck */}
+          <div className="flex items-start gap-2.5">
+            <svg viewBox="0 0 24 24" className="w-5 h-5 shrink-0 text-[#C9A96E]" fill="none" stroke="currentColor" strokeWidth={1.5} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+              <path d="M3.85 8.62a4 4 0 0 1 4.78-4.77 4 4 0 0 1 6.74 0 4 4 0 0 1 4.78 4.78 4 4 0 0 1 0 6.74 4 4 0 0 1-4.77 4.78 4 4 0 0 1-6.75 0 4 4 0 0 1-4.78-4.77 4 4 0 0 1 0-6.76z" />
+              <path d="m9 12 2 2 4-4" />
+            </svg>
+            <div className="min-w-0">
+              <p className="text-[10px] font-sans font-semibold tracking-[0.12em] uppercase text-on-surface leading-tight">
+                100% Genuine
+              </p>
+              <p className="text-[10px] font-sans text-on-surface-variant leading-tight mt-0.5">
+                Quality assured
+              </p>
+            </div>
+          </div>
+        </div>
       </div>
 
       <Separator />
