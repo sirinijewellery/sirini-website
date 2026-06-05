@@ -76,6 +76,7 @@ export function Footer() {
                 Company
               </h4>
               <a href="/about" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">About</a>
+              <a href="/blog" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Journal</a>
               <a href="/contact" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Contact</a>
               <a href="/privacy" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Privacy</a>
               <a href="/terms" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Terms</a>

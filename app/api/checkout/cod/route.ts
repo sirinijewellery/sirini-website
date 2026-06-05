@@ -25,8 +25,12 @@ const bodySchema = z.object({
   customerPhone: z.string().regex(/^\d{10}$/),
   couponCode: z.string().optional(),
   totalAmount: z.number().positive(),
+  giftWrap: z.boolean().optional(),
   notes: z.string().optional(),
 });
+
+// ₹49 gift-wrap fee (kept in sync with the client-side fee in CheckoutForm)
+const GIFT_WRAP_FEE = 49;
 
 export async function POST(req: NextRequest) {
   // Use server-side session for userId — never trust client-supplied value
@@ -55,6 +59,7 @@ export async function POST(req: NextRequest) {
     customerPhone,
     couponCode,
     totalAmount,
+    giftWrap,
     notes,
   } = parsed.data;
 
@@ -111,10 +116,13 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const recalculatedTotal = Math.max(
-    0,
-    recalculatedSubtotal - recalculatedDiscount
-  );
+  // Gift-wrap fee — server-authoritative; only added when the client opted in
+  const giftWrapFee = giftWrap ? GIFT_WRAP_FEE : 0;
+
+  // Mirror the client total EXACTLY: discountedSubtotal + 3% GST + gift wrap.
+  const discountedSubtotal = Math.max(0, recalculatedSubtotal - recalculatedDiscount);
+  const gst = Math.round(discountedSubtotal * 0.03);
+  const recalculatedTotal = Math.max(1, discountedSubtotal + gst + giftWrapFee);
 
   // 3. Exact paise comparison — no ±1 tolerance that could be exploited
   const recalculatedPaise = Math.round(recalculatedTotal * 100);
@@ -138,7 +146,9 @@ export async function POST(req: NextRequest) {
           customerEmail,
           customerPhone,
           shippingAddress: address,
-          notes: notes ?? null,
+          notes: giftWrap
+            ? `${notes ? `${notes} ` : ""}(Gift Wrapped)`
+            : notes ?? null,
           totalAmount: recalculatedTotal,
           discountAmount: recalculatedDiscount,
           couponCode: validatedCouponCode,

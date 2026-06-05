@@ -10,6 +10,40 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { getMrp, formatPrice } from "@/components/PriceDisplay";
 
+const GIFT_THRESHOLD = 2500;
+
+function GiftProgressBar({ subtotal }: { subtotal: number }) {
+  const unlocked = subtotal >= GIFT_THRESHOLD;
+  const remaining = Math.max(0, GIFT_THRESHOLD - subtotal);
+  const pct = Math.min(100, Math.round((subtotal / GIFT_THRESHOLD) * 100));
+
+  return (
+    <div className="rounded-lg border border-[#E8D5B0] bg-[#FDF9F6] px-5 py-4 mb-8">
+      <p className="font-sans text-sm text-[#2C2C2C] mb-2.5">
+        {unlocked ? (
+          <span>🎁 You&apos;ve unlocked a free surprise gift!</span>
+        ) : (
+          <span>
+            Add {formatPrice(remaining)} more to unlock a FREE surprise gift 🎁
+          </span>
+        )}
+      </p>
+      <div
+        className="h-1.5 w-full rounded-full bg-[#E8D5B0] overflow-hidden"
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
+        <div
+          className="h-full rounded-full bg-[#C9A96E] transition-[width] duration-500 ease-out"
+          style={{ width: `${unlocked ? 100 : pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 export default function CartPage() {
   // Zustand `persist` hydrates after the first render — guard against flash of empty cart
   const [hydrated, setHydrated] = useState(false);
@@ -58,6 +92,9 @@ export default function CartPage() {
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       <h1 className="font-display text-4xl font-light text-foreground mb-8">Your Cart</h1>
+
+      {/* Free-gift threshold progress */}
+      <GiftProgressBar subtotal={subtotal} />
 
       <div className="flex flex-col lg:flex-row gap-8">
         {/* Cart items */}

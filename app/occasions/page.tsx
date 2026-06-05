@@ -29,6 +29,14 @@ export default async function OccasionsPage() {
           From the heirloom sets that crown a wedding day to the festive pieces that
           light up every celebration — find the perfect adornment for your moment.
         </p>
+        <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed mt-4 max-w-2xl">
+          Shopping handcrafted jewellery by occasion makes it easy to find exactly
+          what your moment calls for — bridal Kundan sets for your wedding, vibrant
+          Meenakari pieces for the festive season, statement designs for parties and
+          delicate gold-plated jewellery for everyday wear. Every piece is crafted by
+          our artisans in Mumbai, so you adorn each celebration with the same care
+          that goes into making it.
+        </p>
       </section>
 
       {/* ── Occasion cards ────────────────────────────────────────── */}
@@ -74,6 +82,38 @@ export default async function OccasionsPage() {
               </Link>
             );
           })}
+        </div>
+      </section>
+
+      {/* ── SEO content block ─────────────────────────────────────── */}
+      <section className="pb-8 px-6 md:px-16 max-w-screen-2xl mx-auto">
+        <div className="max-w-3xl">
+          <h2 className="font-headline-lg text-headline-lg text-on-surface mb-6">
+            Find the Perfect Jewellery for Every Occasion
+          </h2>
+          <div className="flex flex-col gap-5">
+            <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              <span className="text-on-surface font-medium">Bridal &amp; wedding jewellery.</span>{" "}
+              Our handcrafted Kundan and Polki bridal sets are designed to be the
+              centrepiece of your big day — layered haars, matching jhumkas and maang
+              tikkas finished with delicate Meenakari enamel. Each set is crafted to
+              photograph beautifully and become the heirloom you pass on.
+            </p>
+            <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              <span className="text-on-surface font-medium">Festive edit.</span> From
+              Navratri garba nights to Diwali dinners, our festive collection brings
+              together vibrant Meenakari pieces, oxidised designs and gold-plated
+              jhumkas and chokers that move with you. Mix and match a few versatile
+              pieces to create a fresh look for every celebration of the season.
+            </p>
+            <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
+              <span className="text-on-surface font-medium">Party &amp; daily wear.</span>{" "}
+              For evenings out, statement earrings and contemporary gold-plated
+              necklaces elevate any outfit, while lightweight studs, slim bangles and
+              everyday rings are made to be worn again and again. Whatever the
+              occasion, every piece is handcrafted in Mumbai with lasting quality.
+            </p>
+          </div>
         </div>
       </section>
 

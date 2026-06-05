@@ -9,6 +9,7 @@ import { GoogleAnalytics } from "@next/third-parties/google";
 import { baseMetadata } from "@/lib/seo";
 import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
 import { CartDrawer } from "@/components/CartDrawer";
+import { AbandonedCartNudge } from "@/components/AbandonedCartNudge";
 import NextTopLoader from "nextjs-toploader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
@@ -58,6 +59,7 @@ export default function RootLayout({
           <WhatsAppWrapper />
           <Toaster />
           <CartDrawer />
+          <AbandonedCartNudge />
           <MobileBottomNav />
         </AuthProvider>
         {process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID && (

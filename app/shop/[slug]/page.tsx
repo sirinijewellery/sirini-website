@@ -4,7 +4,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { ImageGallery } from "@/components/ImageGallery";
 import { RelatedProducts } from "@/components/RelatedProducts";
-import { getProductBySlug, parseImages } from "@/lib/queries/products";
+import { getProductBySlug, getPairingProducts, parseImages } from "@/lib/queries/products";
+import { CompleteTheSet } from "@/components/CompleteTheSet";
 import { sortAllImages } from "@/lib/parseImages";
 import { productMetadata, siteConfig } from "@/lib/seo";
 import ProductDetailClient from "./ProductDetailClient";
@@ -49,6 +50,16 @@ export default async function ProductPage({ params }: Props) {
 
   // Sort: model first → full set → detail close-ups
   const images = sortAllImages(parseImages(product.images));
+
+  // "Complete the Look" bundle — first 2 complementary pieces from other categories
+  const pairing = await getPairingProducts(product.category, product.id);
+  const completeTheSet = pairing.slice(0, 2).map((p) => ({
+    id: p.id,
+    name: p.name,
+    slug: p.slug,
+    price: p.price,
+    image: parseImages(p.images)[0] ?? null,
+  }));
 
   const siteUrl = siteConfig.url;
 
@@ -96,6 +107,9 @@ export default async function ProductPage({ params }: Props) {
           images={images}
         />
       </div>
+
+      {/* Complete the Set — display-only bundle suggestion */}
+      <CompleteTheSet products={completeTheSet} mainPrice={product.price} />
 
       {/* Related / pairing products */}
       <Suspense fallback={null}>

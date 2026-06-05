@@ -14,6 +14,40 @@ import { Button } from "@/components/ui/button";
 import { PriceDisplay, formatPrice } from "@/components/PriceDisplay";
 import { useState, useEffect } from "react";
 
+const GIFT_THRESHOLD = 2500;
+
+function GiftProgressBar({ subtotal }: { subtotal: number }) {
+  const unlocked = subtotal >= GIFT_THRESHOLD;
+  const remaining = Math.max(0, GIFT_THRESHOLD - subtotal);
+  const pct = Math.min(100, Math.round((subtotal / GIFT_THRESHOLD) * 100));
+
+  return (
+    <div className="px-6 py-3 border-b border-[#E8D5B0] bg-[#FDF9F6]">
+      <p className="font-sans text-xs text-[#2C2C2C] mb-2 flex items-center gap-1.5">
+        {unlocked ? (
+          <span>🎁 You&apos;ve unlocked a free surprise gift!</span>
+        ) : (
+          <span>
+            Add {formatPrice(remaining)} more to unlock a FREE surprise gift 🎁
+          </span>
+        )}
+      </p>
+      <div
+        className="h-1.5 w-full rounded-full bg-[#E8D5B0] overflow-hidden"
+        role="progressbar"
+        aria-valuenow={pct}
+        aria-valuemin={0}
+        aria-valuemax={100}
+      >
+        <div
+          className="h-full rounded-full bg-[#C9A96E] transition-[width] duration-500 ease-out"
+          style={{ width: `${unlocked ? 100 : pct}%` }}
+        />
+      </div>
+    </div>
+  );
+}
+
 interface SuggestionProduct {
   id: string;
   name: string;
@@ -111,6 +145,9 @@ export function CartDrawer() {
         {/* ── Items list ──────────────────────────────────────────────────── */}
         {items.length > 0 && (
           <>
+            {/* ── Free-gift threshold progress ─────────────────────────────── */}
+            <GiftProgressBar subtotal={subtotal} />
+
             <ul className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
               {items.map((item) => {
                 const key = `${item.productId}-${item.variantId ?? "default"}`;

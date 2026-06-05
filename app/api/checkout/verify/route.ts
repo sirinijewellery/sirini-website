@@ -29,6 +29,7 @@ const bodySchema = z.object({
   couponCode: z.string().optional(),
   // totalAmount / discountAmount from client are used only for cross-check, not stored
   totalAmount: z.number().positive(),
+  giftWrap: z.boolean().optional(),
   notes: z.string().optional(),
   userId: z.string().optional(),
 });
@@ -63,6 +64,7 @@ export async function POST(req: NextRequest) {
     customerPhone,
     couponCode,
     totalAmount,
+    giftWrap,
     notes,
   } = parsed.data;
 
@@ -120,7 +122,11 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  const recalculatedTotal = Math.max(0, recalculatedSubtotal - recalculatedDiscount);
+  // Mirror the client total EXACTLY: discountedSubtotal + 3% GST + gift wrap.
+  const giftWrapFee = giftWrap ? 49 : 0;
+  const discountedSubtotal = Math.max(0, recalculatedSubtotal - recalculatedDiscount);
+  const gst = Math.round(discountedSubtotal * 0.03);
+  const recalculatedTotal = Math.max(1, discountedSubtotal + gst + giftWrapFee);
 
   // 4. Exact paise comparison — no ±1 tolerance that could be exploited
   const recalculatedPaise = Math.round(recalculatedTotal * 100);

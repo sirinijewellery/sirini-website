@@ -6,6 +6,7 @@ import { BestsellersRail } from "@/components/BestsellersRail";
 import { ShopByPrice } from "@/components/ShopByPrice";
 import { BrandStory } from "@/components/BrandStory";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
+import { InstagramStrip } from "@/components/InstagramStrip";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { TrustStrip } from "@/components/TrustStrip";
 import { OrganizationJsonLd } from "@/components/OrganizationJsonLd";
@@ -63,6 +64,10 @@ export default function HomePage() {
       <div className="bg-[#FAF0EC]">
         <BrandStory />
         <TestimonialsSection />
+        {/* Instagram feed strip — stays in the warm-blush zone */}
+        <Suspense fallback={<div className="h-96 bg-[#FAF0EC] animate-pulse" />}>
+          <InstagramStrip />
+        </Suspense>
       </div>
 
       {/* Gradient bridge: warm blush → cream */}

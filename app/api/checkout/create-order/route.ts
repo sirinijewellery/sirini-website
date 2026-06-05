@@ -26,9 +26,13 @@ const bodySchema = z.object({
   customerEmail: z.string().email("Invalid email"),
   customerPhone: z.string().regex(/^\d{10}$/, "Phone must be 10 digits"),
   couponCode: z.string().optional(),
+  giftWrap: z.boolean().optional(),
   notes: z.string().optional(),
   savedAddressId: z.string().optional(),
 });
+
+// ₹49 gift-wrap fee (kept in sync with the client-side fee in CheckoutForm)
+const GIFT_WRAP_FEE = 49;
 
 export async function POST(req: NextRequest) {
   let body: unknown;
@@ -46,7 +50,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { items, couponCode } = parsed.data;
+  const { items, couponCode, giftWrap } = parsed.data;
 
   // Fetch product prices from DB — never trust client prices
   const productIds = [...new Set(items.map((i) => i.productId))];
@@ -141,7 +145,12 @@ export async function POST(req: NextRequest) {
     discountAmount = Math.min(discountAmount, subtotal);
   }
 
-  const total = Math.max(0, subtotal - discountAmount);
+  // Gift-wrap fee — server-authoritative; only added when the client opted in.
+  // Mirror the client total EXACTLY: discountedSubtotal + 3% GST + gift wrap.
+  const giftWrapFee = giftWrap ? GIFT_WRAP_FEE : 0;
+  const discountedSubtotal = Math.max(0, subtotal - discountAmount);
+  const gst = Math.round(discountedSubtotal * 0.03);
+  const total = Math.max(1, discountedSubtotal + gst + giftWrapFee);
   const amountInPaise = Math.round(total * 100);
 
   // Create Razorpay order

@@ -205,6 +205,71 @@ function formatINR(price: number) {
   }).format(price);
 }
 
+/* ── Trust badges ────────────────────────────────────────────────────── */
+
+function TrustBadges() {
+  const iconClass = "h-3.5 w-3.5 shrink-0";
+  const gold = "#C9A96E";
+  return (
+    <div className="flex flex-wrap items-center justify-center gap-x-4 gap-y-1.5 pt-1 text-[11px] font-sans text-muted-foreground">
+      <span className="flex items-center gap-1.5">
+        {/* lock */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={gold}
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={iconClass}
+          aria-hidden="true"
+        >
+          <rect x="4" y="11" width="16" height="9" rx="2" />
+          <path d="M8 11V8a4 4 0 0 1 8 0v3" />
+        </svg>
+        100% Secure Payments
+      </span>
+      <span className="flex items-center gap-1.5">
+        {/* badge-check */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={gold}
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={iconClass}
+          aria-hidden="true"
+        >
+          <path d="M12 2 14.4 4.2 17.6 4 18 7.2 20.6 9 19.2 12 20.6 15 18 16.8 17.6 20 14.4 19.8 12 22 9.6 19.8 6.4 20 6 16.8 3.4 15 4.8 12 3.4 9 6 7.2 6.4 4 9.6 4.2 12 2Z" />
+          <path d="m9 12 2 2 4-4" />
+        </svg>
+        Verified Seller on Flipkart &amp; Amazon
+      </span>
+      <span className="flex items-center gap-1.5">
+        {/* return arrow */}
+        <svg
+          xmlns="http://www.w3.org/2000/svg"
+          viewBox="0 0 24 24"
+          fill="none"
+          stroke={gold}
+          strokeWidth="1.8"
+          strokeLinecap="round"
+          strokeLinejoin="round"
+          className={iconClass}
+          aria-hidden="true"
+        >
+          <path d="M3 7v6h6" />
+          <path d="M3 13a9 9 0 1 0 3-7.7L3 8" />
+        </svg>
+        7-Day Easy Returns
+      </span>
+    </div>
+  );
+}
+
 /* ── Component ───────────────────────────────────────────────────────── */
 
 export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
@@ -218,14 +283,18 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod" | null>(null);
   const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
+  const [giftWrap, setGiftWrap] = useState(false);
   const pendingValuesRef = useRef<CheckoutFields | null>(null);
+
+  const GIFT_WRAP_FEE = 49; // ₹49 — kept in sync with server-side fee
 
   const subtotal = getTotal();
   const discount = appliedCoupon?.discountAmount ?? 0;
   const discountedSubtotal = Math.max(0, subtotal - discount);
   const gst = Math.round(discountedSubtotal * 0.03);
   const shipping = 0; // Free shipping
-  const total = Math.max(1, discountedSubtotal + gst + shipping);
+  const giftWrapFee = giftWrap ? GIFT_WRAP_FEE : 0;
+  const total = Math.max(1, discountedSubtotal + gst + shipping + giftWrapFee);
   const mrpTotal = items.reduce((s, i) => s + getMrp(i.price) * i.quantity, 0);
   const savings = mrpTotal - subtotal;
 
@@ -308,6 +377,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
             customerPhone: values.customerPhone,
             couponCode: appliedCoupon?.code,
             totalAmount: total,
+            giftWrap,
             notes: values.notes,
           }),
         });
@@ -367,6 +437,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
           customerPhone: values.customerPhone,
           couponCode: appliedCoupon?.code,
           totalAmount: total,
+          giftWrap,
           notes: values.notes,
         }),
       });
@@ -747,6 +818,47 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
 
               <Separator />
 
+              {/* Gift wrap option */}
+              <label className="flex items-center gap-3 rounded-lg border border-border p-3 cursor-pointer transition-colors hover:border-primary/50">
+                <span className="flex h-8 w-8 shrink-0 items-center justify-center rounded-md bg-blush/50">
+                  {/* gift icon */}
+                  <svg
+                    xmlns="http://www.w3.org/2000/svg"
+                    viewBox="0 0 24 24"
+                    fill="none"
+                    stroke="#C9A96E"
+                    strokeWidth="1.6"
+                    strokeLinecap="round"
+                    strokeLinejoin="round"
+                    className="h-4 w-4"
+                    aria-hidden="true"
+                  >
+                    <rect x="3" y="8" width="18" height="4" rx="1" />
+                    <path d="M12 8v13" />
+                    <path d="M5 12v7a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1v-7" />
+                    <path d="M12 8C12 8 10.5 4 8 4a2 2 0 0 0 0 4h4Z" />
+                    <path d="M12 8c0 0 1.5-4 4-4a2 2 0 0 1 0 4h-4Z" />
+                  </svg>
+                </span>
+                <span className="flex-1 min-w-0">
+                  <span className="block font-sans text-sm font-medium text-foreground">
+                    Add gift wrapping
+                  </span>
+                  <span className="block font-sans text-xs text-muted-foreground">
+                    Elegant box + ribbon · ₹49
+                  </span>
+                </span>
+                <input
+                  type="checkbox"
+                  checked={giftWrap}
+                  onChange={(e) => setGiftWrap(e.target.checked)}
+                  className="h-4 w-4 shrink-0 accent-primary cursor-pointer"
+                  aria-label="Add gift wrapping for ₹49"
+                />
+              </label>
+
+              <Separator />
+
               {/* Pricing breakdown */}
               <div className="space-y-2 font-sans text-sm">
                 <div className="flex justify-between text-muted-foreground">
@@ -775,6 +887,13 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                   <span>Shipping</span>
                   <span className="text-emerald-600 font-medium">Free</span>
                 </div>
+                {/* Gift wrap line item */}
+                {giftWrap && (
+                  <div className="flex justify-between text-muted-foreground">
+                    <span>Gift Wrap</span>
+                    <span>{formatINR(GIFT_WRAP_FEE)}</span>
+                  </div>
+                )}
               </div>
 
               <Separator />
@@ -883,6 +1002,8 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                       {paymentMethod === "cod" ? "Secure checkout" : "Secured by Razorpay"}
                     </span>
                   </div>
+
+                  <TrustBadges />
                 </>
               )}
             </div>
