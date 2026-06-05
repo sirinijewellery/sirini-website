@@ -11,6 +11,8 @@ export interface RailProduct {
   price: number;
   image: string | null;
   badge: string | null;
+  avgRating?: number;
+  reviewCount?: number;
 }
 
 /**
@@ -78,6 +80,17 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
                 <h4 className="font-body-md text-body-md text-on-surface truncate">
                   {product.name}
                 </h4>
+                {product.reviewCount && product.reviewCount > 0 ? (
+                  <div className="flex items-center gap-1 text-xs text-on-surface-variant">
+                    <svg width="14" height="14" viewBox="0 0 24 24" fill="#C9A227" aria-hidden="true">
+                      <path d="M12 2l2.9 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14l-5-4.87 7.1-1.01L12 2z" />
+                    </svg>
+                    <span className="font-medium text-on-surface">
+                      {(product.avgRating ?? 0).toFixed(1)}
+                    </span>
+                    <span>({product.reviewCount})</span>
+                  </div>
+                ) : null}
                 <PriceDisplay price={product.price} size="lg" />
               </div>
             </Link>
