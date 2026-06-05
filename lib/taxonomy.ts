@@ -15,6 +15,8 @@ export const NAV_CATEGORIES = [
 export const OCCASIONS = [
   { slug: "bridal", label: "Bridal & Wedding", blurb: "Heirloom Kundan, Polki & Jadau statement sets for the big day." },
   { slug: "festive", label: "Festive Edit", blurb: "Meenakari, temple & jhumka pieces to light up every celebration." },
+  { slug: "party", label: "Party & Cocktail", blurb: "Statement earrings, cocktail rings & evening-ready sparkle." },
+  { slug: "daily", label: "Daily Wear", blurb: "Lightweight, everyday elegance — studs, chains & subtle shine." },
 ] as const;
 
 export const STYLES = [

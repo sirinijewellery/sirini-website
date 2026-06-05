@@ -30,11 +30,9 @@ const dmSans = DM_Sans({
 
 export const metadata = {
   ...baseMetadata(),
-  icons: {
-    icon: "/logo.png",
-    shortcut: "/logo.png",
-    apple: "/logo.png",
-  },
+  // Icons are provided by the file-convention files in /app:
+  //   app/icon.png (512²), app/apple-icon.png (180²), app/favicon.ico (32²)
+  // These are square + branded so Google/Chrome render the Sirini mark.
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",
   },

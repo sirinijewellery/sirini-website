@@ -250,15 +250,51 @@ export async function getCategories() {
   });
 }
 
+function hashSlug(s: string): number {
+  let h = 0;
+  for (const c of s) h = (h * 31 + c.charCodeAt(0)) >>> 0;
+  return h;
+}
+
+/**
+ * Returns a MODEL shot (model wearing the jewellery) for an occasion card.
+ * Prefers model images from the occasion's own products; falls back to any
+ * necklace-set model image so every card always shows a model. A per-occasion
+ * hash picks a distinct image from the pool so the 4 cards don't repeat.
+ */
 export async function getOccasionCoverImage(occasion: string): Promise<string | null> {
-  const p = await prisma.product.findFirst({
+  const { parseImages } = await import("@/lib/parseImages");
+  const pool: string[] = [];
+
+  const rows = await prisma.product.findMany({
     where: { occasions: { has: occasion } },
     orderBy: { price: "desc" },
     select: { images: true },
+    take: 30,
   });
-  if (!p) return null;
-  const { parseImages } = await import("@/lib/parseImages");
-  return parseImages(p.images)[0] ?? null;
+  for (const r of rows) {
+    const m = parseImages(r.images).find((u) => /model/i.test(u));
+    if (m) pool.push(m);
+  }
+
+  // Fallback: necklace-set model images (the only category with model shots)
+  if (pool.length === 0) {
+    const ns = await prisma.product.findMany({
+      where: { category: "necklace-sets" },
+      orderBy: { price: "desc" },
+      select: { images: true },
+      take: 30,
+    });
+    for (const r of ns) {
+      const m = parseImages(r.images).find((u) => /model/i.test(u));
+      if (m) pool.push(m);
+    }
+  }
+
+  if (pool.length === 0) {
+    return rows[0] ? parseImages(rows[0].images)[0] ?? null : null;
+  }
+  return pool[hashSlug(occasion) % pool.length];
 }
 
 /* ── Shop by Material (style) ───────────────────────────────── */
