@@ -33,8 +33,9 @@ const navLinksLeading = [
 ];
 
 // Links shown AFTER the "Shop" mega-menu trigger.
-// "Shop by Occasion" is intentionally omitted — occasions live inside the mega menu now.
+// "Shop by Occasion" is its own dedicated tab (in addition to the mega menu).
 const navLinksTrailing = [
+  { href: "/occasions", label: "Shop by Occasion" },
   { href: "/about", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];
@@ -43,6 +44,7 @@ const navLinksTrailing = [
 const navLinks = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
+  { href: "/occasions", label: "Shop by Occasion" },
   { href: "/about", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];
