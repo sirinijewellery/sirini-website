@@ -6,7 +6,6 @@ import { usePathname } from "next/navigation";
 import { ChevronDown } from "lucide-react";
 import {
   NAV_CATEGORIES,
-  STYLES,
   OCCASIONS,
   PRICE_BUCKETS,
 } from "@/lib/taxonomy";
@@ -117,7 +116,7 @@ export function MegaMenu() {
           aria-label="Shop"
           className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[min(56rem,90vw)] bg-background border border-outline-variant shadow-xl z-50"
         >
-          <div className="grid grid-cols-4 gap-8 p-8">
+          <div className="grid grid-cols-3 gap-8 p-8">
             {/* Shop by Category */}
             <div>
               <h3 className={columnHeading}>Shop by Category</h3>
@@ -131,28 +130,6 @@ export function MegaMenu() {
                       className={columnLink}
                     >
                       {c.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
-
-            {/* Shop by Material */}
-            <div>
-              <h3 className={columnHeading}>Shop by Material</h3>
-              <ul className="space-y-2.5">
-                {STYLES.map((s) => (
-                  <li key={s.slug}>
-                    <Link
-                      href={`/shop?style=${s.slug}`}
-                      role="menuitem"
-                      onClick={closeNow}
-                      className={columnLink}
-                    >
-                      {s.label}
-                      <span className="block text-xs text-muted-foreground font-sans normal-case tracking-normal">
-                        {s.blurb}
-                      </span>
                     </Link>
                   </li>
                 ))}

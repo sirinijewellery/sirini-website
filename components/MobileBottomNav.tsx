@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Home, ShoppingBag, Heart, User, Search } from "lucide-react";
+import { Home, ShoppingBag, Heart, User, Search, Sparkles } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
 import { CartBadge } from "@/components/CartBadge";
 
@@ -33,7 +33,7 @@ export function MobileBottomNav() {
       className="fixed bottom-0 left-0 right-0 z-50 md:hidden bg-background/95 backdrop-blur-md border-t border-outline-variant h-16"
       style={{ paddingBottom: "env(safe-area-inset-bottom, 0px)" }}
     >
-      <div className="grid grid-cols-5 h-full">
+      <div className="grid grid-cols-6 h-full">
         {/* Home */}
         <Link
           href="/"
@@ -62,6 +62,21 @@ export function MobileBottomNav() {
         >
           <Search className="h-5 w-5" />
           <span className="text-[10px] font-label-caps tracking-wide">Shop</span>
+        </Link>
+
+        {/* Occasion */}
+        <Link
+          href="/occasions"
+          className={`flex flex-col items-center justify-center gap-0.5 py-2 transition-colors duration-150 ${
+            pathname.startsWith("/occasions")
+              ? "text-primary"
+              : "text-on-surface-variant hover:text-primary"
+          }`}
+          aria-label="Shop by Occasion"
+          aria-current={pathname.startsWith("/occasions") ? "page" : undefined}
+        >
+          <Sparkles className="h-5 w-5" />
+          <span className="text-[10px] font-label-caps tracking-wide">Occasion</span>
         </Link>
 
         {/* Cart — action button, never marked active */}

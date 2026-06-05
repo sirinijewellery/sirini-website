@@ -12,7 +12,7 @@ import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CartBadge } from "@/components/CartBadge";
 import { MegaMenu } from "@/components/MegaMenu";
 import { useCartStore } from "@/lib/store/cart";
-import { STYLES, OCCASIONS, PRICE_BUCKETS } from "@/lib/taxonomy";
+import { OCCASIONS, PRICE_BUCKETS } from "@/lib/taxonomy";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -505,25 +505,6 @@ export function Navbar() {
 
                             {/* Compact grouped shop links */}
                             <div className="pb-3 pl-4 flex flex-col gap-3">
-                              {/* Material */}
-                              <div>
-                                <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
-                                  Material
-                                </p>
-                                <div className="flex flex-col gap-0.5">
-                                  {STYLES.map((s) => (
-                                    <Link
-                                      key={s.slug}
-                                      href={`/shop?style=${s.slug}`}
-                                      onClick={() => setMobileOpen(false)}
-                                      className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
-                                    >
-                                      {s.label}
-                                    </Link>
-                                  ))}
-                                </div>
-                              </div>
-
                               {/* Occasion */}
                               <div>
                                 <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
@@ -563,6 +544,20 @@ export function Navbar() {
                               </div>
                             </div>
                           </div>
+                        ) : link.href === "/occasions" ? (
+                          <Link
+                            key={link.href}
+                            href={link.href}
+                            onClick={() => setMobileOpen(false)}
+                            className={`py-3 px-2 font-label-caps text-label-caps font-semibold border-b border-outline-variant transition-colors flex items-center gap-1.5 ${
+                              pathname.startsWith("/occasions")
+                                ? "text-primary"
+                                : "text-primary/80 hover:text-primary"
+                            }`}
+                          >
+                            <span className="text-[#C9A96E] text-xs leading-none">✦</span>
+                            {link.label}
+                          </Link>
                         ) : (
                           <Link
                             key={link.href}
