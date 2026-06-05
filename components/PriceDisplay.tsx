@@ -3,7 +3,10 @@ import { cn } from "@/lib/utils";
 /**
  * Single source of truth for product pricing display across the entire site.
  *
- * MRP / "Original" (cancelled) price formula:  (realPrice * 2) + 1299
+ * MRP / "Original" (cancelled) price formula:  realPrice * 2
+ * (i.e. the struck-through original is exactly double the selling price,
+ *  which itself is 2× the wholesale base — so OG reads as a clean "50% off".)
+ * NOTE: this is display-only. It never affects the amount a customer is charged.
  *
  * Visual template (strict):
  *   - Real price   → black (#000000), bold (700+), distinctly LARGER
@@ -12,7 +15,7 @@ import { cn } from "@/lib/utils";
  */
 
 export function getMrp(realPrice: number): number {
-  return realPrice * 2 + 1299;
+  return realPrice * 2;
 }
 
 export function formatPrice(price: number): string {

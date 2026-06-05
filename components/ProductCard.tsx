@@ -202,8 +202,8 @@ export function ProductCard({ product }: ProductCardProps) {
           className="absolute top-14 right-4 p-1.5 backdrop-blur-sm border
             transition-all duration-200 cursor-pointer
             opacity-100 md:opacity-0 md:group-hover:opacity-100
-            bg-background/80 border-outline-variant text-on-surface-variant
-            hover:text-[#25D366] hover:border-[#25D366]/40"
+            bg-[#25D366] border-[#25D366] text-white
+            hover:bg-[#1ebe5d] hover:border-[#1ebe5d]"
           onClick={handleWhatsAppShare}
         >
           <WhatsAppIcon className="w-4 h-4" />

@@ -241,7 +241,7 @@ export default function ProductDetailClient({
       <button
         type="button"
         onClick={handleWhatsAppShare}
-        className="flex items-center gap-2 text-sm font-sans text-on-surface-variant hover:text-[#25D366] transition-colors duration-200 cursor-pointer group"
+        className="inline-flex items-center gap-2 px-4 py-2 rounded-lg text-sm font-sans font-medium bg-[#25D366] text-white hover:bg-[#1ebe5d] transition-colors duration-200 cursor-pointer w-fit"
         aria-label="Share this product on WhatsApp"
       >
         <svg viewBox="0 0 24 24" className="h-4 w-4 fill-current" aria-hidden="true">
