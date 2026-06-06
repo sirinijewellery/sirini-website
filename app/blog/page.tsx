@@ -30,6 +30,23 @@ export default function BlogPage() {
       />
       {/* ── Heading ───────────────────────────────────────────────── */}
       <section className="py-20 px-6 md:px-16 max-w-screen-2xl mx-auto">
+        {/* Breadcrumb */}
+        <nav
+          aria-label="Breadcrumb"
+          className="font-sans text-xs text-on-surface-variant mb-6"
+        >
+          <ol className="flex flex-wrap items-center gap-1.5">
+            <li>
+              <Link href="/" className="hover:text-primary transition-colors">
+                Home
+              </Link>
+            </li>
+            <li aria-hidden="true">/</li>
+            <li className="text-on-surface" aria-current="page">
+              Journal
+            </li>
+          </ol>
+        </nav>
         <div className="section-gold-rule max-w-2xl">
           <p className="font-label-caps text-label-caps tracking-[0.25em] text-primary uppercase mb-4">
             The Journal

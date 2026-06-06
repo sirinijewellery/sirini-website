@@ -11,6 +11,7 @@ import {
   type GetProductsOptions,
 } from "@/lib/queries/products";
 import Link from "next/link";
+import { siteConfig } from "@/lib/seo";
 import type { Metadata } from "next";
 
 interface ShopPageProps {
@@ -130,11 +131,63 @@ async function ShopContent({ searchParams }: ShopPageProps) {
 
   const materials = getMaterials();
   const currentSort = params.sort || "newest";
+  const limit = options.limit ?? 20;
+
+  // Visible breadcrumb label for the active facet (if any).
+  const facetLabel = params.search
+    ? `Results for “${params.search}”`
+    : params.occasion
+      ? OCCASIONS.find((o) => o.slug === params.occasion)?.label || params.occasion
+      : params.style
+        ? `${STYLES.find((s) => s.slug === params.style)?.label || params.style} Jewellery`
+        : params.category || null;
+
+  // ItemList structured data for the products on the current page.
+  const itemListSchema =
+    products.length > 0
+      ? {
+          "@context": "https://schema.org",
+          "@type": "ItemList",
+          itemListElement: products.map((p, i) => ({
+            "@type": "ListItem",
+            position: (page - 1) * limit + i + 1,
+            url: `${siteConfig.url}/shop/${p.slug}`,
+            name: p.name,
+          })),
+        }
+      : null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+      {itemListSchema && (
+        <script
+          type="application/ld+json"
+          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+        />
+      )}
       {/* Header */}
       <div className="mb-10">
+        {/* Breadcrumb */}
+        <nav
+          aria-label="Breadcrumb"
+          className="font-sans text-xs text-on-surface-variant mb-4"
+        >
+          <Link href="/" className="hover:text-primary">
+            Home
+          </Link>
+          <span className="mx-1.5">/</span>
+          {facetLabel ? (
+            <>
+              <Link href="/shop" className="hover:text-primary">
+                Shop
+              </Link>
+              <span className="mx-1.5">/</span>
+              <span className="text-on-surface">{facetLabel}</span>
+            </>
+          ) : (
+            <span className="text-on-surface">Shop</span>
+          )}
+        </nav>
         <div className="section-gold-rule">
           <h1 className="font-display text-[40px] md:text-[56px] font-light leading-[1.0] tracking-[-0.02em] text-on-surface">
             {params.search ? (

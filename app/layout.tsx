@@ -15,6 +15,7 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { CountdownBanner } from "@/components/CountdownBanner";
 import { LocalBusinessJsonLd } from "@/components/LocalBusinessJsonLd";
+import type { Viewport } from "next";
 
 const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
@@ -39,6 +40,12 @@ export const metadata = {
   verification: {
     google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",
   },
+};
+
+// In Next.js, theme-color belongs in a separate `viewport` export, not in
+// `metadata` (it was moved out of metadata to avoid blocking dynamic rendering).
+export const viewport: Viewport = {
+  themeColor: "#5C1A24",
 };
 
 export default function RootLayout({

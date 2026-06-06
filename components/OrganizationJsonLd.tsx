@@ -26,8 +26,8 @@ export function OrganizationJsonLd() {
       },
     ],
     sameAs: [
-      // Add actual social profile URLs here once available
-      // "https://www.instagram.com/sirinijewellery",
+      "https://www.instagram.com/sirinijewellerymanufacturerss",
+      "https://www.justdial.com/Mumbai/Sirini-Jewellery-Manufacturers",
     ],
   };
 
