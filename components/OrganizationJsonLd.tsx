@@ -7,7 +7,7 @@ export function OrganizationJsonLd() {
     "@type": "Organization",
     name: "Sirini Jewellery",
     url: siteUrl,
-    logo: `${siteUrl}/logo.png`,
+    logo: "https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,q_auto,f_png,w_600/sirini-jewellery/logo-real.png",
     description:
       "Handcrafted fashion jewellery brand based in Mumbai, India. Specialising in Kundan, Meenakari, and gold-plated jewellery for everyday wear, gifting, and bridal occasions.",
     foundingDate: "2015",

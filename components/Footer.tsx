@@ -23,7 +23,7 @@ export function Footer() {
           {/* Brand column — takes 2/3 on desktop */}
           <div className="md:col-span-2 flex flex-col gap-6">
             <Image
-              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,q_auto,f_auto,w_400/sirini-jewellery/logo-real.jpg"
+              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,e_make_transparent:20,f_png,w_400/sirini-jewellery/logo-real.png"
               alt="Sirini Jewellery"
               width={500}
               height={500}
