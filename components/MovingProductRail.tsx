@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useRef, useState } from "react";
+import { useRef, useEffect, useCallback } from "react";
 import { PriceDisplay } from "@/components/PriceDisplay";
 
 export interface RailProduct {
@@ -18,56 +18,109 @@ export interface RailProduct {
 }
 
 /**
- * Auto-scrolling marquee of product cards — like the testimonials carousel,
- * but a continuous seamless loop. Pauses on hover so shoppers can click.
- * The list is duplicated; the track animates translateX(0 → -50%) so the
- * second copy lands exactly where the first started (no visible seam).
+ * Auto-scrolling product ribbon with manual prev/next arrows.
+ * - Continuously auto-scrolls (JS-driven, seamless loop via duplicated list).
+ * - Hover pauses; resumes on leave.
+ * - Arrows / touch / wheel pause it, then it auto-resumes after 5 seconds.
+ * - Cards are real <Link>s — always clickable/tappable.
  */
 export function MovingProductRail({ products }: { products: RailProduct[] }) {
-  // Pause the marquee on touch/pointer interaction (and focus-within) so the
-  // continuously-moving cards are easy to tap on mobile — hover alone doesn't
-  // exist on touch devices. Resumes a short moment after the interaction ends.
-  const [paused, setPaused] = useState(false);
+  const scrollRef = useRef<HTMLDivElement>(null);
+  const rafRef = useRef<number | null>(null);
+  const pausedRef = useRef(false);
   const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  function pause() {
-    if (resumeTimer.current) {
-      clearTimeout(resumeTimer.current);
-      resumeTimer.current = null;
-    }
-    setPaused(true);
-  }
+  // Continuous auto-scroll via requestAnimationFrame.
+  useEffect(() => {
+    const el = scrollRef.current;
+    if (!el) return;
+    const SPEED = 0.6; // px per frame ≈ calm premium pace
 
-  function resumeSoon() {
+    function step() {
+      const node = scrollRef.current;
+      if (node && !pausedRef.current) {
+        node.scrollLeft += SPEED;
+        const half = node.scrollWidth / 2;
+        if (half > 0 && node.scrollLeft >= half) node.scrollLeft -= half;
+      }
+      rafRef.current = requestAnimationFrame(step);
+    }
+    rafRef.current = requestAnimationFrame(step);
+    return () => {
+      if (rafRef.current) cancelAnimationFrame(rafRef.current);
+      if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    };
+  }, []);
+
+  // Pause now, auto-resume 5s after the last interaction.
+  const pauseThenResume = useCallback(() => {
+    pausedRef.current = true;
     if (resumeTimer.current) clearTimeout(resumeTimer.current);
-    resumeTimer.current = setTimeout(() => setPaused(false), 1200);
-  }
+    resumeTimer.current = setTimeout(() => {
+      pausedRef.current = false;
+    }, 5000);
+  }, []);
+
+  const pause = useCallback(() => {
+    pausedRef.current = true;
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+  }, []);
+
+  const resume = useCallback(() => {
+    pausedRef.current = false;
+  }, []);
+
+  const nudge = useCallback(
+    (dir: 1 | -1) => {
+      const el = scrollRef.current;
+      if (!el) return;
+      pauseThenResume();
+      el.scrollBy({ left: dir * 332, behavior: "smooth" });
+    },
+    [pauseThenResume],
+  );
 
   if (products.length === 0) return null;
 
   const loop = [...products, ...products];
-  // Slower for fewer cards, faster for more — keeps a calm, premium pace.
-  const durationSeconds = Math.max(products.length * 5, 24);
 
   return (
-    <div className="relative w-full overflow-hidden group/rail">
+    <div className="relative w-full group/rail">
       {/* Soft edge fades */}
       <div className="pointer-events-none absolute left-0 top-0 bottom-0 w-12 md:w-24 z-10 bg-gradient-to-r from-surface-container-low to-transparent" />
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 md:w-24 z-10 bg-gradient-to-l from-surface-container-low to-transparent" />
 
+      {/* Prev / Next arrows */}
+      <button
+        type="button"
+        aria-label="Previous products"
+        onClick={() => nudge(-1)}
+        className="absolute left-2 md:left-6 top-[40%] -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-[#C9A96E]/60 bg-background/80 backdrop-blur-sm text-on-surface hover:bg-[#C9A96E] hover:text-white transition-colors shadow-sm"
+      >
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M15 18l-6-6 6-6" />
+        </svg>
+      </button>
+      <button
+        type="button"
+        aria-label="Next products"
+        onClick={() => nudge(1)}
+        className="absolute right-2 md:right-6 top-[40%] -translate-y-1/2 z-20 flex h-10 w-10 items-center justify-center rounded-full border border-[#C9A96E]/60 bg-background/80 backdrop-blur-sm text-on-surface hover:bg-[#C9A96E] hover:text-white transition-colors shadow-sm"
+      >
+        <svg viewBox="0 0 24 24" className="w-5 h-5" fill="none" stroke="currentColor" strokeWidth={2} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
+          <path d="M9 18l6-6-6-6" />
+        </svg>
+      </button>
+
+      {/* Scrollable track */}
       <div
-        className="marquee-track flex w-max group-hover/rail:[animation-play-state:paused] focus-within:[animation-play-state:paused]"
-        style={{
-          animationDuration: `${durationSeconds}s`,
-          animationPlayState: paused ? "paused" : "running",
-        }}
-        onPointerEnter={pause}
-        onPointerDown={pause}
-        onPointerUp={resumeSoon}
-        onPointerLeave={resumeSoon}
-        onPointerCancel={resumeSoon}
-        onTouchStart={pause}
-        onTouchEnd={resumeSoon}
+        ref={scrollRef}
+        className="flex overflow-x-auto no-scrollbar px-4 md:px-16 scroll-smooth"
+        onMouseEnter={pause}
+        onMouseLeave={resume}
+        onTouchStart={pauseThenResume}
+        onWheel={pauseThenResume}
+        onPointerDown={pauseThenResume}
       >
         {loop.map((product, i) => {
           const isClone = i >= products.length;
@@ -77,11 +130,10 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
               href={`/shop/${product.slug}`}
               aria-hidden={isClone}
               tabIndex={isClone ? -1 : 0}
-              className="shrink-0 w-[260px] md:w-[300px] mr-8 group/item cursor-pointer pointer-events-auto"
+              className="shrink-0 w-[260px] md:w-[300px] mr-8 group/item cursor-pointer"
             >
               {/* Image */}
               <div className="relative aspect-[4/5] bg-surface mb-4 overflow-hidden border border-outline-variant group-hover/item:border-primary/30 transition-colors duration-300">
-                {/* No `priority` here — rail is below the fold; Next.js Image is lazy by default. */}
                 {product.image ? (
                   <Image
                     src={product.image}
