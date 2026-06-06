@@ -19,6 +19,7 @@ interface ProductCardProps {
     category: string;
     images: unknown;
     badge?: string | null;
+    stock?: number;
     variants?: { stockQuantity: number }[];
     avgRating?: number;
     reviewCount?: number;
@@ -174,6 +175,16 @@ export function ProductCard({ product }: ProductCardProps) {
                 <span className="font-sans text-[9px] font-semibold uppercase tracking-[0.15em] text-[#221A15]">{product.badge}</span>
               </div>
             )}
+          </div>
+        )}
+
+        {/* ── Low-stock urgency pill ─────────────────────────────── */}
+        {/* Offset below the NEW/SALE badge area to avoid clashing */}
+        {product.stock !== undefined && product.stock > 0 && product.stock <= 5 && (
+          <div className={`absolute left-3 ${product.badge ? "top-12" : "top-3"}`}>
+            <span className="inline-block bg-rose-600/90 backdrop-blur-sm px-2 py-1 font-sans text-[9px] font-semibold uppercase tracking-[0.12em] text-white">
+              Only {product.stock} left
+            </span>
           </div>
         )}
 

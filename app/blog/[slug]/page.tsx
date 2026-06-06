@@ -4,6 +4,7 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 import { pageMetadata, siteConfig } from "@/lib/seo";
 import { getAllArticles, getArticleBySlug } from "@/lib/blog";
+import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 interface Props {
   params: Promise<{ slug: string }>;
@@ -70,6 +71,13 @@ export default async function ArticlePage({ params }: Props) {
 
   return (
     <div className="bg-background text-on-surface">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteConfig.url },
+          { name: "Journal", url: `${siteConfig.url}/blog` },
+          { name: article.title, url: articleUrl },
+        ]}
+      />
       {/* ── Cover hero ─────────────────────────────────────────────── */}
       <section className="relative aspect-[16/9] md:aspect-[21/9] w-full overflow-hidden bg-surface-container">
         <Image

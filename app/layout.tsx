@@ -13,6 +13,7 @@ import { AbandonedCartNudge } from "@/components/AbandonedCartNudge";
 import NextTopLoader from "nextjs-toploader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { CountdownBanner } from "@/components/CountdownBanner";
 
 const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
@@ -49,6 +50,7 @@ export default function RootLayout({
       <body
         className={`${ebGaramond.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
+        <CountdownBanner />
         <NextTopLoader color="#B76E79" height={3} showSpinner={false} crawl={true} />
         <ScrollReveal />
         <WebSiteJsonLd />

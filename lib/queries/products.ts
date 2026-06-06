@@ -15,6 +15,8 @@ export interface GetProductsOptions {
   featuredOnly?: boolean;
   occasion?: string;
   style?: string;
+  inStock?: boolean;
+  minRating?: number;
 }
 
 export async function getProducts(options: GetProductsOptions = {}) {
@@ -30,6 +32,8 @@ export async function getProducts(options: GetProductsOptions = {}) {
     featuredOnly,
     occasion,
     style,
+    inStock,
+    minRating,
   } = options;
 
   // Only show products from active (image-bearing) categories
@@ -47,6 +51,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
     ...(featuredOnly && { isFeatured: true }),
     ...(occasion && { occasions: { has: occasion } }),
     ...(style && { styles: { has: style } }),
+    ...(inStock && { stock: { gt: 0 } }),
     ...(priceMin !== undefined || priceMax !== undefined
       ? {
           price: {
@@ -87,6 +92,21 @@ export async function getProducts(options: GetProductsOptions = {}) {
   ]);
 
   const productsWithRatings = await attachRatings(products);
+
+  // minRating can't be a SQL filter (rating is aggregated, not a column), so we
+  // filter the fetched page in-memory. We only filter the current page (not the
+  // whole catalogue), so `total`/pagination reflect the unfiltered count; this
+  // keeps the query cheap and is acceptable for our catalogue size.
+  if (minRating !== undefined) {
+    const filtered = productsWithRatings.filter((p) => p.avgRating >= minRating);
+    return {
+      products: filtered,
+      total: filtered.length,
+      page,
+      limit,
+      totalPages: Math.ceil(filtered.length / limit),
+    };
+  }
 
   return { products: productsWithRatings, total, page, limit, totalPages: Math.ceil(total / limit) };
 }

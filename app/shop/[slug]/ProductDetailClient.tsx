@@ -27,6 +27,7 @@ interface ProductDetailClientProps {
     material: string;
     sku: string;
     badge: string | null;
+    stock?: number;
     variants: Variant[];
   };
   images: string[];
@@ -131,6 +132,22 @@ export default function ProductDetailClient({
         </span>
         <span>High demand — lots of shoppers love this piece. Order soon before it sells out.</span>
       </div>
+
+      {/* Stock-level urgency line — complements the social-proof line above */}
+      {product.stock !== undefined && product.stock > 0 && product.stock <= 5 && (
+        <div className="flex items-center gap-2 text-[13px] font-sans font-medium text-rose-600">
+          <span className="relative flex h-2 w-2" aria-hidden="true">
+            <span className="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75 animate-ping" />
+            <span className="relative inline-flex h-2 w-2 rounded-full bg-rose-500" />
+          </span>
+          <span>Hurry — only {product.stock} left in stock!</span>
+        </div>
+      )}
+      {product.stock === 0 && (
+        <div className="text-[13px] font-sans text-muted-foreground">
+          Out of stock
+        </div>
+      )}
 
       <Separator />
 

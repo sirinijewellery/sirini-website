@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, siteConfig } from "@/lib/seo";
 import { getAllArticles } from "@/lib/blog";
+import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 export const metadata = pageMetadata(
   "Journal — Styling Guides & Jewellery Care",
@@ -21,6 +22,12 @@ export default function BlogPage() {
 
   return (
     <div className="bg-background text-on-surface">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteConfig.url },
+          { name: "Journal", url: `${siteConfig.url}/blog` },
+        ]}
+      />
       {/* ── Heading ───────────────────────────────────────────────── */}
       <section className="py-20 px-6 md:px-16 max-w-screen-2xl mx-auto">
         <div className="section-gold-rule max-w-2xl">

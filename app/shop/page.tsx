@@ -24,11 +24,46 @@ interface ShopPageProps {
     search?: string;
     occasion?: string;
     style?: string;
+    minRating?: string;
+    inStock?: string;
   }>;
 }
 
 export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
   const params = await searchParams;
+  const page = Math.max(1, parseInt(params.page || "1", 10));
+
+  // Count "indexable" facets. A page is canonical-worthy only when it has at
+  // most ONE of these primary facets and no secondary refinements / pagination.
+  const primaryFacets = [params.category, params.occasion, params.style].filter(Boolean);
+  const hasRefinement = Boolean(
+    params.material ||
+      params.priceMin ||
+      params.priceMax ||
+      params.minRating ||
+      params.inStock ||
+      params.search
+  );
+  const isCleanSingleFacet =
+    primaryFacets.length <= 1 && !hasRefinement && page === 1;
+
+  // For clean single-facet pages, self-reference the canonical at that facet URL.
+  // Multi-filter combos or page>1 are noindex,follow to avoid thin/dupe content.
+  const seo: Pick<Metadata, "alternates" | "robots"> = isCleanSingleFacet
+    ? {
+        alternates: {
+          canonical: params.occasion
+            ? `/shop?occasion=${params.occasion}`
+            : params.style
+              ? `/shop?style=${params.style}`
+              : params.category
+                ? `/shop?category=${encodeURIComponent(params.category)}`
+                : "/shop",
+        },
+        robots: { index: true, follow: true },
+      }
+    : { robots: { index: false, follow: true } };
+
   if (params.occasion) {
     const occ = OCCASIONS.find((o) => o.slug === params.occasion);
     const title =
@@ -42,7 +77,7 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
       description:
         occ?.blurb ??
         `Shop handcrafted jewellery for ${params.occasion} occasions. Free shipping across India.`,
-      robots: { index: true, follow: true },
+      ...seo,
     };
   }
   if (params.style) {
@@ -51,21 +86,21 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
       title: `${st?.label ?? params.style} Jewellery | Sirini Jewellery`,
       description:
         `Shop handcrafted ${st?.label ?? params.style} jewellery — necklace sets, earrings, bangles & more. Free shipping across India.`,
-      robots: { index: true, follow: true },
+      ...seo,
     };
   }
   if (params.category) {
     return {
       title: `${params.category} — Handcrafted Indian Jewellery`,
       description: `Shop handcrafted ${params.category.toLowerCase()} — Kundan, Meenakari & gold-plated designs. Free shipping across India.`,
-      robots: { index: true, follow: true },
+      ...seo,
     };
   }
   return {
     title: "Shop Handcrafted Indian Jewellery — Kundan, Meenakari & Gold-Plated",
     description:
       "Browse 100+ handcrafted jewellery pieces — Kundan necklace sets, gold-plated earrings, bangles, rings & anklets. Free shipping across India.",
-    robots: { index: true, follow: true },
+    ...seo,
   };
 }
 
@@ -84,6 +119,8 @@ async function ShopContent({ searchParams }: ShopPageProps) {
     search: params.search,
     occasion: params.occasion,
     style: params.style,
+    minRating: params.minRating ? parseFloat(params.minRating) : undefined,
+    inStock: params.inStock === "1",
   };
 
   const [{ products, total, totalPages }, categories] = await Promise.all([
@@ -200,6 +237,8 @@ function buildHref(
   if (params.search) p.set("search", params.search);
   if (params.occasion) p.set("occasion", params.occasion);
   if (params.style) p.set("style", params.style);
+  if (params.minRating) p.set("minRating", params.minRating);
+  if (params.inStock) p.set("inStock", params.inStock);
   if (page > 1) p.set("page", String(page));
   return `/shop?${p.toString()}`;
 }

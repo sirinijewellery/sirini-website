@@ -102,6 +102,7 @@ export default async function ProductPage({ params }: Props) {
             material: product.material,
             sku: product.sku,
             badge: product.badge,
+            stock: product.stock,
             variants: product.variants,
           }}
           images={images}
