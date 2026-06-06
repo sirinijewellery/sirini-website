@@ -19,6 +19,7 @@ interface ProductData {
   slug: string;
   description: string;
   price: number;
+  compareAtPrice: number | null;
   category: string;
   material: string;
   badge: string | null;
@@ -176,7 +177,7 @@ export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
                 </DialogTitle>
 
                 {/* Price */}
-                <PriceDisplay price={product.price} size="lg" />
+                <PriceDisplay price={product.price} mrp={product.compareAtPrice ?? undefined} size="lg" />
               </DialogHeader>
 
               {/* Description */}

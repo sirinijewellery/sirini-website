@@ -21,6 +21,7 @@ model Product {
   occasions   String[] @default([])
   styles      String[] @default([])
   stock       Int      @default(10)
+  compareAtPrice Int?
   createdAt   DateTime @default(now())
 
   variants      ProductVariant[]

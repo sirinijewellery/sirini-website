@@ -5,7 +5,7 @@ import { AuthProvider } from "@/components/AuthProvider";
 import { NavbarWrapper } from "@/components/NavbarWrapper";
 import { FooterWrapper } from "@/components/FooterWrapper";
 import { WhatsAppWrapper } from "@/components/WhatsAppWrapper";
-import { GoogleAnalytics } from "@next/third-parties/google";
+import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { baseMetadata } from "@/lib/seo";
 import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
 import { CartDrawer } from "@/components/CartDrawer";
@@ -48,6 +48,12 @@ export default function RootLayout({
 }>) {
   return (
     <html lang="en">
+      {/* Google Tag Manager — lets the owner inject any checkout/conversion
+          scripts (Meta Pixel, Google Ads, etc.) from the GTM dashboard without
+          code. Set NEXT_PUBLIC_GTM_ID in Vercel to activate. */}
+      {process.env.NEXT_PUBLIC_GTM_ID && (
+        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
+      )}
       <body
         className={`${ebGaramond.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >

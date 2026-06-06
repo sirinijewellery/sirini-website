@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
+import { useRef, useState } from "react";
 import { PriceDisplay } from "@/components/PriceDisplay";
 
 export interface RailProduct {
@@ -9,6 +10,7 @@ export interface RailProduct {
   name: string;
   slug: string;
   price: number;
+  compareAtPrice?: number | null;
   image: string | null;
   badge: string | null;
   avgRating?: number;
@@ -22,6 +24,25 @@ export interface RailProduct {
  * second copy lands exactly where the first started (no visible seam).
  */
 export function MovingProductRail({ products }: { products: RailProduct[] }) {
+  // Pause the marquee on touch/pointer interaction (and focus-within) so the
+  // continuously-moving cards are easy to tap on mobile — hover alone doesn't
+  // exist on touch devices. Resumes a short moment after the interaction ends.
+  const [paused, setPaused] = useState(false);
+  const resumeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  function pause() {
+    if (resumeTimer.current) {
+      clearTimeout(resumeTimer.current);
+      resumeTimer.current = null;
+    }
+    setPaused(true);
+  }
+
+  function resumeSoon() {
+    if (resumeTimer.current) clearTimeout(resumeTimer.current);
+    resumeTimer.current = setTimeout(() => setPaused(false), 1200);
+  }
+
   if (products.length === 0) return null;
 
   const loop = [...products, ...products];
@@ -35,8 +56,18 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
       <div className="pointer-events-none absolute right-0 top-0 bottom-0 w-12 md:w-24 z-10 bg-gradient-to-l from-surface-container-low to-transparent" />
 
       <div
-        className="marquee-track flex w-max group-hover/rail:[animation-play-state:paused]"
-        style={{ animationDuration: `${durationSeconds}s` }}
+        className="marquee-track flex w-max group-hover/rail:[animation-play-state:paused] focus-within:[animation-play-state:paused]"
+        style={{
+          animationDuration: `${durationSeconds}s`,
+          animationPlayState: paused ? "paused" : "running",
+        }}
+        onPointerEnter={pause}
+        onPointerDown={pause}
+        onPointerUp={resumeSoon}
+        onPointerLeave={resumeSoon}
+        onPointerCancel={resumeSoon}
+        onTouchStart={pause}
+        onTouchEnd={resumeSoon}
       >
         {loop.map((product, i) => {
           const isClone = i >= products.length;
@@ -46,7 +77,7 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
               href={`/shop/${product.slug}`}
               aria-hidden={isClone}
               tabIndex={isClone ? -1 : 0}
-              className="shrink-0 w-[260px] md:w-[300px] mr-8 group/item cursor-pointer"
+              className="shrink-0 w-[260px] md:w-[300px] mr-8 group/item cursor-pointer pointer-events-auto"
             >
               {/* Image */}
               <div className="relative aspect-[4/5] bg-surface mb-4 overflow-hidden border border-outline-variant group-hover/item:border-primary/30 transition-colors duration-300">
@@ -92,7 +123,7 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
                     <span>({product.reviewCount})</span>
                   </div>
                 ) : null}
-                <PriceDisplay price={product.price} size="lg" />
+                <PriceDisplay price={product.price} mrp={product.compareAtPrice ?? undefined} size="lg" />
               </div>
             </Link>
           );

@@ -73,7 +73,7 @@ export function CartItemRow({ item }: { item: CartItem }) {
           {/* Line total */}
           <PriceDisplay
             price={item.price * item.quantity}
-            mrp={getMrp(item.price) * item.quantity}
+            mrp={(item.compareAtPrice ?? getMrp(item.price)) * item.quantity}
             size="md"
             layout="col"
           />

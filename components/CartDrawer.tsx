@@ -11,7 +11,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { ShoppingBag, Minus, Plus, Trash2, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
-import { PriceDisplay, formatPrice } from "@/components/PriceDisplay";
+import { PriceDisplay, formatPrice, getMrp } from "@/components/PriceDisplay";
 import { useState, useEffect } from "react";
 
 const GIFT_THRESHOLD = 2500;
@@ -66,6 +66,11 @@ export function CartDrawer() {
   const getTotal = useCartStore((s) => s.getTotal);
 
   const subtotal = getTotal();
+  const compareTotal = items.reduce(
+    (s, i) => s + (i.compareAtPrice ?? getMrp(i.price)) * i.quantity,
+    0
+  );
+  const savings = compareTotal - subtotal;
 
   const [suggestions, setSuggestions] = useState<SuggestionProduct[]>([]);
 
@@ -193,7 +198,11 @@ export function CartDrawer() {
 
                       {/* Price */}
                       <div className="mt-1">
-                        <PriceDisplay price={item.price} size="sm" />
+                        <PriceDisplay
+                          price={item.price}
+                          mrp={item.compareAtPrice ?? getMrp(item.price)}
+                          size="sm"
+                        />
                       </div>
 
                       {/* Quantity controls + remove */}
@@ -306,6 +315,16 @@ export function CartDrawer() {
                   {formatPrice(subtotal)}
                 </span>
               </div>
+
+              {/* You save */}
+              {savings > 0 && (
+                <div className="flex items-center justify-between">
+                  <span className="text-sm font-sans text-[#8A8078]">You save</span>
+                  <span className="text-sm font-sans font-medium text-green-600">
+                    {formatPrice(savings)} ({Math.round((savings / compareTotal) * 100)}%)
+                  </span>
+                </div>
+              )}
 
               {/* Shipping note */}
               <p className="text-xs text-[#8A8078] font-sans">

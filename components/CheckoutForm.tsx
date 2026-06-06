@@ -295,8 +295,11 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
   const shipping = 0; // Free shipping
   const giftWrapFee = giftWrap ? GIFT_WRAP_FEE : 0;
   const total = Math.max(1, discountedSubtotal + gst + shipping + giftWrapFee);
-  const mrpTotal = items.reduce((s, i) => s + getMrp(i.price) * i.quantity, 0);
-  const savings = mrpTotal - subtotal;
+  const compareTotal = items.reduce(
+    (s, i) => s + (i.compareAtPrice ?? getMrp(i.price)) * i.quantity,
+    0
+  );
+  const savings = compareTotal - subtotal;
 
   const {
     register,

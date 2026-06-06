@@ -16,6 +16,7 @@ export async function GET(
     slug: product.slug,
     description: product.description,
     price: product.price,
+    compareAtPrice: product.compareAtPrice,
     category: product.category,
     material: product.material,
     badge: product.badge,

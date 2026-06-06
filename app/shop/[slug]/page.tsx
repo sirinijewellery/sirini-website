@@ -73,6 +73,7 @@ export default async function ProductPage({ params }: Props) {
     name: p.name,
     slug: p.slug,
     price: p.price,
+    compareAtPrice: p.compareAtPrice,
     image: parseImages(p.images)[0] ?? null,
   }));
 
@@ -113,6 +114,7 @@ export default async function ProductPage({ params }: Props) {
             slug: product.slug,
             description: product.description,
             price: product.price,
+            compareAtPrice: product.compareAtPrice,
             category: product.category,
             material: product.material,
             sku: product.sku,
@@ -125,7 +127,11 @@ export default async function ProductPage({ params }: Props) {
       </div>
 
       {/* Complete the Set — display-only bundle suggestion */}
-      <CompleteTheSet products={completeTheSet} mainPrice={product.price} />
+      <CompleteTheSet
+        products={completeTheSet}
+        mainPrice={product.price}
+        mainCompareAt={product.compareAtPrice ?? undefined}
+      />
 
       {/* Related / pairing products */}
       <Suspense fallback={null}>

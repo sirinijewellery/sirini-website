@@ -13,6 +13,7 @@ interface AddToCartButtonProps {
     name: string;
     slug: string;
     price: number;
+    compareAtPrice?: number | null;
     images: string[];
     category?: string;
   };
@@ -63,6 +64,7 @@ export function AddToCartButton({
       name: product.name,
       slug: product.slug,
       price: product.price,
+      compareAtPrice: product.compareAtPrice ?? null,
       image: product.images[0] ?? "",
       category: product.category,
       size: selectedVariant?.size ?? undefined,

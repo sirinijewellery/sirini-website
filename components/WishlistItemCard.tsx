@@ -120,7 +120,7 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
           <h3 className="font-display text-base leading-snug text-foreground line-clamp-2">
             {product.name}
           </h3>
-          <PriceDisplay price={product.price} size="sm" />
+          <PriceDisplay price={product.price} mrp={product.compareAtPrice ?? undefined} size="sm" />
         </div>
 
         {/* Action buttons */}

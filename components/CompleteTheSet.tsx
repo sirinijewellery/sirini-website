@@ -7,6 +7,7 @@ interface PairingProduct {
   name: string;
   slug: string;
   price: number;
+  compareAtPrice?: number | null;
   image: string | null;
 }
 
@@ -14,6 +15,8 @@ interface CompleteTheSetProps {
   products: PairingProduct[];
   /** The current product's selling price, included in the bundle total. */
   mainPrice: number;
+  /** The current product's compare-at price, included in the original bundle total. */
+  mainCompareAt?: number;
 }
 
 const BUNDLE_DISCOUNT = 0.1; // 10% off when bought together (display-only)
@@ -24,12 +27,18 @@ const BUNDLE_DISCOUNT = 0.1; // 10% off when bought together (display-only)
  * complementary pieces and surfaces a display-only "buy together & save 10%"
  * bundle price. No data fetching and no cart interaction happens here.
  */
-export function CompleteTheSet({ products, mainPrice }: CompleteTheSetProps) {
+export function CompleteTheSet({ products, mainPrice, mainCompareAt }: CompleteTheSetProps) {
   if (!products || products.length === 0) return null;
 
   const pairing = products.slice(0, 3);
   const bundleSum = mainPrice + pairing.reduce((sum, p) => sum + p.price, 0);
   const bundlePrice = Math.round(bundleSum * (1 - BUNDLE_DISCOUNT));
+
+  // Combined compare-at ("original") bundle price. Falls back to price * 2
+  // for any item missing compare-at data so the math stays consistent.
+  const compareAtSum =
+    (mainCompareAt ?? mainPrice * 2) +
+    pairing.reduce((sum, p) => sum + (p.compareAtPrice ?? p.price * 2), 0);
 
   return (
     <section className="mt-20">
@@ -85,11 +94,12 @@ export function CompleteTheSet({ products, mainPrice }: CompleteTheSetProps) {
             Buy together &amp; save 10%
           </p>
           <div className="flex items-baseline gap-3">
+            {/* Combined original (compare-at) bundle price — struck through */}
             <span
               className="font-sans text-sm line-through"
-              style={{ color: "#9ca3af" }}
+              style={{ color: "#ef4444", textDecoration: "line-through" }}
             >
-              {formatPrice(bundleSum)}
+              {formatPrice(compareAtSum)}
             </span>
             <span className="font-display text-3xl font-light text-primary">
               {formatPrice(bundlePrice)}

@@ -42,18 +42,27 @@ const MRP_SIZE: Record<PriceSize, string> = {
   xl: "text-base",
 };
 
+/** Discount percent off, rounded. Returns 0 when there's no real saving. */
+export function getDiscountPercent(price: number, original: number): number {
+  if (!original || original <= price) return 0;
+  return Math.round(((original - price) / original) * 100);
+}
+
 interface PriceDisplayProps {
   /** The real selling price (already multiplied by quantity if a line total). */
   price: number;
   /**
-   * Override the cancelled/original price. Defaults to getMrp(price).
-   * Pass this for line totals: getMrp(unitPrice) * quantity.
+   * The cancelled/original "compare-at" price (strikethrough). Pass the
+   * product's stored compareAtPrice. Falls back to getMrp(price) when omitted.
+   * For line totals pass compareAtPrice * quantity.
    */
   mrp?: number;
   /** Relative sizing of the price pair. */
   size?: PriceSize;
   /** "col" = real on top, MRP below (default). "row" = side by side. */
   layout?: "col" | "row";
+  /** Show the "X% OFF" badge next to the struck price. Default true. */
+  showDiscount?: boolean;
   className?: string;
 }
 
@@ -62,9 +71,12 @@ export function PriceDisplay({
   mrp,
   size = "md",
   layout = "col",
+  showDiscount = true,
   className,
 }: PriceDisplayProps) {
   const original = mrp ?? getMrp(price);
+  const pct = getDiscountPercent(price, original);
+  const hasDiscount = pct > 0;
 
   return (
     <div
@@ -81,13 +93,30 @@ export function PriceDisplay({
       >
         {formatPrice(price)}
       </span>
-      {/* Original / cancelled price — red, line-through, smaller */}
-      <span
-        className={cn("font-sans leading-tight line-through w-fit", MRP_SIZE[size])}
-        style={{ color: "#ef4444", textDecoration: "line-through" }}
-      >
-        {formatPrice(original)}
-      </span>
+
+      {hasDiscount && (
+        <span className="flex items-baseline gap-2">
+          {/* Original / compare-at price — red, line-through, smaller */}
+          <span
+            className={cn("font-sans leading-tight line-through", MRP_SIZE[size])}
+            style={{ color: "#ef4444", textDecoration: "line-through" }}
+          >
+            {formatPrice(original)}
+          </span>
+          {/* Discount percent */}
+          {showDiscount && (
+            <span
+              className={cn(
+                "font-sans font-semibold leading-tight",
+                size === "sm" ? "text-[10px]" : "text-xs",
+              )}
+              style={{ color: "#16803c" }}
+            >
+              {pct}% OFF
+            </span>
+          )}
+        </span>
+      )}
     </div>
   );
 }

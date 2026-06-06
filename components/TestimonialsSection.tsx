@@ -24,10 +24,18 @@ const testimonials = [
   { title: "My Go-To for Ethnic Wear", quote: "Every time I have a function, Sirini is my first stop. The pieces pair beautifully with sarees and lehengas, and the quality never disappoints.", author: "Divya Reddy" },
 ];
 
+const AUTOPLAY_MS = 3478;
+const RESUME_MS = 6000;
+
 export function TestimonialsSection() {
   const [currentIndex, setCurrentIndex] = useState(0);
   const trackRef = useRef<HTMLDivElement>(null);
   const slideRefs = useRef<(HTMLDivElement | null)[]>([]);
+
+  // Interval/timeout management so manual control and auto-advance don't fight.
+  const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
+  const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+  const touchStartXRef = useRef<number | null>(null);
 
   function updateCarousel(index: number) {
     const track = trackRef.current;
@@ -55,18 +63,87 @@ export function TestimonialsSection() {
     });
   }
 
+  function startAutoplay() {
+    if (intervalRef.current) return;
+    intervalRef.current = setInterval(() => {
+      setCurrentIndex((prev) => (prev + 1) % testimonials.length);
+    }, AUTOPLAY_MS);
+  }
+
+  function stopAutoplay() {
+    if (intervalRef.current) {
+      clearInterval(intervalRef.current);
+      intervalRef.current = null;
+    }
+  }
+
+  // Pause autoplay on interaction, then schedule a resume after inactivity.
+  function pauseThenResume() {
+    stopAutoplay();
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
+    resumeTimeoutRef.current = setTimeout(() => {
+      startAutoplay();
+    }, RESUME_MS);
+  }
+
+  function goTo(index: number) {
+    const len = testimonials.length;
+    const next = ((index % len) + len) % len; // safe wrap both directions
+    setCurrentIndex(next);
+  }
+
+  const handlePrev = () => {
+    pauseThenResume();
+    goTo(currentIndex - 1);
+  };
+
+  const handleNext = () => {
+    pauseThenResume();
+    goTo(currentIndex + 1);
+  };
+
+  const handleDotClick = (index: number) => {
+    pauseThenResume();
+    goTo(index);
+  };
+
+  // Hover: pause immediately; resume on leave.
+  const handleMouseEnter = () => stopAutoplay();
+  const handleMouseLeave = () => {
+    if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
+    startAutoplay();
+  };
+
+  // Swipe support for touch devices.
+  const handleTouchStart = (e: React.TouchEvent) => {
+    stopAutoplay();
+    touchStartXRef.current = e.touches[0]?.clientX ?? null;
+  };
+
+  const handleTouchEnd = (e: React.TouchEvent) => {
+    const startX = touchStartXRef.current;
+    touchStartXRef.current = null;
+    if (startX === null) {
+      pauseThenResume();
+      return;
+    }
+    const endX = e.changedTouches[0]?.clientX ?? startX;
+    const delta = endX - startX;
+    const SWIPE_THRESHOLD = 40;
+    if (delta > SWIPE_THRESHOLD) {
+      goTo(currentIndex - 1);
+    } else if (delta < -SWIPE_THRESHOLD) {
+      goTo(currentIndex + 1);
+    }
+    pauseThenResume();
+  };
+
   useEffect(() => {
     // Initial position after layout
     const initTimer = setTimeout(() => updateCarousel(currentIndex), 50);
 
     // Auto-advance
-    const interval = setInterval(() => {
-      setCurrentIndex((prev) => {
-        const next = (prev + 1) % testimonials.length;
-        updateCarousel(next);
-        return next;
-      });
-    }, 3478);
+    startAutoplay();
 
     // Resize handler
     const handleResize = () => updateCarousel(currentIndex);
@@ -74,13 +151,14 @@ export function TestimonialsSection() {
 
     return () => {
       clearTimeout(initTimer);
-      clearInterval(interval);
+      stopAutoplay();
+      if (resumeTimeoutRef.current) clearTimeout(resumeTimeoutRef.current);
       window.removeEventListener("resize", handleResize);
     };
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
-  // When currentIndex changes from the interval, keep carousel in sync
+  // Keep carousel in sync whenever the index changes (autoplay or manual).
   useEffect(() => {
     updateCarousel(currentIndex);
     // eslint-disable-next-line react-hooks/exhaustive-deps
@@ -99,11 +177,60 @@ export function TestimonialsSection() {
       </div>
 
       {/* Carousel */}
-      <div className="w-full relative py-4" id="testimonial-container">
+      <div
+        className="w-full relative py-4"
+        id="testimonial-container"
+        onMouseEnter={handleMouseEnter}
+        onMouseLeave={handleMouseLeave}
+      >
+        {/* Prev arrow */}
+        <button
+          type="button"
+          onClick={handlePrev}
+          aria-label="Previous testimonial"
+          className="group absolute left-3 md:left-8 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-[#FFFDFB]/90 border border-[#E8D9CE] shadow-[0_4px_16px_rgba(120,80,60,0.12)] backdrop-blur-sm transition-colors hover:border-[#C9A96E] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A96E]"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-5 w-5 text-on-surface-variant transition-colors group-hover:text-[#C9A96E]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="15 18 9 12 15 6" />
+          </svg>
+        </button>
+
+        {/* Next arrow */}
+        <button
+          type="button"
+          onClick={handleNext}
+          aria-label="Next testimonial"
+          className="group absolute right-3 md:right-8 top-1/2 -translate-y-1/2 z-20 flex h-11 w-11 items-center justify-center rounded-full bg-[#FFFDFB]/90 border border-[#E8D9CE] shadow-[0_4px_16px_rgba(120,80,60,0.12)] backdrop-blur-sm transition-colors hover:border-[#C9A96E] focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A96E]"
+        >
+          <svg
+            viewBox="0 0 24 24"
+            className="h-5 w-5 text-on-surface-variant transition-colors group-hover:text-[#C9A96E]"
+            fill="none"
+            stroke="currentColor"
+            strokeWidth="1.8"
+            strokeLinecap="round"
+            strokeLinejoin="round"
+            aria-hidden="true"
+          >
+            <polyline points="9 18 15 12 9 6" />
+          </svg>
+        </button>
+
         <div
           ref={trackRef}
           id="testimonial-track"
           className="flex items-stretch"
+          onTouchStart={handleTouchStart}
+          onTouchEnd={handleTouchEnd}
           style={{
             transition: "transform 0.8s cubic-bezier(0.25, 1, 0.5, 1)",
             willChange: "transform",
@@ -152,6 +279,32 @@ export function TestimonialsSection() {
             </div>
           ))}
         </div>
+      </div>
+
+      {/* Dot indicators */}
+      <div
+        className="mt-10 flex flex-wrap items-center justify-center gap-2 px-4"
+        role="tablist"
+        aria-label="Select a testimonial"
+      >
+        {testimonials.map((t, i) => {
+          const active = i === currentIndex;
+          return (
+            <button
+              key={i}
+              type="button"
+              role="tab"
+              aria-selected={active}
+              aria-label={`Go to testimonial ${i + 1}: ${t.author}`}
+              onClick={() => handleDotClick(i)}
+              className={`rounded-full transition-all duration-300 focus:outline-none focus-visible:ring-2 focus-visible:ring-[#C9A96E] ${
+                active
+                  ? "h-2 w-5 bg-[#C9A96E]"
+                  : "h-2 w-2 bg-[#E8D9CE] hover:bg-[#C9A96E]/50"
+              }`}
+            />
+          );
+        })}
       </div>
     </section>
   );

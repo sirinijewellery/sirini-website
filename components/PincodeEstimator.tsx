@@ -29,7 +29,7 @@ function addDays(base: Date, days: number): Date {
 }
 
 interface Estimate {
-  pincode: string;
+  place: string; // "City, State" or just the pincode on fallback
   range: string;
 }
 
@@ -37,23 +37,48 @@ export function PincodeEstimator() {
   const [pincode, setPincode] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [estimate, setEstimate] = useState<Estimate | null>(null);
+  const [loading, setLoading] = useState(false);
 
-  function handleCheck() {
+  async function handleCheck() {
     const trimmed = pincode.trim();
-    if (!/^\d{6}$/.test(trimmed)) {
+    // Indian pincodes are 6 digits and never start with 0.
+    if (!/^[1-9]\d{5}$/.test(trimmed)) {
       setError("Enter a valid 6-digit pincode");
       setEstimate(null);
       return;
     }
 
     setError(null);
-    const today = new Date();
-    const start = addDays(today, 4);
-    const end = addDays(today, 7);
-    setEstimate({
-      pincode: trimmed,
-      range: `${formatDate(start)} – ${formatDate(end)}`,
-    });
+    setEstimate(null);
+    setLoading(true);
+
+    try {
+      const res = await fetch(`/api/pincode?code=${trimmed}`);
+      const data = await res.json();
+
+      if (data.valid) {
+        const today = new Date();
+        const start = addDays(today, data.minDays);
+        const end = addDays(today, data.maxDays);
+        const place =
+          data.city && data.state ? `${data.city}, ${data.state}` : trimmed;
+        setEstimate({ place, range: `${formatDate(start)} – ${formatDate(end)}` });
+      } else if (data.error === "lookup_failed") {
+        // API unreachable — don't block the shopper, show a generic estimate.
+        setEstimate({
+          place: trimmed,
+          range: "5–7 business days across India",
+        });
+      } else {
+        setError(
+          "Sorry, we couldn't find that pincode. Please check and try again.",
+        );
+      }
+    } catch {
+      setEstimate({ place: trimmed, range: "5–7 business days across India" });
+    } finally {
+      setLoading(false);
+    }
   }
 
   function handleSubmit(e: React.FormEvent) {
@@ -101,9 +126,10 @@ export function PincodeEstimator() {
         />
         <button
           type="submit"
-          className="shrink-0 rounded-lg border border-[#C9A96E] bg-[#C9A96E] px-5 py-2.5 text-xs font-sans font-semibold uppercase tracking-[0.12em] text-white hover:bg-[#b8975c] hover:border-[#b8975c] transition-colors cursor-pointer"
+          disabled={loading}
+          className="shrink-0 rounded-lg border border-[#C9A96E] bg-[#C9A96E] px-5 py-2.5 text-xs font-sans font-semibold uppercase tracking-[0.12em] text-white hover:bg-[#b8975c] hover:border-[#b8975c] transition-colors cursor-pointer disabled:opacity-60 disabled:cursor-wait"
         >
-          Check
+          {loading ? "Checking…" : "Check"}
         </button>
       </form>
 
@@ -133,7 +159,7 @@ export function PincodeEstimator() {
                 <path d="M20 6 9 17l-5-5" />
               </svg>
               <span>
-                Delivers to <span className="font-semibold">{estimate.pincode}</span> by{" "}
+                Delivers to <span className="font-semibold">{estimate.place}</span> by{" "}
                 <span className="font-semibold">{estimate.range}</span>
               </span>
             </p>

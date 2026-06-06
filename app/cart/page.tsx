@@ -54,7 +54,11 @@ export default function CartPage() {
   const subtotal = getTotal();
   const discount = appliedCoupon?.discountAmount ?? 0;
   const total = Math.max(0, subtotal - discount);
-  const mrpTotal = items.reduce((s, i) => s + getMrp(i.price) * i.quantity, 0);
+  const compareTotal = items.reduce(
+    (s, i) => s + (i.compareAtPrice ?? getMrp(i.price)) * i.quantity,
+    0
+  );
+  const savings = compareTotal - subtotal;
 
   if (!hydrated) {
     return (
@@ -119,10 +123,14 @@ export default function CartPage() {
                 <span>Subtotal</span>
                 <span>{formatPrice(subtotal)}</span>
               </div>
-              <div className="flex justify-between text-sm">
-                <span className="text-muted-foreground">You save</span>
-                <span className="text-green-600">{formatPrice(mrpTotal - subtotal)}</span>
-              </div>
+              {savings > 0 && (
+                <div className="flex justify-between text-sm">
+                  <span className="text-muted-foreground">You save</span>
+                  <span className="text-green-600">
+                    {formatPrice(savings)} ({Math.round((savings / compareTotal) * 100)}%)
+                  </span>
+                </div>
+              )}
               {discount > 0 && (
                 <div className="flex justify-between text-emerald-600">
                   <span>Discount ({appliedCoupon?.code})</span>

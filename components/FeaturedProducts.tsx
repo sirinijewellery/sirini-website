@@ -14,6 +14,7 @@ export async function FeaturedProducts() {
     name: p.name,
     slug: p.slug,
     price: p.price,
+    compareAtPrice: p.compareAtPrice,
     image: parseImages(p.images)[0] ?? null,
     badge: p.badge,
   }));

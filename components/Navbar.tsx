@@ -221,7 +221,7 @@ export function Navbar() {
           {/* Logo */}
           <Link href="/" aria-label="Sirini Jewellery — Home" className="shrink-0">
             <Image
-              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/sirini-jewellery/logo.png"
+              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,q_auto,f_auto,w_400/sirini-jewellery/logo-real.jpg"
               alt="Sirini Jewellery"
               width={500}
               height={500}
@@ -477,7 +477,7 @@ export function Navbar() {
                     {/* Mobile logo */}
                     <div className="py-2">
                       <Image
-                        src="https://res.cloudinary.com/dp8a2lvxg/image/upload/sirini-jewellery/logo.png"
+                        src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,q_auto,f_auto,w_400/sirini-jewellery/logo-real.jpg"
                         alt="Sirini Jewellery"
                         width={500}
                         height={500}

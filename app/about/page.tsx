@@ -7,9 +7,11 @@ export const metadata = pageMetadata(
   "Born in Mumbai in 2015, Sirini Jewellery blends traditional craftsmanship with modern elegance. A family. A craft. A promise.",
 );
 
-// Hero: Mumbai infographic poster — the Sirini story image
+// Hero: Mumbai infographic poster — the Sirini story image.
+// Infographic contains text, so deliver the whole frame (no forced height crop)
+// and render with object-contain so nothing critical is cut off.
 const HERO_IMAGE =
-  "https://res.cloudinary.com/dp8a2lvxg/image/upload/q_auto,f_auto,w_1400/v1780555870/sirini-jewellery/brand/story-infographic.jpg";
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/q_auto,f_auto,c_limit,w_1600/v1780555870/sirini-jewellery/brand/story-infographic.jpg";
 
 // Artisan close-up — hands setting kundan stones
 const ARTISAN_IMAGE =
@@ -20,19 +22,22 @@ export default function AboutPage() {
     <div className="bg-background text-on-surface">
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
-      <section className="relative w-full h-[70vh] min-h-[500px] overflow-hidden">
+      {/* Portrait infographic poster: show it whole (object-contain) on a cream
+          backdrop so its text is never cropped. Responsive aspect ratio keeps a
+          tall frame on phones and a wider frame on larger screens. */}
+      <section className="relative w-full bg-[#FAF0EC] overflow-hidden aspect-[3/4] sm:aspect-[16/10] lg:aspect-[21/9] max-h-[85vh]">
         <Image
           src={HERO_IMAGE}
-          alt="Model wearing Sirini jewellery"
+          alt="The Sirini story — handcrafted in Mumbai since 2015"
           fill
           priority
-          className="object-cover object-center"
+          className="object-contain object-center"
           sizes="100vw"
         />
-        {/* Gradient overlay */}
-        <div className="absolute inset-0 bg-gradient-to-t from-background/90 via-background/30 to-transparent" />
+        {/* Subtle bottom gradient so the headline stays legible without hiding the poster */}
+        <div className="pointer-events-none absolute inset-x-0 bottom-0 h-1/3 bg-gradient-to-t from-[#FAF0EC] via-[#FAF0EC]/70 to-transparent" />
         {/* Headline over image */}
-        <div className="absolute bottom-0 left-0 right-0 px-6 md:px-16 pb-16 max-w-screen-2xl mx-auto">
+        <div className="absolute bottom-0 left-0 right-0 px-6 md:px-16 pb-8 sm:pb-12 lg:pb-16 max-w-screen-2xl mx-auto">
           <p className="font-label-caps text-label-caps tracking-[0.25em] text-primary mb-3 uppercase">
             Since 2015
           </p>

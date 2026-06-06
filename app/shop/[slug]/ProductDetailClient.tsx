@@ -23,6 +23,7 @@ interface ProductDetailClientProps {
     slug: string;
     description: string;
     price: number;
+    compareAtPrice?: number | null;
     category: string;
     material: string;
     sku: string;
@@ -122,7 +123,18 @@ export default function ProductDetailClient({
       </h1>
 
       {/* Price */}
-      <PriceDisplay price={product.price} size="xl" />
+      <PriceDisplay price={product.price} mrp={product.compareAtPrice ?? undefined} size="xl" />
+
+      {/* You save line — shown when a real compare-at saving exists */}
+      {product.compareAtPrice != null && product.compareAtPrice > product.price && (
+        <p className="text-sm font-sans font-medium text-green-700">
+          You save {formatPrice(product.compareAtPrice - product.price)} (
+          {Math.round(
+            ((product.compareAtPrice - product.price) / product.compareAtPrice) * 100
+          )}
+          % off)
+        </p>
+      )}
 
       {/* Social proof / urgency */}
       <div className="flex items-center gap-2 text-[13px] font-sans text-rose-600">

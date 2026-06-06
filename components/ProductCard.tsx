@@ -16,6 +16,7 @@ interface ProductCardProps {
     name: string;
     slug: string;
     price: number;
+    compareAtPrice?: number | null;
     category: string;
     images: unknown;
     badge?: string | null;
@@ -252,7 +253,7 @@ export function ProductCard({ product }: ProductCardProps) {
         <h4 className="font-sans text-sm text-on-surface leading-snug line-clamp-2">
           {product.name}
         </h4>
-        <PriceDisplay price={product.price} size="md" />
+        <PriceDisplay price={product.price} mrp={product.compareAtPrice ?? undefined} size="md" />
 
         {/* ── Rating row — only when reviews exist ─────────────────── */}
         {product.reviewCount && product.reviewCount > 0 ? (
