@@ -3,6 +3,23 @@
 // Below: asymmetric layout — brand column left, link columns right.
 
 import Image from "next/image";
+import Link from "next/link";
+import { NAV_CATEGORIES, OCCASIONS, STYLES } from "@/lib/taxonomy";
+
+const COMPANY_LINKS = [
+  { href: "/about", label: "Our Story" },
+  { href: "/blog", label: "Journal" },
+  { href: "/faq", label: "FAQ" },
+  { href: "/contact", label: "Contact" },
+  { href: "/shipping", label: "Shipping" },
+  { href: "/privacy", label: "Privacy" },
+  { href: "/terms", label: "Terms" },
+] as const;
+
+const linkClass =
+  "font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200";
+const headingClass =
+  "font-sans text-[10px] tracking-[0.2em] uppercase text-on-surface-variant/50 font-semibold mb-1";
 
 export function Footer() {
   return (
@@ -20,8 +37,8 @@ export function Footer() {
         {/* ── Asymmetric grid ──────────────────────────────────────── */}
         <div className="grid grid-cols-1 md:grid-cols-3 gap-12 md:gap-8">
 
-          {/* Brand column — takes 2/3 on desktop */}
-          <div className="md:col-span-2 flex flex-col gap-6">
+          {/* Brand column — 1/3 on desktop */}
+          <div className="md:col-span-1 flex flex-col gap-6">
             <Image
               src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,e_make_transparent:20,f_png,w_400/sirini-jewellery/logo-real.png"
               alt="Sirini Jewellery"
@@ -69,28 +86,55 @@ export function Footer() {
             </p>
           </div>
 
-          {/* Links column — 1/3 on desktop, two sub-columns */}
-          <div className="grid grid-cols-2 gap-8">
-            <div className="flex flex-col gap-3">
-              <h4 className="font-sans text-[10px] tracking-[0.2em] uppercase text-on-surface-variant/50 font-semibold mb-1">
-                Company
+          {/* Links — 1/3 on desktop, SEO-friendly internal link grid */}
+          <nav
+            aria-label="Footer"
+            className="md:col-span-2 grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4"
+          >
+            <div className="flex flex-col gap-3" aria-labelledby="footer-category">
+              <h4 id="footer-category" className={headingClass}>
+                Shop by Category
               </h4>
-              <a href="/about" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">About</a>
-              <a href="/blog" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Journal</a>
-              <a href="/contact" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Contact</a>
-              <a href="/privacy" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Privacy</a>
-              <a href="/terms" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Terms</a>
+              {NAV_CATEGORIES.map((c) => (
+                <Link key={c.slug} href={`/shop?category=${c.slug}`} className={linkClass}>
+                  {c.label}
+                </Link>
+              ))}
             </div>
-            <div className="flex flex-col gap-3">
-              <h4 className="font-sans text-[10px] tracking-[0.2em] uppercase text-on-surface-variant/50 font-semibold mb-1">
-                Shop
+
+            <div className="flex flex-col gap-3" aria-labelledby="footer-occasion">
+              <h4 id="footer-occasion" className={headingClass}>
+                Shop by Occasion
               </h4>
-              <a href="/shop" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">All Jewellery</a>
-              <a href="/wishlist" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Wishlist</a>
-              <a href="/shipping" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">Shipping</a>
-              <a href="/account" className="font-sans text-sm text-on-surface-variant hover:text-primary transition-colors duration-200">My Account</a>
+              {OCCASIONS.map((o) => (
+                <Link key={o.slug} href={`/shop?occasion=${o.slug}`} className={linkClass}>
+                  {o.label}
+                </Link>
+              ))}
             </div>
-          </div>
+
+            <div className="flex flex-col gap-3" aria-labelledby="footer-material">
+              <h4 id="footer-material" className={headingClass}>
+                Shop by Material
+              </h4>
+              {STYLES.map((s) => (
+                <Link key={s.slug} href={`/shop?style=${s.slug}`} className={linkClass}>
+                  {s.label}
+                </Link>
+              ))}
+            </div>
+
+            <div className="flex flex-col gap-3" aria-labelledby="footer-company">
+              <h4 id="footer-company" className={headingClass}>
+                Company &amp; Help
+              </h4>
+              {COMPANY_LINKS.map((l) => (
+                <Link key={l.href} href={l.href} className={linkClass}>
+                  {l.label}
+                </Link>
+              ))}
+            </div>
+          </nav>
 
         </div>
       </div>

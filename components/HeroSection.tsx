@@ -1,5 +1,6 @@
 "use client";
 import { useEffect, useRef } from "react";
+import Image from "next/image";
 
 // Hero model: woman in green saree wearing Kundan necklace set.
 // Subject on right, clean blush-cream on left for text overlay.
@@ -24,12 +25,22 @@ export function HeroSection() {
   return (
     <section className="relative w-full h-[680px] min-h-[520px] overflow-hidden reveal">
 
-      {/* Full-bleed background */}
+      {/* Full-bleed background — parallax wrapper holds a real, prioritized next/image */}
       <div
         ref={bgRef}
-        className="absolute inset-0 z-0 bg-cover bg-center"
-        style={{ backgroundImage: `url('${HERO_IMAGE_URL}')`, willChange: "transform" }}
+        className="absolute inset-0 z-0"
+        style={{ willChange: "transform" }}
       >
+        {/* LCP hero image: preloaded + optimized by Next.js (no longer a CSS bg) */}
+        <Image
+          src={HERO_IMAGE_URL}
+          alt="Model wearing a Sirini Kundan necklace set"
+          fill
+          preload
+          quality={75}
+          sizes="100vw"
+          className="object-cover object-center"
+        />
         {/* Left-to-right gradient — gives text a clean dark panel on the left */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
         {/* Bottom fade for depth */}

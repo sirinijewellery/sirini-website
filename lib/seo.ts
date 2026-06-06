@@ -116,8 +116,38 @@ export function productMetadata(product: {
   slug?: string;
 }): Metadata {
   const rawDescription = product.description;
-  const metaDescription =
-    rawDescription.slice(0, 155) + (rawDescription.length > 155 ? "…" : "");
+
+  // Build a UNIQUE meta description per product. Templated `description` text
+  // repeats across products (only ~5 variants per category), which hurts SEO,
+  // so we LEAD with the product's own name + category + price — guaranteed
+  // unique — then append a short snippet of the description.
+  const priceLabel = `₹${Math.round(product.price).toLocaleString("en-IN")}`;
+  const categoryPart = product.category
+    ? `handcrafted ${product.category}`
+    : "handcrafted jewellery";
+  const descSnippet = rawDescription.split(/\s+/).slice(0, 12).join(" ");
+
+  const lead = `Buy ${product.name} online — ${categoryPart} by ${siteConfig.name} at ${priceLabel}.`;
+  const tail = "Free shipping across India, COD available.";
+  const full = `${lead} ${descSnippet}… ${tail}`;
+
+  // Keep under ~160 chars, truncating cleanly at a word boundary if needed.
+  const MAX = 160;
+  let metaDescription: string;
+  if (full.length <= MAX) {
+    metaDescription = full;
+  } else {
+    // Drop the description snippet first; keep the unique lead + value props.
+    const compact = `${lead} ${tail}`;
+    if (compact.length <= MAX) {
+      metaDescription = compact;
+    } else {
+      const sliced = compact.slice(0, MAX - 1);
+      metaDescription =
+        sliced.slice(0, sliced.lastIndexOf(" ")).trimEnd() + "…";
+    }
+  }
+
   const ogDescription =
     rawDescription.slice(0, 145) +
     (rawDescription.length > 145 ? "… " : " ") +

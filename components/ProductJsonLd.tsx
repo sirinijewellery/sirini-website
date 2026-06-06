@@ -7,6 +7,10 @@ interface ProductJsonLdProps {
     sku: string;
     slug: string;
     material?: string;
+    category?: string;
+    /** Units in stock; when provided, drives availability (>0 = InStock) */
+    stock?: number;
+    /** Explicit availability flag; takes precedence when set */
     inStock?: boolean;
   };
   /** Pass aggregate review data when available */
@@ -20,6 +24,16 @@ export function ProductJsonLd({ product, reviewSummary }: ProductJsonLdProps) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const productUrl = `${siteUrl}/shop/${product.slug}`;
 
+  // Resolve availability: explicit inStock flag wins, else derive from stock, else assume in stock
+  const isInStock =
+    product.inStock ??
+    (product.stock !== undefined ? product.stock > 0 : true);
+
+  // ~1 year out — required by Google for valid Offer rich results
+  const priceValidUntil = new Date(Date.now() + 365 * 864e5)
+    .toISOString()
+    .split("T")[0];
+
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
@@ -31,6 +45,9 @@ export function ProductJsonLd({ product, reviewSummary }: ProductJsonLdProps) {
       "@type": "Brand",
       name: "Sirini Jewellery",
     },
+    ...(product.category && {
+      category: product.category,
+    }),
     ...(product.material && {
       material: product.material,
     }),
@@ -39,10 +56,11 @@ export function ProductJsonLd({ product, reviewSummary }: ProductJsonLdProps) {
       url: productUrl,
       price: product.price.toFixed(2),
       priceCurrency: "INR",
-      availability:
-        product.inStock === false
-          ? "https://schema.org/OutOfStock"
-          : "https://schema.org/InStock",
+      priceValidUntil,
+      itemCondition: "https://schema.org/NewCondition",
+      availability: isInStock
+        ? "https://schema.org/InStock"
+        : "https://schema.org/OutOfStock",
       seller: {
         "@type": "Organization",
         name: "Sirini Jewellery",

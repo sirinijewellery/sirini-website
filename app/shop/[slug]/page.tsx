@@ -156,6 +156,8 @@ export default async function ProductPage({ params }: Props) {
           sku: product.sku,
           slug: product.slug,
           material: product.material,
+          category: product.category,
+          stock: product.stock,
         }}
         reviewSummary={
           reviewStats._count.id > 0
