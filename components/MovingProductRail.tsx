@@ -50,10 +50,11 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
             >
               {/* Image */}
               <div className="relative aspect-[4/5] bg-surface mb-4 overflow-hidden border border-outline-variant group-hover/item:border-primary/30 transition-colors duration-300">
+                {/* No `priority` here — rail is below the fold; Next.js Image is lazy by default. */}
                 {product.image ? (
                   <Image
                     src={product.image}
-                    alt={product.name}
+                    alt={`${product.name} | Sirini Jewellery`}
                     fill
                     sizes="(max-width: 768px) 260px, 300px"
                     className="w-full h-full object-cover transition-transform duration-700 ease-out group-hover/item:scale-[1.08]"

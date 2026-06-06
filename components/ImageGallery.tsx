@@ -178,6 +178,9 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
     <>
       <div className="space-y-3">
         {/* Main image — zoom cursor signals it's clickable */}
+        {/* CLS note: outer div is `relative w-full`; button child uses `aspect-square`
+            which establishes an intrinsic height — browser reserves space before image
+            loads, so no layout shift occurs. */}
         <div
           ref={mainImageWrapperRef}
           className="relative w-full"
@@ -193,10 +196,10 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
           >
             <Image
               src={images[activeIndex]}
-              alt={`${productName} — image ${activeIndex + 1}`}
+              alt={`${productName} — ${activeIndex === 0 ? "main view" : `view ${activeIndex + 1}`} | Sirini Jewellery`}
               fill
               className="object-cover transition-transform duration-300 hover:scale-[1.02]"
-              priority
+              priority={activeIndex === 0}
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </button>

@@ -3,7 +3,7 @@
 import Link from "next/link";
 import { usePathname } from "next/navigation";
 import { useSession } from "next-auth/react";
-import { Home, ShoppingBag, Heart, User, Search, Sparkles } from "lucide-react";
+import { Home, ShoppingBag, Heart, User, Search, HelpCircle } from "lucide-react";
 import { useCartStore } from "@/lib/store/cart";
 import { CartBadge } from "@/components/CartBadge";
 
@@ -64,19 +64,19 @@ export function MobileBottomNav() {
           <span className="text-[10px] font-label-caps tracking-wide">Shop</span>
         </Link>
 
-        {/* Occasion */}
+        {/* Help / FAQ */}
         <Link
-          href="/occasions"
+          href="/faq"
           className={`flex flex-col items-center justify-center gap-0.5 py-2 transition-colors duration-150 ${
-            pathname.startsWith("/occasions")
+            pathname.startsWith("/faq")
               ? "text-primary"
               : "text-on-surface-variant hover:text-primary"
           }`}
-          aria-label="Shop by Occasion"
-          aria-current={pathname.startsWith("/occasions") ? "page" : undefined}
+          aria-label="Help"
+          aria-current={pathname.startsWith("/faq") ? "page" : undefined}
         >
-          <Sparkles className="h-5 w-5" />
-          <span className="text-[10px] font-label-caps tracking-wide">Occasion</span>
+          <HelpCircle className="h-5 w-5" />
+          <span className="text-[10px] font-label-caps tracking-wide">Help</span>
         </Link>
 
         {/* Cart — action button, never marked active */}

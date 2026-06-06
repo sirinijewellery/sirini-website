@@ -36,6 +36,7 @@ const navLinksLeading = [
 // "Shop by Occasion" is its own dedicated tab (in addition to the mega menu).
 const navLinksTrailing = [
   { href: "/occasions", label: "Shop by Occasion" },
+  { href: "/faq", label: "FAQ" },
   { href: "/about", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];
@@ -45,6 +46,7 @@ const navLinks = [
   { href: "/", label: "Home" },
   { href: "/shop", label: "Shop" },
   { href: "/occasions", label: "Shop by Occasion" },
+  { href: "/faq", label: "FAQ" },
   { href: "/about", label: "Our Story" },
   { href: "/contact", label: "Contact" },
 ];

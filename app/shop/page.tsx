@@ -196,8 +196,81 @@ async function ShopContent({ searchParams }: ShopPageProps) {
             )}
           </div>
         )}
+
+        {/* SEO copy block — only on clean single-facet pages, never on search results */}
+        <SeoCopyBlock
+          category={params.category}
+          occasion={params.occasion}
+          style={params.style}
+          search={params.search}
+        />
       </div>
     </div>
+  );
+}
+
+// ── SEO copy block ────────────────────────────────────────────────────────────
+// Tasteful, human-readable copy rendered below the product grid on clean
+// single-facet pages (category / occasion / style, no search, page 1).
+// Intentionally left out of paginated / multi-filter URLs to avoid thin content.
+
+const SEO_COPY: Record<string, string> = {
+  // categories
+  "necklace-sets":
+    "Sirini's handcrafted necklace sets span Kundan chokers, Polki rani haars and Meenakari layered sets — each piece crafted in Mumbai with 22kt gold plating and ethically sourced stones. Free pan-India shipping on all orders.",
+  earrings:
+    "From delicate Kundan jhumkas to statement Chandbali earrings, our collection is lightweight yet luxurious — perfect for daily wear or festive occasions.",
+  bangles:
+    "Our gold-plated bangle sets pair traditional Meenakari work with modern sizing for an effortless festive or bridal look.",
+  anklets:
+    "Handcrafted ghungroo payals and silver-finish anklets — subtle enough for daily wear, special enough for weddings.",
+  "finger-rings":
+    "Adjustable Kundan cocktail rings and enamel statement rings designed to complement every ethnic look.",
+  // occasions
+  bridal:
+    "Sirini's bridal collection brings together Kundan, Polki and Jadau statement sets — heirloom craftsmanship for your most important day.",
+  festive:
+    "From Navratri to Diwali, our festive edit of Meenakari jhumkas, temple sets and gold-plated bangles ensures you shine at every celebration.",
+};
+
+function SeoCopyBlock({
+  category,
+  occasion,
+  style,
+  search,
+}: {
+  category?: string;
+  occasion?: string;
+  style?: string;
+  search?: string;
+}) {
+  // Never render on search results or when multiple facets are active
+  if (search) return null;
+
+  const activeFacets = [category, occasion, style].filter(Boolean);
+  if (activeFacets.length !== 1) return null;
+
+  // Resolve copy: occasion and category have explicit entries; styles fall through
+  const key = occasion ?? category ?? style ?? "";
+  const copy = SEO_COPY[key];
+  if (!copy) return null;
+
+  // Split into two sentences for a tasteful italic opener + body treatment
+  const sentenceBreak = copy.indexOf(". ");
+  const opener =
+    sentenceBreak !== -1 ? copy.slice(0, sentenceBreak + 1) : copy;
+  const rest = sentenceBreak !== -1 ? copy.slice(sentenceBreak + 2) : "";
+
+  return (
+    <section
+      aria-label="About this collection"
+      className="mt-16 pt-8 border-t border-outline-variant"
+    >
+      <p className="max-w-2xl font-body-md text-body-md text-on-surface-variant leading-relaxed">
+        <em className="not-italic text-on-surface-variant">{opener}</em>
+        {rest && <> {rest}</>}
+      </p>
+    </section>
   );
 }
 

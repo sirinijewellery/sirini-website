@@ -4,7 +4,7 @@ const siteConfig = {
   name: "Sirini Jewellery",
   tagline: "Handcrafted Kundan & Gold-Plated Jewellery",
   description:
-    "Shop authentic Kundan, Meenakari & gold-plated handcrafted jewellery from Mumbai. Bridal sets, earrings, bangles, rings & anklets. Free pan-India shipping.",
+    "Mumbai's premier handcrafted jewellery brand — Kundan necklace sets, Meenakari earrings, gold-plated bangles, rings & anklets. Free pan-India shipping since 2015.",
   url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
   // Cloudinary brand hero used as the site-wide social sharing card
   defaultOgImage:
@@ -63,6 +63,10 @@ export function baseMetadata(): Metadata {
     },
     alternates: {
       canonical: siteConfig.url,
+      languages: {
+        "en-IN": siteConfig.url,
+        "x-default": siteConfig.url,
+      },
     },
   };
 }
@@ -111,19 +115,31 @@ export function productMetadata(product: {
   category?: string;
   slug?: string;
 }): Metadata {
-  const description =
-    product.description.slice(0, 155) +
-    (product.description.length > 155 ? "…" : "");
+  const rawDescription = product.description;
+  const metaDescription =
+    rawDescription.slice(0, 155) + (rawDescription.length > 155 ? "…" : "");
+  const ogDescription =
+    rawDescription.slice(0, 145) +
+    (rawDescription.length > 145 ? "… " : " ") +
+    "Free shipping across India.";
+
   const image = product.images[0] ?? siteConfig.defaultOgImage;
   const canonical = product.slug
     ? `${siteConfig.url}/shop/${product.slug}`
     : undefined;
 
+  // Build title: prefer rich form if it fits under 65 chars
+  let title: string;
+  if (product.category) {
+    const rich = `${product.name} | Buy ${product.category} Online India — ${siteConfig.name}`;
+    title = rich.length <= 65 ? rich : `${product.name} | ${siteConfig.name}`;
+  } else {
+    title = `${product.name} | ${siteConfig.name}`;
+  }
+
   return {
-    title: product.category
-      ? `${product.name} — ${product.category}`
-      : product.name,
-    description,
+    title,
+    description: metaDescription,
     keywords: [
       product.name,
       ...(product.category ? [product.category] : []),
@@ -131,14 +147,14 @@ export function productMetadata(product: {
     ],
     openGraph: {
       title: `${product.name} | ${siteConfig.name}`,
-      description,
+      description: ogDescription,
       type: "website",
       images: [{ url: image, width: 800, height: 800, alt: product.name }],
     },
     twitter: {
       card: "summary_large_image",
       title: `${product.name} | ${siteConfig.name}`,
-      description,
+      description: ogDescription,
       images: [image],
     },
     ...(canonical && { alternates: { canonical } }),

@@ -7,6 +7,11 @@ export interface ArticleSection {
   paragraphs: string[];
 }
 
+export interface ArticleRelatedLink {
+  label: string;
+  href: string;
+}
+
 export interface Article {
   slug: string;
   title: string;
@@ -15,6 +20,14 @@ export interface Article {
   date: string; // ISO date (YYYY-MM-DD)
   readMins: number;
   body: ArticleSection[];
+  /**
+   * Internal links to relevant shop pages.
+   * Rendered as a "Shop the collection" footer row in app/blog/[slug]/page.tsx
+   * (that file may be updated separately to display these links).
+   * Adding this field here is safe — existing renderers that don't know about
+   * it will simply ignore it.
+   */
+  relatedLinks?: ArticleRelatedLink[];
 }
 
 // Known brand imagery on Cloudinary, reused across articles.
@@ -75,6 +88,10 @@ export const ARTICLES: Article[] = [
         ],
       },
     ],
+    relatedLinks: [
+      { label: "Kundan necklace sets", href: "/shop?style=kundan" },
+      { label: "Bridal jewellery", href: "/shop?occasion=bridal" },
+    ],
   },
   {
     slug: "meenakari-kundan-polki-guide",
@@ -124,6 +141,11 @@ export const ARTICLES: Article[] = [
         ],
       },
     ],
+    relatedLinks: [
+      { label: "Meenakari jewellery", href: "/shop?style=meenakari" },
+      { label: "Kundan pieces", href: "/shop?style=kundan" },
+      { label: "Polki sets", href: "/shop?style=polki" },
+    ],
   },
   {
     slug: "jewellery-care-guide",
@@ -170,6 +192,9 @@ export const ARTICLES: Article[] = [
         ],
       },
     ],
+    relatedLinks: [
+      { label: "Browse our collection", href: "/shop" },
+    ],
   },
   {
     slug: "festive-jewellery-edit",
@@ -212,6 +237,11 @@ export const ARTICLES: Article[] = [
           "Whatever you wear, let the occasion guide the intensity: high-energy and playful for Navratri, warm and luminous for Diwali. With a few well-chosen handcrafted pieces, you'll be ready for every celebration the season brings. Explore our festive edit and find the jhumkas, chokers and Kundan sets that will carry you through the brightest nights of the year.",
         ],
       },
+    ],
+    relatedLinks: [
+      { label: "Festive Edit", href: "/shop?occasion=festive" },
+      { label: "Navratri jewellery", href: "/shop?occasion=festive" },
+      { label: "Kundan pieces", href: "/shop?style=kundan" },
     ],
   },
 ];

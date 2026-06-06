@@ -26,7 +26,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Product Not Found" };
 
   const images = sortAllImages(parseImages(product.images));
-  return productMetadata({
+  const base = productMetadata({
     name: product.name,
     description: product.description,
     images,
@@ -34,6 +34,21 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     category: product.category,
     slug: product.slug,
   });
+
+  return {
+    ...base,
+    keywords: [
+      product.name,
+      product.category,
+      "Sirini Jewellery",
+      "handcrafted",
+      "Indian jewellery",
+      "buy online India",
+    ],
+    alternates: {
+      canonical: `${siteConfig.url}/shop/${product.slug}`,
+    },
+  };
 }
 
 export default async function ProductPage({ params }: Props) {

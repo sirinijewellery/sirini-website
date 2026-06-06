@@ -14,6 +14,7 @@ import NextTopLoader from "nextjs-toploader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { CountdownBanner } from "@/components/CountdownBanner";
+import { LocalBusinessJsonLd } from "@/components/LocalBusinessJsonLd";
 
 const ebGaramond = EB_Garamond({
   variable: "--font-eb-garamond",
@@ -54,6 +55,7 @@ export default function RootLayout({
         <NextTopLoader color="#B76E79" height={3} showSpinner={false} crawl={true} />
         <ScrollReveal />
         <WebSiteJsonLd />
+        <LocalBusinessJsonLd />
         <AuthProvider>
           <NavbarWrapper />
           <main className="flex-1 pb-16 md:pb-0">{children}</main>
