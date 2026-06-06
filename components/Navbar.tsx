@@ -265,8 +265,8 @@ export function Navbar() {
           </nav>
 
           {/* Right icons */}
-          <div className="flex gap-4 lg:gap-6 items-center shrink-0">
-            <div className="flex gap-4 items-center">
+          <div className="flex items-center shrink-0">
+            <div className="flex items-center gap-0.5 sm:gap-1">
 
               {/* ── Search ─────────────────────────────────────────────────── */}
               <div className="relative" ref={searchContainerRef}>
@@ -290,7 +290,7 @@ export function Navbar() {
                     <button
                       type="button"
                       onClick={closeSearch}
-                      className="text-primary hover:scale-[1.02] transition-all duration-300"
+                      className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors"
                       aria-label="Close search"
                     >
                       <X className="h-6 w-6" />
@@ -299,7 +299,7 @@ export function Navbar() {
                 ) : (
                   <button
                     onClick={() => setSearchOpen(true)}
-                    className="text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors cursor-pointer"
                     aria-label="Search"
                   >
                     <Search className="h-6 w-6" />
@@ -396,7 +396,7 @@ export function Navbar() {
               {/* Wishlist */}
               <Link
                 href="/wishlist"
-                className="text-primary hover:scale-[1.02] transition-all duration-300"
+                className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors"
                 aria-label="Wishlist"
               >
                 <Heart className="h-6 w-6" />
@@ -407,7 +407,7 @@ export function Navbar() {
                 {session?.user ? (
                   <div className="relative group">
                     <button
-                      className="text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                      className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors cursor-pointer"
                       aria-label="Account"
                     >
                       <User className="h-6 w-6" />
@@ -446,7 +446,7 @@ export function Navbar() {
                 ) : (
                   <Link
                     href="/login"
-                    className="text-primary hover:scale-[1.02] transition-all duration-300"
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors"
                     aria-label="Sign in"
                   >
                     <User className="h-6 w-6" />
@@ -457,7 +457,7 @@ export function Navbar() {
               {/* Cart */}
               <button
                 onClick={openDrawer}
-                className="relative text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                className="relative inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors cursor-pointer"
                 aria-label="Cart"
               >
                 <ShoppingBag className="h-6 w-6" />
@@ -467,7 +467,7 @@ export function Navbar() {
               {/* Mobile hamburger */}
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetTrigger
-                  className="md:hidden text-primary hover:scale-[1.02] transition-all duration-300 cursor-pointer"
+                  className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors cursor-pointer"
                   aria-label="Menu"
                 >
                   <Menu className="h-6 w-6" />
