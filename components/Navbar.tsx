@@ -216,10 +216,10 @@ export function Navbar() {
 
       {/* Sticky header */}
       <header className="bg-background/90 backdrop-blur-md w-full top-0 sticky z-50">
-        <div className="flex justify-between items-center w-full px-6 md:px-16 py-2 max-w-screen-2xl mx-auto">
+        <div className="flex items-center gap-4 w-full px-6 md:px-16 py-2 max-w-screen-2xl mx-auto">
 
           {/* Logo */}
-          <Link href="/" aria-label="Sirini Jewellery — Home">
+          <Link href="/" aria-label="Sirini Jewellery — Home" className="shrink-0">
             <Image
               src="https://res.cloudinary.com/dp8a2lvxg/image/upload/sirini-jewellery/logo.png"
               alt="Sirini Jewellery"
@@ -230,13 +230,13 @@ export function Navbar() {
             />
           </Link>
 
-          {/* Desktop nav — centered absolutely */}
-          <nav className="hidden md:flex gap-8 items-center absolute left-1/2 -translate-x-1/2">
+          {/* Desktop nav — centered in remaining space (no overlap with logo/icons) */}
+          <nav className="hidden md:flex gap-x-5 lg:gap-x-7 items-center flex-1 justify-center">
             {navLinksLeading.map((link) => (
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative font-label-caps text-sm font-semibold tracking-widest uppercase transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
+                className={`relative font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
                   pathname === link.href
                     ? "text-primary after:scale-x-100"
                     : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
@@ -253,7 +253,7 @@ export function Navbar() {
               <Link
                 key={link.href}
                 href={link.href}
-                className={`relative font-label-caps text-sm font-semibold tracking-widest uppercase transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
+                className={`relative font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
                   pathname === link.href
                     ? "text-primary after:scale-x-100"
                     : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
@@ -265,7 +265,7 @@ export function Navbar() {
           </nav>
 
           {/* Right icons */}
-          <div className="flex gap-8 items-center ml-auto">
+          <div className="flex gap-4 lg:gap-6 items-center shrink-0">
             <div className="flex gap-4 items-center">
 
               {/* ── Search ─────────────────────────────────────────────────── */}
