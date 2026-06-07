@@ -1,4 +1,5 @@
 import { getBestsellers, parseImages } from "@/lib/queries/products";
+import { selectCardImages } from "@/lib/parseImages";
 import { MovingProductRail, type RailProduct } from "@/components/MovingProductRail";
 
 // Async server component — bestselling products ranked by review count,
@@ -15,7 +16,7 @@ export async function BestsellersRail() {
     slug: p.slug,
     price: p.price,
     compareAtPrice: p.compareAtPrice,
-    image: parseImages(p.images)[0] ?? null,
+    image: selectCardImages(parseImages(p.images)).primary,
     badge: p.badge,
     avgRating: p.avgRating,
     reviewCount: p.reviewCount,

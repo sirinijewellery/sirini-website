@@ -24,7 +24,7 @@ const bodySchema = z.object({
   customerEmail: z.string().email(),
   customerPhone: z.string().regex(/^\d{10}$/),
   couponCode: z.string().optional(),
-  totalAmount: z.number().positive(),
+  totalAmount: z.number().nonnegative(),
   giftWrap: z.boolean().optional(),
   notes: z.string().optional(),
 });
@@ -101,7 +101,7 @@ export async function POST(req: NextRequest) {
         coupon.minOrderAmount === null ||
         recalculatedSubtotal >= coupon.minOrderAmount;
       if (notExpired && hasUses && meetsMin) {
-        if (coupon.discountType === "percentage") {
+        if (coupon.discountType.toLowerCase() === "percentage") {
           recalculatedDiscount =
             (recalculatedSubtotal * coupon.discountValue) / 100;
         } else {
@@ -122,7 +122,7 @@ export async function POST(req: NextRequest) {
   // Mirror the client total EXACTLY: discountedSubtotal + 3% GST + gift wrap.
   const discountedSubtotal = Math.max(0, recalculatedSubtotal - recalculatedDiscount);
   const gst = Math.round(discountedSubtotal * 0.03);
-  const recalculatedTotal = Math.max(1, discountedSubtotal + gst + giftWrapFee);
+  const recalculatedTotal = Math.max(0, discountedSubtotal + gst + giftWrapFee);
 
   // 3. Exact paise comparison — no ±1 tolerance that could be exploited
   const recalculatedPaise = Math.round(recalculatedTotal * 100);

@@ -137,7 +137,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    if (coupon.discountType === "percentage") {
+    if (coupon.discountType.toLowerCase() === "percentage") {
       discountAmount = (subtotal * coupon.discountValue) / 100;
     } else {
       discountAmount = coupon.discountValue;
@@ -150,7 +150,7 @@ export async function POST(req: NextRequest) {
   const giftWrapFee = giftWrap ? GIFT_WRAP_FEE : 0;
   const discountedSubtotal = Math.max(0, subtotal - discountAmount);
   const gst = Math.round(discountedSubtotal * 0.03);
-  const total = Math.max(1, discountedSubtotal + gst + giftWrapFee);
+  const total = Math.max(0, discountedSubtotal + gst + giftWrapFee);
   const amountInPaise = Math.round(total * 100);
 
   // Create Razorpay order

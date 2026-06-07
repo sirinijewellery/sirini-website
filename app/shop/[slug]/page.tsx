@@ -6,7 +6,7 @@ import { ImageGallery } from "@/components/ImageGallery";
 import { RelatedProducts } from "@/components/RelatedProducts";
 import { getProductBySlug, getPairingProducts, parseImages } from "@/lib/queries/products";
 import { CompleteTheSet } from "@/components/CompleteTheSet";
-import { sortAllImages } from "@/lib/parseImages";
+import { sortAllImages, selectCardImages } from "@/lib/parseImages";
 import { productMetadata, siteConfig } from "@/lib/seo";
 import ProductDetailClient from "./ProductDetailClient";
 import { ProductJsonLd } from "@/components/ProductJsonLd";
@@ -81,7 +81,7 @@ export default async function ProductPage({ params }: Props) {
     slug: p.slug,
     price: p.price,
     compareAtPrice: p.compareAtPrice,
-    image: parseImages(p.images)[0] ?? null,
+    image: selectCardImages(parseImages(p.images)).primary,
   }));
 
   const siteUrl = siteConfig.url;

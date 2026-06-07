@@ -294,7 +294,8 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
   const gst = Math.round(discountedSubtotal * 0.03);
   const shipping = 0; // Free shipping
   const giftWrapFee = giftWrap ? GIFT_WRAP_FEE : 0;
-  const total = Math.max(1, discountedSubtotal + gst + shipping + giftWrapFee);
+  // Allow ₹0 so a 100%-off coupon (e.g. FREE1) can make the order truly free.
+  const total = Math.max(0, discountedSubtotal + gst + shipping + giftWrapFee);
   const compareTotal = items.reduce(
     (s, i) => s + (i.compareAtPrice ?? getMrp(i.price)) * i.quantity,
     0
@@ -347,8 +348,11 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
 
     setIsLoading(true);
 
-    // Payment method guard
-    if (!paymentMethod) {
+    // Free order (e.g. FREE1 100%-off) → no payment needed, place directly.
+    const isFree = total <= 0;
+
+    // Payment method guard (skipped for free orders)
+    if (!paymentMethod && !isFree) {
       toast.error("Don't get too excited! Please pick a payment method.");
       setIsLoading(false);
       return;
@@ -362,8 +366,8 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
       label: values.label,
     };
 
-    /* ── COD flow ─────────────────────────────────────────────────── */
-    if (paymentMethod === "cod") {
+    /* ── COD / Free flow (no payment gateway) ─────────────────────── */
+    if (paymentMethod === "cod" || isFree) {
       try {
         const res = await fetch("/api/checkout/cod", {
           method: "POST",
@@ -985,6 +989,11 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                           <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
                         </svg>
                         Processing…
+                      </span>
+                    ) : total <= 0 ? (
+                      <span className="flex items-center gap-2">
+                        Place Free Order
+                        <ChevronRight className="h-4 w-4" />
                       </span>
                     ) : paymentMethod === "cod" ? (
                       <span className="flex items-center gap-2">

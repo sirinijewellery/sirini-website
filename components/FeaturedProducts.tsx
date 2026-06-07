@@ -1,5 +1,5 @@
 import { getFeaturedProducts } from "@/lib/queries/products";
-import { parseImages } from "@/lib/parseImages";
+import { parseImages, selectCardImages } from "@/lib/parseImages";
 import { MovingProductRail, type RailProduct } from "@/components/MovingProductRail";
 
 // Async server component — fetches featured products, then hands them to the
@@ -15,7 +15,7 @@ export async function FeaturedProducts() {
     slug: p.slug,
     price: p.price,
     compareAtPrice: p.compareAtPrice,
-    image: parseImages(p.images)[0] ?? null,
+    image: selectCardImages(parseImages(p.images)).primary,
     badge: p.badge,
   }));
 
