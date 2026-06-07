@@ -37,51 +37,64 @@ export function parseImages(images: unknown): string[] {
  * close-up), and model-on-coloured-bg shots surface before plain white shots
  * whenever the vendor supplies more than one model image.
  */
+// ── Image classification ───────────────────────────────────────────
+// Display priority everywhere: MODEL → DECORATIVE (coloured bg) → WHITE (plain).
 function isModel(url: string) {
-  return /-model\.(jpe?g|png|webp)$/i.test(url);
+  return /model/i.test(url);
 }
-function isDetailShot(url: string) {
-  // Sequential variant numbers are 1–2 digits; prices in filenames are 3–5 digits.
-  // Matches: -1.jpg  -2.jpg  -3.jpg … -99.jpg  (but NOT -675.jpg or -2250.jpg)
+function isWhite(url: string) {
+  // "WHITE" in the filename = plain white-background studio shot.
+  return /white/i.test(url) && !isModel(url);
+}
+function isCpt(url: string) {
+  return /cpt/i.test(url); // catalogue composite — lowest priority / excluded
+}
+function isDecorative(url: string) {
+  // Colourful / styled shots: anything that isn't model, white, or composite.
+  return !isModel(url) && !isWhite(url) && !isCpt(url);
+}
+function isNumbered(url: string) {
+  // Sequential variant numbers (-1, -2 …) come AFTER the hero shot within a group.
   return /-\d{1,2}\.(jpe?g|png|webp)$/i.test(url);
 }
-function isMain(url: string) {
-  // Main full-product image: not a sequential detail, not model, not catalogue composite
-  return !isDetailShot(url) && !isModel(url) && !/cpt/i.test(url);
+/** Within a group: hero (non-numbered) first, then numbered, stable by name. */
+function orderGroup(arr: string[]): string[] {
+  return [...arr].sort((a, b) => {
+    const na = isNumbered(a);
+    const nb = isNumbered(b);
+    if (na !== nb) return na ? 1 : -1;
+    return a.localeCompare(b);
+  });
 }
 
 export function selectCardImages(images: string[]): {
   primary: string | null;
   hover: string | null;
 } {
-  const modelShots = images.filter(isModel);       // e.g. -Model.jpg
-  const mainShots  = images.filter(isMain);        // e.g. SKU-price.jpg
-  const detailShots = images.filter(isDetailShot); // -1.jpg, -2.jpg …
+  const model = orderGroup(images.filter(isModel));
+  const deco = orderGroup(images.filter(isDecorative));
+  const white = orderGroup(images.filter(isWhite));
+  const ordered = [...model, ...deco, ...white];
 
-  // PRIMARY: model first, then main full-set, then detail
-  const primary = modelShots[0] ?? mainShots[0] ?? detailShots[0] ?? null;
-
-  // HOVER: prefer a *second* model shot (coloured-bg), then main, then detail
-  const hover =
-    modelShots[1] ??   // second model image (different angle / coloured bg)
-    mainShots[0] ??    // full-set plain image
-    detailShots[0] ??  // any detail shot
-    null;
+  // PRIMARY: model → decorative → white
+  const primary = ordered[0] ?? null;
+  // HOVER: the next distinct image (prefer a 2nd model, else decorative, else white)
+  const hover = ordered.find((u) => u !== primary) ?? null;
 
   return { primary, hover };
 }
 
 /**
- * Returns ALL images sorted for the product detail gallery:
- *   model → main full-set → detail close-ups → other
+ * Returns ALL images for the product gallery in priority order:
+ *   model → decorative (coloured bg) → white (plain) → composite (last).
  * The first image matches what the shop card shows by default.
  */
 export function sortAllImages(images: string[]): string[] {
-  const model   = images.filter(isModel);
-  const main    = images.filter(isMain);
-  const detail  = images.filter(isDetailShot);
-  const other   = images.filter(u => !isModel(u) && !isMain(u) && !isDetailShot(u));
-  return [...model, ...main, ...detail, ...other];
+  const model = orderGroup(images.filter(isModel));
+  const deco = orderGroup(images.filter(isDecorative));
+  const white = orderGroup(images.filter(isWhite));
+  const cpt = images.filter(isCpt);
+  return [...model, ...deco, ...white, ...cpt];
 }
 
 /** @deprecated use selectCardImages */
