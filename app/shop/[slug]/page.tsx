@@ -63,6 +63,13 @@ export default async function ProductPage({ params }: Props) {
     _count: { id: true },
   });
 
+  const reviews = await prisma.review.findMany({
+    where: { productId: product.id, isPublished: true },
+    orderBy: { createdAt: "desc" },
+    take: 5,
+    select: { authorName: true, rating: true, body: true, createdAt: true },
+  });
+
   // Sort: model first → full set → detail close-ups
   const images = sortAllImages(parseImages(product.images));
 
@@ -164,6 +171,7 @@ export default async function ProductPage({ params }: Props) {
             ? { ratingValue: reviewStats._avg.rating ?? 0, reviewCount: reviewStats._count.id }
             : undefined
         }
+        reviews={reviews}
       />
       <FAQJsonLd />
       <BreadcrumbJsonLd

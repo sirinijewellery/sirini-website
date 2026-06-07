@@ -42,6 +42,9 @@ export function baseMetadata(): Metadata {
       type: "website",
       siteName: siteConfig.name,
       locale: "en_IN",
+      url: siteConfig.url,
+      title: `${siteConfig.name} — ${siteConfig.tagline}`,
+      description: siteConfig.description,
       images: [
         {
           url: siteConfig.defaultOgImage,
@@ -54,6 +57,8 @@ export function baseMetadata(): Metadata {
     twitter: {
       card: "summary_large_image",
       site: siteConfig.twitterHandle,
+      title: `${siteConfig.name} — ${siteConfig.tagline}`,
+      description: siteConfig.description,
       images: [siteConfig.defaultOgImage],
     },
     robots: {
@@ -89,6 +94,7 @@ export function pageMetadata(
       title: `${title} | ${siteConfig.name}`,
       description,
       type: "website",
+      locale: "en_IN",
       images: [{ url: image, width: 1200, height: 630 }],
       ...options?.openGraph,
     },
@@ -179,6 +185,7 @@ export function productMetadata(product: {
       title: `${product.name} | ${siteConfig.name}`,
       description: ogDescription,
       type: "website",
+      locale: "en_IN",
       images: [{ url: image, width: 800, height: 800, alt: product.name }],
     },
     twitter: {

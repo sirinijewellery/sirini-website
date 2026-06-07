@@ -18,9 +18,16 @@ interface ProductJsonLdProps {
     ratingValue: number;
     reviewCount: number;
   };
+  /** Individual reviews to surface as Review items in the schema */
+  reviews?: {
+    authorName: string;
+    rating: number;
+    body: string | null;
+    createdAt: Date;
+  }[];
 }
 
-export function ProductJsonLd({ product, reviewSummary }: ProductJsonLdProps) {
+export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLdProps) {
   const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
   const productUrl = `${siteUrl}/shop/${product.slug}`;
 
@@ -104,6 +111,21 @@ export function ProductJsonLd({ product, reviewSummary }: ProductJsonLdProps) {
       bestRating: "5",
       worstRating: "1",
     };
+  }
+
+  if (reviews && reviews.length > 0) {
+    jsonLd.review = reviews.map((r) => ({
+      "@type": "Review",
+      author: { "@type": "Person", name: r.authorName },
+      datePublished: r.createdAt.toISOString().split("T")[0],
+      reviewRating: {
+        "@type": "Rating",
+        ratingValue: r.rating,
+        bestRating: 5,
+        worstRating: 1,
+      },
+      reviewBody: r.body ?? undefined,
+    }));
   }
 
   return (
