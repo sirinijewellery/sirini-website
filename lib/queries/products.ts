@@ -317,6 +317,42 @@ export async function getOccasionCoverImage(occasion: string): Promise<string | 
   return pool[hashSlug(occasion) % pool.length];
 }
 
+/**
+ * Returns a DISTINCT model-shot cover for every occasion in one pass, so no two
+ * occasion cards ever show the same image (the per-occasion hash could collide).
+ * Prefers a model image whose product is tagged with that occasion; otherwise
+ * falls back to the next unused necklace-set model image.
+ */
+export async function getOccasionCovers(): Promise<Record<string, string | null>> {
+  const { parseImages } = await import("@/lib/parseImages");
+  const { OCCASIONS } = await import("@/lib/taxonomy");
+
+  // All necklace-set model images (only category with model shots), priced desc.
+  const ns = await prisma.product.findMany({
+    where: { category: "necklace-sets" },
+    orderBy: { price: "desc" },
+    select: { images: true, occasions: true },
+  });
+  const modelImgs: { url: string; occasions: string[] }[] = [];
+  for (const p of ns) {
+    const m = parseImages(p.images).find((u) => /model/i.test(u));
+    if (m) modelImgs.push({ url: m, occasions: p.occasions });
+  }
+
+  const used = new Set<string>();
+  const result: Record<string, string | null> = {};
+  for (const occ of OCCASIONS) {
+    const pick =
+      modelImgs.find((m) => m.occasions.includes(occ.slug) && !used.has(m.url))?.url ??
+      modelImgs.find((m) => !used.has(m.url))?.url ??
+      modelImgs[0]?.url ??
+      null;
+    if (pick) used.add(pick);
+    result[occ.slug] = pick;
+  }
+  return result;
+}
+
 /* ── Shop by Material (style) ───────────────────────────────── */
 export async function getStyleCoverImage(style: string): Promise<string | null> {
   const p = await prisma.product.findFirst({

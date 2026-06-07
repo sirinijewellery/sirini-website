@@ -1,7 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { pageMetadata, siteConfig } from "@/lib/seo";
-import { OCCASIONS, getOccasionCoverImage } from "@/lib/queries/products";
+import { OCCASIONS, getOccasionCovers } from "@/lib/queries/products";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 export const metadata = pageMetadata(
@@ -10,9 +10,7 @@ export const metadata = pageMetadata(
 );
 
 export default async function OccasionsPage() {
-  const covers = await Promise.all(
-    OCCASIONS.map((o) => getOccasionCoverImage(o.slug)),
-  );
+  const coverMap = await getOccasionCovers();
 
   return (
     <div className="bg-background text-on-surface">
@@ -49,8 +47,8 @@ export default async function OccasionsPage() {
       {/* ── Occasion cards ────────────────────────────────────────── */}
       <section className="pb-24 px-6 md:px-16 max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-6 md:gap-8">
-          {OCCASIONS.map((occasion, i) => {
-            const cover = covers[i];
+          {OCCASIONS.map((occasion) => {
+            const cover = coverMap[occasion.slug];
             return (
               <Link
                 key={occasion.slug}
