@@ -321,7 +321,7 @@ export function CartDrawer() {
                 <div className="flex items-center justify-between">
                   <span className="text-sm font-sans text-[#8A8078]">You save</span>
                   <span className="text-sm font-sans font-medium text-green-600">
-                    {formatPrice(savings)} ({Math.round((savings / compareTotal) * 100)}%)
+                    {formatPrice(savings)}
                   </span>
                 </div>
               )}

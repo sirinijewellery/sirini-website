@@ -11,6 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CartBadge } from "@/components/CartBadge";
 import { MegaMenu } from "@/components/MegaMenu";
+import { OccasionMenu } from "@/components/OccasionMenu";
 import { useCartStore } from "@/lib/store/cart";
 import { OCCASIONS, PRICE_BUCKETS } from "@/lib/taxonomy";
 
@@ -32,10 +33,8 @@ const navLinksLeading = [
   { href: "/", label: "Home" },
 ];
 
-// Links shown AFTER the "Shop" mega-menu trigger.
-// "Shop by Occasion" is its own dedicated tab (in addition to the mega menu).
+// Links shown AFTER the "Shop" mega-menu and "Shop by Occasion" dropdown.
 const navLinksTrailing = [
-  { href: "/occasions", label: "Shop by Occasion" },
   { href: "/faq", label: "FAQ" },
   { href: "/about", label: "Our Story" },
   { href: "/contact", label: "Contact" },
@@ -248,6 +247,9 @@ export function Navbar() {
 
             {/* Shop mega-menu trigger */}
             <MegaMenu />
+
+            {/* Shop by Occasion dropdown trigger */}
+            <OccasionMenu />
 
             {navLinksTrailing.map((link) => (
               <Link

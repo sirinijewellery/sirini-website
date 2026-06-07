@@ -127,7 +127,7 @@ export default function CartPage() {
                 <div className="flex justify-between text-sm">
                   <span className="text-muted-foreground">You save</span>
                   <span className="text-green-600">
-                    {formatPrice(savings)} ({Math.round((savings / compareTotal) * 100)}%)
+                    {formatPrice(savings)}
                   </span>
                 </div>
               )}

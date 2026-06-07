@@ -128,11 +128,7 @@ export default function ProductDetailClient({
       {/* You save line — shown when a real compare-at saving exists */}
       {product.compareAtPrice != null && product.compareAtPrice > product.price && (
         <p className="text-sm font-sans font-medium text-green-700">
-          You save {formatPrice(product.compareAtPrice - product.price)} (
-          {Math.round(
-            ((product.compareAtPrice - product.price) / product.compareAtPrice) * 100
-          )}
-          % off)
+          You save {formatPrice(product.compareAtPrice - product.price)}
         </p>
       )}
 

@@ -61,8 +61,6 @@ interface PriceDisplayProps {
   size?: PriceSize;
   /** "col" = real on top, MRP below (default). "row" = side by side. */
   layout?: "col" | "row";
-  /** Show the "X% OFF" badge next to the struck price. Default true. */
-  showDiscount?: boolean;
   className?: string;
 }
 
@@ -71,12 +69,10 @@ export function PriceDisplay({
   mrp,
   size = "md",
   layout = "col",
-  showDiscount = true,
   className,
 }: PriceDisplayProps) {
   const original = mrp ?? getMrp(price);
-  const pct = getDiscountPercent(price, original);
-  const hasDiscount = pct > 0;
+  const hasDiscount = getDiscountPercent(price, original) > 0;
 
   return (
     <div
@@ -103,18 +99,6 @@ export function PriceDisplay({
           >
             {formatPrice(original)}
           </span>
-          {/* Discount percent */}
-          {showDiscount && (
-            <span
-              className={cn(
-                "font-sans font-semibold leading-tight",
-                size === "sm" ? "text-[10px]" : "text-xs",
-              )}
-              style={{ color: "#16803c" }}
-            >
-              {pct}% OFF
-            </span>
-          )}
         </span>
       )}
     </div>

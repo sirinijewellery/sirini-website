@@ -17,7 +17,7 @@ export default async function AdminLayout({
   children: React.ReactNode;
 }) {
   const session = await auth();
-  if (!session?.user?.isAdmin) redirect("/");
+  if (!session?.user?.isAdmin) redirect("/login?callbackUrl=/admin");
 
   return (
     <div className="flex h-screen bg-gray-50 overflow-hidden">

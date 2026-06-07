@@ -26,9 +26,13 @@ export default auth((req) => {
     return NextResponse.redirect(loginUrl);
   }
 
-  // Require admin for admin pages
+  // Require admin for admin pages. Send unauthenticated/non-admin users to
+  // the login page (with callbackUrl) instead of silently bouncing them to the
+  // homepage, so visiting /admin directly actually prompts for login.
   if (isAdminPage && !isAdmin) {
-    return NextResponse.redirect(new URL("/", nextUrl));
+    const loginUrl = new URL("/login", nextUrl);
+    loginUrl.searchParams.set("callbackUrl", nextUrl.pathname);
+    return NextResponse.redirect(loginUrl);
   }
 
   return NextResponse.next();
