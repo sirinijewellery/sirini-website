@@ -16,8 +16,31 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Textarea } from "@/components/ui/textarea";
 import { Separator } from "@/components/ui/separator";
-import { ShoppingBag, MapPin, Lock, ChevronRight, CreditCard, Banknote, ExternalLink } from "lucide-react";
+import { ShoppingBag, MapPin, Lock, ChevronRight, CreditCard, Banknote } from "lucide-react";
 import { getMrp, formatPrice } from "@/components/PriceDisplay";
+import { CouponField } from "@/components/CouponField";
+
+/* ── Razorpay Checkout (loaded on demand) ───────────────────────────── */
+declare global {
+  interface Window {
+    Razorpay?: new (options: Record<string, unknown>) => { open: () => void };
+  }
+}
+
+let razorpayScriptPromise: Promise<boolean> | null = null;
+function loadRazorpay(): Promise<boolean> {
+  if (typeof window === "undefined") return Promise.resolve(false);
+  if (window.Razorpay) return Promise.resolve(true);
+  if (razorpayScriptPromise) return razorpayScriptPromise;
+  razorpayScriptPromise = new Promise<boolean>((resolve) => {
+    const s = document.createElement("script");
+    s.src = "https://checkout.razorpay.com/v1/checkout.js";
+    s.onload = () => resolve(true);
+    s.onerror = () => { razorpayScriptPromise = null; resolve(false); };
+    document.body.appendChild(s);
+  });
+  return razorpayScriptPromise;
+}
 
 /* ── Types ──────────────────────────────────────────────────────────── */
 
@@ -275,16 +298,14 @@ function TrustBadges() {
 export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
   const router = useRouter();
   const { data: session } = useSession();
-  const { items, getTotal, appliedCoupon, clearCart } = useCartStore();
+  const { items, getTotal, appliedCoupon, setCoupon, clearCart } = useCartStore();
 
   const [selectedSavedId, setSelectedSavedId] = useState<string | "new">(
     savedAddresses.length > 0 ? savedAddresses[0].id : "new"
   );
   const [isLoading, setIsLoading] = useState(false);
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod" | null>(null);
-  const [awaitingConfirmation, setAwaitingConfirmation] = useState(false);
   const [giftWrap, setGiftWrap] = useState(false);
-  const pendingValuesRef = useRef<CheckoutFields | null>(null);
 
   const GIFT_WRAP_FEE = 49; // ₹49 — kept in sync with server-side fee
 
@@ -406,62 +427,106 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
       return;
     }
 
-    /* ── Payment Link (Razorpay.me) flow ────────────────────────── */
-    const paymentUrl = `https://razorpay.me/@hemantjethalalsavla?amount=${Math.round(total)}`;
-    window.open(paymentUrl, "_blank", "noopener,noreferrer");
-    pendingValuesRef.current = { ...values };
-    trackCheckoutStarted(total);
-    setIsLoading(false);
-    setAwaitingConfirmation(true);
-  }
-
-  async function handleConfirmPayment() {
-    const values = pendingValuesRef.current;
-    if (!values) return;
-
-    setIsLoading(true);
-    const address = {
-      line1: values.line1,
-      city: values.city,
-      state: values.state,
-      pincode: values.pincode,
-      label: values.label,
-    };
-
+    /* ── Razorpay Checkout (secure — payment is signature-verified) ─── */
+    const lineItems = items.map((item) => ({
+      productId: item.productId,
+      variantId: item.variantId,
+      quantity: item.quantity,
+    }));
     try {
-      const res = await fetch("/api/checkout/payment-link", {
+      // 1. Create a real Razorpay order server-side (amount computed on server)
+      const orderRes = await fetch("/api/checkout/create-order", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({
-          items: items.map((item) => ({
-            productId: item.productId,
-            variantId: item.variantId,
-            quantity: item.quantity,
-          })),
+          items: lineItems,
           address,
           customerName: values.customerName,
           customerEmail: values.customerEmail,
           customerPhone: values.customerPhone,
           couponCode: appliedCoupon?.code,
-          totalAmount: total,
           giftWrap,
           notes: values.notes,
         }),
       });
-
-      const data = await res.json();
-
-      if (!res.ok) {
-        toast.error(data.error ?? "Failed to confirm order");
+      const orderData = await orderRes.json();
+      if (!orderRes.ok) {
+        toast.error(orderData.error ?? "Couldn't start payment. Please try again.");
         setIsLoading(false);
         return;
       }
 
-      clearCart();
-      trackPurchaseCompleted(data.orderId, total);
-      router.push(`/order-confirmation?orderId=${data.orderId}`);
+      const ready = await loadRazorpay();
+      if (!ready || !window.Razorpay) {
+        toast.error("Couldn't load the payment gateway. Check your connection and retry.");
+        setIsLoading(false);
+        return;
+      }
+
+      trackCheckoutStarted(total);
+
+      const rzp = new window.Razorpay({
+        key: orderData.keyId,
+        amount: Math.round(orderData.amount * 100),
+        currency: "INR",
+        name: "Sirini Jewellery",
+        description: "Order payment",
+        order_id: orderData.razorpayOrderId,
+        prefill: {
+          name: values.customerName,
+          email: values.customerEmail,
+          contact: values.customerPhone,
+        },
+        theme: { color: "#5C1A24" },
+        // 2. On success Razorpay returns a signed payload — verified server-side.
+        handler: async (response: {
+          razorpay_order_id: string;
+          razorpay_payment_id: string;
+          razorpay_signature: string;
+        }) => {
+          try {
+            const verifyRes = await fetch("/api/checkout/verify", {
+              method: "POST",
+              headers: { "Content-Type": "application/json" },
+              body: JSON.stringify({
+                razorpayOrderId: response.razorpay_order_id,
+                razorpayPaymentId: response.razorpay_payment_id,
+                razorpaySignature: response.razorpay_signature,
+                items: lineItems,
+                address,
+                customerName: values.customerName,
+                customerEmail: values.customerEmail,
+                customerPhone: values.customerPhone,
+                couponCode: appliedCoupon?.code,
+                totalAmount: total,
+                giftWrap,
+                notes: values.notes,
+              }),
+            });
+            const vData = await verifyRes.json();
+            if (!verifyRes.ok) {
+              toast.error(vData.error ?? "Payment verification failed. If money was deducted, please contact us.");
+              setIsLoading(false);
+              return;
+            }
+            clearCart();
+            trackPurchaseCompleted(vData.orderId, total);
+            router.push(`/order-confirmation?orderId=${vData.orderId}`);
+          } catch {
+            toast.error("Could not confirm payment. If money was deducted, please contact us.");
+            setIsLoading(false);
+          }
+        },
+        modal: {
+          ondismiss: () => {
+            setIsLoading(false);
+            toast("Payment cancelled.");
+          },
+        },
+      });
+      rzp.open();
     } catch {
-      toast.error("Network error. Please check your connection and try again.");
+      toast.error("Network error starting payment. Please try again.");
       setIsLoading(false);
     }
   }
@@ -738,7 +803,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                     <div>
                       <p className="font-sans text-sm font-medium text-foreground">Pay Online</p>
                       <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                        UPI, credit/debit cards, net banking — secure Razorpay link
+                        UPI, credit/debit cards, net banking — secure Razorpay checkout
                       </p>
                     </div>
                   </div>
@@ -866,6 +931,15 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
 
               <Separator />
 
+              {/* Coupon code — apply/remove right here in checkout */}
+              <CouponField
+                subtotal={subtotal}
+                appliedCoupon={appliedCoupon}
+                onApply={setCoupon}
+              />
+
+              <Separator />
+
               {/* Pricing breakdown */}
               <div className="space-y-2 font-sans text-sm">
                 <div className="flex justify-between text-muted-foreground">
@@ -912,69 +986,8 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                 </span>
               </div>
 
-              {/* Pay button / Confirmation step */}
-              {awaitingConfirmation ? (
-                /* ── Step 2: user opened payment link, awaiting confirmation ── */
-                <div className="space-y-4">
-                  <div className="rounded-lg bg-blush/40 border border-primary/20 p-4 space-y-2">
-                    <p className="font-sans text-sm font-semibold text-primary">
-                      Payment page opened ✓
-                    </p>
-                    <p className="font-sans text-xs text-on-surface-variant leading-relaxed">
-                      Complete your {formatINR(total)} payment in the tab that just opened.
-                      Once done, tap the button below to confirm your order.
-                    </p>
-                    <a
-                      href={`https://razorpay.me/@hemantjethalalsavla?amount=${Math.round(total)}`}
-                      target="_blank"
-                      rel="noopener noreferrer"
-                      className="inline-flex items-center gap-1.5 text-xs text-primary underline underline-offset-2 hover:no-underline transition-all font-sans"
-                    >
-                      <ExternalLink className="h-3 w-3" />
-                      Reopen payment page
-                    </a>
-                  </div>
-
-                  <Button
-                    type="button"
-                    size="lg"
-                    onClick={handleConfirmPayment}
-                    disabled={isLoading}
-                    className="w-full h-12 text-base font-sans font-medium"
-                  >
-                    {isLoading ? (
-                      <span className="flex items-center gap-2">
-                        <svg className="animate-spin h-4 w-4" xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24">
-                          <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
-                          <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8V0C5.373 0 0 5.373 0 12h4z" />
-                        </svg>
-                        Confirming Order…
-                      </span>
-                    ) : (
-                      <span className="flex items-center gap-2">
-                        I&apos;ve Completed My Payment
-                        <ChevronRight className="h-4 w-4" />
-                      </span>
-                    )}
-                  </Button>
-
-                  <Button
-                    type="button"
-                    variant="ghost"
-                    size="sm"
-                    onClick={() => { setAwaitingConfirmation(false); setIsLoading(false); }}
-                    className="w-full font-sans text-xs text-muted-foreground"
-                  >
-                    ← Go back
-                  </Button>
-
-                  <div className="flex items-center justify-center gap-1.5 text-xs text-muted-foreground font-sans">
-                    <Lock className="h-3 w-3" />
-                    <span>Secured by Razorpay</span>
-                  </div>
-                </div>
-              ) : (
-                /* ── Step 1: normal pay / place order button ── */
+              {/* Pay / Place order button — Razorpay opens a secure modal */}
+              {(
                 <>
                   <Button
                     type="submit"
