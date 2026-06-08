@@ -6,7 +6,7 @@ import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
-import { Pencil, Lock } from "lucide-react";
+import { Pencil, Lock, Wand2 } from "lucide-react";
 
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
@@ -52,6 +52,8 @@ interface ProductDB {
   badge?: string | null;
   isFeatured: boolean;
   occasions: string[];
+  tags: string[];
+  compareAtPrice?: number | null;
   createdAt: Date;
   variants: ProductVariantDB[];
 }
@@ -79,6 +81,7 @@ const productFormSchema = z.object({
   slug: z.string().min(1, "Slug is required"),
   description: z.string().min(1, "Description is required"),
   price: z.number({ message: "Price must be a number" }).positive("Price must be positive"),
+  compareAtPrice: z.number().int().positive().optional(),
   category: z.string().min(1, "Category is required"),
   material: z.string().min(1, "Material is required"),
   sku: z.string().min(1, "SKU is required"),
@@ -86,6 +89,7 @@ const productFormSchema = z.object({
   badge: z.enum(["", "NEW", "HOT", "SALE"]).optional(),
   isFeatured: z.boolean(),
   occasions: z.array(z.string()),
+  tags: z.array(z.string()),
   variants: z.array(variantSchema).min(1, "At least one variant is required"),
 });
 
@@ -99,6 +103,17 @@ function generateSlug(name: string): string {
 }
 
 const MATERIALS = getMaterials();
+
+function suggestCategoryFromSku(sku: string): string | null {
+  const upper = sku.toUpperCase();
+  if (upper.includes("LG")) return "Long Sets";
+  if (upper.includes("NS") || upper.includes("NKS")) return "Necklace Sets";
+  if (upper.includes("BG")) return "Bangles";
+  if (upper.includes("FR")) return "Finger Rings";
+  if (upper.includes("PL") || upper.includes("ANK")) return "Anklets";
+  if (upper.includes("ER") || upper.includes("JHM")) return "Earrings";
+  return null;
+}
 
 // ---------- Field wrapper ----------
 function Field({
@@ -154,6 +169,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       slug: product?.slug ?? "",
       description: product?.description ?? "",
       price: product?.price ?? undefined,
+      compareAtPrice: product?.compareAtPrice ?? undefined,
       category: product?.category ?? "",
       material: product?.material ?? "",
       sku: product?.sku ?? "",
@@ -161,12 +177,15 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       badge: (product?.badge as "NEW" | "HOT" | "SALE" | "") ?? "",
       isFeatured: product?.isFeatured ?? false,
       occasions: product?.occasions ?? [],
+      tags: product?.tags ?? [],
       variants: defaultVariants,
     },
   });
 
   const watchedImages = watch("images");
   const watchedVariants = watch("variants");
+  const watchedPrice = watch("price");
+  const watchedSku = watch("sku");
 
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const name = e.target.value;
@@ -297,14 +316,65 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             </div>
           </Field>
 
+          {/* Compare-at Price */}
+          <Field label="Compare-at Price (MRP)" error={errors.compareAtPrice?.message} htmlFor="compareAtPrice">
+            <div className="flex gap-2">
+              <div className="relative flex-1">
+                <span className="pointer-events-none absolute left-2.5 top-1/2 -translate-y-1/2 text-sm text-gray-400">₹</span>
+                <Input
+                  id="compareAtPrice"
+                  type="number"
+                  min={0}
+                  step={1}
+                  placeholder="Auto: 2× price"
+                  className="pl-6"
+                  {...register("compareAtPrice", { valueAsNumber: true })}
+                />
+              </div>
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  if (watchedPrice && watchedPrice > 0) {
+                    setValue("compareAtPrice", Math.round(watchedPrice * 2), { shouldValidate: true });
+                  }
+                }}
+                className="shrink-0 gap-1.5 text-xs"
+                title="Set to 2× selling price"
+              >
+                <Wand2 className="h-3.5 w-3.5" />
+                Auto
+              </Button>
+            </div>
+            <p className="text-xs text-gray-400">Struck-through &quot;original&quot; price shown on the site. Auto = 2× selling price.</p>
+          </Field>
+
           {/* SKU */}
           <Field label="SKU" required error={errors.sku?.message} htmlFor="sku">
-            <Input
-              id="sku"
-              placeholder="e.g. SRN-EAR-001"
-              aria-invalid={!!errors.sku}
-              {...register("sku")}
-            />
+            <div className="flex gap-2">
+              <Input
+                id="sku"
+                placeholder="e.g. SRN-EAR-001"
+                aria-invalid={!!errors.sku}
+                {...register("sku")}
+                className="flex-1"
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={() => {
+                  const suggested = suggestCategoryFromSku(watchedSku ?? "");
+                  if (suggested) setValue("category", suggested, { shouldValidate: true });
+                }}
+                className="shrink-0 text-xs gap-1.5"
+                title="Auto-detect category from SKU"
+              >
+                <Wand2 className="h-3.5 w-3.5" />
+                Auto
+              </Button>
+            </div>
           </Field>
 
           {/* Category */}
@@ -440,6 +510,49 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                         htmlFor={`occasion-${opt.slug}`}
                         className="cursor-pointer text-sm text-gray-700"
                       >
+                        {opt.label}
+                      </Label>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+          />
+        </fieldset>
+
+        {/* Tags */}
+        <fieldset className="space-y-2">
+          <legend className="text-sm font-medium text-gray-700">Tags</legend>
+          <p className="text-xs text-gray-400">
+            These appear as collection labels on product cards and filter pages.
+          </p>
+          <Controller
+            control={control}
+            name="tags"
+            render={({ field }) => (
+              <div className="flex flex-col sm:flex-row gap-x-6 gap-y-3 pt-1">
+                {[
+                  { slug: "handpicked", label: "Handpicked" },
+                  { slug: "bestsellers", label: "Bestsellers" },
+                  { slug: "new-arrivals", label: "New Arrivals" },
+                ].map((opt) => {
+                  const checked = field.value.includes(opt.slug);
+                  return (
+                    <div key={opt.slug} className="flex items-center gap-3">
+                      <input
+                        type="checkbox"
+                        id={`tag-${opt.slug}`}
+                        checked={checked}
+                        onChange={(e) => {
+                          if (e.target.checked) {
+                            field.onChange([...field.value, opt.slug]);
+                          } else {
+                            field.onChange(field.value.filter((s) => s !== opt.slug));
+                          }
+                        }}
+                        className="h-4 w-4 rounded border-gray-300 accent-primary cursor-pointer focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring"
+                      />
+                      <Label htmlFor={`tag-${opt.slug}`} className="cursor-pointer text-sm text-gray-700">
                         {opt.label}
                       </Label>
                     </div>

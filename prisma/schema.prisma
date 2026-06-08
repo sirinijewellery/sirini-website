@@ -19,6 +19,7 @@ model Product {
   badge       String?
   isFeatured  Boolean  @default(false)
   occasions   String[] @default([])
+  tags        String[] @default([])
   styles      String[] @default([])
   stock       Int      @default(10)
   compareAtPrice Int?

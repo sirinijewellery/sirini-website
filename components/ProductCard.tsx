@@ -21,6 +21,7 @@ interface ProductCardProps {
     images: unknown;
     badge?: string | null;
     stock?: number;
+    tags?: string[];
     variants?: { stockQuantity: number }[];
     avgRating?: number;
     reviewCount?: number;
@@ -253,6 +254,19 @@ export function ProductCard({ product }: ProductCardProps) {
         <h4 className="font-sans text-sm text-on-surface leading-snug line-clamp-2">
           {product.name}
         </h4>
+        {product.tags && product.tags.length > 0 && (
+          <div className="flex flex-wrap gap-1.5">
+            {product.tags.includes("new-arrivals") && (
+              <span className="font-sans text-[10px] font-medium text-emerald-700 tracking-wide">New</span>
+            )}
+            {product.tags.includes("bestsellers") && (
+              <span className="font-sans text-[10px] font-medium text-amber-700 tracking-wide">&#9733; Bestseller</span>
+            )}
+            {product.tags.includes("handpicked") && (
+              <span className="font-sans text-[10px] font-medium text-purple-700 tracking-wide">&#10022; Handpicked</span>
+            )}
+          </div>
+        )}
         <PriceDisplay price={product.price} mrp={product.compareAtPrice ?? undefined} size="md" />
 
         {/* ── Rating row — only when reviews exist ─────────────────── */}

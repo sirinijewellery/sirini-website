@@ -6,6 +6,7 @@
 
 export const NAV_CATEGORIES = [
   { slug: "necklace-sets", label: "Necklace Sets" },
+  { slug: "long-sets", label: "Long Sets" },
   { slug: "earrings", label: "Earrings" },
   { slug: "bangles", label: "Bangles" },
   { slug: "finger-rings", label: "Finger Rings" },
