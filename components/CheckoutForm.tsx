@@ -400,6 +400,15 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
 
     /* ── COD / Free flow (no payment gateway) ─────────────────────── */
     if (paymentMethod === "cod" || isFree) {
+      // The server records both paymentStatus and paymentMethod. For a free
+      // order, send the method the customer actually selected ("razorpay" → the
+      // online gateway) so it isn't mis-recorded as COD; default to online when
+      // no method was picked. A genuine COD order is always "cod".
+      const submittedMethod: "cod" | "online" = isFree
+        ? paymentMethod === "cod"
+          ? "cod"
+          : "online"
+        : "cod";
       try {
         const res = await fetch("/api/checkout/cod", {
           method: "POST",
@@ -418,6 +427,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
             totalAmount: total,
             giftWrap,
             notes: values.notes,
+            paymentMethod: submittedMethod,
           }),
         });
 

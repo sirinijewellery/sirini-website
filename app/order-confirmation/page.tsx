@@ -74,8 +74,8 @@ export default async function OrderConfirmationPage({ searchParams }: Props) {
             <p className="font-sans text-xs text-muted-foreground uppercase tracking-wider mb-0.5">
               Order Reference
             </p>
-            <p className="font-sans font-semibold text-foreground text-sm tracking-wide break-all">
-              {order.id}
+            <p className="font-display font-semibold text-foreground text-lg tracking-wide">
+              #SR{order.orderNumber}
             </p>
           </div>
           <div className="text-right">

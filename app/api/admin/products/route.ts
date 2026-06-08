@@ -3,12 +3,6 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-const variantSchema = z.object({
-  size: z.string().optional(),
-  colour: z.string().optional(),
-  stockQuantity: z.number().int().min(0),
-});
-
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
@@ -22,7 +16,7 @@ const productSchema = z.object({
   isFeatured: z.boolean(),
   occasions: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
-  variants: z.array(variantSchema).min(1, "At least one variant is required"),
+  stock: z.number().int().min(0),
 });
 
 // GET /api/admin/products?page=1&search=ring
@@ -37,7 +31,13 @@ export async function GET(req: NextRequest) {
   const search = searchParams.get("search")?.trim() || undefined;
 
   const where = search
-    ? { OR: [{ name: { contains: search } }, { category: { contains: search } }] }
+    ? {
+        OR: [
+          { name: { contains: search, mode: "insensitive" as const } },
+          { sku: { contains: search, mode: "insensitive" as const } },
+          { category: { contains: search, mode: "insensitive" as const } },
+        ],
+      }
     : {};
 
   const [products, total] = await Promise.all([
@@ -46,7 +46,16 @@ export async function GET(req: NextRequest) {
       orderBy: { createdAt: "desc" },
       skip: (page - 1) * 20,
       take: 20,
-      include: { variants: { select: { id: true, stockQuantity: true } } },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        category: true,
+        price: true,
+        images: true,
+        stock: true,
+        isFeatured: true,
+      },
     }),
     prisma.product.count({ where }),
   ]);
@@ -76,7 +85,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { variants, ...fields } = result.data;
+  const fields = result.data;
 
   // Check unique slug
   const existingSlug = await prisma.product.findUnique({ where: { slug: fields.slug } });
@@ -97,9 +106,8 @@ export async function POST(req: NextRequest) {
       images: fields.images,
       occasions: fields.occasions ?? [],
       tags: fields.tags ?? [],
-      variants: { create: variants },
+      stock: fields.stock,
     },
-    include: { variants: true },
   });
 
   return NextResponse.json(product, { status: 201 });

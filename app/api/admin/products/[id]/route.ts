@@ -5,12 +5,6 @@ import { z } from "zod";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { parseImages } from "@/lib/queries/products";
 
-const variantSchema = z.object({
-  size: z.string().optional(),
-  colour: z.string().optional(),
-  stockQuantity: z.number().int().min(0),
-});
-
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
@@ -24,7 +18,7 @@ const productSchema = z.object({
   isFeatured: z.boolean(),
   occasions: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
-  variants: z.array(variantSchema).min(1, "At least one variant is required"),
+  stock: z.number().int().min(0),
 });
 
 // GET /api/admin/products/[id]
@@ -40,7 +34,6 @@ export async function GET(
   const { id } = await params;
   const product = await prisma.product.findUnique({
     where: { id },
-    include: { variants: true },
   });
 
   if (!product) {
@@ -77,7 +70,7 @@ export async function PUT(
     );
   }
 
-  const { variants, ...fields } = result.data;
+  const fields = result.data;
 
   // Ensure product exists
   const existing = await prisma.product.findUnique({ where: { id } });
@@ -101,21 +94,17 @@ export async function PUT(
     return NextResponse.json({ error: "SKU already in use" }, { status: 409 });
   }
 
-  const [, updated] = await prisma.$transaction([
-    prisma.productVariant.deleteMany({ where: { productId: id } }),
-    prisma.product.update({
-      where: { id },
-      data: {
-        ...fields,
-        badge: fields.badge ?? null,
-        images: fields.images,
-        occasions: fields.occasions ?? [],
-        tags: fields.tags ?? [],
-        variants: { create: variants },
-      },
-      include: { variants: true },
-    }),
-  ]);
+  const updated = await prisma.product.update({
+    where: { id },
+    data: {
+      ...fields,
+      badge: fields.badge ?? null,
+      images: fields.images,
+      occasions: fields.occasions ?? [],
+      tags: fields.tags ?? [],
+      stock: fields.stock,
+    },
+  });
 
   return NextResponse.json(updated);
 }

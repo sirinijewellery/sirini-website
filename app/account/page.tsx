@@ -80,7 +80,7 @@ export default async function AccountPage() {
                 >
                   <div className="min-w-0">
                     <p className="font-sans text-sm font-medium text-foreground">
-                      Order #{order.id.slice(0, 8)}…
+                      Order SR{order.orderNumber}
                     </p>
                     <p className="font-sans text-xs text-muted-foreground mt-0.5">
                       {inr.format(order.totalAmount)} · Processing

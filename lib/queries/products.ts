@@ -2,6 +2,8 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 
 export type ProductWithVariants = Awaited<ReturnType<typeof getProducts>>["products"][number];
+// NB: name retained for import compatibility; products no longer have variants
+// (stock lives on Product.stock).
 
 export interface GetProductsOptions {
   page?: number;
@@ -82,11 +84,6 @@ export async function getProducts(options: GetProductsOptions = {}) {
       orderBy,
       skip: (page - 1) * limit,
       take: limit,
-      include: {
-        variants: {
-          select: { id: true, size: true, colour: true, stockQuantity: true },
-        },
-      },
     }),
     prisma.product.count({ where }),
   ]);
@@ -138,9 +135,6 @@ async function attachRatings<T extends { id: string }>(
 export async function getProductBySlug(slug: string) {
   return prisma.product.findUnique({
     where: { slug },
-    include: {
-      variants: true,
-    },
   });
 }
 
@@ -149,11 +143,6 @@ export async function getRelatedProducts(category: string, excludeId: string, li
     where: { category, id: { not: excludeId } },
     take: limit,
     orderBy: { createdAt: "desc" },
-    include: {
-      variants: {
-        select: { id: true, size: true, colour: true, stockQuantity: true },
-      },
-    },
   });
 }
 
@@ -180,11 +169,6 @@ export async function getPairingProducts(currentCategory: string, excludeId: str
         where: { category, id: { not: excludeId } },
         take: 2,
         orderBy: { createdAt: "desc" },
-        include: {
-          variants: {
-            select: { id: true, size: true, colour: true, stockQuantity: true },
-          },
-        },
       })
     )
   );
@@ -213,11 +197,6 @@ export async function getFeaturedProducts(limit = 8) {
     where: { isFeatured: true, category: { in: activeSlugs } },
     take: limit,
     orderBy: { createdAt: "desc" },
-    include: {
-      variants: {
-        select: { id: true, size: true, colour: true, stockQuantity: true },
-      },
-    },
   });
 }
 
@@ -243,9 +222,6 @@ export async function getBestsellers(limit = 8) {
 
   const products = await prisma.product.findMany({
     where: { id: { in: ranked.map((r) => r.productId) }, category: { in: activeSlugs } },
-    include: {
-      variants: { select: { id: true, size: true, colour: true, stockQuantity: true } },
-    },
   });
 
   // Preserve the ranked order

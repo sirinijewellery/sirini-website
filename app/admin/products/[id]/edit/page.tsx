@@ -17,7 +17,6 @@ export default async function EditProductPage({ params }: Props) {
   const [product, categories] = await Promise.all([
     prisma.product.findUnique({
       where: { id },
-      include: { variants: true },
     }),
     getCategories(),
   ]);

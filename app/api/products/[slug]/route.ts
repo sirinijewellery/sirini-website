@@ -21,6 +21,6 @@ export async function GET(
     material: product.material,
     badge: product.badge,
     images: parseImages(product.images),
-    variants: product.variants,
+    stock: product.stock,
   });
 }

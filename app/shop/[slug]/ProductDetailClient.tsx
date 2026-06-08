@@ -1,20 +1,12 @@
 "use client";
 
 import { useState, useRef, useEffect } from "react";
-import { VariantSelector } from "@/components/VariantSelector";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { WishlistButton } from "@/components/WishlistButton";
 import { Separator } from "@/components/ui/separator";
 import { PriceDisplay, formatPrice } from "@/components/PriceDisplay";
 import { PincodeEstimator } from "@/components/PincodeEstimator";
 import { useRecentlyViewedStore } from "@/lib/store/recentlyViewed";
-
-interface Variant {
-  id: string;
-  size: string | null;
-  colour: string | null;
-  stockQuantity: number;
-}
 
 interface ProductDetailClientProps {
   product: {
@@ -29,7 +21,6 @@ interface ProductDetailClientProps {
     sku: string;
     badge: string | null;
     stock?: number;
-    variants: Variant[];
   };
   images: string[];
 }
@@ -44,10 +35,6 @@ export default function ProductDetailClient({
   product,
   images,
 }: ProductDetailClientProps) {
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    product.variants.length === 1 ? product.variants[0].id : null
-  );
-
   const ctaRef = useRef<HTMLDivElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
 
@@ -75,10 +62,6 @@ export default function ProductDetailClient({
     observer.observe(el);
     return () => observer.disconnect();
   }, []);
-
-  const selectedVariant =
-    product.variants.find((v) => v.id === selectedVariantId) ?? null;
-  const hasVariants = product.variants.length > 0;
 
   function handleWhatsAppShare() {
     const url =
@@ -159,15 +142,6 @@ export default function ProductDetailClient({
 
       <Separator />
 
-      {/* Variant selector */}
-      {hasVariants && (
-        <VariantSelector
-          variants={product.variants}
-          selectedVariantId={selectedVariantId}
-          onSelect={setSelectedVariantId}
-        />
-      )}
-
       {/* Add to cart + Wishlist */}
       <div ref={ctaRef} className="flex gap-3">
         <div className="flex-1">
@@ -177,11 +151,11 @@ export default function ProductDetailClient({
               name: product.name,
               slug: product.slug,
               price: product.price,
+              compareAtPrice: product.compareAtPrice,
               images,
               category: product.category,
+              stock: product.stock,
             }}
-            selectedVariant={selectedVariant}
-            hasVariants={hasVariants}
           />
         </div>
         <WishlistButton productId={product.id} />
@@ -319,11 +293,11 @@ export default function ProductDetailClient({
                 name: product.name,
                 slug: product.slug,
                 price: product.price,
+                compareAtPrice: product.compareAtPrice,
                 images,
                 category: product.category,
+                stock: product.stock,
               }}
-              selectedVariant={selectedVariant}
-              hasVariants={hasVariants}
             />
           </div>
         </div>

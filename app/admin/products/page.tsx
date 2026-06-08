@@ -1,15 +1,14 @@
 import Link from "next/link";
-import Image from "next/image";
 import type { Metadata } from "next";
 import { Suspense } from "react";
-import { Plus, Package, Check, Minus } from "lucide-react";
+import { Plus, Package } from "lucide-react";
 
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/queries/products";
 import { buttonVariants } from "@/components/ui/button";
 import { cn } from "@/lib/utils";
 import { SearchInput } from "@/components/admin/SearchInput";
-import { DeleteProductButton } from "@/components/admin/DeleteProductButton";
+import { ProductRow } from "@/components/admin/ProductRow";
 
 export const metadata: Metadata = { title: "Products" };
 
@@ -19,12 +18,6 @@ interface Props {
 
 const PAGE_SIZE = 20;
 
-const BADGE_STYLES: Record<string, string> = {
-  NEW: "bg-emerald-50 text-emerald-700 border-emerald-200",
-  HOT: "bg-orange-50 text-orange-700 border-orange-200",
-  SALE: "bg-red-50 text-red-700 border-red-200",
-};
-
 export default async function AdminProductsPage({ searchParams }: Props) {
   const { page, search } = await searchParams;
   const currentPage = Math.max(1, parseInt(page ?? "1") || 1);
@@ -33,8 +26,9 @@ export default async function AdminProductsPage({ searchParams }: Props) {
   const where = searchTerm
     ? {
         OR: [
-          { name: { contains: searchTerm, mode: "insensitive" as "insensitive" } },
-          { category: { contains: searchTerm, mode: "insensitive" as "insensitive" } },
+          { name: { contains: searchTerm, mode: "insensitive" as const } },
+          { sku: { contains: searchTerm, mode: "insensitive" as const } },
+          { category: { contains: searchTerm, mode: "insensitive" as const } },
         ],
       }
     : {};
@@ -45,8 +39,16 @@ export default async function AdminProductsPage({ searchParams }: Props) {
       orderBy: { createdAt: "desc" },
       skip: (currentPage - 1) * PAGE_SIZE,
       take: PAGE_SIZE,
-      include: {
-        variants: { select: { id: true, stockQuantity: true } },
+      select: {
+        id: true,
+        name: true,
+        sku: true,
+        category: true,
+        price: true,
+        images: true,
+        stock: true,
+        badge: true,
+        isFeatured: true,
       },
     }),
     prisma.product.count({ where }),
@@ -83,7 +85,7 @@ export default async function AdminProductsPage({ searchParams }: Props) {
         <Suspense fallback={<div className="h-8 w-64 rounded-lg bg-gray-100 animate-pulse" />}>
           <SearchInput
             defaultValue={searchTerm}
-            placeholder="Search by name or category…"
+            placeholder="Search by name, SKU, or category…"
           />
         </Suspense>
       </div>
@@ -110,6 +112,9 @@ export default async function AdminProductsPage({ searchParams }: Props) {
             <table className="w-full min-w-[640px]" aria-label="Products table">
               <thead>
                 <tr className="bg-gray-50 border-b border-gray-200">
+                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
+                    Stock
+                  </th>
                   <th className="px-4 py-3 text-left text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Product
                   </th>
@@ -118,9 +123,6 @@ export default async function AdminProductsPage({ searchParams }: Props) {
                   </th>
                   <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Price
-                  </th>
-                  <th className="px-4 py-3 text-right text-xs font-semibold text-gray-500 uppercase tracking-wider">
-                    Stock
                   </th>
                   <th className="px-4 py-3 text-center text-xs font-semibold text-gray-500 uppercase tracking-wider">
                     Badge
@@ -135,127 +137,22 @@ export default async function AdminProductsPage({ searchParams }: Props) {
               </thead>
               <tbody className="divide-y divide-gray-100">
                 {products.map((product) => {
-                  const images = parseImages(product.images);
-                  const coverImage = images[0];
-                  const totalStock = product.variants.reduce(
-                    (sum, v) => sum + v.stockQuantity,
-                    0
-                  );
-
+                  const coverImage = parseImages(product.images)[0];
                   return (
-                    <tr
+                    <ProductRow
                       key={product.id}
-                      className="hover:bg-gray-50/50 transition-colors duration-100"
-                    >
-                      {/* Product */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center gap-3">
-                          <div className="relative h-10 w-10 shrink-0 rounded-lg overflow-hidden bg-gray-100 border border-gray-200">
-                            {coverImage ? (
-                              <Image
-                                src={coverImage}
-                                alt={product.name}
-                                fill
-                                sizes="40px"
-                                className="object-cover"
-                              />
-                            ) : (
-                              <div className="flex h-full w-full items-center justify-center">
-                                <Package className="h-4 w-4 text-gray-300" />
-                              </div>
-                            )}
-                          </div>
-                          <div className="min-w-0">
-                            <p className="text-sm font-medium text-gray-900 truncate max-w-[180px]">
-                              {product.name}
-                            </p>
-                            <p className="text-xs text-gray-400 truncate max-w-[180px]">
-                              {product.sku}
-                            </p>
-                          </div>
-                        </div>
-                      </td>
-
-                      {/* Category */}
-                      <td className="px-4 py-3 text-sm text-gray-600">
-                        {product.category}
-                      </td>
-
-                      {/* Price */}
-                      <td className="px-4 py-3 text-sm text-gray-900 text-right font-medium">
-                        ₹{product.price.toLocaleString("en-IN")}
-                      </td>
-
-                      {/* Stock */}
-                      <td className="px-4 py-3 text-sm text-right">
-                        <span
-                          className={
-                            totalStock === 0
-                              ? "text-red-600 font-medium"
-                              : totalStock < 5
-                              ? "text-amber-600 font-medium"
-                              : "text-gray-700"
-                          }
-                        >
-                          {totalStock}
-                        </span>
-                      </td>
-
-                      {/* Badge */}
-                      <td className="px-4 py-3 text-center">
-                        {product.badge ? (
-                          <span
-                            className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
-                              BADGE_STYLES[product.badge] ?? "bg-gray-50 text-gray-600 border-gray-200"
-                            }`}
-                          >
-                            {product.badge}
-                          </span>
-                        ) : (
-                          <span className="text-gray-300 text-sm">—</span>
-                        )}
-                      </td>
-
-                      {/* Featured */}
-                      <td className="px-4 py-3 text-center">
-                        {product.isFeatured ? (
-                          <Check className="h-4 w-4 text-emerald-500 mx-auto" />
-                        ) : (
-                          <Minus className="h-4 w-4 text-gray-300 mx-auto" />
-                        )}
-                      </td>
-
-                      {/* Actions */}
-                      <td className="px-4 py-3">
-                        <div className="flex items-center justify-end gap-1">
-                          <Link
-                            href={`/admin/products/${product.id}/edit`}
-                            aria-label={`Edit ${product.name}`}
-                            className={cn(buttonVariants({ variant: "ghost", size: "icon-sm" }), "text-gray-400 hover:text-gray-700")}
-                          >
-                            <svg
-                              xmlns="http://www.w3.org/2000/svg"
-                              width="14"
-                              height="14"
-                              viewBox="0 0 24 24"
-                              fill="none"
-                              stroke="currentColor"
-                              strokeWidth="2"
-                              strokeLinecap="round"
-                              strokeLinejoin="round"
-                              aria-hidden="true"
-                            >
-                              <path d="M17 3a2.85 2.83 0 1 1 4 4L7.5 20.5 2 22l1.5-5.5Z" />
-                              <path d="m15 5 4 4" />
-                            </svg>
-                          </Link>
-                          <DeleteProductButton
-                            productId={product.id}
-                            productName={product.name}
-                          />
-                        </div>
-                      </td>
-                    </tr>
+                      product={{
+                        id: product.id,
+                        name: product.name,
+                        sku: product.sku,
+                        category: product.category,
+                        price: product.price,
+                        stock: product.stock,
+                        badge: product.badge,
+                        isFeatured: product.isFeatured,
+                        coverImage,
+                      }}
+                    />
                   );
                 })}
               </tbody>

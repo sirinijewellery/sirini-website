@@ -24,12 +24,7 @@ interface ProductData {
   material: string;
   badge: string | null;
   images: string[];
-  variants: {
-    id: string;
-    size: string | null;
-    colour: string | null;
-    stockQuantity: number;
-  }[];
+  stock?: number;
 }
 
 interface QuickViewModalProps {
@@ -42,9 +37,6 @@ export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
   const [product, setProduct] = useState<ProductData | null>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
-  const [selectedVariantId, setSelectedVariantId] = useState<string | null>(
-    null
-  );
 
   useEffect(() => {
     if (!isOpen || !slug) return;
@@ -58,20 +50,10 @@ export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
       })
       .then((data: ProductData) => {
         setProduct(data);
-        // Auto-select when only one variant exists
-        if (data.variants?.length === 1) {
-          setSelectedVariantId(data.variants[0].id);
-        } else {
-          setSelectedVariantId(null);
-        }
       })
       .catch(() => setError(true))
       .finally(() => setLoading(false));
   }, [isOpen, slug]);
-
-  const selectedVariant =
-    product?.variants.find((v) => v.id === selectedVariantId) ?? null;
-  const hasVariants = (product?.variants?.length ?? 0) > 0;
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => !open && onClose()}>
@@ -197,32 +179,6 @@ export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
                 </p>
               )}
 
-              {/* Variant selector */}
-              {product.variants.length > 1 && (
-                <div className="space-y-2">
-                  <p className="text-xs font-label-caps tracking-widest uppercase text-muted-foreground">
-                    {product.variants[0].colour ? "Finish" : "Size"}
-                  </p>
-                  <div className="flex flex-wrap gap-2">
-                    {product.variants.map((v) => (
-                      <button
-                        key={v.id}
-                        type="button"
-                        onClick={() => setSelectedVariantId(v.id)}
-                        disabled={v.stockQuantity === 0}
-                        className={`px-3 py-1.5 text-sm font-sans border transition-colors cursor-pointer ${
-                          selectedVariantId === v.id
-                            ? "border-primary bg-primary text-on-primary"
-                            : "border-border text-foreground hover:border-primary"
-                        } disabled:opacity-40 disabled:cursor-not-allowed`}
-                      >
-                        {v.colour || v.size || "Standard"}
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              )}
-
               {/* Add to Cart */}
               <div className="mt-auto pt-2">
                 <AddToCartButton
@@ -231,11 +187,11 @@ export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
                     name: product.name,
                     slug: product.slug,
                     price: product.price,
+                    compareAtPrice: product.compareAtPrice,
                     images: product.images,
                     category: product.category,
+                    stock: product.stock,
                   }}
-                  selectedVariant={selectedVariant}
-                  hasVariants={hasVariants}
                 />
               </div>
 

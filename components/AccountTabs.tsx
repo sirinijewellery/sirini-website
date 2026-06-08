@@ -27,11 +27,13 @@ interface OrderItem {
 
 interface Order {
   id: string;
+  orderNumber: number;
   customerName: string;
   totalAmount: number;
   discountAmount: number;
   orderStatus: string;
   paymentStatus: string;
+  paymentMethod: string;
   createdAt: Date | string;
   items: OrderItem[];
 }
@@ -74,7 +76,6 @@ function StatusBadge({ status }: { status: string }) {
 // ── Order Card ─────────────────────────────────────────────────────────────────
 
 function OrderCard({ order }: { order: Order }) {
-  const shortId = order.id.slice(0, 8) + "…";
   const itemCount = order.items.reduce((sum, item) => sum + item.quantity, 0);
 
   return (
@@ -86,7 +87,7 @@ function OrderCard({ order }: { order: Order }) {
         <div className="min-w-0">
           {/* Order ID */}
           <p className="font-sans text-[10px] uppercase tracking-[0.2em] text-primary mb-1">
-            Order #{shortId}
+            Order SR{order.orderNumber}
           </p>
           {/* Date */}
           <p className="font-sans text-xs text-muted-foreground mb-3">

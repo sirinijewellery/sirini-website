@@ -12,11 +12,13 @@ interface Props {
 
 type OrderWithItemCount = {
   id: string;
+  orderNumber: number;
   customerName: string;
   customerEmail: string;
   totalAmount: number;
   orderStatus: string;
   paymentStatus: string;
+  paymentMethod: string;
   createdAt: Date;
   items: { id: string }[];
 };
@@ -56,18 +58,55 @@ function OrderStatusBadge({ status }: { status: string }) {
   );
 }
 
-function PaymentStatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
+function describePayment({
+  paymentMethod,
+  paymentStatus,
+  totalAmount,
+}: {
+  paymentMethod: string;
+  paymentStatus: string;
+  totalAmount: number;
+}): { label: string; cls: string } {
+  if (paymentMethod === "cod") {
+    return { label: "COD", cls: "bg-indigo-100 text-indigo-700" };
+  }
+  if (paymentMethod === "online" && totalAmount === 0) {
+    return { label: "Free (coupon)", cls: "bg-emerald-100 text-emerald-700" };
+  }
+  if (paymentMethod === "online" && paymentStatus === "paid" && totalAmount > 0) {
+    return { label: "Online · Paid", cls: "bg-green-100 text-green-700" };
+  }
+  // Fall back to the raw payment status.
+  const statusCls: Record<string, string> = {
     paid: "bg-green-100 text-green-700",
     pending: "bg-amber-100 text-amber-700",
     failed: "bg-red-100 text-red-600",
   };
-  const cls = map[status] ?? "bg-gray-100 text-gray-600";
+  return {
+    label: paymentStatus,
+    cls: statusCls[paymentStatus] ?? "bg-gray-100 text-gray-600",
+  };
+}
+
+function PaymentBadge({
+  paymentMethod,
+  paymentStatus,
+  totalAmount,
+}: {
+  paymentMethod: string;
+  paymentStatus: string;
+  totalAmount: number;
+}) {
+  const { label, cls } = describePayment({
+    paymentMethod,
+    paymentStatus,
+    totalAmount,
+  });
   return (
     <span
       className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${cls}`}
     >
-      {status}
+      {label}
     </span>
   );
 }
@@ -288,8 +327,8 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
                       className="hover:bg-gray-50 transition-colors duration-100"
                     >
                       <td className="px-4 py-3 text-gray-900">
-                        <span className="font-mono text-xs text-gray-700 bg-gray-100 px-2 py-0.5 rounded">
-                          {order.id.slice(0, 8)}…
+                        <span className="font-mono text-xs font-semibold text-slate-700 bg-slate-100 px-2 py-0.5 rounded">
+                          SR{order.orderNumber}
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-900">
@@ -312,7 +351,11 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
                         <OrderStatusBadge status={order.orderStatus} />
                       </td>
                       <td className="px-4 py-3">
-                        <PaymentStatusBadge status={order.paymentStatus} />
+                        <PaymentBadge
+                          paymentMethod={order.paymentMethod}
+                          paymentStatus={order.paymentStatus}
+                          totalAmount={order.totalAmount}
+                        />
                       </td>
                       <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
                         {formatDate(order.createdAt)}

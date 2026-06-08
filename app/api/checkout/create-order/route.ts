@@ -52,11 +52,11 @@ export async function POST(req: NextRequest) {
 
   const { items, couponCode, giftWrap } = parsed.data;
 
-  // Fetch product prices from DB — never trust client prices
+  // Fetch product prices + stock from DB — never trust client prices
   const productIds = [...new Set(items.map((i) => i.productId))];
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
-    select: { id: true, price: true, name: true },
+    select: { id: true, price: true, name: true, stock: true },
   });
 
   if (products.length !== productIds.length) {
@@ -68,40 +68,21 @@ export async function POST(req: NextRequest) {
 
   const productMap = new Map(products.map((p) => [p.id, p]));
 
-  // Validate stock for each item with a variant
-  const variantIds = items.map((i) => i.variantId).filter(Boolean) as string[];
-  const variants =
-    variantIds.length > 0
-      ? await prisma.productVariant.findMany({
-          where: { id: { in: variantIds } },
-          select: { id: true, stockQuantity: true, productId: true },
-        })
-      : [];
-  const variantMap = new Map(variants.map((v) => [v.id, v]));
-
+  // Validate stock at the product level (sum quantity per product)
+  const qtyByProduct = new Map<string, number>();
   for (const item of items) {
-    if (item.variantId) {
-      const variant = variantMap.get(item.variantId);
-      if (!variant) {
-        return NextResponse.json(
-          { error: `Variant not found for product ${item.productId}` },
-          { status: 400 }
-        );
-      }
-      // Bug fix: ensure the variant actually belongs to the requested product
-      if (variant.productId !== item.productId) {
-        return NextResponse.json(
-          { error: "Invalid variant for product" },
-          { status: 400 }
-        );
-      }
-      if (variant.stockQuantity < item.quantity) {
-        const product = productMap.get(item.productId);
-        return NextResponse.json(
-          { error: `Insufficient stock for "${product?.name ?? item.productId}"` },
-          { status: 400 }
-        );
-      }
+    qtyByProduct.set(
+      item.productId,
+      (qtyByProduct.get(item.productId) ?? 0) + item.quantity
+    );
+  }
+  for (const [productId, qty] of qtyByProduct) {
+    const product = productMap.get(productId)!;
+    if (product.stock < qty) {
+      return NextResponse.json(
+        { error: `Insufficient stock for "${product.name}"` },
+        { status: 400 }
+      );
     }
   }
 

@@ -16,21 +16,12 @@ interface AddToCartButtonProps {
     compareAtPrice?: number | null;
     images: string[];
     category?: string;
+    /** Units in stock; when provided, <= 0 disables the button */
+    stock?: number;
   };
-  selectedVariant: {
-    id: string;
-    size: string | null;
-    colour: string | null;
-    stockQuantity: number;
-  } | null;
-  hasVariants: boolean;
 }
 
-export function AddToCartButton({
-  product,
-  selectedVariant,
-  hasVariants,
-}: AddToCartButtonProps) {
+export function AddToCartButton({ product }: AddToCartButtonProps) {
   const items = useCartStore((state) => state.items);
   const addItem = useCartStore((state) => state.addItem);
   const updateQuantity = useCartStore((state) => state.updateQuantity);
@@ -41,16 +32,11 @@ export function AddToCartButton({
   const [inputValue, setInputValue] = useState<string>("");
   const [isEditing, setIsEditing] = useState(false);
 
-  const isDisabled =
-    (hasVariants && !selectedVariant) ||
-    (selectedVariant !== null && selectedVariant?.stockQuantity === 0);
+  const isOutOfStock = product.stock !== undefined && product.stock <= 0;
+  const isDisabled = isOutOfStock;
 
   // Derive cart state from store — no local "added" flag needed
-  const cartItem = items.find(
-    (i) =>
-      i.productId === product.id &&
-      i.variantId === (selectedVariant?.id ?? undefined)
-  );
+  const cartItem = items.find((i) => i.productId === product.id);
   const inCart = !!cartItem;
   const currentQty = cartItem?.quantity ?? 0;
 
@@ -60,15 +46,12 @@ export function AddToCartButton({
 
     addItem({
       productId: product.id,
-      variantId: selectedVariant?.id,
       name: product.name,
       slug: product.slug,
       price: product.price,
       compareAtPrice: product.compareAtPrice ?? null,
       image: product.images[0] ?? "",
       category: product.category,
-      size: selectedVariant?.size ?? undefined,
-      colour: selectedVariant?.colour ?? undefined,
       quantity: 1,
     });
 
@@ -82,25 +65,21 @@ export function AddToCartButton({
 
     openDrawer();
 
-    toast.success(`${product.name} added to cart`, {
-      description: selectedVariant?.colour
-        ? `Finish: ${selectedVariant.colour}`
-        : undefined,
-    });
+    toast.success(`${product.name} added to cart`);
   }
 
   // ── Quantity controls ────────────────────────────────────────────────────
   function handleDecrement() {
     const newQty = currentQty - 1;
     if (newQty <= 0) {
-      removeItem(product.id, selectedVariant?.id);
+      removeItem(product.id);
     } else {
-      updateQuantity(product.id, selectedVariant?.id, newQty);
+      updateQuantity(product.id, undefined, newQty);
     }
   }
 
   function handleIncrement() {
-    updateQuantity(product.id, selectedVariant?.id, currentQty + 1);
+    updateQuantity(product.id, undefined, currentQty + 1);
   }
 
   function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
@@ -116,9 +95,9 @@ export function AddToCartButton({
     setIsEditing(false);
     const parsed = parseInt(inputValue, 10);
     if (!inputValue || isNaN(parsed) || parsed <= 0) {
-      removeItem(product.id, selectedVariant?.id);
+      removeItem(product.id);
     } else {
-      updateQuantity(product.id, selectedVariant?.id, parsed);
+      updateQuantity(product.id, undefined, parsed);
     }
     setInputValue("");
   }
@@ -205,12 +184,7 @@ export function AddToCartButton({
   }
 
   // ── Render: standard Add to Cart button ──────────────────────────────────
-  const buttonText =
-    hasVariants && !selectedVariant
-      ? "Select Options"
-      : selectedVariant?.stockQuantity === 0
-      ? "Out of Stock"
-      : "Add to Cart";
+  const buttonText = isOutOfStock ? "Out of Stock" : "Add to Cart";
 
   return (
     <Button

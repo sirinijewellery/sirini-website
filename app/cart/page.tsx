@@ -10,7 +10,7 @@ import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { getMrp, formatPrice } from "@/components/PriceDisplay";
 
-const GIFT_THRESHOLD = 2500;
+const GIFT_THRESHOLD = 4000;
 
 function GiftProgressBar({ subtotal }: { subtotal: number }) {
   const unlocked = subtotal >= GIFT_THRESHOLD;

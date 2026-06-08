@@ -2,6 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { sendNewOrderEmails } from "@/lib/email";
 
 const bodySchema = z.object({
   items: z
@@ -27,6 +28,7 @@ const bodySchema = z.object({
   totalAmount: z.number().nonnegative(),
   giftWrap: z.boolean().optional(),
   notes: z.string().optional(),
+  paymentMethod: z.enum(["cod", "online"]).optional(),
 });
 
 // ₹49 gift-wrap fee (kept in sync with the client-side fee in CheckoutForm)
@@ -70,7 +72,7 @@ export async function POST(req: NextRequest) {
   const productIds = [...new Set(items.map((i) => i.productId))];
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
-    select: { id: true, price: true },
+    select: { id: true, price: true, name: true },
   });
   if (products.length !== productIds.length) {
     return NextResponse.json(
@@ -134,10 +136,41 @@ export async function POST(req: NextRequest) {
     );
   }
 
+  // Payment method / status.
+  //  - A free order (₹0, e.g. 100%-off coupon) is fully paid up front, so it is
+  //    recorded as paymentStatus "paid"; paymentMethod reflects whatever the
+  //    customer actually selected (defaults to "online" for a free order).
+  //  - A genuine cash-on-delivery order is "cod"/"cod".
+  const isFree = recalculatedTotal <= 0;
+  const paymentMethod =
+    parsed.data.paymentMethod ?? (isFree ? "online" : "cod");
+  const paymentStatus = isFree ? "paid" : "cod";
+
   // 4. Write everything atomically — order + stock + coupon in one transaction
-  let order: { id: string };
+  let order: { id: string; orderNumber: number };
   try {
     order = await prisma.$transaction(async (tx) => {
+      // Sum quantity per product
+      const qtyByProduct = new Map<string, number>();
+      for (const item of items) {
+        qtyByProduct.set(
+          item.productId,
+          (qtyByProduct.get(item.productId) ?? 0) + item.quantity
+        );
+      }
+
+      // Re-check stock inside the tx (prevent overselling)
+      const fresh = await tx.product.findMany({
+        where: { id: { in: [...qtyByProduct.keys()] } },
+        select: { id: true, stock: true, name: true },
+      });
+      for (const p of fresh) {
+        const need = qtyByProduct.get(p.id)!;
+        if (p.stock < need) {
+          throw new Error(`Insufficient stock for ${p.name}`);
+        }
+      }
+
       // Create the order — priceAtPurchase comes from productMap, not the client
       const newOrder = await tx.order.create({
         data: {
@@ -152,7 +185,8 @@ export async function POST(req: NextRequest) {
           totalAmount: recalculatedTotal,
           discountAmount: recalculatedDiscount,
           couponCode: validatedCouponCode,
-          paymentStatus: "cod",
+          paymentStatus,
+          paymentMethod,
           paymentId: null,
           orderStatus: "processing",
           items: {
@@ -164,33 +198,14 @@ export async function POST(req: NextRequest) {
             })),
           },
         },
+        select: { id: true, orderNumber: true },
       });
 
-      // Re-check stock inside transaction to prevent race conditions (overselling)
-      const variantItems = items.filter((i) => i.variantId);
-      if (variantItems.length > 0) {
-        const freshVariants = await tx.productVariant.findMany({
-          where: { id: { in: variantItems.map((i) => i.variantId!) } },
-          select: { id: true, stockQuantity: true },
-        });
-        const freshVariantMap = new Map(
-          freshVariants.map((v) => [v.id, v])
-        );
-        for (const item of variantItems) {
-          const fresh = freshVariantMap.get(item.variantId!);
-          if (!fresh || fresh.stockQuantity < item.quantity) {
-            throw new Error(
-              `Insufficient stock for variant ${item.variantId}`
-            );
-          }
-        }
-      }
-
-      // Decrement stock for variants
-      for (const item of variantItems) {
-        await tx.productVariant.update({
-          where: { id: item.variantId! },
-          data: { stockQuantity: { decrement: item.quantity } },
+      // Decrement product stock
+      for (const [productId, qty] of qtyByProduct) {
+        await tx.product.update({
+          where: { id: productId },
+          data: { stock: { decrement: qty } },
         });
       }
 
@@ -216,6 +231,25 @@ export async function POST(req: NextRequest) {
       );
     }
     throw err; // re-throw unexpected errors
+  }
+
+  // Fire-and-forget admin notification — never let email block the response.
+  try {
+    await sendNewOrderEmails({
+      orderNumber: order.orderNumber,
+      customerName,
+      customerEmail,
+      customerPhone,
+      totalAmount: recalculatedTotal,
+      paymentMethod,
+      shippingAddress: address,
+      items: items.map((item) => ({
+        name: productMap.get(item.productId)!.name,
+        quantity: item.quantity,
+      })),
+    });
+  } catch {
+    // ignore — email failure must not affect the order
   }
 
   return NextResponse.json({ orderId: order.id });

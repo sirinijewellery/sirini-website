@@ -22,7 +22,6 @@ interface ProductCardProps {
     badge?: string | null;
     stock?: number;
     tags?: string[];
-    variants?: { stockQuantity: number }[];
     avgRating?: number;
     reviewCount?: number;
   };
@@ -80,10 +79,7 @@ export function ProductCard({ product }: ProductCardProps) {
   const images = parseImages(product.images);
   const { primary: primaryImage, hover: secondImage } = selectCardImages(images);
 
-  const totalStock =
-    product.variants?.reduce((sum, v) => sum + v.stockQuantity, 0) ?? 0;
-  const isOutOfStock =
-    product.variants && product.variants.length > 0 && totalStock === 0;
+  const isOutOfStock = product.stock != null && product.stock <= 0;
 
   async function handleWishlist(e: React.MouseEvent) {
     e.preventDefault();

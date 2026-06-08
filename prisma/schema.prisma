@@ -25,7 +25,6 @@ model Product {
   compareAtPrice Int?
   createdAt   DateTime @default(now())
 
-  variants      ProductVariant[]
   orderItems    OrderItem[]
   wishlistItems WishlistItem[]
   reviews       Review[]
@@ -35,21 +34,9 @@ model Product {
   @@index([isFeatured])
 }
 
-model ProductVariant {
-  id            String  @id @default(cuid())
-  productId     String
-  size          String?
-  colour        String?
-  stockQuantity Int
-
-  product    Product     @relation(fields: [productId], references: [id], onDelete: Cascade)
-  orderItems OrderItem[]
-
-  @@index([productId])
-}
-
 model Order {
   id              String   @id @default(cuid())
+  orderNumber     Int      @unique @default(autoincrement())
   userId          String?
   customerName    String
   customerEmail   String
@@ -60,6 +47,7 @@ model Order {
   discountAmount  Float    @default(0)
   couponCode      String?
   paymentStatus   String   @default("pending")
+  paymentMethod   String   @default("online")
   paymentId       String?
   orderStatus     String   @default("processing")
   createdAt       DateTime @default(now())
@@ -79,9 +67,8 @@ model OrderItem {
   quantity        Int
   priceAtPurchase Float
 
-  order   Order           @relation(fields: [orderId], references: [id])
-  product Product?        @relation(fields: [productId], references: [id], onDelete: SetNull)
-  variant ProductVariant? @relation(fields: [variantId], references: [id], onDelete: SetNull)
+  order   Order    @relation(fields: [orderId], references: [id])
+  product Product? @relation(fields: [productId], references: [id], onDelete: SetNull)
 
   @@index([orderId])
 }

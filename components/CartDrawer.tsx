@@ -14,7 +14,7 @@ import { Button } from "@/components/ui/button";
 import { PriceDisplay, formatPrice, getMrp } from "@/components/PriceDisplay";
 import { useState, useEffect } from "react";
 
-const GIFT_THRESHOLD = 2500;
+const GIFT_THRESHOLD = 4000;
 
 function GiftProgressBar({ subtotal }: { subtotal: number }) {
   const unlocked = subtotal >= GIFT_THRESHOLD;

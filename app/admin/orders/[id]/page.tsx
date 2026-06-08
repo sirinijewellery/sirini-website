@@ -77,6 +77,58 @@ function PaymentStatusBadge({ status }: { status: string }) {
   );
 }
 
+function describePayment({
+  paymentMethod,
+  paymentStatus,
+  totalAmount,
+}: {
+  paymentMethod: string;
+  paymentStatus: string;
+  totalAmount: number;
+}): { label: string; cls: string } {
+  if (paymentMethod === "cod") {
+    return { label: "COD", cls: "bg-indigo-100 text-indigo-700" };
+  }
+  if (paymentMethod === "online" && totalAmount === 0) {
+    return { label: "Free (coupon)", cls: "bg-emerald-100 text-emerald-700" };
+  }
+  if (paymentMethod === "online" && paymentStatus === "paid" && totalAmount > 0) {
+    return { label: "Online · Paid", cls: "bg-green-100 text-green-700" };
+  }
+  const statusCls: Record<string, string> = {
+    paid: "bg-green-100 text-green-700",
+    pending: "bg-amber-100 text-amber-700",
+    failed: "bg-red-100 text-red-600",
+  };
+  return {
+    label: paymentStatus,
+    cls: statusCls[paymentStatus] ?? "bg-gray-100 text-gray-600",
+  };
+}
+
+function PaymentBadge({
+  paymentMethod,
+  paymentStatus,
+  totalAmount,
+}: {
+  paymentMethod: string;
+  paymentStatus: string;
+  totalAmount: number;
+}) {
+  const { label, cls } = describePayment({
+    paymentMethod,
+    paymentStatus,
+    totalAmount,
+  });
+  return (
+    <span
+      className={`inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-medium capitalize ${cls}`}
+    >
+      {label}
+    </span>
+  );
+}
+
 // ─── Section label ────────────────────────────────────────────────────────────
 
 function SectionLabel({ children }: { children: React.ReactNode }) {
@@ -129,7 +181,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
         <div className="flex flex-wrap items-center justify-between gap-3">
           <div>
             <h1 className="text-2xl font-semibold text-slate-900 font-sans">
-              Order Details
+              Order SR{order.orderNumber}
             </h1>
             <p className="text-sm text-gray-500 mt-0.5 font-mono">
               {order.id}
@@ -161,9 +213,6 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                     <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3">
                       Product
                     </th>
-                    <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3">
-                      Variant
-                    </th>
                     <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-right px-4 py-3">
                       Qty
                     </th>
@@ -176,44 +225,29 @@ export default async function AdminOrderDetailPage({ params }: Props) {
                   </tr>
                 </thead>
                 <tbody className="divide-y divide-gray-100">
-                  {order.items.map((item) => {
-                    const variantParts: string[] = [];
-                    if (item.variant?.size) variantParts.push(item.variant.size);
-                    if (item.variant?.colour) variantParts.push(item.variant.colour);
-
-                    return (
-                      <tr
-                        key={item.id}
-                        className="hover:bg-gray-50 transition-colors duration-100"
-                      >
-                        <td className="px-4 py-3 text-gray-900 font-medium">
-                          {item.product?.name ?? (
-                            <span className="text-gray-400 italic">
-                              Product removed
-                            </span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-gray-500">
-                          {variantParts.length > 0 ? (
-                            <span className="inline-flex items-center gap-1 px-2 py-0.5 rounded bg-gray-100 text-xs text-gray-600">
-                              {variantParts.join(" / ")}
-                            </span>
-                          ) : (
-                            <span className="text-gray-300">—</span>
-                          )}
-                        </td>
-                        <td className="px-4 py-3 text-gray-700 text-right tabular-nums">
-                          {item.quantity}
-                        </td>
-                        <td className="px-4 py-3 text-gray-700 text-right tabular-nums">
-                          {formatINR(item.priceAtPurchase)}
-                        </td>
-                        <td className="px-4 py-3 text-gray-900 font-semibold text-right tabular-nums">
-                          {formatINR(item.priceAtPurchase * item.quantity)}
-                        </td>
-                      </tr>
-                    );
-                  })}
+                  {order.items.map((item) => (
+                    <tr
+                      key={item.id}
+                      className="hover:bg-gray-50 transition-colors duration-100"
+                    >
+                      <td className="px-4 py-3 text-gray-900 font-medium">
+                        {item.product?.name ?? (
+                          <span className="text-gray-400 italic">
+                            Product removed
+                          </span>
+                        )}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700 text-right tabular-nums">
+                        {item.quantity}
+                      </td>
+                      <td className="px-4 py-3 text-gray-700 text-right tabular-nums">
+                        {formatINR(item.priceAtPurchase)}
+                      </td>
+                      <td className="px-4 py-3 text-gray-900 font-semibold text-right tabular-nums">
+                        {formatINR(item.priceAtPurchase * item.quantity)}
+                      </td>
+                    </tr>
+                  ))}
                 </tbody>
               </table>
             </div>
@@ -378,6 +412,14 @@ export default async function AdminOrderDetailPage({ params }: Props) {
             <SectionLabel>Payment</SectionLabel>
             <div className="space-y-3 text-sm font-sans">
               <div className="flex items-center justify-between">
+                <span className="text-gray-500">Method</span>
+                <PaymentBadge
+                  paymentMethod={order.paymentMethod}
+                  paymentStatus={order.paymentStatus}
+                  totalAmount={order.totalAmount}
+                />
+              </div>
+              <div className="flex items-center justify-between">
                 <span className="text-gray-500">Status</span>
                 <PaymentStatusBadge status={order.paymentStatus} />
               </div>
@@ -407,6 +449,14 @@ export default async function AdminOrderDetailPage({ params }: Props) {
           <div className="bg-white rounded-xl border border-gray-200 shadow-sm p-5">
             <SectionLabel>Order Meta</SectionLabel>
             <div className="space-y-2 text-sm font-sans">
+              <div>
+                <span className="text-gray-500 text-xs block mb-0.5">
+                  Order Number
+                </span>
+                <span className="font-mono text-xs font-semibold text-slate-700">
+                  SR{order.orderNumber}
+                </span>
+              </div>
               <div>
                 <span className="text-gray-500 text-xs block mb-0.5">
                   Order ID

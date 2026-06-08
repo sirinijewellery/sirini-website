@@ -113,7 +113,7 @@ export default async function ProductPage({ params }: Props) {
         {/* Left — Image gallery */}
         <ImageGallery images={images} productName={product.name} />
 
-        {/* Right — Product info (client component for variant state) */}
+        {/* Right — Product info (client component for add-to-cart state) */}
         <ProductDetailClient
           product={{
             id: product.id,
@@ -127,7 +127,6 @@ export default async function ProductPage({ params }: Props) {
             sku: product.sku,
             badge: product.badge,
             stock: product.stock,
-            variants: product.variants,
           }}
           images={images}
         />

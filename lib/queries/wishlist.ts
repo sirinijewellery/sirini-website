@@ -4,13 +4,7 @@ export async function getWishlistItems(userId: string) {
   return prisma.wishlistItem.findMany({
     where: { userId },
     include: {
-      product: {
-        include: {
-          variants: {
-            select: { id: true, size: true, colour: true, stockQuantity: true },
-          },
-        },
-      },
+      product: true,
     },
     orderBy: { id: "desc" },
   });

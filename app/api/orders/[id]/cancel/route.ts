@@ -15,12 +15,12 @@ export async function POST(
   const { id } = await params;
   const userId = session.user.id;
 
-  // Fetch the order with its items (needed to restore variant stock)
+  // Fetch the order with its items (needed to restore product stock)
   const order = await prisma.order.findUnique({
     where: { id },
     include: {
       items: {
-        select: { variantId: true, quantity: true },
+        select: { productId: true, quantity: true },
       },
     },
   });
@@ -49,15 +49,21 @@ export async function POST(
       data: { orderStatus: "cancelled" },
     });
 
-    // Restore stock for items that have a variant (non-variant products
-    // do not track stock at the variant level, so there is nothing to restore).
+    // Restore product stock — sum quantity per product, then increment.
+    const qtyByProduct = new Map<string, number>();
     for (const item of order.items) {
-      if (item.variantId) {
-        await tx.productVariant.update({
-          where: { id: item.variantId },
-          data: { stockQuantity: { increment: item.quantity } },
-        });
+      if (item.productId) {
+        qtyByProduct.set(
+          item.productId,
+          (qtyByProduct.get(item.productId) ?? 0) + item.quantity
+        );
       }
+    }
+    for (const [productId, qty] of qtyByProduct) {
+      await tx.product.update({
+        where: { id: productId },
+        data: { stock: { increment: qty } },
+      });
     }
   });
 

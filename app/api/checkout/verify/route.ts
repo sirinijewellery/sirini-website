@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { verifyRazorpaySignature } from "@/lib/payment";
 import { auth } from "@/lib/auth";
+import { sendNewOrderEmails } from "@/lib/email";
 
 const bodySchema = z.object({
   razorpayOrderId: z.string().min(1),
@@ -85,7 +86,7 @@ export async function POST(req: NextRequest) {
   const productIds = [...new Set(items.map((i) => i.productId))];
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
-    select: { id: true, price: true },
+    select: { id: true, price: true, name: true },
   });
   if (products.length !== productIds.length) {
     return NextResponse.json({ error: "One or more products not found" }, { status: 400 });
@@ -139,16 +140,39 @@ export async function POST(req: NextRequest) {
   }
 
   // 5. Write everything atomically — order + stock + coupon in one transaction
-  let order: { id: string };
+  let order: { id: string; orderNumber: number };
+  let alreadyExisted = false;
   try {
   order = await prisma.$transaction(async (tx) => {
     // Idempotency guard — reject duplicate payment IDs
     const duplicate = await tx.order.findFirst({
       where: { paymentId: razorpayPaymentId },
-      select: { id: true },
+      select: { id: true, orderNumber: true },
     });
     if (duplicate) {
+      alreadyExisted = true;
       return duplicate; // already processed, return existing order
+    }
+
+    // Sum quantity per product
+    const qtyByProduct = new Map<string, number>();
+    for (const item of items) {
+      qtyByProduct.set(
+        item.productId,
+        (qtyByProduct.get(item.productId) ?? 0) + item.quantity
+      );
+    }
+
+    // Re-check stock inside the tx (prevent overselling)
+    const fresh = await tx.product.findMany({
+      where: { id: { in: [...qtyByProduct.keys()] } },
+      select: { id: true, stock: true, name: true },
+    });
+    for (const p of fresh) {
+      const need = qtyByProduct.get(p.id)!;
+      if (p.stock < need) {
+        throw new Error(`Insufficient stock for ${p.name}`);
+      }
     }
 
     // Create the order — priceAtPurchase comes from productMap, not the client
@@ -164,6 +188,7 @@ export async function POST(req: NextRequest) {
         discountAmount: recalculatedDiscount,
         couponCode: validatedCouponCode,
         paymentStatus: "paid",
+        paymentMethod: "online",
         paymentId: razorpayPaymentId,
         orderStatus: "processing",
         items: {
@@ -175,29 +200,14 @@ export async function POST(req: NextRequest) {
           })),
         },
       },
+      select: { id: true, orderNumber: true },
     });
 
-    // Re-check stock inside transaction to prevent race conditions (overselling)
-    const variantItems = items.filter((i) => i.variantId);
-    if (variantItems.length > 0) {
-      const freshVariants = await tx.productVariant.findMany({
-        where: { id: { in: variantItems.map((i) => i.variantId!) } },
-        select: { id: true, stockQuantity: true },
-      });
-      const freshVariantMap = new Map(freshVariants.map((v) => [v.id, v]));
-      for (const item of variantItems) {
-        const fresh = freshVariantMap.get(item.variantId!);
-        if (!fresh || fresh.stockQuantity < item.quantity) {
-          throw new Error(`Insufficient stock for variant ${item.variantId}`);
-        }
-      }
-    }
-
-    // Decrement stock for variants
-    for (const item of variantItems) {
-      await tx.productVariant.update({
-        where: { id: item.variantId! },
-        data: { stockQuantity: { decrement: item.quantity } },
+    // Decrement product stock
+    for (const [productId, qty] of qtyByProduct) {
+      await tx.product.update({
+        where: { id: productId },
+        data: { stock: { decrement: qty } },
       });
     }
 
@@ -217,6 +227,27 @@ export async function POST(req: NextRequest) {
       return NextResponse.json({ error: "Sorry, an item went out of stock. Please update your cart." }, { status: 409 });
     }
     throw err; // re-throw unexpected errors
+  }
+
+  // Fire-and-forget admin notification — only for a freshly-created order.
+  if (!alreadyExisted) {
+    try {
+      await sendNewOrderEmails({
+        orderNumber: order.orderNumber,
+        customerName,
+        customerEmail,
+        customerPhone,
+        totalAmount: recalculatedTotal,
+        paymentMethod: "online",
+        shippingAddress: address,
+        items: items.map((item) => ({
+          name: productMap.get(item.productId)!.name,
+          quantity: item.quantity,
+        })),
+      });
+    } catch {
+      // ignore — email failure must not affect the order
+    }
   }
 
   return NextResponse.json({ orderId: order.id });

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { useRouter } from "next/navigation";
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
@@ -20,7 +20,6 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import { ImageUploader } from "@/components/admin/ImageUploader";
-import { VariantManager, type Variant } from "@/components/admin/VariantManager";
 import { getMaterials, parseImages } from "@/lib/parseImages";
 
 // ---------- Types ----------
@@ -29,14 +28,6 @@ interface Category {
   name: string;
   slug: string;
   image?: string | null;
-}
-
-interface ProductVariantDB {
-  id: string;
-  productId: string;
-  size?: string | null;
-  colour?: string | null;
-  stockQuantity: number;
 }
 
 interface ProductDB {
@@ -54,8 +45,8 @@ interface ProductDB {
   occasions: string[];
   tags: string[];
   compareAtPrice?: number | null;
+  stock: number;
   createdAt: Date;
-  variants: ProductVariantDB[];
 }
 
 const OCCASION_OPTIONS = [
@@ -69,13 +60,6 @@ interface ProductFormProps {
 }
 
 // ---------- Zod schema ----------
-const variantSchema = z.object({
-  id: z.string().optional(),
-  size: z.string().optional(),
-  colour: z.string().optional(),
-  stockQuantity: z.number().int().min(0, "Stock must be 0 or more"),
-});
-
 const productFormSchema = z.object({
   name: z.string().min(1, "Name is required"),
   slug: z.string().min(1, "Slug is required"),
@@ -90,7 +74,7 @@ const productFormSchema = z.object({
   isFeatured: z.boolean(),
   occasions: z.array(z.string()),
   tags: z.array(z.string()),
-  variants: z.array(variantSchema).min(1, "At least one variant is required"),
+  stock: z.number({ message: "Stock must be a number" }).int().min(0, "Stock must be 0 or more"),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -148,12 +132,8 @@ export function ProductForm({ product, categories }: ProductFormProps) {
 
   const [slugLocked, setSlugLocked] = useState(isEditing);
 
-  const defaultVariants: Variant[] = product?.variants.map((v) => ({
-    id: v.id,
-    size: v.size ?? "",
-    colour: v.colour ?? "",
-    stockQuantity: v.stockQuantity,
-  })) ?? [{ size: "", colour: "", stockQuantity: 0 }];
+  // Guard flag so the beforeunload warning doesn't fire during the post-save redirect.
+  const savedRef = useRef(false);
 
   const {
     register,
@@ -161,7 +141,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     control,
     setValue,
     watch,
-    formState: { errors, isSubmitting },
+    formState: { errors, isSubmitting, isDirty },
   } = useForm<ProductFormValues>({
     resolver: zodResolver(productFormSchema),
     defaultValues: {
@@ -178,14 +158,37 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       isFeatured: product?.isFeatured ?? false,
       occasions: product?.occasions ?? [],
       tags: product?.tags ?? [],
-      variants: defaultVariants,
+      stock: product?.stock ?? 10,
     },
   });
 
   const watchedImages = watch("images");
-  const watchedVariants = watch("variants");
   const watchedPrice = watch("price");
   const watchedSku = watch("sku");
+
+  // Warn on browser-level navigation (tab close / refresh) when there are unsaved edits.
+  useEffect(() => {
+    function handleBeforeUnload(e: BeforeUnloadEvent) {
+      if (isDirty && !savedRef.current) {
+        e.preventDefault();
+        // Legacy browsers require returnValue to be set.
+        e.returnValue = "";
+      }
+    }
+    window.addEventListener("beforeunload", handleBeforeUnload);
+    return () => window.removeEventListener("beforeunload", handleBeforeUnload);
+  }, [isDirty]);
+
+  function handleCancel() {
+    if (isDirty && !savedRef.current) {
+      const confirmed = window.confirm(
+        "You have unsaved changes. Discard them and leave?"
+      );
+      if (!confirmed) return;
+    }
+    savedRef.current = true;
+    router.push("/admin/products");
+  }
 
   function handleNameChange(e: React.ChangeEvent<HTMLInputElement>) {
     const name = e.target.value;
@@ -219,6 +222,8 @@ export function ProductForm({ product, categories }: ProductFormProps) {
         return;
       }
 
+      // Mark as saved so the beforeunload guard stays quiet during the redirect.
+      savedRef.current = true;
       toast.success(isEditing ? "Product updated" : "Product created");
       router.push("/admin/products");
     } catch {
@@ -576,20 +581,25 @@ export function ProductForm({ product, categories }: ProductFormProps) {
         )}
       </section>
 
-      {/* ── Section: Variants ── */}
-      <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-3">
-        <div className="flex items-center justify-between">
-          <h2 className="text-base font-semibold text-slate-900 font-sans">Variants</h2>
-          <span className="text-xs text-gray-400">{watchedVariants.length} variant{watchedVariants.length !== 1 ? "s" : ""}</span>
+      {/* ── Section: Inventory ── */}
+      <section className="bg-white rounded-xl border border-gray-200 shadow-sm p-6 space-y-5">
+        <h2 className="text-base font-semibold text-slate-900 font-sans">Inventory</h2>
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-5">
+          <Field label="Stock quantity" required error={errors.stock?.message} htmlFor="stock">
+            <Input
+              id="stock"
+              type="number"
+              min={0}
+              step={1}
+              placeholder="10"
+              aria-invalid={!!errors.stock}
+              {...register("stock", { valueAsNumber: true })}
+            />
+            <p className="text-xs text-gray-400">
+              Total units available for sale. Set to 0 to mark out of stock.
+            </p>
+          </Field>
         </div>
-        <p className="text-xs text-gray-500">
-          Each variant can have an optional size, colour, and a stock count. At least one variant is required.
-        </p>
-        <VariantManager
-          variants={watchedVariants as Variant[]}
-          onChange={(v) => setValue("variants", v, { shouldValidate: true })}
-          error={errors.variants?.message as string | undefined}
-        />
       </section>
 
       {/* ── Actions ── */}
@@ -597,7 +607,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
         <Button
           type="button"
           variant="outline"
-          onClick={() => router.push("/admin/products")}
+          onClick={handleCancel}
           disabled={isSubmitting}
         >
           Cancel
@@ -608,6 +618,23 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             : isEditing ? "Save Changes" : "Create Product"}
         </Button>
       </div>
+
+      {/* ── Sticky unsaved-changes bar ── */}
+      {isDirty && !savedRef.current && (
+        <div className="fixed inset-x-0 bottom-0 z-50 border-t border-gray-200 bg-white/95 backdrop-blur shadow-[0_-2px_12px_rgba(0,0,0,0.06)]">
+          <div className="mx-auto flex max-w-4xl items-center justify-between gap-4 px-6 py-3">
+            <p className="flex items-center gap-2 text-sm font-medium text-amber-700">
+              <span className="inline-block h-2 w-2 rounded-full bg-amber-500" aria-hidden="true" />
+              You have unsaved changes
+            </p>
+            <Button type="submit" disabled={isSubmitting} className="min-w-32">
+              {isSubmitting
+                ? isEditing ? "Saving…" : "Creating…"
+                : "Save product"}
+            </Button>
+          </div>
+        </div>
+      )}
     </form>
   );
 }

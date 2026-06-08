@@ -106,41 +106,13 @@ async function main() {
 
   let created = 0;
   for (const p of products) {
-    const product = await prisma.product.upsert({
+    // Schema no longer has ProductVariant — stock lives on Product.stock.
+    await prisma.product.upsert({
       where:  { sku: p.sku },
       update: {},
-      create: { ...p, images: JSON.stringify([]) },
+      create: { ...p, images: JSON.stringify([]), stock: 10 },
     });
 
-    // Variants — size-based for rings & bangles, colour-based for everything else
-    if (p.category === "Rings") {
-      const sizes = ["5", "6", "7", "8", "Free Size"];
-      for (let i = 0; i < sizes.length; i++) {
-        await prisma.productVariant.upsert({
-          where:  { id: `${product.id}-sz${i}` },
-          update: {},
-          create: { id: `${product.id}-sz${i}`, productId: product.id, size: sizes[i], stockQuantity: 20 },
-        });
-      }
-    } else if (p.category === "Bangles & Bracelets") {
-      const sizes = ["2.4", "2.6", "2.8"];
-      for (let i = 0; i < sizes.length; i++) {
-        await prisma.productVariant.upsert({
-          where:  { id: `${product.id}-bsz${i}` },
-          update: {},
-          create: { id: `${product.id}-bsz${i}`, productId: product.id, size: sizes[i], stockQuantity: 25 },
-        });
-      }
-    } else {
-      const colours = ["Gold Plated", "Rose Gold Plated"];
-      for (let i = 0; i < colours.length; i++) {
-        await prisma.productVariant.upsert({
-          where:  { id: `${product.id}-cl${i}` },
-          update: {},
-          create: { id: `${product.id}-cl${i}`, productId: product.id, colour: colours[i], stockQuantity: 30 },
-        });
-      }
-    }
     created++;
   }
 

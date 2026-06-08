@@ -26,10 +26,7 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
   const images = parseImages(product.images);
   const primaryImage = images[0] || null;
   const secondImage = images[1] || null;
-  const totalStock =
-    product.variants?.reduce((sum, v) => sum + v.stockQuantity, 0) ?? 0;
-  const isOutOfStock =
-    product.variants && product.variants.length > 0 && totalStock === 0;
+  const isOutOfStock = product.stock != null && product.stock <= 0;
   const badge = product.badge ? badgeConfig[product.badge] : null;
 
   async function handleRemove() {
