@@ -6,7 +6,7 @@ import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
 import { toast } from "sonner";
 import { PencilIcon, TrashIcon, PlusIcon, MapPinIcon, StarIcon } from "lucide-react";
-import { INDIAN_CITIES, closestCity } from "@/lib/cities";
+import { CityCombobox } from "@/components/CityCombobox";
 
 // ── India States / UTs ─────────────────────────────────────────────────────────
 
@@ -137,105 +137,6 @@ function StateCombobox({ value, onChange, error, inputClass }: StateComboboxProp
               }`}
             >
               {state}
-            </li>
-          ))}
-        </ul>
-      )}
-    </div>
-  );
-}
-
-// ── CityCombobox ─────────────────────────────────────────────────────────────────
-// Same autocomplete UX as StateCombobox, but LENIENT: cities are many, so on blur
-// we only snap obvious typos to a close match via closestCity(); otherwise we keep
-// whatever the user typed (no hard reject, free text allowed).
-
-interface CityComboboxProps {
-  value: string;
-  onChange: (val: string) => void;
-  error?: string;
-  inputClass?: string;
-}
-
-function CityCombobox({ value, onChange, error, inputClass }: CityComboboxProps) {
-  const [inputValue, setInputValue] = useState(value);
-  const [isOpen, setIsOpen] = useState(false);
-  const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  useEffect(() => {
-    setInputValue(value);
-  }, [value]);
-
-  const filtered =
-    inputValue.trim() === ""
-      ? INDIAN_CITIES
-      : INDIAN_CITIES.filter((c) =>
-          c.toLowerCase().includes(inputValue.trim().toLowerCase())
-        );
-
-  function handleSelect(city: string) {
-    setInputValue(city);
-    onChange(city);
-    setIsOpen(false);
-  }
-
-  function handleInputChange(e: React.ChangeEvent<HTMLInputElement>) {
-    setInputValue(e.target.value);
-    onChange(e.target.value);
-    setIsOpen(true);
-  }
-
-  function handleBlur() {
-    blurTimerRef.current = setTimeout(() => {
-      // Lenient autocorrect: snap an obvious typo to the closest real city, but
-      // keep the user's free-text value if nothing is close.
-      const typed = inputValue.trim();
-      if (typed !== "") {
-        const match = closestCity(typed);
-        if (match && match !== typed) {
-          setInputValue(match);
-          onChange(match);
-        }
-      }
-      setIsOpen(false);
-    }, 150);
-  }
-
-  function handleFocus() {
-    if (blurTimerRef.current) clearTimeout(blurTimerRef.current);
-    setIsOpen(true);
-  }
-
-  return (
-    <div className="relative">
-      <input
-        type="text"
-        value={inputValue}
-        onChange={handleInputChange}
-        onFocus={handleFocus}
-        onBlur={handleBlur}
-        placeholder="Mumbai"
-        autoComplete="off"
-        aria-invalid={!!error}
-        aria-autocomplete="list"
-        className={inputClass}
-      />
-      {isOpen && filtered.length > 0 && (
-        <ul
-          className="absolute z-50 mt-1 w-full rounded-md border border-border bg-popover shadow-md max-h-52 overflow-y-auto"
-          role="listbox"
-        >
-          {filtered.map((city) => (
-            <li
-              key={city}
-              role="option"
-              aria-selected={city === value}
-              onMouseDown={() => handleSelect(city)}
-              className={`cursor-pointer px-3 py-2 font-sans text-sm text-foreground hover:bg-primary/10 transition-colors ${
-                city === value ? "bg-primary/10 font-medium" : ""
-              }`}
-            >
-              {city}
             </li>
           ))}
         </ul>
