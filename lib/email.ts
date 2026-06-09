@@ -178,3 +178,85 @@ export async function sendNewOrderEmails(
     console.error("[email] Failed to send new-order notification:", err);
   }
 }
+
+/* ── Daily revenue digest ───────────────────────────────────────────────── */
+
+export interface DailyDigestPayload {
+  /** Window covered, for the email header (e.g. "9 Jun 2026"). */
+  dateLabel: string;
+  orderCount: number;
+  revenue: number;
+  paidRevenue: number;
+  codRevenue: number;
+  topOrders: { orderNumber: number; customerName: string; totalAmount: number; paymentMethod: string }[];
+}
+
+/**
+ * Sends the owner a once-a-day summary of the previous 24h of orders.
+ * Same dormant-safe contract as sendNewOrderEmails: no RESEND_API_KEY → warn
+ * and return; all errors caught, never thrown.
+ */
+export async function sendDailyDigestEmail(data: DailyDigestPayload): Promise<void> {
+  try {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn("[email] RESEND_API_KEY not set — skipping daily digest email.");
+      return;
+    }
+
+    const resend = new Resend(apiKey);
+    const adminTo = process.env.ADMIN_ORDER_EMAIL ?? "sirinijewellery@gmail.com";
+    const from = process.env.ORDER_FROM_EMAIL ?? "Sirini Jewellery <onboarding@resend.dev>";
+
+    const subject = `Sirini daily digest — ${data.orderCount} order${
+      data.orderCount === 1 ? "" : "s"
+    }, ${formatINR(data.revenue)} (${data.dateLabel})`;
+
+    const orderRows =
+      data.topOrders.length === 0
+        ? `<tr><td colspan="3" style="padding:10px 12px;color:#888;">No orders in this period.</td></tr>`
+        : data.topOrders
+            .map(
+              (o) =>
+                `<tr>
+                  <td style="padding:6px 12px;border-bottom:1px solid #eee;">SR${o.orderNumber}</td>
+                  <td style="padding:6px 12px;border-bottom:1px solid #eee;">${escapeHtml(
+                    o.customerName
+                  )} <span style="color:#999;text-transform:uppercase;font-size:11px;">(${escapeHtml(
+                  o.paymentMethod
+                )})</span></td>
+                  <td style="padding:6px 12px;border-bottom:1px solid #eee;text-align:right;">${escapeHtml(
+                    formatINR(o.totalAmount)
+                  )}</td>
+                </tr>`
+            )
+            .join("");
+
+    const html = `
+      <div style="font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">
+        <h2 style="color:#5C1A24;margin-bottom:4px;">Daily digest — ${escapeHtml(data.dateLabel)}</h2>
+        <p style="margin-top:0;color:#666;">Your last-24-hour orders summary.</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+          <tr><td style="padding:4px 0;color:#666;">Orders</td><td style="padding:4px 0;text-align:right;font-weight:bold;">${
+            data.orderCount
+          }</td></tr>
+          <tr><td style="padding:4px 0;color:#666;">Total revenue</td><td style="padding:4px 0;text-align:right;font-weight:bold;">${escapeHtml(
+            formatINR(data.revenue)
+          )}</td></tr>
+          <tr><td style="padding:4px 0;color:#666;">Paid (online)</td><td style="padding:4px 0;text-align:right;">${escapeHtml(
+            formatINR(data.paidRevenue)
+          )}</td></tr>
+          <tr><td style="padding:4px 0;color:#666;">COD (to collect)</td><td style="padding:4px 0;text-align:right;">${escapeHtml(
+            formatINR(data.codRevenue)
+          )}</td></tr>
+        </table>
+        <h3 style="color:#5C1A24;margin-bottom:8px;">Orders</h3>
+        <table style="width:100%;border-collapse:collapse;">${orderRows}</table>
+      </div>
+    `;
+
+    await resend.emails.send({ from, to: adminTo, subject, html });
+  } catch (err) {
+    console.error("[email] Failed to send daily digest:", err);
+  }
+}
