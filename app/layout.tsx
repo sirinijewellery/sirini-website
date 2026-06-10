@@ -15,7 +15,6 @@ import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { CountdownBanner } from "@/components/CountdownBanner";
 import { LocalBusinessJsonLd } from "@/components/LocalBusinessJsonLd";
-import { ShippingLocationBar } from "@/components/ShippingLocationBar";
 import type { Viewport } from "next";
 
 const ebGaramond = EB_Garamond({
@@ -65,7 +64,6 @@ export default function RootLayout({
       <body
         className={`${ebGaramond.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
-        <ShippingLocationBar />
         <CountdownBanner />
         <NextTopLoader color="#B76E79" height={3} showSpinner={false} crawl={true} />
         <ScrollReveal />
