@@ -2,7 +2,7 @@
 
 import { useRef, useState } from "react";
 import { toast } from "sonner";
-import { Upload, X, ImageIcon, Loader2 } from "lucide-react";
+import { Upload, X, ImageIcon, Loader2, Star } from "lucide-react";
 
 interface ImageUploaderProps {
   images: string[];
@@ -58,6 +58,13 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
 
   function removeImage(index: number) {
     onChange(images.filter((_, i) => i !== index));
+  }
+
+  function setCover(index: number) {
+    const reordered = [...images];
+    const [picked] = reordered.splice(index, 1);
+    reordered.unshift(picked);
+    onChange(reordered);
   }
 
   function handleDragOver(e: React.DragEvent<HTMLDivElement>) {
@@ -156,11 +163,21 @@ export function ImageUploader({ images, onChange }: ImageUploaderProps) {
                   <X className="h-3.5 w-3.5" />
                 </button>
               </div>
-              {index === 0 && (
+              {index === 0 ? (
                 <div className="absolute bottom-1 left-1 flex items-center gap-1 rounded-md bg-black/60 px-1.5 py-0.5">
                   <ImageIcon className="h-2.5 w-2.5 text-white" />
                   <span className="text-[10px] font-medium text-white">Cover</span>
                 </div>
+              ) : (
+                <button
+                  type="button"
+                  onClick={(e) => { e.stopPropagation(); setCover(index); }}
+                  className="absolute bottom-1 left-1 flex items-center gap-1 rounded-md bg-black/60 px-1.5 py-0.5 opacity-0 group-hover:opacity-100 transition-opacity duration-200 hover:bg-primary/80"
+                  aria-label={`Set image ${index + 1} as cover`}
+                >
+                  <Star className="h-2.5 w-2.5 text-white" />
+                  <span className="text-[10px] font-medium text-white">Cover</span>
+                </button>
               )}
             </div>
           ))}
