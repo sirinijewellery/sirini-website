@@ -6,18 +6,40 @@ import { PrismaPg } from "@prisma/adapter-pg";
 const adapter = new PrismaPg({ connectionString: process.env.DATABASE_URL! });
 const prisma = new PrismaClient({ adapter });
 
-function classify(url: string): "decorative" | "model" | "cpt" {
+// Classification rules (based on filename patterns observed in the catalogue):
+//   decorative — main styled hero shot: no number suffix, no "white", no "model", no "cpt"
+//                e.g. 01ns706-3825.jpg  /  01NS830-2250.jpg
+//   numbered   — plain product detail shots with a numeric index suffix
+//                e.g. 01ns706-3825-1.jpg  /  01NS705-WHITE-4500-1.jpg
+//   model      — model wearing the product: contains "model"
+//   cpt        — close-up thumbnail: contains "cpt"
+//
+// Cover priority: decorative → numbered → model → cpt
+
+function classify(url: string): "decorative" | "numbered" | "model" | "cpt" {
   const lower = url.toLowerCase();
-  if (lower.includes("cpt")) return "cpt";
-  if (lower.includes("model")) return "model";
+  const filename = lower.split("/").pop() ?? lower;          // last path segment
+  const base = filename.replace(/\.[^.]+$/, "");             // strip extension
+
+  if (base.includes("cpt"))   return "cpt";
+  if (base.includes("model")) return "model";
+
+  // A numbered shot ends with a 1-2 digit index (e.g. -1, -2, -4-)
+  // Price numbers like -3825 or -2975 are 4 digits and won't match.
+  if (/-\d{1,2}-?$/.test(base)) return "numbered";
+
+  // Explicitly labelled white-background shots
+  if (base.includes("white")) return "numbered";
+
   return "decorative";
 }
 
 function reorder(images: string[]): string[] {
   const decorative = images.filter(u => classify(u) === "decorative");
+  const numbered   = images.filter(u => classify(u) === "numbered");
   const model      = images.filter(u => classify(u) === "model");
   const cpt        = images.filter(u => classify(u) === "cpt");
-  return [...decorative, ...model, ...cpt];
+  return [...decorative, ...numbered, ...model, ...cpt];
 }
 
 async function main() {
@@ -39,7 +61,7 @@ async function main() {
       where: { id: p.id },
       data: { images: reordered },
     });
-    console.log(`✓ ${p.sku}: cover → ${classify(reordered[0])} (${reordered[0].split("/").pop()})`);
+    console.log(`✓ ${p.sku}  [${classify(current[0])} → ${classify(reordered[0])}]  ${reordered[0].split("/").pop()}`);
     updated++;
   }
 
