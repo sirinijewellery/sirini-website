@@ -34,7 +34,12 @@ export function AbandonedCartNudge() {
     if (isExcludedPage) return;
 
     // Only ever show once per browser session.
-    if (sessionStorage.getItem(SESSION_FLAG)) return;
+    // sessionStorage access can throw (privacy mode / blocked storage) — never crash.
+    try {
+      if (sessionStorage.getItem(SESSION_FLAG)) return;
+    } catch {
+      return;
+    }
 
     // Need at least one item right now.
     if (items.length === 0) return;
@@ -42,14 +47,14 @@ export function AbandonedCartNudge() {
     const timer = window.setTimeout(() => {
       // Re-check guards at fire time — the user may have emptied the cart,
       // navigated to checkout, or already been nudged.
-      if (sessionStorage.getItem(SESSION_FLAG)) return;
-      if (itemCountRef.current === 0) return;
-
-      sessionStorage.setItem(SESSION_FLAG, "1");
       try {
+        if (sessionStorage.getItem(SESSION_FLAG)) return;
+        if (itemCountRef.current === 0) return;
+        sessionStorage.setItem(SESSION_FLAG, "1");
         localStorage.setItem(TIMESTAMP_KEY, String(Date.now()));
       } catch {
-        // localStorage may be unavailable (private mode) — non-fatal.
+        // Storage may be unavailable (private mode) — non-fatal.
+        if (itemCountRef.current === 0) return;
       }
 
       toast("Still thinking it over? Your handpicked pieces are waiting 💛", {

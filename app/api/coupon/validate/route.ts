@@ -3,7 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const schema = z.object({
-  code: z.string().min(1),
+  code: z.string().min(1).max(50),
   orderAmount: z.number().positive(),
 });
 
@@ -40,7 +40,7 @@ export async function POST(request: Request) {
 
     const discountAmount =
       coupon.discountType.toUpperCase() === "PERCENTAGE"
-        ? Math.round((orderAmount * coupon.discountValue) / 100)
+        ? Math.min(Math.round((orderAmount * coupon.discountValue) / 100), orderAmount)
         : Math.min(coupon.discountValue, orderAmount);
 
     return NextResponse.json({

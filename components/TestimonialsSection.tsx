@@ -36,6 +36,9 @@ export function TestimonialsSection() {
   const intervalRef = useRef<ReturnType<typeof setInterval> | null>(null);
   const resumeTimeoutRef = useRef<ReturnType<typeof setTimeout> | null>(null);
   const touchStartXRef = useRef<number | null>(null);
+  // Mirror of currentIndex for listeners registered once (e.g. resize) so they
+  // never read a stale closure value.
+  const currentIndexRef = useRef(0);
 
   function updateCarousel(index: number) {
     const track = trackRef.current;
@@ -140,13 +143,13 @@ export function TestimonialsSection() {
 
   useEffect(() => {
     // Initial position after layout
-    const initTimer = setTimeout(() => updateCarousel(currentIndex), 50);
+    const initTimer = setTimeout(() => updateCarousel(currentIndexRef.current), 50);
 
     // Auto-advance
     startAutoplay();
 
-    // Resize handler
-    const handleResize = () => updateCarousel(currentIndex);
+    // Resize handler — read from the ref, not the (stale) closure
+    const handleResize = () => updateCarousel(currentIndexRef.current);
     window.addEventListener("resize", handleResize);
 
     return () => {
@@ -160,6 +163,7 @@ export function TestimonialsSection() {
 
   // Keep carousel in sync whenever the index changes (autoplay or manual).
   useEffect(() => {
+    currentIndexRef.current = currentIndex;
     updateCarousel(currentIndex);
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [currentIndex]);

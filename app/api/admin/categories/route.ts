@@ -5,7 +5,12 @@ import { z } from "zod";
 
 const categorySchema = z.object({
   name: z.string().min(1, "Name is required"),
-  slug: z.string().optional(),
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .regex(/^[a-z0-9-]*$/, "Slug may only contain lowercase letters, numbers and dashes")
+    .optional(),
   image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 

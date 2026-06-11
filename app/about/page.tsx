@@ -30,7 +30,7 @@ export default function AboutPage() {
           src={HERO_IMAGE}
           alt="The Sirini story — handcrafted in Mumbai since 2015"
           fill
-          priority
+          preload
           className="object-contain object-center"
           sizes="100vw"
         />

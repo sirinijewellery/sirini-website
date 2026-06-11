@@ -42,6 +42,14 @@ function isSameItem(a: CartItem, b: { productId: string; variantId?: string }) {
   return a.productId === b.productId && a.variantId === b.variantId;
 }
 
+const MAX_QTY = 99;
+
+/** Clamp to a sane integer quantity — guards against NaN/Infinity/huge values. */
+function clampQty(q: number): number {
+  if (!Number.isFinite(q)) return 1;
+  return Math.min(Math.max(Math.floor(q), 1), MAX_QTY);
+}
+
 export const useCartStore = create<CartStore>()(
   persist(
     (set, get) => ({
@@ -55,12 +63,14 @@ export const useCartStore = create<CartStore>()(
             return {
               items: state.items.map((i) =>
                 isSameItem(i, newItem)
-                  ? { ...i, quantity: i.quantity + newItem.quantity }
+                  ? { ...i, quantity: clampQty(i.quantity + newItem.quantity) }
                   : i
               ),
             };
           }
-          return { items: [...state.items, newItem] };
+          return {
+            items: [...state.items, { ...newItem, quantity: clampQty(newItem.quantity) }],
+          };
         }),
 
       removeItem: (productId, variantId) =>
@@ -74,7 +84,9 @@ export const useCartStore = create<CartStore>()(
             quantity <= 0
               ? state.items.filter((i) => !isSameItem(i, { productId, variantId }))
               : state.items.map((i) =>
-                  isSameItem(i, { productId, variantId }) ? { ...i, quantity } : i
+                  isSameItem(i, { productId, variantId })
+                    ? { ...i, quantity: clampQty(quantity) }
+                    : i
                 ),
         })),
 

@@ -5,7 +5,12 @@ import { z } from "zod";
 
 const updateSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  slug: z.string().min(1, "Slug is required"),
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, "Slug is required")
+    .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers and dashes"),
   image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
 });
 
@@ -36,6 +41,12 @@ export async function PUT(
   }
 
   const { name, slug, image } = result.data;
+
+  // Verify category exists (prevent unhandled P2025 → 500)
+  const categoryExists = await prisma.category.findUnique({ where: { id }, select: { id: true } });
+  if (!categoryExists) {
+    return NextResponse.json({ error: "Category not found" }, { status: 404 });
+  }
 
   // Check slug conflict (excluding this category)
   const existing = await prisma.category.findFirst({

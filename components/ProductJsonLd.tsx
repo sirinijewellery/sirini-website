@@ -131,7 +131,11 @@ export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLd
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      // Escape "<" so user/DB content (e.g. review bodies) can't break out of
+      // the script tag with "</script>" — prevents stored XSS.
+      dangerouslySetInnerHTML={{
+        __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+      }}
     />
   );
 }

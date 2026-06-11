@@ -6,13 +6,17 @@ export default auth((req) => {
   const isLoggedIn = !!session?.user;
   const isAdmin = session?.user?.isAdmin === true;
 
-  const isAuthPage = nextUrl.pathname.startsWith("/login") ||
-                     nextUrl.pathname.startsWith("/register");
+  // Lowercase before matching — on case-insensitive filesystems (Windows/macOS
+  // dev) "/Admin" can resolve to the same route and would bypass these checks.
+  const pathname = nextUrl.pathname.toLowerCase();
+
+  const isAuthPage = pathname.startsWith("/login") ||
+                     pathname.startsWith("/register");
   const isProtectedPage =
-    nextUrl.pathname.startsWith("/wishlist") ||
-    nextUrl.pathname.startsWith("/account") ||
-    nextUrl.pathname.startsWith("/checkout");
-  const isAdminPage = nextUrl.pathname.startsWith("/admin");
+    pathname.startsWith("/wishlist") ||
+    pathname.startsWith("/account") ||
+    pathname.startsWith("/checkout");
+  const isAdminPage = pathname.startsWith("/admin");
 
   // Redirect logged-in users away from auth pages
   if (isAuthPage && isLoggedIn) {

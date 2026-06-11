@@ -84,7 +84,7 @@ export default async function ArticlePage({ params }: Props) {
           src={article.coverImage}
           alt={article.title}
           fill
-          priority
+          preload
           className="object-cover"
           sizes="100vw"
         />
@@ -204,7 +204,9 @@ export default async function ArticlePage({ params }: Props) {
       {/* Structured data — BlogPosting */}
       <script
         type="application/ld+json"
-        dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c"),
+        }}
       />
     </div>
   );

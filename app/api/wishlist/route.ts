@@ -8,8 +8,13 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { productId } = await request.json();
-  if (!productId) {
+  let productId: unknown;
+  try {
+    ({ productId } = await request.json());
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  if (typeof productId !== "string" || !productId) {
     return NextResponse.json({ error: "productId required" }, { status: 400 });
   }
 
@@ -18,8 +23,15 @@ export async function POST(request: Request) {
       data: { userId: session.user.id, productId },
     });
     return NextResponse.json({ wishlisted: true });
-  } catch {
-    return NextResponse.json({ error: "Already in wishlist" }, { status: 409 });
+  } catch (error) {
+    const code = (error as { code?: string }).code;
+    if (code === "P2002") {
+      return NextResponse.json({ error: "Already in wishlist" }, { status: 409 });
+    }
+    if (code === "P2003") {
+      return NextResponse.json({ error: "Product not found" }, { status: 404 });
+    }
+    return NextResponse.json({ error: "Failed to add to wishlist" }, { status: 500 });
   }
 }
 
@@ -29,8 +41,13 @@ export async function DELETE(request: Request) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   }
 
-  const { productId } = await request.json();
-  if (!productId) {
+  let productId: unknown;
+  try {
+    ({ productId } = await request.json());
+  } catch {
+    return NextResponse.json({ error: "Invalid JSON" }, { status: 400 });
+  }
+  if (typeof productId !== "string" || !productId) {
     return NextResponse.json({ error: "productId required" }, { status: 400 });
   }
 

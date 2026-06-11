@@ -9,10 +9,11 @@ const bodySchema = z.object({
       z.object({
         productId: z.string().min(1),
         variantId: z.string().optional(),
-        quantity: z.number().int().positive(),
+        quantity: z.number().int().positive().max(100),
       })
     )
-    .min(1),
+    .min(1)
+    .max(50),
   address: z.object({
     line1: z.string().min(1),
     city: z.string().min(1),
@@ -33,8 +34,13 @@ const bodySchema = z.object({
 const GIFT_WRAP_FEE = 49;
 
 export async function POST(req: NextRequest) {
-  // Use server-side session for userId — never trust client-supplied value
+  // Admin-only: this route creates an order (and reserves stock / consumes a
+  // coupon use) WITHOUT taking payment. The storefront never calls it, so it
+  // must not be reachable by unauthenticated users.
   const session = await auth();
+  if (!session?.user?.isAdmin) {
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
+  }
 
   let body: unknown;
   try {
@@ -69,7 +75,7 @@ export async function POST(req: NextRequest) {
   const productIds = [...new Set(items.map((i) => i.productId))];
   const products = await prisma.product.findMany({
     where: { id: { in: productIds } },
-    select: { id: true, price: true },
+    select: { id: true, price: true, name: true },
   });
   if (products.length !== productIds.length) {
     return NextResponse.json(
@@ -88,6 +94,7 @@ export async function POST(req: NextRequest) {
   // 2. Re-validate coupon fully (expiry + maxUses + minOrderAmount + isActive)
   let recalculatedDiscount = 0;
   let validatedCouponCode: string | null = null;
+  let validatedCouponMaxUses: number | null = null;
   if (couponCode) {
     const coupon = await prisma.coupon.findUnique({
       where: { code: couponCode.toUpperCase() },
@@ -111,6 +118,7 @@ export async function POST(req: NextRequest) {
           recalculatedSubtotal
         );
         validatedCouponCode = coupon.code;
+        validatedCouponMaxUses = coupon.maxUses;
       }
     }
   }
@@ -146,18 +154,6 @@ export async function POST(req: NextRequest) {
         );
       }
 
-      // Re-check stock inside the tx (prevent overselling)
-      const fresh = await tx.product.findMany({
-        where: { id: { in: [...qtyByProduct.keys()] } },
-        select: { id: true, stock: true, name: true },
-      });
-      for (const p of fresh) {
-        const need = qtyByProduct.get(p.id)!;
-        if (p.stock < need) {
-          throw new Error(`Insufficient stock for ${p.name}`);
-        }
-      }
-
       const newOrder = await tx.order.create({
         data: {
           userId: userId ?? null,
@@ -185,20 +181,36 @@ export async function POST(req: NextRequest) {
         },
       });
 
-      // Decrement product stock
+      // Decrement product stock — conditional on sufficient stock so two
+      // concurrent orders can never drive stock negative (oversell)
       for (const [productId, qty] of qtyByProduct) {
-        await tx.product.update({
-          where: { id: productId },
+        const res = await tx.product.updateMany({
+          where: { id: productId, stock: { gte: qty } },
           data: { stock: { decrement: qty } },
         });
+        if (res.count === 0) {
+          throw new Error(
+            `Insufficient stock for ${productMap.get(productId)!.name}`
+          );
+        }
       }
 
-      // Increment coupon usage
+      // Increment coupon usage — conditional on usedCount < maxUses so two
+      // concurrent orders can't both consume the last remaining use
       if (validatedCouponCode) {
-        await tx.coupon.update({
-          where: { code: validatedCouponCode },
+        const couponRes = await tx.coupon.updateMany({
+          where: {
+            code: validatedCouponCode,
+            isActive: true,
+            ...(validatedCouponMaxUses !== null
+              ? { usedCount: { lt: validatedCouponMaxUses } }
+              : {}),
+          },
           data: { usedCount: { increment: 1 } },
         });
+        if (couponRes.count === 0) {
+          throw new Error("Coupon usage limit reached");
+        }
       }
 
       return newOrder;
@@ -208,6 +220,12 @@ export async function POST(req: NextRequest) {
     if (msg.includes("Insufficient stock")) {
       return NextResponse.json(
         { error: "Sorry, an item went out of stock. Please update your cart." },
+        { status: 409 }
+      );
+    }
+    if (msg.includes("Coupon usage limit")) {
+      return NextResponse.json(
+        { error: "This coupon has reached its usage limit." },
         { status: 409 }
       );
     }

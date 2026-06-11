@@ -10,10 +10,11 @@ const bodySchema = z.object({
       z.object({
         productId: z.string().min(1),
         variantId: z.string().optional(),
-        quantity: z.number().int().positive(),
+        quantity: z.number().int().positive().max(100),
       })
     )
-    .min(1),
+    .min(1)
+    .max(50),
   address: z.object({
     line1: z.string().min(1),
     city: z.string().min(1),
@@ -91,6 +92,7 @@ export async function POST(req: NextRequest) {
   // 2. Re-validate coupon fully (expiry + maxUses + minOrderAmount + isActive)
   let recalculatedDiscount = 0;
   let validatedCouponCode: string | null = null;
+  let validatedCouponMaxUses: number | null = null;
   if (couponCode) {
     const coupon = await prisma.coupon.findUnique({
       where: { code: couponCode.toUpperCase() },
@@ -114,6 +116,7 @@ export async function POST(req: NextRequest) {
           recalculatedSubtotal
         );
         validatedCouponCode = coupon.code;
+        validatedCouponMaxUses = coupon.maxUses;
       }
     }
   }
@@ -141,9 +144,12 @@ export async function POST(req: NextRequest) {
   //    recorded as paymentStatus "paid"; paymentMethod reflects whatever the
   //    customer actually selected (defaults to "online" for a free order).
   //  - A genuine cash-on-delivery order is "cod"/"cod".
+  // A non-free order through this route is ALWAYS cash-on-delivery — never
+  // honour a client-sent "online" label for an order no money was taken for.
   const isFree = recalculatedTotal <= 0;
-  const paymentMethod =
-    parsed.data.paymentMethod ?? (isFree ? "online" : "cod");
+  const paymentMethod = isFree
+    ? parsed.data.paymentMethod ?? "online"
+    : "cod";
   const paymentStatus = isFree ? "paid" : "cod";
 
   // 4. Write everything atomically — order + stock + coupon in one transaction
@@ -157,18 +163,6 @@ export async function POST(req: NextRequest) {
           item.productId,
           (qtyByProduct.get(item.productId) ?? 0) + item.quantity
         );
-      }
-
-      // Re-check stock inside the tx (prevent overselling)
-      const fresh = await tx.product.findMany({
-        where: { id: { in: [...qtyByProduct.keys()] } },
-        select: { id: true, stock: true, name: true },
-      });
-      for (const p of fresh) {
-        const need = qtyByProduct.get(p.id)!;
-        if (p.stock < need) {
-          throw new Error(`Insufficient stock for ${p.name}`);
-        }
       }
 
       // Create the order — priceAtPurchase comes from productMap, not the client
@@ -201,20 +195,36 @@ export async function POST(req: NextRequest) {
         select: { id: true, orderNumber: true },
       });
 
-      // Decrement product stock
+      // Decrement product stock — conditional on sufficient stock so two
+      // concurrent orders can never drive stock negative (oversell)
       for (const [productId, qty] of qtyByProduct) {
-        await tx.product.update({
-          where: { id: productId },
+        const res = await tx.product.updateMany({
+          where: { id: productId, stock: { gte: qty } },
           data: { stock: { decrement: qty } },
         });
+        if (res.count === 0) {
+          throw new Error(
+            `Insufficient stock for ${productMap.get(productId)!.name}`
+          );
+        }
       }
 
-      // Increment coupon usage (only if coupon was valid)
+      // Increment coupon usage — conditional on usedCount < maxUses so two
+      // concurrent orders can't both consume the last remaining use
       if (validatedCouponCode) {
-        await tx.coupon.update({
-          where: { code: validatedCouponCode },
+        const couponRes = await tx.coupon.updateMany({
+          where: {
+            code: validatedCouponCode,
+            isActive: true,
+            ...(validatedCouponMaxUses !== null
+              ? { usedCount: { lt: validatedCouponMaxUses } }
+              : {}),
+          },
           data: { usedCount: { increment: 1 } },
         });
+        if (couponRes.count === 0) {
+          throw new Error("Coupon usage limit reached");
+        }
       }
 
       return newOrder;
@@ -227,6 +237,12 @@ export async function POST(req: NextRequest) {
           error:
             "Sorry, an item went out of stock. Please update your cart.",
         },
+        { status: 409 }
+      );
+    }
+    if (msg.includes("Coupon usage limit")) {
+      return NextResponse.json(
+        { error: "This coupon has reached its usage limit." },
         { status: 409 }
       );
     }

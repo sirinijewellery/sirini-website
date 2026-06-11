@@ -47,8 +47,13 @@ export async function GET() {
         })
         .join("\n");
 
+      const escapedSlug = product.slug
+        .replace(/&/g, "&amp;")
+        .replace(/</g, "&lt;")
+        .replace(/>/g, "&gt;");
+
       return `  <url>
-    <loc>${BASE_URL}/shop/${product.slug}</loc>
+    <loc>${BASE_URL}/shop/${escapedSlug}</loc>
 ${imageBlocks}
   </url>`;
     })

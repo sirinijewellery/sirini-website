@@ -3,6 +3,11 @@ import Credentials from "next-auth/providers/credentials";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 
+// bcrypt hash of a throwaway string — used to equalize timing when the user
+// doesn't exist. Not a secret; no real account uses this hash.
+const DUMMY_HASH =
+  "$2b$12$PhAt/4cLeTtJ/JWTjlFcVeamYekBKqzQmUvdZ6dhTTx7q4oahQdym";
+
 export const { handlers, auth, signIn, signOut } = NextAuth({
   providers: [
     Credentials({
@@ -14,18 +19,25 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const user = await prisma.user.findUnique({
-          where: { email: credentials.email as string },
+        const rawEmail = credentials.email as string;
+        const email = rawEmail.trim().toLowerCase();
+
+        let user = await prisma.user.findUnique({
+          where: { email },
         });
+        // Legacy accounts may have been stored with original casing
+        if (!user && email !== rawEmail) {
+          user = await prisma.user.findUnique({ where: { email: rawEmail } });
+        }
 
-        if (!user) return null;
-
+        // Always run a bcrypt compare so a non-existent user takes the same
+        // time as a wrong password (prevents timing-based user enumeration).
         const passwordMatch = await bcrypt.compare(
           credentials.password as string,
-          user.passwordHash
+          user?.passwordHash ?? DUMMY_HASH
         );
 
-        if (!passwordMatch) return null;
+        if (!user || !passwordMatch) return null;
 
         return {
           id: user.id,

@@ -24,6 +24,12 @@ export async function createRazorpayOrder(amountInPaise: number, receiptId: stri
   });
 }
 
+// Fetch an order from Razorpay — used by the verify route to confirm the
+// amount actually paid matches the server-recalculated cart total.
+export async function fetchRazorpayOrder(orderId: string) {
+  return getRazorpay().orders.fetch(orderId);
+}
+
 export function verifyRazorpaySignature(
   razorpayOrderId: string,
   razorpayPaymentId: string,
@@ -37,5 +43,8 @@ export function verifyRazorpaySignature(
     .createHmac("sha256", process.env.RAZORPAY_KEY_SECRET)
     .update(body)
     .digest("hex");
-  return expected === razorpaySignature;
+  // Timing-safe comparison — a plain === leaks timing information
+  const sigBuf = Buffer.from(razorpaySignature);
+  const expBuf = Buffer.from(expected);
+  return sigBuf.length === expBuf.length && crypto.timingSafeEqual(sigBuf, expBuf);
 }

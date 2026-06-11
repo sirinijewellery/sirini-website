@@ -42,12 +42,19 @@ export async function POST(
     );
   }
 
-  // Cancel + restore stock atomically
+  // Cancel + restore stock atomically. The status flip is conditional on the
+  // order still being "processing" so two concurrent cancel requests can't
+  // both run the stock-restore (which would inflate stock).
+  let cancelled = false;
   await prisma.$transaction(async (tx) => {
-    await tx.order.update({
-      where: { id },
+    const updated = await tx.order.updateMany({
+      where: { id, orderStatus: "processing" },
       data: { orderStatus: "cancelled" },
     });
+    if (updated.count === 0) {
+      return; // already cancelled/shipped by a concurrent request
+    }
+    cancelled = true;
 
     // Restore product stock — sum quantity per product, then increment.
     const qtyByProduct = new Map<string, number>();
@@ -66,6 +73,13 @@ export async function POST(
       });
     }
   });
+
+  if (!cancelled) {
+    return NextResponse.json(
+      { error: "This order can no longer be cancelled" },
+      { status: 400 }
+    );
+  }
 
   return NextResponse.json({ success: true });
 }

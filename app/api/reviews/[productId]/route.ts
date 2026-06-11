@@ -29,8 +29,9 @@ export async function GET(_req: Request, { params }: RouteContext) {
         ? Math.round((rawReviews.reduce((sum, r) => sum + r.rating, 0) / totalCount) * 10) / 10
         : 0;
 
-    // Normalise the JSON images field to a string[] and surface isVerified
-    const reviews = rawReviews.map((r) => ({
+    // Normalise the JSON images field to a string[] and surface isVerified.
+    // Omit userId — internal user ids must not be exposed publicly.
+    const reviews = rawReviews.map(({ userId: _userId, ...r }) => ({
       ...r,
       isVerified: r.isVerified,
       images: parseImages(r.images),

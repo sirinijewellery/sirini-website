@@ -4,14 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const updateSchema = z.object({
-  line1: z.string().min(1, "Address line 1 is required").optional(),
-  city: z.string().min(1, "City is required").optional(),
-  state: z.string().min(1, "State is required").optional(),
+  line1: z.string().min(1, "Address line 1 is required").max(300).optional(),
+  city: z.string().min(1, "City is required").max(100).optional(),
+  state: z.string().min(1, "State is required").max(100).optional(),
   pincode: z
     .string()
     .regex(/^\d{6}$/, "Pincode must be exactly 6 digits")
     .optional(),
-  label: z.string().optional(),
+  label: z.string().max(50).optional(),
   isDefault: z.boolean().optional(),
 });
 

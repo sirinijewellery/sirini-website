@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
-import { verifyRazorpaySignature } from "@/lib/payment";
+import { verifyRazorpaySignature, fetchRazorpayOrder } from "@/lib/payment";
 import { auth } from "@/lib/auth";
 import { sendNewOrderEmails } from "@/lib/email";
 
@@ -13,10 +13,10 @@ const bodySchema = z.object({
     z.object({
       productId: z.string().min(1),
       variantId: z.string().optional(),
-      quantity: z.number().int().positive(),
+      quantity: z.number().int().positive().max(100),
       // priceAtPurchase is intentionally ignored — we use server DB price
     })
-  ).min(1),
+  ).min(1).max(50),
   address: z.object({
     line1: z.string().min(1),
     city: z.string().min(1),
@@ -82,6 +82,21 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Invalid payment signature" }, { status: 400 });
   }
 
+  // 1b. Fetch the order from Razorpay — the signature only proves the
+  // (orderId, paymentId) pair is authentic, NOT how much was paid. The amount
+  // is compared against the server-recalculated total in step 4.
+  let razorpayAmountPaise: number;
+  try {
+    const rzpOrder = await fetchRazorpayOrder(razorpayOrderId);
+    razorpayAmountPaise = Number(rzpOrder.amount);
+  } catch (err) {
+    console.error("Razorpay order fetch failed:", err);
+    return NextResponse.json(
+      { error: "Payment gateway error. Please try again." },
+      { status: 502 }
+    );
+  }
+
   // 2. Re-fetch product prices from DB — never trust client-supplied prices
   const productIds = [...new Set(items.map((i) => i.productId))];
   const products = await prisma.product.findMany({
@@ -129,10 +144,12 @@ export async function POST(req: NextRequest) {
   const gst = Math.round(discountedSubtotal * 0.03);
   const recalculatedTotal = Math.max(0, discountedSubtotal + gst + giftWrapFee);
 
-  // 4. Exact paise comparison — no ±1 tolerance that could be exploited
+  // 4. Exact paise comparison — no ±1 tolerance that could be exploited.
+  // The amount actually charged at Razorpay MUST equal the recalculated cart
+  // total — otherwise a cheap payment could be replayed against a pricier cart.
   const recalculatedPaise = Math.round(recalculatedTotal * 100);
   const clientPaise = Math.round(totalAmount * 100);
-  if (recalculatedPaise !== clientPaise) {
+  if (recalculatedPaise !== clientPaise || razorpayAmountPaise !== recalculatedPaise) {
     return NextResponse.json(
       { error: "Order amount mismatch. Please restart checkout." },
       { status: 400 }
@@ -163,18 +180,6 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    // Re-check stock inside the tx (prevent overselling)
-    const fresh = await tx.product.findMany({
-      where: { id: { in: [...qtyByProduct.keys()] } },
-      select: { id: true, stock: true, name: true },
-    });
-    for (const p of fresh) {
-      const need = qtyByProduct.get(p.id)!;
-      if (p.stock < need) {
-        throw new Error(`Insufficient stock for ${p.name}`);
-      }
-    }
-
     // Create the order — priceAtPurchase comes from productMap, not the client
     const newOrder = await tx.order.create({
       data: {
@@ -203,12 +208,16 @@ export async function POST(req: NextRequest) {
       select: { id: true, orderNumber: true },
     });
 
-    // Decrement product stock
+    // Decrement product stock — conditional on sufficient stock so two
+    // concurrent orders can never drive stock negative (oversell)
     for (const [productId, qty] of qtyByProduct) {
-      await tx.product.update({
-        where: { id: productId },
+      const res = await tx.product.updateMany({
+        where: { id: productId, stock: { gte: qty } },
         data: { stock: { decrement: qty } },
       });
+      if (res.count === 0) {
+        throw new Error(`Insufficient stock for ${productMap.get(productId)!.name}`);
+      }
     }
 
     // Increment coupon usage (only if coupon was valid)
@@ -220,8 +229,17 @@ export async function POST(req: NextRequest) {
     }
 
     return newOrder;
-  });
+  }, { isolationLevel: "Serializable" });
+  // Serializable: paymentId has no unique constraint, so the findFirst-then-
+  // create idempotency guard above is only race-safe at this isolation level.
   } catch (err) {
+    if ((err as { code?: string }).code === "P2034") {
+      // Serialization conflict — a concurrent request for the same payment won
+      return NextResponse.json(
+        { error: "This payment is already being processed. Please check your orders." },
+        { status: 409 }
+      );
+    }
     const msg = err instanceof Error ? err.message : "Order creation failed";
     if (msg.includes("Insufficient stock")) {
       return NextResponse.json({ error: "Sorry, an item went out of stock. Please update your cart." }, { status: 409 });

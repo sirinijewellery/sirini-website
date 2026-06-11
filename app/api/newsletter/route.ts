@@ -2,7 +2,7 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
-const schema = z.object({ email: z.string().email() });
+const schema = z.object({ email: z.string().email().max(254) });
 
 export async function POST(request: Request) {
   try {

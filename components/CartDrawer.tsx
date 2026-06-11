@@ -168,13 +168,19 @@ export function CartDrawer() {
                       className="shrink-0"
                     >
                       <div className="w-[60px] h-[60px] rounded overflow-hidden bg-[#F2E8E0]">
-                        <Image
-                          src={item.image}
-                          alt={item.name}
-                          width={60}
-                          height={60}
-                          className="object-cover w-full h-full"
-                        />
+                        {item.image ? (
+                          <Image
+                            src={item.image}
+                            alt={item.name}
+                            width={60}
+                            height={60}
+                            className="object-cover w-full h-full"
+                          />
+                        ) : (
+                          <div className="w-full h-full flex items-center justify-center">
+                            <span className="font-display text-lg text-[#B76E79]">S</span>
+                          </div>
+                        )}
                       </div>
                     </Link>
 

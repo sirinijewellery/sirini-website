@@ -23,13 +23,19 @@ export function RecentlyViewedStrip({ currentProductId }: RecentlyViewedStripPro
         {filteredItems.map((item) => (
           <Link key={item.id} href={`/shop/${item.slug}`} className="shrink-0 w-36 group">
             <div className="relative aspect-[4/5] bg-surface-container overflow-hidden mb-2 border border-outline-variant group-hover:border-primary/30 transition-colors">
-              <Image
-                src={item.image}
-                alt={item.name}
-                fill
-                sizes="144px"
-                className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
-              />
+              {item.image ? (
+                <Image
+                  src={item.image}
+                  alt={item.name}
+                  fill
+                  sizes="144px"
+                  className="object-cover group-hover:scale-[1.04] transition-transform duration-500"
+                />
+              ) : (
+                <div className="absolute inset-0 flex items-center justify-center">
+                  <span className="font-display text-3xl text-primary opacity-30 select-none">S</span>
+                </div>
+              )}
             </div>
             <p className="font-sans text-xs text-on-surface line-clamp-2 leading-snug">{item.name}</p>
             <p className="font-sans text-sm font-semibold text-on-surface mt-0.5">

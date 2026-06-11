@@ -3,9 +3,9 @@ import { sendContactEmail } from "@/lib/email";
 import { z } from "zod";
 
 const schema = z.object({
-  name: z.string().min(2),
-  email: z.string().email(),
-  message: z.string().min(10),
+  name: z.string().min(2).max(100),
+  email: z.string().email().max(254),
+  message: z.string().min(10).max(5000),
 });
 
 export async function POST(request: Request) {

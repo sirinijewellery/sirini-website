@@ -6,7 +6,7 @@ export async function GET(request: Request) {
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.trim();
 
-  if (!q || q.length < 2) {
+  if (!q || q.length < 2 || q.length > 100) {
     return NextResponse.json({ results: [] });
   }
 

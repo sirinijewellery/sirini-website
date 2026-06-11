@@ -116,6 +116,12 @@ export async function DELETE(
 
   const { id } = await params;
 
+  // Verify coupon exists (prevent unhandled P2025 → 500)
+  const existing = await prisma.coupon.findUnique({ where: { id }, select: { id: true } });
+  if (!existing) {
+    return NextResponse.json({ error: "Coupon not found" }, { status: 404 });
+  }
+
   await prisma.coupon.delete({ where: { id } });
 
   return NextResponse.json({ success: true });

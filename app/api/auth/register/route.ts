@@ -4,9 +4,14 @@ import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
 const registerSchema = z.object({
-  name: z.string().min(2, "Name must be at least 2 characters"),
-  email: z.string().email("Invalid email address"),
-  password: z.string().min(8, "Password must be at least 8 characters"),
+  name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
+  // Normalize so the same address can't register twice with different casing
+  email: z.string().trim().toLowerCase().email("Invalid email address"),
+  password: z
+    .string()
+    .min(8, "Password must be at least 8 characters")
+    // bcrypt only uses the first 72 bytes; also prevents oversized-input DoS
+    .max(72, "Password must be at most 72 characters"),
 });
 
 export async function POST(request: Request) {

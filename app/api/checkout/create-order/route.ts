@@ -17,10 +17,11 @@ const bodySchema = z.object({
       z.object({
         productId: z.string().min(1),
         variantId: z.string().optional(),
-        quantity: z.number().int().positive(),
+        quantity: z.number().int().positive().max(100),
       })
     )
-    .min(1, "Cart is empty"),
+    .min(1, "Cart is empty")
+    .max(50),
   address: addressSchema,
   customerName: z.string().min(1, "Name is required"),
   customerEmail: z.string().email("Invalid email"),

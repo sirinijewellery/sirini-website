@@ -199,7 +199,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
               alt={`${productName} — ${activeIndex === 0 ? "main view" : `view ${activeIndex + 1}`} | Sirini Jewellery`}
               fill
               className="object-cover transition-transform duration-300 hover:scale-[1.02]"
-              priority={activeIndex === 0}
+              preload={activeIndex === 0}
               sizes="(max-width: 768px) 100vw, 50vw"
             />
           </button>

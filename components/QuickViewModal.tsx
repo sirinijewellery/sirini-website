@@ -117,7 +117,7 @@ export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
                   fill
                   sizes="(max-width: 768px) 100vw, 50vw"
                   className="object-cover"
-                  priority
+                  preload
                 />
               ) : (
                 <div className="absolute inset-0 flex items-center justify-center bg-surface-container-low">

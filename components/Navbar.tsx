@@ -225,7 +225,7 @@ export function Navbar() {
               width={500}
               height={500}
               className="h-20 w-auto object-contain"
-              priority
+              preload
             />
           </Link>
 

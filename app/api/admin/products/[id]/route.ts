@@ -7,7 +7,12 @@ import { parseImages } from "@/lib/queries/products";
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
-  slug: z.string().min(1, "Slug is required"),
+  slug: z
+    .string()
+    .trim()
+    .toLowerCase()
+    .min(1, "Slug is required")
+    .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers and dashes"),
   description: z.string().min(1, "Description is required"),
   price: z.number().positive("Price must be positive"),
   category: z.string().min(1, "Category is required"),

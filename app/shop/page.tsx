@@ -30,9 +30,22 @@ interface ShopPageProps {
   }>;
 }
 
+/** Parse a positive integer query param; falls back to 1 on NaN/garbage. */
+function parsePage(raw: string | undefined): number {
+  const n = parseInt(raw || "1", 10);
+  return Number.isFinite(n) && n >= 1 ? n : 1;
+}
+
+/** Parse a float query param; returns undefined on NaN/garbage so Prisma never sees NaN. */
+function parseFloatParam(raw: string | undefined): number | undefined {
+  if (!raw) return undefined;
+  const n = parseFloat(raw);
+  return Number.isFinite(n) ? n : undefined;
+}
+
 export async function generateMetadata({ searchParams }: ShopPageProps): Promise<Metadata> {
   const params = await searchParams;
-  const page = Math.max(1, parseInt(params.page || "1", 10));
+  const page = parsePage(params.page);
 
   // Count "indexable" facets. A page is canonical-worthy only when it has at
   // most ONE of these primary facets and no secondary refinements / pagination.
@@ -107,20 +120,20 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
 
 async function ShopContent({ searchParams }: ShopPageProps) {
   const params = await searchParams;
-  const page = Math.max(1, parseInt(params.page || "1", 10));
+  const page = parsePage(params.page);
 
   const options: GetProductsOptions = {
     page,
     limit: 20,
     category: params.category,
     material: params.material,
-    priceMin: params.priceMin ? parseFloat(params.priceMin) : undefined,
-    priceMax: params.priceMax ? parseFloat(params.priceMax) : undefined,
+    priceMin: parseFloatParam(params.priceMin),
+    priceMax: parseFloatParam(params.priceMax),
     sort: (params.sort as GetProductsOptions["sort"]) || "newest",
     search: params.search,
     occasion: params.occasion,
     style: params.style,
-    minRating: params.minRating ? parseFloat(params.minRating) : undefined,
+    minRating: parseFloatParam(params.minRating),
     inStock: params.inStock === "1",
   };
 
@@ -162,7 +175,9 @@ async function ShopContent({ searchParams }: ShopPageProps) {
       {itemListSchema && (
         <script
           type="application/ld+json"
-          dangerouslySetInnerHTML={{ __html: JSON.stringify(itemListSchema) }}
+          dangerouslySetInnerHTML={{
+            __html: JSON.stringify(itemListSchema).replace(/</g, "\\u003c"),
+          }}
         />
       )}
       {/* Header */}
