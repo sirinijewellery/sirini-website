@@ -192,7 +192,7 @@ export function ProductCard({ product }: ProductCardProps) {
           type="button"
           aria-label={wishlisted ? `Remove ${product.name} from wishlist` : `Add ${product.name} to wishlist`}
           disabled={wishlistLoading}
-          className={`absolute top-4 right-4 p-1.5 backdrop-blur-sm border
+          className={`absolute top-4 right-4 p-1.5 backdrop-blur-sm border press-scale
             transition-all duration-200 cursor-pointer disabled:cursor-wait
             opacity-100 md:opacity-0 md:group-hover:opacity-100
             ${wishlisted
@@ -201,14 +201,18 @@ export function ProductCard({ product }: ProductCardProps) {
             }`}
           onClick={handleWishlist}
         >
-          <HeartIcon className={`w-4 h-4 ${wishlisted ? "fill-current" : ""}`} />
+          {/* key forces remount on toggle so the pop replays every time */}
+          <HeartIcon
+            key={String(wishlisted)}
+            className={`w-4 h-4 ${wishlisted ? "fill-current animate-heart-pop" : ""}`}
+          />
         </button>
 
         {/* ── WhatsApp share ─────────────────────────────────────── */}
         <button
           type="button"
           aria-label={`Share ${product.name} on WhatsApp`}
-          className="absolute top-14 right-4 p-1.5 backdrop-blur-sm border
+          className="absolute top-14 right-4 p-1.5 backdrop-blur-sm border press-scale
             transition-all duration-200 cursor-pointer
             opacity-100 md:opacity-0 md:group-hover:opacity-100
             bg-[#25D366] border-[#25D366] text-white
@@ -248,7 +252,8 @@ export function ProductCard({ product }: ProductCardProps) {
       {/* ── Product info ─────────────────────────────────────────── */}
       <div className="flex flex-col gap-1">
         <h4 className="font-sans text-sm text-on-surface leading-snug line-clamp-2">
-          {product.name}
+          {/* inline span so the underline sweep hugs the text, not the column */}
+          <span className="link-sweep">{product.name}</span>
         </h4>
         {product.tags && product.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">

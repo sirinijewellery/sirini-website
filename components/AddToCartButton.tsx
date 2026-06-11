@@ -190,7 +190,7 @@ export function AddToCartButton({ product }: AddToCartButtonProps) {
     <Button
       onClick={handleAddToCart}
       disabled={!!isDisabled}
-      className="w-full h-12 text-base font-sans gap-2"
+      className="w-full h-12 text-base font-sans gap-2 btn-sheen press-scale"
       variant="default"
     >
       <ShoppingBag className="h-4 w-4" />

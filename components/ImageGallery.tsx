@@ -194,11 +194,13 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
             className="relative w-full aspect-square rounded-xl overflow-hidden bg-muted cursor-crosshair focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-2"
             aria-label={`View ${productName} image ${activeIndex + 1} in full screen`}
           >
+            {/* key={activeIndex} remounts on switch so the entrance fade replays */}
             <Image
+              key={activeIndex}
               src={images[activeIndex]}
               alt={`${productName} — ${activeIndex === 0 ? "main view" : `view ${activeIndex + 1}`} | Sirini Jewellery`}
               fill
-              className="object-cover transition-transform duration-300 hover:scale-[1.02]"
+              className="object-cover transition-transform duration-300 hover:scale-[1.02] animate-fade-in-scale"
               preload={activeIndex === 0}
               sizes="(max-width: 768px) 100vw, 50vw"
             />
@@ -229,7 +231,7 @@ export function ImageGallery({ images, productName }: ImageGalleryProps) {
               <button
                 key={i}
                 onClick={() => setActiveIndex(i)}
-                className={`relative w-16 h-16 shrink-0 rounded-lg overflow-hidden border-2 transition-colors cursor-pointer ${
+                className={`relative w-16 h-16 shrink-0 rounded-lg overflow-hidden border-2 transition-colors cursor-pointer press-scale ${
                   i === activeIndex
                     ? "border-primary"
                     : "border-transparent hover:border-muted-foreground/30"

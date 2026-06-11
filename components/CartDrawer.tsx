@@ -153,7 +153,7 @@ export function CartDrawer() {
             {/* ── Free-gift threshold progress ─────────────────────────────── */}
             <GiftProgressBar subtotal={subtotal} />
 
-            <ul className="flex-1 overflow-y-auto px-6 py-4 space-y-4">
+            <ul className="flex-1 overflow-y-auto px-6 py-4 space-y-4 drawer-cascade">
               {items.map((item) => {
                 const key = `${item.productId}-${item.variantId ?? "default"}`;
                 return (
@@ -339,7 +339,7 @@ export function CartDrawer() {
 
               {/* Checkout CTA */}
               <Link href="/checkout" onClick={closeDrawer} className="block">
-                <Button variant="default" className="w-full font-sans text-sm">
+                <Button variant="default" className="w-full font-sans text-sm btn-sheen press-scale">
                   Checkout
                 </Button>
               </Link>

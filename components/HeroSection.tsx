@@ -39,7 +39,7 @@ export function HeroSection() {
           preload
           quality={75}
           sizes="100vw"
-          className="object-cover object-center"
+          className="object-cover object-center animate-ken-burns"
         />
         {/* Left-to-right gradient — gives text a clean dark panel on the left */}
         <div className="absolute inset-0 bg-gradient-to-r from-background/90 via-background/50 to-transparent" />
@@ -79,7 +79,7 @@ export function HeroSection() {
           {/* CTA */}
           <a
             href="/shop"
-            className="w-fit inline-flex items-center justify-center gap-2 px-8 py-4 border border-primary text-primary hover:bg-primary hover:text-on-primary font-label-caps text-label-caps font-semibold transition-colors duration-300 animate-slide-up-fade cursor-pointer"
+            className="w-fit inline-flex items-center justify-center gap-2 px-8 py-4 border border-primary text-primary hover:bg-primary hover:text-on-primary font-label-caps text-label-caps font-semibold transition-colors duration-300 animate-slide-up-fade cursor-pointer btn-sheen press-scale"
             style={{ animationDelay: "360ms" }}
           >
             Shop the Collection

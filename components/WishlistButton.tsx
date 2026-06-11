@@ -55,13 +55,17 @@ export function WishlistButton({ productId }: WishlistButtonProps) {
       onClick={toggle}
       disabled={loading}
       aria-label={isWishlisted ? "Remove from wishlist" : "Add to wishlist"}
-      className={`p-3 rounded-full border transition-colors ${
+      className={`p-3 rounded-full border press-scale transition-colors ${
         isWishlisted
           ? "bg-primary/10 border-primary text-primary"
           : "border-border text-muted-foreground hover:text-primary hover:border-primary"
       }`}
     >
-      <Heart className={`h-5 w-5 ${isWishlisted ? "fill-current" : ""}`} />
+      {/* key forces remount on toggle so the pop replays every time */}
+      <Heart
+        key={String(isWishlisted)}
+        className={`h-5 w-5 ${isWishlisted ? "fill-current animate-heart-pop" : ""}`}
+      />
     </button>
   );
 }

@@ -292,7 +292,7 @@ export function Navbar() {
                     <button
                       type="button"
                       onClick={closeSearch}
-                      className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors"
+                      className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors press-scale"
                       aria-label="Close search"
                     >
                       <X className="h-6 w-6" />
@@ -301,7 +301,7 @@ export function Navbar() {
                 ) : (
                   <button
                     onClick={() => setSearchOpen(true)}
-                    className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors cursor-pointer"
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors press-scale cursor-pointer"
                     aria-label="Search"
                   >
                     <Search className="h-6 w-6" />
@@ -398,7 +398,7 @@ export function Navbar() {
               {/* Wishlist */}
               <Link
                 href="/wishlist"
-                className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors"
+                className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors press-scale"
                 aria-label="Wishlist"
               >
                 <Heart className="h-6 w-6" />
@@ -409,7 +409,7 @@ export function Navbar() {
                 {session?.user ? (
                   <div className="relative group">
                     <button
-                      className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors cursor-pointer"
+                      className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors press-scale cursor-pointer"
                       aria-label="Account"
                     >
                       <User className="h-6 w-6" />
@@ -448,7 +448,7 @@ export function Navbar() {
                 ) : (
                   <Link
                     href="/login"
-                    className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors"
+                    className="inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors press-scale"
                     aria-label="Sign in"
                   >
                     <User className="h-6 w-6" />
@@ -459,7 +459,7 @@ export function Navbar() {
               {/* Cart */}
               <button
                 onClick={openDrawer}
-                className="relative inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors cursor-pointer"
+                className="relative inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors press-scale cursor-pointer"
                 aria-label="Cart"
               >
                 <ShoppingBag className="h-6 w-6" />
@@ -469,7 +469,7 @@ export function Navbar() {
               {/* Mobile hamburger */}
               <Sheet open={mobileOpen} onOpenChange={setMobileOpen}>
                 <SheetTrigger
-                  className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors cursor-pointer"
+                  className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors press-scale cursor-pointer"
                   aria-label="Menu"
                 >
                   <Menu className="h-6 w-6" />
