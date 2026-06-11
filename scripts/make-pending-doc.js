@@ -171,13 +171,15 @@ const doc = new Document({
           ...[
             "All 8 placeholder products priced — selling = 2× your wholesale, e.g. Vivaah Polki ₹7,450 (struck ₹12,899)",
             "Every product (162) now has its OWN strikethrough gap (₹1,500–₹6,000, varied) — no more uniform 50%-off everywhere",
+            "Home page now features 8 products WITH model photography (was 0) — chokers, haars, long sets, ₹1.5k–₹22k spread",
+            "Cover rule everywhere: decorative styled shot → model shot → white (white never shows if a model image exists)",
+            "WEBSITE SPEED: all images now resized + compressed by Cloudinary's CDN (AVIF/WebP, right-sized) — far smaller downloads",
+            "WEBSITE SPEED: all 162 product pages pre-built and cached (10-min refresh) — open instantly instead of rendering per visit",
             "All 33 generic product names renamed (e.g. \"Necklace Set 01NS706\" → \"Bridal Brass Kundan Choker Set\")",
-            "Cover images switched to the decorative styled shot for all products",
             "Admin: hover any product image → ★ Cover button to change the cover anytime",
             "Full security audit — 27 issues fixed incl. 2 critical (payment amount bypass, review XSS)",
             "Premium animations site-wide (hero drift, hover sweeps, cart pop, drawer cascade) — colours/layouts untouched",
-            "Location permission popup removed",
-            "Order IDs now SR1, SR2, … • COD/online payment bug fixed • free gift from ₹4,000",
+            "Location permission popup removed • Order IDs SR1, SR2, … • COD bug fixed • free gift from ₹4,000",
           ].map((t, i) =>
             dataRow(["✓", t], [{ bold: true, color: GREEN }, {}], i % 2 === 0 ? GREENBG : WHITE)
           ),
@@ -220,39 +222,79 @@ const doc = new Document({
         divider(),
 
         /* ══════════════════════ 3. SSL ══════════════════════════════════ */
-        h2("3. www SSL Fix — iPhone 'Not Private' Warning  (DO — 5 min, HIGH)"),
-        bullet("Open vercel.com → sirini-website → Settings → Domains"),
-        bullet('Click "Add Domain" → type:  www.sirinijewellery.com → Add'),
-        bullet("Vercel shows a CNAME value (usually cname.vercel-dns.com)"),
-        bullet("At your domain registrar → DNS → add CNAME:  Name = www  |  Value = cname.vercel-dns.com"),
-        bullet("Wait 1–5 min → SSL auto-issues → warning gone on all devices"),
+        h2("3. www SSL Fix — iPhone 'Not Private' Warning  (DO — 10 min, HIGH)"),
+        spacer(),
+        makeTable([
+          headerRow(["Step", "Exactly what to do"], [600, 8800]),
+          ...[
+            "Open a browser → go to vercel.com → click Log In (top right) → sign in",
+            "On the dashboard, click the project named sirini-website",
+            "Click the Settings tab (top menu) → click Domains in the left sidebar",
+            "Click the Add button → in the box type:  www.sirinijewellery.com  → click Add",
+            'If Vercel asks how to handle it, choose "Redirect to sirinijewellery.com" (recommended)',
+            "Vercel now shows a DNS record you must add — usually:  Type CNAME | Name www | Value cname.vercel-dns.com.  Keep this tab open",
+            "In a NEW tab, log in to the website where you bought the domain (GoDaddy: My Products → next to the domain click DNS.  Namecheap: Domain List → Manage → Advanced DNS)",
+            "Click Add Record / Add New Record → Type: CNAME → Host/Name: www → Value/Target: cname.vercel-dns.com → TTL: leave default → Save",
+            "Go back to the Vercel tab → wait 2–5 minutes → refresh the page → the www domain should now show a green tick / Valid Configuration",
+            "Test on your iPhone: open https://www.sirinijewellery.com — the warning is gone",
+          ].map((t, i) => dataRow([String(i + 1), t], [{ bold: true }], i % 2 === 0 ? LGRAY : WHITE)),
+        ]),
 
         divider(),
 
         /* ══════════════════════ 4. RESEND ═══════════════════════════════ */
-        h2("4. Turn On Order Emails  (DO)"),
-        bullet("Create free account at resend.com"),
-        bullet("Resend → Domains → Add sirinijewellery.com → add the 3 DNS records it shows at your registrar → Verify"),
-        bullet("Resend → API Keys → copy the key"),
-        bullet("Vercel → sirini-website → Settings → Environment Variables → add  RESEND_API_KEY = (key)"),
-        bullet("Also add  ORDER_FROM_EMAIL = orders@sirinijewellery.com  (after domain verifies)"),
-        bullet("Redeploy → you get an email for every order + a daily 9 AM digest"),
+        h2("4. Turn On Order Emails  (DO — 20 min)"),
+        spacer(),
+        makeTable([
+          headerRow(["Step", "Exactly what to do"], [600, 8800]),
+          ...[
+            "Go to resend.com → click Sign Up → use sirinijewellery@gmail.com → verify the confirmation email it sends you",
+            "After logging in: left sidebar → Domains → click Add Domain → type sirinijewellery.com → Add",
+            "Resend now lists 3 DNS records (one MX, two TXT). Keep this tab open",
+            "In a new tab open your domain registrar's DNS page (same place as Section 3, step 7)",
+            "Add each of the 3 records exactly as shown — copy the Name and the Value one by one. For the MX record also copy the Priority number",
+            'Back in Resend → click "Verify DNS Records" → wait (can take 5–30 min) → all three turn green',
+            "Left sidebar → API Keys → Create API Key → Name: sirini-website → Permission: Full access → Create → COPY the key (starts with re_) — you can't see it again later",
+            "Open vercel.com → sirini-website → Settings → Environment Variables",
+            "Click Add → Key: RESEND_API_KEY → Value: paste the key → keep all environments ticked → Save",
+            "Click Add again → Key: ORDER_FROM_EMAIL → Value:  Sirini Jewellery <orders@sirinijewellery.com>  → Save",
+            "Go to the Deployments tab → on the topmost deployment click the ⋯ menu → Redeploy → confirm",
+            "Test: place a small test order on the site → within a minute you should get a 'New order SR…' email",
+          ].map((t, i) => dataRow([String(i + 1), t], [{ bold: true }], i % 2 === 0 ? LGRAY : WHITE)),
+        ]),
 
         divider(),
 
         /* ══════════════════════ 5. RAZORPAY WEBHOOK ════════════════════ */
-        h2("5. Razorpay Webhook  (DO)"),
-        bullet("Razorpay Dashboard → Settings → Webhooks → + Add New Webhook"),
-        bullet("URL:  https://sirinijewellery.com/api/webhooks/razorpay"),
-        bullet("Events:  payment.captured  +  payment.failed"),
-        bullet("Create a strong secret → copy it"),
-        bullet("Vercel env vars → add  RAZORPAY_WEBHOOK_SECRET = (secret) → redeploy"),
+        h2("5. Razorpay Webhook  (DO — 10 min)"),
+        spacer(),
+        makeTable([
+          headerRow(["Step", "Exactly what to do"], [600, 8800]),
+          ...[
+            "Go to dashboard.razorpay.com → log in with your Razorpay account",
+            "Left sidebar (bottom) → Account & Settings → under 'Website and app settings' click Webhooks",
+            "Click + Add New Webhook (or Create Webhook)",
+            "Webhook URL — type exactly:  https://sirinijewellery.com/api/webhooks/razorpay",
+            "Secret — invent a long random password (32+ random letters/numbers, e.g. from a password manager). WRITE IT DOWN — you need it in step 7",
+            "Alert Email: sirinijewellery@gmail.com  •  Active Events: tick  payment.captured  and  payment.failed  → click Create Webhook",
+            "Open vercel.com → sirini-website → Settings → Environment Variables → Add → Key: RAZORPAY_WEBHOOK_SECRET → Value: the same secret from step 5 → Save",
+            "Deployments tab → ⋯ on the latest deployment → Redeploy → confirm. Done — payments now auto-confirm even if a customer closes the browser mid-payment",
+          ].map((t, i) => dataRow([String(i + 1), t], [{ bold: true }], i % 2 === 0 ? LGRAY : WHITE)),
+        ]),
 
         divider(),
 
         /* ══════════════════════ 6. CRON SECRET ═════════════════════════ */
-        h2("6. Protect the Daily Digest  (DO — optional, 2 min)"),
-        bullet("Vercel env vars → add  CRON_SECRET = (any long random string, 32+ chars) → redeploy"),
+        h2("6. Protect the Daily Digest  (DO — 3 min, optional)"),
+        spacer(),
+        makeTable([
+          headerRow(["Step", "Exactly what to do"], [600, 8800]),
+          ...[
+            "Invent another long random string (32+ characters)",
+            "vercel.com → sirini-website → Settings → Environment Variables → Add → Key: CRON_SECRET → Value: the string → Save",
+            "Deployments tab → ⋯ → Redeploy. Done — only Vercel's scheduler can now trigger your daily revenue email",
+          ].map((t, i) => dataRow([String(i + 1), t], [{ bold: true }], i % 2 === 0 ? LGRAY : WHITE)),
+        ]),
 
         divider(),
 

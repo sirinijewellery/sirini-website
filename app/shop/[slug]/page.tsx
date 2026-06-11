@@ -16,6 +16,18 @@ import { ProductReviews } from "@/components/ProductReviews";
 import { RecentlyViewedStrip } from "@/components/RecentlyViewedStrip";
 import { prisma } from "@/lib/prisma";
 
+// ISR — product pages are cached and served instantly, re-rendered at most
+// every 10 minutes. Stock is re-verified server-side at checkout, and
+// reviews/wishlist load client-side, so staleness here is safe.
+export const revalidate = 600;
+
+// Pre-render every product page at build time so first visits are instant;
+// new products (created after a deploy) still render on demand and cache.
+export async function generateStaticParams() {
+  const products = await prisma.product.findMany({ select: { slug: true } });
+  return products.map((p) => ({ slug: p.slug }));
+}
+
 interface Props {
   params: Promise<{ slug: string }>;
 }

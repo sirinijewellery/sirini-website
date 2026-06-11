@@ -19,6 +19,10 @@ export const metadata = pageMetadata(
   { canonical: siteConfig.url },
 );
 
+// ISR — the home page (featured/bestseller queries) is served from cache and
+// refreshed at most every 10 minutes.
+export const revalidate = 600;
+
 export default function HomePage() {
   return (
     <>

@@ -14,7 +14,9 @@ const prisma = new PrismaClient({ adapter });
 //   model      — model wearing the product: contains "model"
 //   cpt        — close-up thumbnail: contains "cpt"
 //
-// Cover priority: decorative → numbered → model → cpt
+// Cover priority: decorative → model → numbered → cpt
+// (model beats white/numbered shots — covers should never be a plain white
+//  image when a model shot exists)
 
 function classify(url: string): "decorative" | "numbered" | "model" | "cpt" {
   const lower = url.toLowerCase();
@@ -36,10 +38,10 @@ function classify(url: string): "decorative" | "numbered" | "model" | "cpt" {
 
 function reorder(images: string[]): string[] {
   const decorative = images.filter(u => classify(u) === "decorative");
-  const numbered   = images.filter(u => classify(u) === "numbered");
   const model      = images.filter(u => classify(u) === "model");
+  const numbered   = images.filter(u => classify(u) === "numbered");
   const cpt        = images.filter(u => classify(u) === "cpt");
-  return [...decorative, ...numbered, ...model, ...cpt];
+  return [...decorative, ...model, ...numbered, ...cpt];
 }
 
 async function main() {
