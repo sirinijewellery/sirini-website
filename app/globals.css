@@ -477,6 +477,47 @@ a:hover > .img-zoom,
   opacity: 1;
 }
 
+/* ── Directional reveal variants — combine with .reveal ──
+   <div class="reveal reveal-left">  slides in from the left on scroll
+   <div class="reveal reveal-right"> slides in from the right
+   <div class="reveal reveal-zoom">  settles from a gentle 0.94 scale  */
+.reveal.reveal-left   { transform: translateX(-44px); }
+.reveal.reveal-right  { transform: translateX(44px); }
+.reveal.reveal-zoom   { transform: scale(0.94); }
+.reveal.reveal-left.active,
+.reveal.reveal-right.active { transform: translateX(0); }
+.reveal.reveal-zoom.active  { transform: scale(1); }
+
+/* ── Gold rule draws itself in when its section reveals ── */
+.reveal .section-gold-rule::before {
+  width: 0;
+  transition: width 700ms cubic-bezier(0.22, 1, 0.36, 1) 250ms;
+}
+.reveal.active .section-gold-rule::before {
+  width: 40px;
+}
+
+/* ── Scroll parallax targets (driven by ScrollReveal's rAF loop) ──
+   Elements with [data-parallax] get a translate3d drift while in view.
+   scale-110 head-room on images prevents edge gaps while drifting. */
+[data-parallax] {
+  will-change: transform;
+}
+
+/* ── Reading progress bar — thin gold line at the very top ── */
+.scroll-progress {
+  position: fixed;
+  top: 0;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  z-index: 55;
+  background: linear-gradient(90deg, #b76e79, #c9a96e);
+  transform-origin: left;
+  transform: scaleX(0);
+  pointer-events: none;
+}
+
 /* ── Global reduced-motion guard — covers EVERY custom animation ── */
 @media (prefers-reduced-motion: reduce) {
   .reveal,

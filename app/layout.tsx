@@ -13,6 +13,7 @@ import { AbandonedCartNudge } from "@/components/AbandonedCartNudge";
 import NextTopLoader from "nextjs-toploader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { ScrollProgressBar } from "@/components/ScrollProgressBar";
 import { CountdownBanner } from "@/components/CountdownBanner";
 import { LocalBusinessJsonLd } from "@/components/LocalBusinessJsonLd";
 import type { Viewport } from "next";
@@ -67,6 +68,7 @@ export default function RootLayout({
         <CountdownBanner />
         <NextTopLoader color="#B76E79" height={3} showSpinner={false} crawl={true} />
         <ScrollReveal />
+        <ScrollProgressBar />
         <WebSiteJsonLd />
         <LocalBusinessJsonLd />
         <AuthProvider>

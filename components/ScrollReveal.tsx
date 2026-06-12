@@ -29,12 +29,51 @@ export function ScrollReveal() {
 
     const seen = new WeakSet<Element>();
 
+    // ── Scroll parallax ───────────────────────────────────────────────
+    // Elements with data-parallax="0.06" drift vertically at that fraction
+    // of their distance from the viewport centre. rAF-throttled; disabled
+    // entirely for prefers-reduced-motion users.
+    const prefersReduced = window.matchMedia(
+      "(prefers-reduced-motion: reduce)"
+    ).matches;
+    let parallaxEls: HTMLElement[] = [];
+    let raf = 0;
+
+    const collectParallax = () => {
+      parallaxEls = Array.from(
+        document.querySelectorAll<HTMLElement>("[data-parallax]")
+      );
+    };
+
+    const onScroll = () => {
+      if (raf) return;
+      raf = requestAnimationFrame(() => {
+        raf = 0;
+        const vh = window.innerHeight;
+        for (const el of parallaxEls) {
+          const r = el.getBoundingClientRect();
+          if (r.bottom < -100 || r.top > vh + 100) continue;
+          const speed = parseFloat(el.dataset.parallax || "0.06");
+          const offset = (r.top + r.height / 2 - vh / 2) * -speed;
+          el.style.transform = `translate3d(0, ${offset.toFixed(1)}px, 0)`;
+        }
+      });
+    };
+
+    if (!prefersReduced) {
+      collectParallax();
+      window.addEventListener("scroll", onScroll, { passive: true });
+      window.addEventListener("resize", onScroll, { passive: true });
+      onScroll();
+    }
+
     const scan = () => {
       document.querySelectorAll<HTMLElement>(".reveal").forEach((el) => {
         if (seen.has(el) || el.classList.contains("active")) return;
         seen.add(el);
         io.observe(el);
       });
+      if (!prefersReduced) collectParallax();
     };
 
     scan();
@@ -66,6 +105,11 @@ export function ScrollReveal() {
       mo.disconnect();
       window.clearInterval(safety);
       window.clearTimeout(stopSafety);
+      if (!prefersReduced) {
+        window.removeEventListener("scroll", onScroll);
+        window.removeEventListener("resize", onScroll);
+        if (raf) cancelAnimationFrame(raf);
+      }
     };
   }, []);
 

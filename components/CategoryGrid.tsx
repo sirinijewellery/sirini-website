@@ -51,8 +51,8 @@ export async function CategoryGrid() {
         </a>
       </div>
 
-      {/* Equal-height grid — all categories, same size, no offset */}
-      <div className={`grid grid-cols-2 md:grid-cols-3 ${desktopCols} gap-4 md:gap-6`}>
+      {/* Equal-height grid — tiles stagger in one-by-one on scroll */}
+      <div className={`grid grid-cols-2 md:grid-cols-3 ${desktopCols} gap-4 md:gap-6 reveal stagger-grid`}>
         {categories.map((cat) => (
           <a
             key={cat.id}

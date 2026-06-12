@@ -3,21 +3,23 @@ import Link from "next/link";
 
 export function BrandStory() {
   return (
-    <section className="py-[120px] px-4 md:px-16 max-w-screen-2xl mx-auto reveal">
+    <section className="py-[120px] px-4 md:px-16 max-w-screen-2xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
-        {/* Image */}
-        <div className="aspect-square bg-surface-container relative overflow-hidden border border-outline-variant/50 p-4">
+        {/* Image — slides in from the left, then drifts on scroll (parallax) */}
+        <div className="aspect-square bg-surface-container relative overflow-hidden border border-outline-variant/50 p-4 reveal reveal-left">
           <Image
             src="https://res.cloudinary.com/dp8a2lvxg/image/upload/v1779797844/sirini-jewellery/brand/artisan-workshop.jpg"
             alt="Artisan crafting jewellery"
             fill
-            className="object-cover"
+            // scale-110 gives the parallax drift head-room so edges never show
+            className="object-cover scale-110"
             sizes="(max-width: 768px) 100vw, 50vw"
+            data-parallax="0.05"
           />
         </div>
 
-        {/* Text */}
-        <div className="flex flex-col gap-6 max-w-lg">
+        {/* Text — slides in from the right */}
+        <div className="flex flex-col gap-6 max-w-lg reveal reveal-right">
           <h2 className="font-headline-lg text-headline-lg text-on-surface gradient-title-bg w-fit">
             Crafted with Intention
           </h2>

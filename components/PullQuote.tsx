@@ -3,8 +3,9 @@
 
 export function PullQuote() {
   return (
-    <section className="py-20 px-6 md:px-16 max-w-screen-2xl mx-auto reveal">
-      <div className="flex gap-6 md:gap-8 items-start max-w-3xl">
+    <section className="py-20 px-6 md:px-16 max-w-screen-2xl mx-auto">
+      {/* Quote slides in from the left as it scrolls into view */}
+      <div className="flex gap-6 md:gap-8 items-start max-w-3xl reveal reveal-left">
         {/* Gold vertical rule */}
         <div className="shrink-0 w-[2px] self-stretch bg-[#C9A96E] mt-1" />
 
