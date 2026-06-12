@@ -44,9 +44,12 @@ export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLd
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",
     "@type": "Product",
+    "@id": productUrl,
+    url: productUrl,
     name: product.name,
     description: product.description,
     sku: product.sku,
+    mpn: product.sku,
     image: product.images,
     brand: {
       "@type": "Brand",
@@ -72,6 +75,17 @@ export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLd
         "@type": "Organization",
         name: "Sirini Jewellery",
         url: siteUrl,
+      },
+      // Mirrors the real policy (FAQ): exchanges within 7 days of delivery
+      // for defects / wrong items, at no cost to the customer.
+      hasMerchantReturnPolicy: {
+        "@type": "MerchantReturnPolicy",
+        applicableCountry: "IN",
+        returnPolicyCategory:
+          "https://schema.org/MerchantReturnFiniteReturnWindow",
+        merchantReturnDays: 7,
+        returnMethod: "https://schema.org/ReturnByMail",
+        returnFees: "https://schema.org/FreeReturn",
       },
       shippingDetails: {
         "@type": "OfferShippingDetails",

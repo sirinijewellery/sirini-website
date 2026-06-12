@@ -12,7 +12,17 @@ import {
 } from "@/lib/queries/products";
 import Link from "next/link";
 import { siteConfig } from "@/lib/seo";
+import { NAV_CATEGORIES } from "@/lib/taxonomy";
+import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 import type { Metadata } from "next";
+
+/** Pretty label for a category slug ("necklace-sets" → "Necklace Sets"). */
+function categoryLabel(slug: string): string {
+  return (
+    NAV_CATEGORIES.find((c) => c.slug === slug)?.label ??
+    slug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())
+  );
+}
 
 interface ShopPageProps {
   searchParams: Promise<{
@@ -104,9 +114,10 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
     };
   }
   if (params.category) {
+    const label = categoryLabel(params.category);
     return {
-      title: `${params.category} — Handcrafted Indian Jewellery`,
-      description: `Shop handcrafted ${params.category.toLowerCase()} — Kundan, Meenakari & gold-plated designs. Free shipping across India.`,
+      title: `${label} — Buy Handcrafted Indian Jewellery Online`,
+      description: `Shop handcrafted ${label.toLowerCase()} — Kundan, Meenakari & gold-plated designs by Sirini Jewellery, Mumbai. Free shipping across India, COD available.`,
       ...seo,
     };
   }
@@ -153,7 +164,9 @@ async function ShopContent({ searchParams }: ShopPageProps) {
       ? OCCASIONS.find((o) => o.slug === params.occasion)?.label || params.occasion
       : params.style
         ? `${STYLES.find((s) => s.slug === params.style)?.label || params.style} Jewellery`
-        : params.category || null;
+        : params.category
+          ? categoryLabel(params.category)
+          : null;
 
   // ItemList structured data for the products on the current page.
   const itemListSchema =
@@ -170,6 +183,15 @@ async function ShopContent({ searchParams }: ShopPageProps) {
         }
       : null;
 
+  // BreadcrumbList schema — pairs with the visible breadcrumb nav below.
+  const facetUrl = params.category
+    ? `${siteConfig.url}/shop?category=${encodeURIComponent(params.category)}`
+    : params.occasion
+      ? `${siteConfig.url}/shop?occasion=${encodeURIComponent(params.occasion)}`
+      : params.style
+        ? `${siteConfig.url}/shop?style=${encodeURIComponent(params.style)}`
+        : null;
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
       {itemListSchema && (
@@ -180,6 +202,15 @@ async function ShopContent({ searchParams }: ShopPageProps) {
           }}
         />
       )}
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteConfig.url },
+          { name: "Shop", url: `${siteConfig.url}/shop` },
+          ...(facetLabel && facetUrl
+            ? [{ name: facetLabel, url: facetUrl }]
+            : []),
+        ]}
+      />
       {/* Header */}
       <div className="mb-10">
         {/* Breadcrumb */}
