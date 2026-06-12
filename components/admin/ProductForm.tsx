@@ -71,7 +71,9 @@ const productFormSchema = z.object({
   material: z.string().min(1, "Material is required"),
   sku: z.string().min(1, "SKU is required"),
   images: z.array(z.string()).min(1, "At least one image is required"),
-  badge: z.enum(["", "NEW", "HOT", "SALE"]).optional(),
+  badge: z
+    .enum(["", "NEW", "HOT", "SALE", "Handcrafted", "Traditional", "Bestseller"])
+    .optional(),
   isFeatured: z.boolean(),
   occasions: z.array(z.string()),
   tags: z.array(z.string()),
@@ -156,7 +158,15 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       material: product?.material ?? "",
       sku: product?.sku ?? "",
       images: parseImages(product?.images),
-      badge: (product?.badge as "NEW" | "HOT" | "SALE" | "") ?? "",
+      badge:
+        (product?.badge as
+          | "NEW"
+          | "HOT"
+          | "SALE"
+          | "Handcrafted"
+          | "Traditional"
+          | "Bestseller"
+          | "") ?? "",
       isFeatured: product?.isFeatured ?? false,
       occasions: product?.occasions ?? [],
       tags: product?.tags ?? [],
@@ -461,6 +471,9 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                     <SelectItem value="NEW">NEW</SelectItem>
                     <SelectItem value="HOT">HOT</SelectItem>
                     <SelectItem value="SALE">SALE</SelectItem>
+                    <SelectItem value="Handcrafted">Handcrafted</SelectItem>
+                    <SelectItem value="Traditional">Traditional</SelectItem>
+                    <SelectItem value="Bestseller">Bestseller</SelectItem>
                   </SelectContent>
                 </Select>
               )}

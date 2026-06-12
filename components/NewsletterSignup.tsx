@@ -45,7 +45,7 @@ export function NewsletterSignup() {
 
   return (
     <section className="bg-surface-container py-[120px] px-4 md:px-16 reveal">
-      <div className="max-w-2xl mx-auto text-center flex flex-col items-center gap-6">
+      <div className="max-w-2xl mx-auto text-center flex flex-col items-center gap-6 reveal reveal-zoom">
         <h2 className="font-headline-lg text-headline-lg text-on-surface gradient-title-bg">
           Join the Inner Circle
         </h2>

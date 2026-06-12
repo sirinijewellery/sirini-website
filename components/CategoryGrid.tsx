@@ -35,7 +35,7 @@ export async function CategoryGrid() {
       <div className="flex flex-col md:flex-row justify-between items-end mb-16 gap-4">
         <div>
           <div className="section-gold-rule">
-            <h2 className="font-headline-lg text-[48px] md:text-[64px] leading-[1.0] tracking-[-0.02em] font-light text-on-surface mb-2 gradient-title-bg">
+            <h2 className="font-headline-lg text-[48px] md:text-[64px] leading-[1.0] tracking-[-0.02em] font-light text-on-surface mb-2 gradient-title-bg reveal reveal-clip">
               Curated Collections
             </h2>
           </div>

@@ -31,7 +31,7 @@ const trustItems = [
 export function TrustStrip() {
   return (
     <section className="py-8 px-4 md:px-16 bg-surface-container-low border-y border-outline-variant/30">
-      <div className="grid grid-cols-2 md:grid-cols-5 gap-6 max-w-screen-2xl mx-auto">
+      <div className="grid grid-cols-2 md:grid-cols-5 gap-6 max-w-screen-2xl mx-auto reveal stagger-grid">
         {trustItems.map(({ Icon, title, sub }) => (
           <div key={title} className="flex items-start md:items-center gap-3">
             <Icon className="h-5 w-5 text-primary shrink-0" aria-hidden="true" />

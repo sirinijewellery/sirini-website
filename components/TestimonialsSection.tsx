@@ -172,7 +172,7 @@ export function TestimonialsSection() {
     <section className="py-[120px] w-full overflow-hidden relative reveal">
       {/* Header */}
       <div className="text-center mb-16 px-4 md:px-16 max-w-screen-2xl mx-auto">
-        <h2 className="font-display text-[48px] md:text-[64px] font-light leading-[1.0] tracking-[-0.02em] text-on-surface gradient-title-bg">
+        <h2 className="font-display text-[48px] md:text-[64px] font-light leading-[1.0] tracking-[-0.02em] text-on-surface gradient-title-bg reveal reveal-clip">
           Voices of Sirini
         </h2>
         <p className="font-sans text-[11px] tracking-[0.2em] uppercase text-on-surface-variant mt-3">

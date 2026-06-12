@@ -6,7 +6,7 @@ export function BrandStory() {
     <section className="py-[120px] px-4 md:px-16 max-w-screen-2xl mx-auto">
       <div className="grid grid-cols-1 md:grid-cols-2 gap-16 items-center">
         {/* Image — slides in from the left, then drifts on scroll (parallax) */}
-        <div className="aspect-square bg-surface-container relative overflow-hidden border border-outline-variant/50 p-4 reveal reveal-left">
+        <div className="aspect-square bg-surface-container relative overflow-hidden border border-outline-variant/50 p-4 reveal reveal-tilt">
           <Image
             src="https://res.cloudinary.com/dp8a2lvxg/image/upload/v1779797844/sirini-jewellery/brand/artisan-workshop.jpg"
             alt="Artisan crafting jewellery"

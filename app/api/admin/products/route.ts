@@ -17,7 +17,10 @@ const productSchema = z.object({
   material: z.string().min(1, "Material is required"),
   sku: z.string().min(1, "SKU is required"),
   images: z.array(z.string()).min(1, "At least one image is required"),
-  badge: z.enum(["NEW", "HOT", "SALE"]).optional().nullable(),
+  badge: z
+    .enum(["NEW", "HOT", "SALE", "Handcrafted", "Traditional", "Bestseller"])
+    .optional()
+    .nullable(),
   isFeatured: z.boolean(),
   occasions: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),

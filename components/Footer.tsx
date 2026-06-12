@@ -27,7 +27,7 @@ export function Footer() {
       <div className="px-6 md:px-16 pt-20 pb-12 w-full max-w-screen-2xl mx-auto">
 
         {/* ── Brand statement ─────────────────────────────────────── */}
-        <p className="font-display text-[32px] md:text-[48px] leading-[1.1] tracking-[-0.01em] italic font-light text-on-surface mb-6 max-w-2xl">
+        <p className="font-display text-[32px] md:text-[48px] leading-[1.1] tracking-[-0.01em] italic font-light text-on-surface mb-6 max-w-2xl reveal reveal-clip">
           Crafted for every occasion,<br className="hidden md:block" /> worn for a lifetime.
         </p>
 

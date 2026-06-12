@@ -49,8 +49,8 @@ export async function InstagramStrip() {
           </p>
         </div>
 
-        {/* Feed grid */}
-        <div className="grid grid-cols-3 md:grid-cols-6 gap-2">
+        {/* Feed grid — tiles stagger in on scroll */}
+        <div className="grid grid-cols-3 md:grid-cols-6 gap-2 reveal stagger-grid">
           {feed.map((src, i) => (
             <a
               key={src}

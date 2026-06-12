@@ -488,6 +488,28 @@ a:hover > .img-zoom,
 .reveal.reveal-right.active { transform: translateX(0); }
 .reveal.reveal-zoom.active  { transform: scale(1); }
 
+/* clip-rise — element unveils upward from behind an invisible mask.
+   Made for big display headings. */
+.reveal.reveal-clip {
+  clip-path: inset(0 0 100% 0);
+  transform: translateY(28px);
+  transition: opacity 700ms cubic-bezier(0.22, 1, 0.36, 1),
+              transform 900ms cubic-bezier(0.22, 1, 0.36, 1),
+              clip-path 900ms cubic-bezier(0.22, 1, 0.36, 1);
+}
+.reveal.reveal-clip.active {
+  clip-path: inset(0 0 -10% 0);
+  transform: translateY(0);
+}
+
+/* tilt — editorial images settle from a slight rotation */
+.reveal.reveal-tilt {
+  transform: rotate(-1.5deg) translateY(24px) scale(0.985);
+}
+.reveal.reveal-tilt.active {
+  transform: rotate(0deg) translateY(0) scale(1);
+}
+
 /* ── Gold rule draws itself in when its section reveals ── */
 .reveal .section-gold-rule::before {
   width: 0;
@@ -528,6 +550,9 @@ a:hover > .img-zoom,
     transform: none !important;
     transition: none !important;
     animation: none !important;
+  }
+  .reveal.reveal-clip {
+    clip-path: none !important;
   }
   .img-zoom,
   .card-lift,

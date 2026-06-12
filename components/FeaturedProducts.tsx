@@ -26,7 +26,7 @@ export async function FeaturedProducts() {
       {/* Section header */}
       <div className="max-w-screen-2xl mx-auto px-4 md:px-16 mb-12">
         <div className="section-gold-rule">
-          <h2 className="font-headline-lg text-[48px] md:text-[64px] leading-[1.0] tracking-[-0.02em] font-light text-on-surface gradient-title-bg">
+          <h2 className="font-headline-lg text-[48px] md:text-[64px] leading-[1.0] tracking-[-0.02em] font-light text-on-surface gradient-title-bg reveal reveal-clip">
             Curated Collection
           </h2>
           <p className="font-label-caps text-[10px] tracking-[0.25em] uppercase text-on-surface-variant mt-3">
