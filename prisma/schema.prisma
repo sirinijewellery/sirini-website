@@ -23,6 +23,9 @@ model Product {
   styles      String[] @default([])
   stock       Int      @default(10)
   compareAtPrice Int?
+  // Owner-controlled position on the shop front page (1 = first).
+  // Null = not pinned; pinned products always come before unpinned.
+  displayOrder Int?
   createdAt   DateTime @default(now())
 
   orderItems    OrderItem[]

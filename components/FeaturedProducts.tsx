@@ -5,7 +5,9 @@ import { MovingProductRail, type RailProduct } from "@/components/MovingProductR
 // Async server component — fetches featured products, then hands them to the
 // client-side auto-scrolling marquee (MovingProductRail).
 export async function FeaturedProducts() {
-  const products = await getFeaturedProducts(8);
+  // 16 = the 8 model-shot picks + the original variety (earrings, bangles,
+  // rings, anklets) so the home rail still represents the whole catalogue.
+  const products = await getFeaturedProducts(16);
 
   if (products.length === 0) return null;
 

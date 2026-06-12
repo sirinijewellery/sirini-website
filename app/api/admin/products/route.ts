@@ -22,6 +22,8 @@ const productSchema = z.object({
   occasions: z.array(z.string()).optional(),
   tags: z.array(z.string()).optional(),
   stock: z.number().int().min(0),
+  // Shop front-page position (1 = first). Null/absent = not pinned.
+  displayOrder: z.number().int().positive().optional().nullable(),
 });
 
 // GET /api/admin/products?page=1&search=ring

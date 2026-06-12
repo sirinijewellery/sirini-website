@@ -46,6 +46,7 @@ interface ProductDB {
   tags: string[];
   compareAtPrice?: number | null;
   stock: number;
+  displayOrder?: number | null;
   createdAt: Date;
 }
 
@@ -75,6 +76,7 @@ const productFormSchema = z.object({
   occasions: z.array(z.string()),
   tags: z.array(z.string()),
   stock: z.number({ message: "Stock must be a number" }).int().min(0, "Stock must be 0 or more"),
+  displayOrder: z.number().int().positive().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -159,6 +161,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       occasions: product?.occasions ?? [],
       tags: product?.tags ?? [],
       stock: product?.stock ?? 10,
+      displayOrder: product?.displayOrder ?? undefined,
     },
   });
 
@@ -202,6 +205,8 @@ export function ProductForm({ product, categories }: ProductFormProps) {
     const payload = {
       ...values,
       badge: values.badge || null,
+      // Empty input → null so clearing the field unpins the product.
+      displayOrder: values.displayOrder ?? null,
     };
 
     const url = isEditing
@@ -460,6 +465,30 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                 </Select>
               )}
             />
+          </Field>
+
+          {/* Front-page position */}
+          <Field
+            label="Front-page position"
+            error={errors.displayOrder?.message}
+            htmlFor="displayOrder"
+          >
+            <Input
+              id="displayOrder"
+              type="number"
+              min={1}
+              step={1}
+              placeholder="e.g. 1"
+              className="w-40"
+              aria-invalid={!!errors.displayOrder}
+              {...register("displayOrder", {
+                // Empty input → undefined (not NaN) so "unpinned" validates.
+                setValueAs: (v) => (v === "" || v == null ? undefined : Number(v)),
+              })}
+            />
+            <p className="text-xs text-gray-400">
+              1 = first product on the shop page. Leave empty for automatic order.
+            </p>
           </Field>
 
           {/* isFeatured */}

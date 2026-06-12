@@ -78,15 +78,52 @@ export async function getProducts(options: GetProductsOptions = {}) {
     name_asc: { name: "asc" as const },
   }[sort];
 
-  const [products, total] = await Promise.all([
-    prisma.product.findMany({
+  let products: Awaited<ReturnType<typeof prisma.product.findMany>>;
+  let total: number;
+
+  if (sort === "newest") {
+    // Curated default ordering (owner rule):
+    //  1. admin-pinned products first (displayOrder asc — editable per product)
+    //  2. then model-shot and decorative products INTERLEAVED so every shop
+    //     row mixes model photography with styled product shots
+    // The catalogue is small (~160 rows), so we order in JS and slice the page.
+    const all = await prisma.product.findMany({
       where,
-      orderBy,
-      skip: (page - 1) * limit,
-      take: limit,
-    }),
-    prisma.product.count({ where }),
-  ]);
+      orderBy: { createdAt: "desc" },
+    });
+
+    const hasModelImg = (p: { images: unknown }) =>
+      Array.isArray(p.images) && (p.images as string[]).some((u) => /model/i.test(u));
+
+    const pinned = all
+      .filter((p) => p.displayOrder != null)
+      .sort((a, b) => a.displayOrder! - b.displayOrder!);
+    const rest = all.filter((p) => p.displayOrder == null);
+    const model = rest.filter(hasModelImg);
+    const deco = rest.filter((p) => !hasModelImg(p));
+
+    // Interleave: M D M D … → every 4-card desktop row gets 2 model + 2
+    // decorative covers while both pools last.
+    const interleaved: typeof rest = [];
+    for (let i = 0; i < Math.max(model.length, deco.length); i++) {
+      if (i < model.length) interleaved.push(model[i]);
+      if (i < deco.length) interleaved.push(deco[i]);
+    }
+
+    const curated = [...pinned, ...interleaved];
+    total = curated.length;
+    products = curated.slice((page - 1) * limit, page * limit);
+  } else {
+    [products, total] = await Promise.all([
+      prisma.product.findMany({
+        where,
+        orderBy,
+        skip: (page - 1) * limit,
+        take: limit,
+      }),
+      prisma.product.count({ where }),
+    ]);
+  }
 
   const productsWithRatings = await attachRatings(products);
 
@@ -193,11 +230,22 @@ export async function getFeaturedProducts(limit = 8) {
   });
   const activeSlugs = activeCats.map((c) => c.slug);
 
-  return prisma.product.findMany({
+  const featured = await prisma.product.findMany({
     where: { isFeatured: true, category: { in: activeSlugs } },
-    take: limit,
     orderBy: { createdAt: "desc" },
   });
+
+  // Model-shot products lead the rail; admin displayOrder breaks ties.
+  const hasModelImg = (p: { images: unknown }) =>
+    Array.isArray(p.images) && (p.images as string[]).some((u) => /model/i.test(u));
+  featured.sort((a, b) => {
+    const ma = hasModelImg(a) ? 0 : 1;
+    const mb = hasModelImg(b) ? 0 : 1;
+    if (ma !== mb) return ma - mb;
+    return (a.displayOrder ?? 1e9) - (b.displayOrder ?? 1e9);
+  });
+
+  return featured.slice(0, limit);
 }
 
 /**
