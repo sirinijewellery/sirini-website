@@ -8,6 +8,7 @@ import { BrandStory } from "@/components/BrandStory";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { InstagramStrip } from "@/components/InstagramStrip";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
+import { AskAISection } from "@/components/AskAISection";
 import { TrustStrip } from "@/components/TrustStrip";
 import { OrganizationJsonLd } from "@/components/OrganizationJsonLd";
 import { PullQuote } from "@/components/PullQuote";
@@ -79,6 +80,9 @@ export default function HomePage() {
 
       {/* Zone 5 — Cream */}
       <NewsletterSignup />
+
+      {/* Ask AI about us — last word before the footer */}
+      <AskAISection />
     </>
   );
 }
