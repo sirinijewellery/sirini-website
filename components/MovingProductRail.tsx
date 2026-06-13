@@ -34,12 +34,21 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
   useEffect(() => {
     const el = scrollRef.current;
     if (!el) return;
-    const SPEED = 0.6; // px per frame ≈ calm premium pace
+
+    // Auto-scroll pace (px per frame). Touch devices get a slightly brisker
+    // ribbon since there's no hover-to-browse — desktop stays calm/premium.
+    //   ≤ 1024px (phones + iPad): faster   |   desktop: calm
+    const speedRef = { current: 0.6 };
+    const computeSpeed = () => {
+      speedRef.current = window.innerWidth <= 1024 ? 1.1 : 0.6;
+    };
+    computeSpeed();
+    window.addEventListener("resize", computeSpeed);
 
     function step() {
       const node = scrollRef.current;
       if (node && !pausedRef.current) {
-        node.scrollLeft += SPEED;
+        node.scrollLeft += speedRef.current;
         const half = node.scrollWidth / 2;
         if (half > 0 && node.scrollLeft >= half) node.scrollLeft -= half;
       }
@@ -49,6 +58,7 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
     return () => {
       if (rafRef.current) cancelAnimationFrame(rafRef.current);
       if (resumeTimer.current) clearTimeout(resumeTimer.current);
+      window.removeEventListener("resize", computeSpeed);
     };
   }, []);
 
