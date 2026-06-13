@@ -40,7 +40,7 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
     //   ≤ 1024px (phones + iPad): faster   |   desktop: calm
     const speedRef = { current: 0.6 };
     const computeSpeed = () => {
-      speedRef.current = window.innerWidth <= 1024 ? 1.1 : 0.6;
+      speedRef.current = window.innerWidth <= 1024 ? 1.6 : 1.0;
     };
     computeSpeed();
     window.addEventListener("resize", computeSpeed);
