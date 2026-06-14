@@ -1,33 +1,40 @@
 import Image from "next/image";
 
-// Full-screen editorial hero: the image fills the viewport, copy sits over it.
-// Landscape source (1312×816) is object-cover'd and biased toward the model so
-// she stays in frame as the crop tightens on portrait screens. A cream gradient
-// on the left keeps the dark brand copy legible over the image.
+// Responsive hero:
+//   • Phone (< md): full, UNCROPPED image on top, copy below on cream.
+//   • PC (md+):     full-screen, full-bleed image with copy overlaid left,
+//                   object-cover biased toward the model so she stays framed.
+// One <Image>, one <h1> — layout swaps via breakpoint classes.
 const HERO_IMAGE_URL =
   "https://res.cloudinary.com/dp8a2lvxg/image/upload/v1781352135/sirini-jewellery/brand/hero-editorial.png";
 
 export function HeroSection() {
   return (
-    <section className="relative w-full h-[100svh] min-h-[560px] overflow-hidden bg-background reveal hero-glint">
+    <section className="relative w-full overflow-hidden bg-background reveal md:h-[100svh] md:min-h-[560px]">
 
-      {/* Full-bleed image */}
-      <Image
-        src={HERO_IMAGE_URL}
-        alt="Model wearing a Sirini gold-plated bridal necklace set"
-        fill
-        preload
-        quality={90}
-        sizes="100vw"
-        className="object-cover object-[62%_center] hero-unveil"
-      />
+      {/* Image —
+          phone: in-flow band at the image's own ratio (no crop)
+          pc:    absolute full-bleed cover */}
+      <div className="relative w-full aspect-[1312/816] hero-glint md:absolute md:inset-0 md:aspect-auto md:h-full">
+        <Image
+          src={HERO_IMAGE_URL}
+          alt="Model wearing a Sirini gold-plated bridal necklace set"
+          fill
+          preload
+          quality={90}
+          sizes="100vw"
+          className="object-cover object-[62%_center] hero-unveil"
+        />
+      </div>
 
-      {/* Legibility scrims — cream from the left (text panel) + a soft bottom fade */}
-      <div className="absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
-      <div className="absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-transparent" />
+      {/* Legibility scrims — PC only (phone copy sits below the image, not over it) */}
+      <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
+      <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-transparent" />
 
-      {/* Copy overlay — left, vertically centred */}
-      <div className="relative z-10 h-full flex items-center px-6 md:px-16 max-w-screen-2xl mx-auto">
+      {/* Copy —
+          phone: in-flow below the image (cream)
+          pc:    overlaid, vertically centred on the left */}
+      <div className="relative z-10 px-6 py-10 md:px-16 md:py-0 md:h-full md:flex md:items-center md:max-w-screen-2xl md:mx-auto">
         <div className="flex flex-col gap-5 md:gap-6 max-w-xl">
 
           {/* Gold decorative rule */}

@@ -490,7 +490,9 @@ a:hover > .img-zoom,
 /* ── Hero glint — a slow diagonal light band sweeps the jewellery ──
    On-brand "catch the light" sparkle. Periodic, subtle, runs on every
    device (not hover-gated). The band sits above the image but below copy. */
-.hero-glint { position: relative; overflow: hidden; }
+/* overflow-only — the element supplies its own position (relative on phone,
+   absolute on PC) so this class never fights the layout's position utility. */
+.hero-glint { overflow: hidden; }
 .hero-glint::after {
   content: '';
   position: absolute;
