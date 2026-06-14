@@ -475,7 +475,16 @@ a:hover > .img-zoom,
   to   { opacity: 1; clip-path: inset(0 0 0 0); }
 }
 .hero-unveil {
-  animation: heroUnveil 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation:
+    heroUnveil 1100ms cubic-bezier(0.22, 1, 0.36, 1) both,
+    heroBreath 16s ease-in-out 1300ms infinite;
+}
+
+/* Ambient breathing — the hero image gently "breathes" so it never feels
+   static. So slight (2%) it reads as life, not a Ken Burns pan. */
+@keyframes heroBreath {
+  0%, 100% { transform: scale(1); }
+  50%      { transform: scale(1.02); }
 }
 
 /* ── Hero glint — a slow diagonal light band sweeps the jewellery ──
@@ -490,12 +499,12 @@ a:hover > .img-zoom,
   pointer-events: none;
   background: linear-gradient(
     105deg,
-    transparent 43%,
-    rgba(255, 255, 255, 0.22) 50%,
-    transparent 57%
+    transparent 42%,
+    rgba(255, 255, 255, 0.26) 50%,
+    transparent 58%
   );
   transform: translateX(-160%);
-  animation: heroGlint 6.5s ease-in-out 1.6s infinite;
+  animation: heroGlint 5.5s ease-in-out 1.4s infinite;
 }
 @keyframes heroGlint {
   0%   { transform: translateX(-160%); }

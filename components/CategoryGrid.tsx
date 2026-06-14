@@ -88,7 +88,8 @@ export async function CategoryGrid() {
                 {cat.name}
               </h3>
               <span className="font-label-caps text-label-caps font-semibold text-white/70 group-hover/card:text-white transition-colors">
-                Explore →
+                Explore{" "}
+                <span className="inline-block transition-transform duration-300 ease-out group-hover/card:translate-x-1" aria-hidden="true">→</span>
               </span>
             </div>
           </a>
