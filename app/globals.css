@@ -468,6 +468,41 @@ a:hover > .img-zoom,
   will-change: transform;
 }
 
+/* ── Hero unveil — soft right-to-left wipe + fade on first paint ──
+   Reveals the editorial hero image like a curtain drawing back. */
+@keyframes heroUnveil {
+  from { opacity: 0; clip-path: inset(0 0 0 100%); }
+  to   { opacity: 1; clip-path: inset(0 0 0 0); }
+}
+.hero-unveil {
+  animation: heroUnveil 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Hero glint — a slow diagonal light band sweeps the jewellery ──
+   On-brand "catch the light" sparkle. Periodic, subtle, runs on every
+   device (not hover-gated). The band sits above the image but below copy. */
+.hero-glint { position: relative; overflow: hidden; }
+.hero-glint::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 2;
+  pointer-events: none;
+  background: linear-gradient(
+    105deg,
+    transparent 43%,
+    rgba(255, 255, 255, 0.22) 50%,
+    transparent 57%
+  );
+  transform: translateX(-160%);
+  animation: heroGlint 6.5s ease-in-out 1.6s infinite;
+}
+@keyframes heroGlint {
+  0%   { transform: translateX(-160%); }
+  17%  { transform: translateX(160%); }
+  100% { transform: translateX(160%); }
+}
+
 /* ── Crossfade pair — for two stacked product images on hover ── */
 .crossfade-top {
   opacity: 0;
@@ -579,6 +614,15 @@ a:hover > .img-zoom,
   .animate-slide-up-fade,
   .animate-bounce-entrance {
     opacity: 1 !important;
+  }
+  .hero-unveil {
+    animation: none !important;
+    clip-path: none !important;
+    opacity: 1 !important;
+  }
+  .hero-glint::after {
+    animation: none !important;
+    opacity: 0 !important;
   }
 }
 

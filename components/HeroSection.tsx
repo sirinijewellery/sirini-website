@@ -12,7 +12,7 @@ export function HeroSection() {
       <div className="max-w-screen-2xl mx-auto grid grid-cols-1 md:grid-cols-2 md:items-center">
 
         {/* Image — full frame, never cropped (image first on mobile, right on desktop) */}
-        <div className="order-1 md:order-2 relative w-full">
+        <div className="order-1 md:order-2 relative w-full hero-glint">
           <Image
             src={HERO_IMAGE_URL}
             alt="Model wearing a Sirini gold-plated bridal necklace set"
@@ -21,13 +21,13 @@ export function HeroSection() {
             preload
             quality={90}
             sizes="(max-width: 768px) 100vw, 50vw"
-            className="w-full h-auto object-contain animate-fade-in-scale"
+            className="w-full h-auto object-contain hero-unveil"
           />
         </div>
 
         {/* Copy — cream panel (left on desktop, below image on mobile) */}
-        <div className="order-2 md:order-1 px-6 md:px-16 py-12 md:py-20">
-          <div className="flex flex-col gap-6 max-w-xl md:ml-auto">
+        <div className="order-2 md:order-1 px-6 md:px-16 py-10 md:py-20">
+          <div className="flex flex-col gap-5 md:gap-6 max-w-xl md:ml-auto">
 
             {/* Gold decorative rule */}
             <div className="w-10 h-px bg-[#C9A96E] animate-slide-up-fade" />
@@ -39,7 +39,7 @@ export function HeroSection() {
 
             {/* Display headline */}
             <h1
-              className="font-display-lg text-[56px] sm:text-[72px] md:text-[88px] leading-[1.05] tracking-[-0.02em] text-on-surface animate-slide-up-fade"
+              className="font-display-lg text-[44px] sm:text-[64px] md:text-[88px] leading-[1.06] md:leading-[1.05] tracking-[-0.02em] text-on-surface animate-slide-up-fade"
               style={{ animationDelay: "100ms" }}
             >
               The Heritage<br className="hidden sm:block" /> <em style={{ fontStyle: "italic" }}>of Elegance</em>
