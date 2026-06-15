@@ -76,7 +76,7 @@ export function LanguageToggle() {
         type="button"
         onClick={toggle}
         aria-label={hindi ? "Switch to English" : "हिंदी में देखें — switch to Hindi"}
-        className="notranslate inline-flex items-center gap-1 font-label-caps text-[10px] md:text-[11px] font-semibold tracking-[0.08em] uppercase text-on-primary/90 hover:text-on-primary transition-colors cursor-pointer"
+        className="notranslate inline-flex items-center gap-1 rounded-full border border-on-primary/45 bg-on-primary/10 px-2.5 py-1 font-label-caps text-[10px] md:text-[11px] font-semibold tracking-[0.08em] uppercase text-on-primary hover:bg-on-primary/20 hover:border-on-primary/80 transition-colors cursor-pointer"
       >
         <svg width="13" height="13" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round" aria-hidden="true">
           <circle cx="12" cy="12" r="10" />

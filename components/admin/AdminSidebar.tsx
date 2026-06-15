@@ -9,6 +9,7 @@ import {
   Package,
   Tag,
   Ticket,
+  UserCog,
   Menu,
   X,
 } from "lucide-react";
@@ -100,6 +101,7 @@ export function AdminSidebar() {
           <NavLink href="/admin/products" label="Products" icon={Package} />
           <NavLink href="/admin/categories" label="Categories" icon={Tag} />
           <NavLink href="/admin/coupons" label="Coupons" icon={Ticket} />
+          <NavLink href="/admin/account" label="My Account" icon={UserCog} />
         </nav>
 
         {/* Footer */}
