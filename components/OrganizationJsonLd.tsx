@@ -1,6 +1,8 @@
+import { SITE_URL } from "@/lib/seo";
+
 /** Site-wide Organization schema — renders in <head> via layout or homepage */
 export function OrganizationJsonLd() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = SITE_URL;
 
   const jsonLd = {
     "@context": "https://schema.org",

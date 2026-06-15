@@ -2,8 +2,10 @@
 // Server component — no "use client"
 // WebSite schema with SearchAction for Google Sitelinks Search Box
 
+import { SITE_URL } from "@/lib/seo";
+
 export function WebSiteJsonLd() {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "https://sirinijewellery.com";
+  const siteUrl = SITE_URL;
 
   const jsonLd = {
     "@context": "https://schema.org",

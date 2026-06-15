@@ -1,3 +1,5 @@
+import { SITE_URL } from "@/lib/seo";
+
 interface ProductJsonLdProps {
   product: {
     name: string;
@@ -28,7 +30,7 @@ interface ProductJsonLdProps {
 }
 
 export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLdProps) {
-  const siteUrl = process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000";
+  const siteUrl = SITE_URL;
   const productUrl = `${siteUrl}/shop/${product.slug}`;
 
   // Resolve availability: explicit inStock flag wins, else derive from stock, else assume in stock

@@ -1,11 +1,22 @@
 import type { Metadata } from "next";
 
+// ── Canonical site URL ────────────────────────────────────────────────────
+// Single source of truth for the production origin. We deliberately IGNORE any
+// `*.vercel.app` value (Vercel preview hosts and the misconfigured prod alias)
+// so every canonical / OG / sitemap / structured-data URL resolves to the real
+// domain even when NEXT_PUBLIC_SITE_URL is unset or wrong. A non-vercel env
+// value (e.g. localhost in dev, or a future custom domain) still wins.
+const PROD_URL = "https://sirinijewellery.com";
+const ENV_URL = process.env.NEXT_PUBLIC_SITE_URL;
+export const SITE_URL =
+  ENV_URL && !ENV_URL.includes("vercel.app") ? ENV_URL.replace(/\/$/, "") : PROD_URL;
+
 const siteConfig = {
   name: "Sirini Jewellery",
   tagline: "Handcrafted Kundan & Gold-Plated Jewellery",
   description:
     "Mumbai's premier handcrafted jewellery brand — Kundan necklace sets, Meenakari earrings, gold-plated bangles, rings & anklets. Free pan-India shipping since 2015.",
-  url: process.env.NEXT_PUBLIC_SITE_URL || "http://localhost:3000",
+  url: SITE_URL,
   // Cloudinary brand hero used as the site-wide social sharing card
   defaultOgImage:
     "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1200,h_630,c_fill,g_auto/v1779795103/sirini-jewellery/10ns787/10NS787-11225-Model.jpg",

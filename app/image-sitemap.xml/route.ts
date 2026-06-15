@@ -1,9 +1,9 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/parseImages";
+import { SITE_URL } from "@/lib/seo";
 
-const BASE_URL =
-  process.env.NEXT_PUBLIC_SITE_URL || "https://sirinijewellery.com";
+const BASE_URL = SITE_URL;
 
 export const dynamic = "force-dynamic";
 export const revalidate = 3600; // revalidate every hour

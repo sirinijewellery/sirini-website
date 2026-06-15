@@ -330,6 +330,26 @@ const SEO_COPY: Record<string, string> = {
     "Sirini's bridal collection brings together Kundan, Polki and Jadau statement sets — heirloom craftsmanship for your most important day.",
   festive:
     "From Navratri to Diwali, our festive edit of Meenakari jhumkas, temple sets and gold-plated bangles ensures you shine at every celebration.",
+  party:
+    "Turn heads at every soirée with Sirini's party and cocktail edit — statement Kundan earrings, bold cocktail rings and evening-ready necklace sets. Lightweight, gold-plated and made to sparkle under the lights.",
+  daily:
+    "Effortless everyday elegance from Sirini — delicate studs, slim chains and subtle gold-plated pieces that move from desk to dinner. Skin-friendly and lightweight, with free shipping across India.",
+  // categories
+  "long-sets":
+    "Sirini's long necklace sets — rani haars, layered Polki strands and temple long sets — drape beautifully for brides and festive dressing. Each is gold-plated and handcrafted in Mumbai, with free pan-India shipping.",
+  // styles
+  kundan:
+    "Kundan jewellery sets pure gold foil around uncut stones for a signature regal glow. Sirini's handcrafted Kundan necklace sets, chokers and jhumkas are made for brides and festive occasions — gold-plated, crafted in Mumbai.",
+  meenakari:
+    "Meenakari is the art of hand-painted enamel, layering jewel-bright colour onto gold-plated jewellery. Explore Sirini's Meenakari jhumkas, necklace sets and bangles — vivid, festive and handcrafted, with free pan-India shipping.",
+  polki:
+    "Polki jewellery showcases uncut, unfaceted diamonds for an heirloom, old-world richness. Sirini's Polki necklace sets and rani haars bring bridal grandeur in gold-plated, handcrafted designs — shipped free across India.",
+  temple:
+    "Temple jewellery draws on South-Indian heritage, rendering deities and motifs in richly carved gold tones. Sirini's temple necklace sets, jhumkas and long haars suit weddings and classical occasions — handcrafted in Mumbai.",
+  pearl:
+    "Pearl jewellery brings soft, timeless elegance to any look. Sirini's pearl necklace sets, drops and chokers pair lustrous pearls with gold-plated detailing — understated pieces for work, daily wear and weddings.",
+  antique:
+    "Antique gold jewellery wears its vintage, oxidised finish with quiet character. Sirini's antique-finish necklace sets, jhumkas and bangles offer heritage charm for festive and ethnic looks — handcrafted and gold-plated.",
 };
 
 function SeoCopyBlock({
