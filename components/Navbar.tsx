@@ -10,6 +10,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
 import { CartBadge } from "@/components/CartBadge";
+import { LanguageToggle } from "@/components/LanguageToggle";
 import { MegaMenu } from "@/components/MegaMenu";
 import { OccasionMenu } from "@/components/OccasionMenu";
 import { useCartStore } from "@/lib/store/cart";
@@ -196,8 +197,8 @@ export function Navbar() {
 
   return (
     <>
-      {/* Announcement bar — rotating messages */}
-      <div className="bg-primary text-on-primary py-2 px-4 text-center text-[10px] md:text-xs font-label-caps tracking-[0.2em] uppercase">
+      {/* Announcement bar — rotating messages + language toggle */}
+      <div className="relative bg-primary text-on-primary py-2 px-12 md:px-4 text-center text-[10px] md:text-xs font-label-caps tracking-[0.2em] uppercase">
         <span className="relative block h-[1.4em]">
           {ANNOUNCEMENTS.map((msg, i) => (
             <span
@@ -211,14 +212,25 @@ export function Navbar() {
             </span>
           ))}
         </span>
+        {/* EN ⇄ हिंदी translation toggle */}
+        <div className="absolute right-2 md:right-6 top-1/2 -translate-y-1/2">
+          <LanguageToggle />
+        </div>
       </div>
 
       {/* Sticky header */}
       <header className="bg-background/90 backdrop-blur-md w-full top-0 sticky z-50">
         <div className="flex items-center gap-4 w-full px-6 md:px-16 py-2 max-w-screen-2xl mx-auto">
 
-          {/* Logo */}
-          <Link href="/" aria-label="Sirini Jewellery — Home" className="shrink-0">
+          {/* Logo — goes home; when already home, glides up to the hero */}
+          <Link
+            href="/"
+            aria-label="Sirini Jewellery — Home"
+            className="shrink-0"
+            onClick={() => {
+              if (pathname === "/") window.scrollTo({ top: 0, behavior: "smooth" });
+            }}
+          >
             <Image
               src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,e_make_transparent:20,f_png,w_400/sirini-jewellery/logo-real.png"
               alt="Sirini Jewellery"
@@ -476,15 +488,24 @@ export function Navbar() {
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72 bg-background">
                   <div className="flex flex-col h-full">
-                    {/* Mobile logo */}
+                    {/* Mobile logo — now tappable, returns to the home/hero page */}
                     <div className="py-2">
-                      <Image
-                        src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,e_make_transparent:20,f_png,w_400/sirini-jewellery/logo-real.png"
-                        alt="Sirini Jewellery"
-                        width={500}
-                        height={500}
-                        className="h-16 w-auto object-contain"
-                      />
+                      <Link
+                        href="/"
+                        aria-label="Sirini Jewellery — Home"
+                        onClick={() => {
+                          setMobileOpen(false);
+                          if (pathname === "/") window.scrollTo({ top: 0, behavior: "smooth" });
+                        }}
+                      >
+                        <Image
+                          src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,e_make_transparent:20,f_png,w_400/sirini-jewellery/logo-real.png"
+                          alt="Sirini Jewellery"
+                          width={500}
+                          height={500}
+                          className="h-16 w-auto object-contain"
+                        />
+                      </Link>
                     </div>
 
                     {/* Mobile nav links — onClick closes the sheet */}
