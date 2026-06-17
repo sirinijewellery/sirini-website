@@ -10,6 +10,8 @@ import {
   Tag,
   Ticket,
   UserCog,
+  Images,
+  Megaphone,
   Menu,
   X,
 } from "lucide-react";
@@ -101,6 +103,8 @@ export function AdminSidebar() {
           <NavLink href="/admin/products" label="Products" icon={Package} />
           <NavLink href="/admin/categories" label="Categories" icon={Tag} />
           <NavLink href="/admin/coupons" label="Coupons" icon={Ticket} />
+          <NavLink href="/admin/hero" label="Hero Section" icon={Images} />
+          <NavLink href="/admin/ribbons" label="Header Ribbon" icon={Megaphone} />
           <NavLink href="/admin/account" label="My Account" icon={UserCog} />
         </nav>
 

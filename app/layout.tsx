@@ -7,6 +7,7 @@ import { FooterWrapper } from "@/components/FooterWrapper";
 import { WhatsAppWrapper } from "@/components/WhatsAppWrapper";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { baseMetadata } from "@/lib/seo";
+import { getRibbonMessages } from "@/lib/queries/site";
 import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
 import { CartDrawer } from "@/components/CartDrawer";
 import { AbandonedCartNudge } from "@/components/AbandonedCartNudge";
@@ -49,11 +50,12 @@ export const viewport: Viewport = {
   themeColor: "#5C1A24",
 };
 
-export default function RootLayout({
+export default async function RootLayout({
   children,
 }: Readonly<{
   children: React.ReactNode;
 }>) {
+  const ribbonMessages = await getRibbonMessages();
   return (
     <html lang="en">
       {/* Google Tag Manager — lets the owner inject any checkout/conversion
@@ -72,7 +74,7 @@ export default function RootLayout({
         <WebSiteJsonLd />
         <LocalBusinessJsonLd />
         <AuthProvider>
-          <NavbarWrapper />
+          <NavbarWrapper messages={ribbonMessages} />
           <main className="flex-1 pb-16 md:pb-0">{children}</main>
           <FooterWrapper />
           <WhatsAppWrapper />

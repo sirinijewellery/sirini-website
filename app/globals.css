@@ -487,6 +487,12 @@ a:hover > .img-zoom,
   50%      { transform: scale(1.02); }
 }
 
+/* Standalone ambient breathing (used by rotating hero slides). */
+.hero-breathe {
+  animation: heroBreath 16s ease-in-out infinite;
+  will-change: transform;
+}
+
 /* ── Hero glint — a slow diagonal light band sweeps the jewellery ──
    On-brand "catch the light" sparkle. Periodic, subtle, runs on every
    device (not hover-gated). The band sits above the image but below copy. */
@@ -634,6 +640,9 @@ a:hover > .img-zoom,
   .hero-glint::after {
     animation: none !important;
     opacity: 0 !important;
+  }
+  .hero-breathe {
+    animation: none !important;
   }
 }
 

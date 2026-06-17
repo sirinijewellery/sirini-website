@@ -60,7 +60,7 @@ function priceHref(priceMin?: number, priceMax?: number): string {
   return qs ? `/shop?${qs}` : "/shop";
 }
 
-const ANNOUNCEMENTS = [
+const DEFAULT_ANNOUNCEMENTS = [
   "Free Pan-India Shipping on All Orders",
   "Handcrafted Since 2015 · Genuine Kundan & Meenakari",
   "Cash on Delivery Available · First Order: Flat 10% OFF",
@@ -74,7 +74,8 @@ const inrFormatter = new Intl.NumberFormat("en-IN", {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function Navbar() {
+export function Navbar({ messages }: { messages?: string[] }) {
+  const ANNOUNCEMENTS = messages && messages.length ? messages : DEFAULT_ANNOUNCEMENTS;
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();

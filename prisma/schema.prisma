@@ -143,6 +143,30 @@ model NewsletterSubscriber {
   createdAt DateTime @default(now())
 }
 
+// Owner-managed home hero. Multiple active slides rotate as a crossfade
+// slideshow. focal* = CSS object-position so the owner can "crop" which part
+// of the image shows on each device when it's cover-cropped.
+model HeroSlide {
+  id             String   @id @default(cuid())
+  imageUrl       String
+  mobileImageUrl String?  // optional separate image for phones
+  focalDesktop   String   @default("50% 50%")
+  focalMobile    String   @default("50% 50%")
+  order          Int      @default(0)
+  isActive       Boolean  @default(true)
+  createdAt      DateTime @default(now())
+
+  @@index([isActive, order])
+}
+
+// Generic key/value store for owner-editable site config:
+//   hero.durationMs  -> number   (ms each hero slide stays before changing)
+//   ribbon.messages  -> string[] (rotating announcement-bar messages)
+model Setting {
+  key   String @id
+  value Json
+}
+
 model Review {
   id          String   @id @default(cuid())
   productId   String
