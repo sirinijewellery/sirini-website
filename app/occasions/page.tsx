@@ -7,6 +7,7 @@ import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 export const metadata = pageMetadata(
   "Shop by Occasion",
   "Explore Sirini Jewellery by occasion — heirloom Bridal & Wedding sets and our Festive Edit of Meenakari, temple & jhumka pieces for every celebration.",
+  { canonical: "/occasions" },
 );
 
 export default async function OccasionsPage() {

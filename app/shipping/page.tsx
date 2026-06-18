@@ -4,6 +4,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata: Metadata = pageMetadata(
   "Shipping & Returns — Sirini Jewellery",
   "Free shipping across India. Easy returns within 7 days. Learn about our shipping and return policy.",
+  { canonical: "/shipping" },
 );
 
 export default function ShippingPage() {

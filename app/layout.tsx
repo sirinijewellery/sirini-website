@@ -67,6 +67,11 @@ export default async function RootLayout({
       <body
         className={`${ebGaramond.variable} ${dmSans.variable} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
+        {/* Resource hints — warm up the image CDN connection for a faster LCP.
+            No crossOrigin: <img> requests to Cloudinary aren't CORS, so a plain
+            preconnect is what gets reused. */}
+        <link rel="preconnect" href="https://res.cloudinary.com" />
+        <link rel="dns-prefetch" href="https://res.cloudinary.com" />
         <CountdownBanner />
         <NextTopLoader color="#B76E79" height={3} showSpinner={false} crawl={true} />
         <ScrollReveal />

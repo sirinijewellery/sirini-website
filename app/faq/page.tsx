@@ -5,6 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata(
   "FAQ — Sirini Jewellery",
   "Answers to common questions about Sirini Jewellery — gold plating, care, shipping, returns, sizing and how to reach us.",
+  { canonical: "/faq" },
 );
 
 const WHATSAPP_URL = "https://wa.me/919322222216";

@@ -7,26 +7,40 @@ import { getAllArticles } from "@/lib/blog";
 const BASE_URL = siteConfig.url;
 
 export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
-  const now = new Date();
-
   const products = await prisma.product.findMany({
     select: { slug: true, createdAt: true },
   });
+  const articles = getAllArticles();
+
+  // Real, stable lastmod dates. Google ignores lastmod that changes on every
+  // crawl, so catalog pages track the newest product, the blog index tracks the
+  // newest article, and the static info pages use a fixed content date.
+  const catalogUpdated = products.reduce(
+    (max, p) => (p.createdAt > max ? p.createdAt : max),
+    new Date(0),
+  );
+  const safeCatalog = catalogUpdated.getTime() > 0 ? catalogUpdated : new Date("2026-06-01T00:00:00");
+  const newestArticle = articles.reduce((max, a) => {
+    const d = new Date(`${a.date}T00:00:00`);
+    return d > max ? d : max;
+  }, new Date(0));
+  const blogUpdated = newestArticle.getTime() > 0 ? newestArticle : safeCatalog;
+  const STATIC_UPDATED = new Date("2026-06-01T00:00:00");
 
   // ── Static pages (only routes that exist) ────────────────────────
   const staticRoutes: MetadataRoute.Sitemap = [
-    { url: BASE_URL, lastModified: now, changeFrequency: "daily", priority: 1 },
-    { url: `${BASE_URL}/shop`, lastModified: now, changeFrequency: "daily", priority: 0.9 },
-    { url: `${BASE_URL}/occasions`, lastModified: now, changeFrequency: "weekly", priority: 0.8 },
-    { url: `${BASE_URL}/blog`, lastModified: now, changeFrequency: "weekly", priority: 0.7 },
-    { url: `${BASE_URL}/about`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/contact`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/faq`, lastModified: now, changeFrequency: "monthly", priority: 0.5 },
-    { url: `${BASE_URL}/shipping`, lastModified: now, changeFrequency: "monthly", priority: 0.4 },
+    { url: BASE_URL, lastModified: safeCatalog, changeFrequency: "daily", priority: 1 },
+    { url: `${BASE_URL}/shop`, lastModified: safeCatalog, changeFrequency: "daily", priority: 0.9 },
+    { url: `${BASE_URL}/occasions`, lastModified: safeCatalog, changeFrequency: "weekly", priority: 0.8 },
+    { url: `${BASE_URL}/blog`, lastModified: blogUpdated, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE_URL}/about`, lastModified: STATIC_UPDATED, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/contact`, lastModified: STATIC_UPDATED, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/faq`, lastModified: STATIC_UPDATED, changeFrequency: "monthly", priority: 0.5 },
+    { url: `${BASE_URL}/shipping`, lastModified: STATIC_UPDATED, changeFrequency: "monthly", priority: 0.4 },
   ];
 
   // ── Blog articles ────────────────────────────────────────────────
-  const blogRoutes: MetadataRoute.Sitemap = getAllArticles().map((article) => ({
+  const blogRoutes: MetadataRoute.Sitemap = articles.map((article) => ({
     url: `${BASE_URL}/blog/${article.slug}`,
     lastModified: new Date(`${article.date}T00:00:00`),
     changeFrequency: "monthly" as const,
@@ -36,7 +50,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Occasion facet URLs ──────────────────────────────────────────
   const occasionRoutes: MetadataRoute.Sitemap = OCCASIONS.map((o) => ({
     url: `${BASE_URL}/shop?occasion=${encodeURIComponent(o.slug)}`,
-    lastModified: now,
+    lastModified: safeCatalog,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
@@ -44,7 +58,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Style facet URLs ─────────────────────────────────────────────
   const styleRoutes: MetadataRoute.Sitemap = STYLES.map((s) => ({
     url: `${BASE_URL}/shop?style=${encodeURIComponent(s.slug)}`,
-    lastModified: now,
+    lastModified: safeCatalog,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));
@@ -52,7 +66,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   // ── Category facet URLs ──────────────────────────────────────────
   const categoryRoutes: MetadataRoute.Sitemap = NAV_CATEGORIES.map((c) => ({
     url: `${BASE_URL}/shop?category=${encodeURIComponent(c.slug)}`,
-    lastModified: now,
+    lastModified: safeCatalog,
     changeFrequency: "weekly" as const,
     priority: 0.7,
   }));

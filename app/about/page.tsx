@@ -5,6 +5,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata(
   "Our Story — Handcrafted Since 2015",
   "Born in Mumbai in 2015, Sirini Jewellery blends traditional craftsmanship with modern elegance. A family. A craft. A promise.",
+  { canonical: "/about" },
 );
 
 // Hero: Mumbai infographic poster — the Sirini story image.

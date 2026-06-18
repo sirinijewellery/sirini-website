@@ -7,6 +7,7 @@ import { pageMetadata } from "@/lib/seo";
 export const metadata = pageMetadata(
   "Contact Us",
   "Get in touch with Sirini Jewellery. We're happy to help with orders, custom pieces, and bulk enquiries.",
+  { canonical: "/contact" },
 );
 
 export default function ContactPage() {
