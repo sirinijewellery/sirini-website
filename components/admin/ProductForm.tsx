@@ -93,13 +93,15 @@ function generateSlug(name: string): string {
 const MATERIALS = getMaterials();
 
 function suggestCategoryFromSku(sku: string): string | null {
+  // Return canonical category SLUGS (not display names) — the rest of the site
+  // (cards, links, filters) matches on slug, case-sensitively.
   const upper = sku.toUpperCase();
-  if (upper.includes("LG")) return "Long Sets";
-  if (upper.includes("NS") || upper.includes("NKS")) return "Necklace Sets";
-  if (upper.includes("BG")) return "Bangles";
-  if (upper.includes("FR")) return "Finger Rings";
-  if (upper.includes("PL") || upper.includes("ANK")) return "Anklets";
-  if (upper.includes("ER") || upper.includes("JHM")) return "Earrings";
+  if (upper.includes("LG")) return "long-sets";
+  if (upper.includes("NS") || upper.includes("NKS")) return "necklace-sets";
+  if (upper.includes("BG")) return "bangles";
+  if (upper.includes("FR")) return "finger-rings";
+  if (upper.includes("PL") || upper.includes("ANK")) return "anklets";
+  if (upper.includes("ER") || upper.includes("JHM")) return "earrings";
   return null;
 }
 
@@ -413,7 +415,7 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                   </SelectTrigger>
                   <SelectContent>
                     {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.name}>
+                      <SelectItem key={cat.id} value={cat.slug}>
                         {cat.name}
                       </SelectItem>
                     ))}
