@@ -88,6 +88,32 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
       }
     : { robots: { index: false, follow: true } };
 
+  // Shared OG/Twitter card for every facet variant — category/occasion/style
+  // links get shared a lot (esp. WhatsApp), so give each its own social card
+  // instead of falling back to the generic homepage card.
+  const ogImage = siteConfig.defaultOgImage;
+  const ogPath = params.occasion
+    ? `/shop?occasion=${params.occasion}`
+    : params.style
+      ? `/shop?style=${params.style}`
+      : params.category
+        ? `/shop?category=${encodeURIComponent(params.category)}`
+        : "/shop";
+  const build = (title: string, description: string): Metadata => ({
+    title,
+    description,
+    openGraph: {
+      title,
+      description,
+      type: "website",
+      locale: "en_IN",
+      url: `${siteConfig.url}${ogPath}`,
+      images: [{ url: ogImage, width: 1200, height: 630 }],
+    },
+    twitter: { card: "summary_large_image", title, description, images: [ogImage] },
+    ...seo,
+  });
+
   if (params.occasion) {
     const occ = OCCASIONS.find((o) => o.slug === params.occasion);
     const title =
@@ -96,37 +122,30 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
         : params.occasion === "festive"
           ? "Festive Jewellery"
           : `${occ?.label ?? params.occasion} Jewellery`;
-    return {
-      title: `${title} | Sirini Jewellery`,
-      description:
-        occ?.blurb ??
+    return build(
+      `${title} | Sirini Jewellery`,
+      occ?.blurb ??
         `Shop handcrafted jewellery for ${params.occasion} occasions. Free shipping across India.`,
-      ...seo,
-    };
+    );
   }
   if (params.style) {
     const st = STYLES.find((s) => s.slug === params.style);
-    return {
-      title: `${st?.label ?? params.style} Jewellery | Sirini Jewellery`,
-      description:
-        `Shop handcrafted ${st?.label ?? params.style} jewellery — necklace sets, earrings, bangles & more. Free shipping across India.`,
-      ...seo,
-    };
+    return build(
+      `${st?.label ?? params.style} Jewellery | Sirini Jewellery`,
+      `Shop handcrafted ${st?.label ?? params.style} jewellery — necklace sets, earrings, bangles & more. Free shipping across India.`,
+    );
   }
   if (params.category) {
     const label = categoryLabel(params.category);
-    return {
-      title: `${label} — Buy Handcrafted Indian Jewellery Online`,
-      description: `Shop handcrafted ${label.toLowerCase()} — Kundan, Meenakari & gold-plated designs by Sirini Jewellery, Mumbai. Free shipping across India, COD available.`,
-      ...seo,
-    };
+    return build(
+      `${label} — Buy Handcrafted Indian Jewellery Online`,
+      `Shop handcrafted ${label.toLowerCase()} — Kundan, Meenakari & gold-plated designs by Sirini Jewellery, Mumbai. Free shipping across India, COD available.`,
+    );
   }
-  return {
-    title: "Shop Handcrafted Indian Jewellery — Kundan, Meenakari & Gold-Plated",
-    description:
-      "Browse 100+ handcrafted jewellery pieces — Kundan necklace sets, gold-plated earrings, bangles, rings & anklets. Free shipping across India.",
-    ...seo,
-  };
+  return build(
+    "Shop Handcrafted Indian Jewellery — Kundan, Meenakari & Gold-Plated",
+    "Browse 100+ handcrafted jewellery pieces — Kundan necklace sets, gold-plated earrings, bangles, rings & anklets. Free shipping across India.",
+  );
 }
 
 async function ShopContent({ searchParams }: ShopPageProps) {
