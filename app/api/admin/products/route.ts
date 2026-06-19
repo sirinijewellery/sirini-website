@@ -13,7 +13,7 @@ const productSchema = z.object({
     .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers and dashes"),
   description: z.string().min(1, "Description is required"),
   price: z.number().positive("Price must be positive"),
-  category: z.string().min(1, "Category is required"),
+  categories: z.array(z.string().min(1)).min(1, "Select at least one category"),
   material: z.string().min(1, "Material is required"),
   sku: z.string().min(1, "SKU is required"),
   images: z.array(z.string()).min(1, "At least one image is required"),
@@ -112,6 +112,9 @@ export async function POST(req: NextRequest) {
   const product = await prisma.product.create({
     data: {
       ...fields,
+      // Primary category (kept for display/back-compat) = first chosen category.
+      category: fields.categories[0],
+      categories: fields.categories,
       badge: fields.badge ?? null,
       images: fields.images,
       occasions: fields.occasions ?? [],

@@ -1,5 +1,6 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
+import { matchCategorySlugs } from "@/lib/taxonomy";
 
 export type ProductWithVariants = Awaited<ReturnType<typeof getProducts>>["products"][number];
 // NB: name retained for import compatibility; products no longer have variants
@@ -45,10 +46,15 @@ export async function getProducts(options: GetProductsOptions = {}) {
   });
   const activeSlugs = activeCats.map((c) => c.slug);
 
+  const ci = Prisma.QueryMode.insensitive;
+  const searchCatSlugs = search ? matchCategorySlugs(search) : [];
+
   const where: Prisma.ProductWhereInput = {
-    category: category
-      ? category                    // exact slug passed by caller
-      : { in: activeSlugs },        // all active categories when no filter
+    // Multi-category: a product matches a category if its categories[] contains
+    // the slug. With no category filter, show all active (image-bearing) ones.
+    ...(category
+      ? { categories: { has: category } }
+      : { categories: { hasSome: activeSlugs } }),
     ...(material && { material }),
     ...(featuredOnly && { isFeatured: true }),
     ...(occasion && { occasions: { has: occasion } }),
@@ -64,9 +70,11 @@ export async function getProducts(options: GetProductsOptions = {}) {
       : {}),
     ...(search && {
       OR: [
-        { name: { contains: search, mode: Prisma.QueryMode.insensitive } },
-        { description: { contains: search, mode: Prisma.QueryMode.insensitive } },
-        { material: { contains: search, mode: Prisma.QueryMode.insensitive } },
+        { name: { contains: search, mode: ci } },
+        { description: { contains: search, mode: ci } },
+        { material: { contains: search, mode: ci } },
+        { sku: { contains: search, mode: ci } },
+        ...(searchCatSlugs.length ? [{ categories: { hasSome: searchCatSlugs } }] : []),
       ],
     }),
   };
@@ -177,7 +185,7 @@ export async function getProductBySlug(slug: string) {
 
 export async function getRelatedProducts(category: string, excludeId: string, limit = 4) {
   return prisma.product.findMany({
-    where: { category, id: { not: excludeId } },
+    where: { categories: { has: category }, id: { not: excludeId } },
     take: limit,
     orderBy: { createdAt: "desc" },
   });
@@ -231,7 +239,7 @@ export async function getFeaturedProducts(limit = 8) {
   const activeSlugs = activeCats.map((c) => c.slug);
 
   const featured = await prisma.product.findMany({
-    where: { isFeatured: true, category: { in: activeSlugs } },
+    where: { isFeatured: true, categories: { hasSome: activeSlugs } },
     orderBy: { createdAt: "desc" },
   });
 
@@ -269,7 +277,7 @@ export async function getBestsellers(limit = 8) {
   });
 
   const products = await prisma.product.findMany({
-    where: { id: { in: ranked.map((r) => r.productId) }, category: { in: activeSlugs } },
+    where: { id: { in: ranked.map((r) => r.productId) }, categories: { hasSome: activeSlugs } },
   });
 
   // Preserve the ranked order
@@ -324,7 +332,7 @@ export async function getOccasionCoverImage(occasion: string): Promise<string | 
   // Fallback: necklace-set model images (the only category with model shots)
   if (pool.length === 0) {
     const ns = await prisma.product.findMany({
-      where: { category: "necklace-sets" },
+      where: { categories: { has: "necklace-sets" } },
       orderBy: { price: "desc" },
       select: { images: true },
       take: 30,
@@ -353,7 +361,7 @@ export async function getOccasionCovers(): Promise<Record<string, string | null>
 
   // All necklace-set model images (only category with model shots), priced desc.
   const ns = await prisma.product.findMany({
-    where: { category: "necklace-sets" },
+    where: { categories: { has: "necklace-sets" } },
     orderBy: { price: "desc" },
     select: { images: true, occasions: true },
   });

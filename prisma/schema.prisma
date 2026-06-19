@@ -18,6 +18,9 @@ model Product {
   images      Json
   badge       String?
   isFeatured  Boolean  @default(false)
+  // `category` is the PRIMARY category (kept for display/back-compat); a product
+  // can belong to MANY categories via `categories` (slugs), which drives filtering.
+  categories  String[] @default([])
   occasions   String[] @default([])
   tags        String[] @default([])
   styles      String[] @default([])

@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { getMaterials, parseImages } from "@/lib/parseImages";
+import { NAV_CATEGORIES } from "@/lib/taxonomy";
 
 // ---------- Types ----------
 interface Category {
@@ -37,6 +38,7 @@ interface ProductDB {
   description: string;
   price: number;
   category: string;
+  categories?: string[];
   material: string;
   sku: string;
   images: unknown;
@@ -67,7 +69,7 @@ const productFormSchema = z.object({
   description: z.string().min(1, "Description is required"),
   price: z.number({ message: "Price must be a number" }).positive("Price must be positive"),
   compareAtPrice: z.number().int().positive().optional(),
-  category: z.string().min(1, "Category is required"),
+  categories: z.array(z.string()).min(1, "Select at least one category"),
   material: z.string().min(1, "Material is required"),
   sku: z.string().min(1, "SKU is required"),
   images: z.array(z.string()).min(1, "At least one image is required"),
@@ -132,7 +134,7 @@ function Field({
 }
 
 // ---------- Main form ----------
-export function ProductForm({ product, categories }: ProductFormProps) {
+export function ProductForm({ product }: ProductFormProps) {
   const router = useRouter();
   const isEditing = !!product;
 
@@ -156,7 +158,11 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       description: product?.description ?? "",
       price: product?.price ?? undefined,
       compareAtPrice: product?.compareAtPrice ?? undefined,
-      category: product?.category ?? "",
+      categories: product?.categories?.length
+        ? product.categories
+        : product?.category
+          ? [product.category]
+          : [],
       material: product?.material ?? "",
       sku: product?.sku ?? "",
       images: parseImages(product?.images),
@@ -388,7 +394,12 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                 size="sm"
                 onClick={() => {
                   const suggested = suggestCategoryFromSku(watchedSku ?? "");
-                  if (suggested) setValue("category", suggested, { shouldValidate: true });
+                  if (suggested) {
+                    const cur = watch("categories") ?? [];
+                    if (!cur.includes(suggested)) {
+                      setValue("categories", [...cur, suggested], { shouldValidate: true });
+                    }
+                  }
                 }}
                 className="shrink-0 text-xs gap-1.5"
                 title="Auto-detect category from SKU"
@@ -399,28 +410,40 @@ export function ProductForm({ product, categories }: ProductFormProps) {
             </div>
           </Field>
 
-          {/* Category */}
-          <Field label="Category" required error={errors.category?.message} htmlFor="category">
+          {/* Categories — a product can belong to several */}
+          <Field label="Categories" required error={errors.categories?.message} htmlFor="categories">
             <Controller
               control={control}
-              name="category"
+              name="categories"
               render={({ field }) => (
-                <Select value={field.value} onValueChange={field.onChange}>
-                  <SelectTrigger
-                    id="category"
-                    aria-invalid={!!errors.category}
-                    className="w-full"
-                  >
-                    <SelectValue placeholder="Select category" />
-                  </SelectTrigger>
-                  <SelectContent>
-                    {categories.map((cat) => (
-                      <SelectItem key={cat.id} value={cat.slug}>
-                        {cat.name}
-                      </SelectItem>
-                    ))}
-                  </SelectContent>
-                </Select>
+                <div id="categories" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                  {NAV_CATEGORIES.map((c) => {
+                    const checked = field.value?.includes(c.slug) ?? false;
+                    return (
+                      <label
+                        key={c.slug}
+                        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-colors ${
+                          checked
+                            ? "border-slate-900 bg-slate-900/5 text-slate-900"
+                            : "border-gray-200 text-gray-600 hover:border-gray-300"
+                        }`}
+                      >
+                        <input
+                          type="checkbox"
+                          className="h-4 w-4 accent-slate-900"
+                          checked={checked}
+                          onChange={(e) => {
+                            const set = new Set(field.value ?? []);
+                            if (e.target.checked) set.add(c.slug);
+                            else set.delete(c.slug);
+                            field.onChange(Array.from(set));
+                          }}
+                        />
+                        {c.label}
+                      </label>
+                    );
+                  })}
+                </div>
               )}
             />
           </Field>

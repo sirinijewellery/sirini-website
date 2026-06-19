@@ -29,6 +29,25 @@ export const STYLES = [
   { slug: "antique", label: "Antique Gold", blurb: "Oxidised, vintage charm." },
 ] as const;
 
+// Map a free-text search query to the category slugs it implies, so searching
+// "necklace set" surfaces every necklace, "jhumka" surfaces earrings, etc.
+// Word-boundary patterns prevent false hits (e.g. "earring" must NOT match ring).
+const CATEGORY_SEARCH_PATTERNS: { slug: string; patterns: RegExp[] }[] = [
+  { slug: "necklace-sets", patterns: [/necklace/, /\bchoker/, /\bhaar/, /\brani\b/, /\bpendant/] },
+  { slug: "long-sets", patterns: [/\blong set/, /\blong haar/, /\brani haar/] },
+  { slug: "earrings", patterns: [/earring/, /\bjhumk/, /\bchandbali/, /\bstud\b/, /\bjhumka/] },
+  { slug: "bangles", patterns: [/\bbangle/, /\bkada\b/, /\bbracelet/, /\bkangan/] },
+  { slug: "finger-rings", patterns: [/\bring\b/, /\brings\b/, /\bcocktail ring/] },
+  { slug: "anklets", patterns: [/\banklet/, /\bpayal/] },
+];
+
+export function matchCategorySlugs(search: string): string[] {
+  const s = search.toLowerCase();
+  return CATEGORY_SEARCH_PATTERNS.filter(({ patterns }) =>
+    patterns.some((re) => re.test(s)),
+  ).map((c) => c.slug);
+}
+
 export const PRICE_BUCKETS = [
   { slug: "under-999", label: "Under ₹999", priceMin: undefined as number | undefined, priceMax: 999 },
   { slug: "1000-2499", label: "₹1,000 – ₹2,499", priceMin: 1000, priceMax: 2499 },
