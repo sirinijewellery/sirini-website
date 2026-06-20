@@ -21,7 +21,6 @@ import {
 } from "@/components/ui/select";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { getMaterials, parseImages } from "@/lib/parseImages";
-import { NAV_CATEGORIES } from "@/lib/taxonomy";
 
 // ---------- Types ----------
 interface Category {
@@ -134,11 +133,13 @@ function Field({
 }
 
 // ---------- Main form ----------
-export function ProductForm({ product }: ProductFormProps) {
+export function ProductForm({ product, categories }: ProductFormProps) {
   const router = useRouter();
   const isEditing = !!product;
 
   const [slugLocked, setSlugLocked] = useState(isEditing);
+  const [cats, setCats] = useState(categories);
+  const [newCategory, setNewCategory] = useState("");
 
   // Guard flag so the beforeunload warning doesn't fire during the post-save redirect.
   const savedRef = useRef(false);
@@ -216,6 +217,36 @@ export function ProductForm({ product }: ProductFormProps) {
     register("name").onChange(e);
     if (!slugLocked) {
       setValue("slug", generateSlug(name), { shouldValidate: true });
+    }
+  }
+
+  async function addCategory() {
+    const name = newCategory.trim();
+    if (!name) return;
+    const slug = name
+      .toLowerCase()
+      .replace(/[^a-z0-9]+/g, "-")
+      .replace(/(^-|-$)/g, "");
+
+    try {
+      const res = await fetch("/api/admin/categories", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name, slug, image: "" }),
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error(json.error || "Could not add category");
+        return;
+      }
+      setCats((prev) => [...prev, json]);
+      setValue("categories", [...(watch("categories") ?? []), json.slug], {
+        shouldValidate: true,
+      });
+      setNewCategory("");
+      toast.success(`Added "${json.name}"`);
+    } catch {
+      toast.error("Could not add category");
     }
   }
 
@@ -416,33 +447,60 @@ export function ProductForm({ product }: ProductFormProps) {
               control={control}
               name="categories"
               render={({ field }) => (
-                <div id="categories" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
-                  {NAV_CATEGORIES.map((c) => {
-                    const checked = field.value?.includes(c.slug) ?? false;
-                    return (
-                      <label
-                        key={c.slug}
-                        className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-colors ${
-                          checked
-                            ? "border-slate-900 bg-slate-900/5 text-slate-900"
-                            : "border-gray-200 text-gray-600 hover:border-gray-300"
-                        }`}
-                      >
-                        <input
-                          type="checkbox"
-                          className="h-4 w-4 accent-slate-900"
-                          checked={checked}
-                          onChange={(e) => {
-                            const set = new Set(field.value ?? []);
-                            if (e.target.checked) set.add(c.slug);
-                            else set.delete(c.slug);
-                            field.onChange(Array.from(set));
-                          }}
-                        />
-                        {c.label}
-                      </label>
-                    );
-                  })}
+                <div className="space-y-3">
+                  <div id="categories" className="grid grid-cols-2 gap-2 sm:grid-cols-3">
+                    {cats.map((cat) => {
+                      const checked = field.value?.includes(cat.slug) ?? false;
+                      return (
+                        <label
+                          key={cat.slug}
+                          className={`flex items-center gap-2 rounded-lg border px-3 py-2 text-sm cursor-pointer transition-colors ${
+                            checked
+                              ? "border-slate-900 bg-slate-900/5 text-slate-900"
+                              : "border-gray-200 text-gray-600 hover:border-gray-300"
+                          }`}
+                        >
+                          <input
+                            type="checkbox"
+                            className="h-4 w-4 accent-slate-900"
+                            checked={checked}
+                            onChange={(e) => {
+                              const set = new Set(field.value ?? []);
+                              if (e.target.checked) set.add(cat.slug);
+                              else set.delete(cat.slug);
+                              field.onChange(Array.from(set));
+                            }}
+                          />
+                          {cat.name}
+                        </label>
+                      );
+                    })}
+                  </div>
+
+                  {/* Inline: add a new category */}
+                  <div className="flex gap-2">
+                    <Input
+                      placeholder="Add a new category…"
+                      value={newCategory}
+                      onChange={(e) => setNewCategory(e.target.value)}
+                      onKeyDown={(e) => {
+                        if (e.key === "Enter") {
+                          e.preventDefault();
+                          addCategory();
+                        }
+                      }}
+                      className="flex-1"
+                    />
+                    <Button
+                      type="button"
+                      variant="outline"
+                      size="sm"
+                      onClick={addCategory}
+                      className="shrink-0"
+                    >
+                      Add
+                    </Button>
+                  </div>
                 </div>
               )}
             />

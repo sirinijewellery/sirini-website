@@ -39,22 +39,14 @@ export async function getProducts(options: GetProductsOptions = {}) {
     minRating,
   } = options;
 
-  // Only show products from active (image-bearing) categories
-  const activeCats = await prisma.category.findMany({
-    where: { image: { not: null } },
-    select: { slug: true },
-  });
-  const activeSlugs = activeCats.map((c) => c.slug);
-
   const ci = Prisma.QueryMode.insensitive;
   const searchCatSlugs = search ? matchCategorySlugs(search) : [];
 
   const where: Prisma.ProductWhereInput = {
     // Multi-category: a product matches a category if its categories[] contains
-    // the slug. With no category filter, show all active (image-bearing) ones.
-    ...(category
-      ? { categories: { has: category } }
-      : { categories: { hasSome: activeSlugs } }),
+    // the slug. With no category filter, show ALL products (including those in
+    // newly created categories that don't yet have an image).
+    ...(category ? { categories: { has: category } } : {}),
     ...(material && { material }),
     ...(featuredOnly && { isFeatured: true }),
     ...(occasion && { occasions: { has: occasion } }),
@@ -291,6 +283,24 @@ export async function getCategories() {
   const categories = await prisma.category.findMany({
     orderBy: { name: "asc" },
     where: { image: { not: null } },
+  });
+  // Always put Necklace Sets (or any necklace category) first
+  return categories.sort((a, b) => {
+    const aIsNecklace = a.name.toLowerCase().includes("necklace");
+    const bIsNecklace = b.name.toLowerCase().includes("necklace");
+    if (aIsNecklace && !bIsNecklace) return -1;
+    if (!aIsNecklace && bIsNecklace) return 1;
+    return 0;
+  });
+}
+
+/**
+ * Like getCategories(), but returns EVERY category (including newly created
+ * ones without an image) so the shop filter bar can browse all of them.
+ */
+export async function getShopCategories() {
+  const categories = await prisma.category.findMany({
+    orderBy: { name: "asc" },
   });
   // Always put Necklace Sets (or any necklace category) first
   return categories.sort((a, b) => {

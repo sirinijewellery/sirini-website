@@ -2,7 +2,6 @@ import { notFound } from "next/navigation";
 import type { Metadata } from "next";
 
 import { prisma } from "@/lib/prisma";
-import { getCategories } from "@/lib/queries/products";
 import { ProductForm } from "@/components/admin/ProductForm";
 
 export const metadata: Metadata = { title: "Edit Product" };
@@ -18,7 +17,10 @@ export default async function EditProductPage({ params }: Props) {
     prisma.product.findUnique({
       where: { id },
     }),
-    getCategories(),
+    prisma.category.findMany({
+      orderBy: { name: "asc" },
+      select: { id: true, name: true, slug: true, image: true },
+    }),
   ]);
 
   if (!product) notFound();

@@ -4,7 +4,7 @@ import { ProductFilters } from "@/components/ProductFilters";
 import { SortSelect } from "@/components/SortSelect";
 import {
   getProducts,
-  getCategories,
+  getShopCategories,
   getMaterials,
   OCCASIONS,
   STYLES,
@@ -169,7 +169,7 @@ async function ShopContent({ searchParams }: ShopPageProps) {
 
   const [{ products, total, totalPages }, categories] = await Promise.all([
     getProducts(options),
-    getCategories(),
+    getShopCategories(),
   ]);
 
   const materials = getMaterials();
