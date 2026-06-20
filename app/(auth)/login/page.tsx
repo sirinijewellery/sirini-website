@@ -34,7 +34,7 @@ function LoginForm() {
     setLoading(false);
 
     if (result?.error) {
-      setError("Invalid email or password. Please try again.");
+      setError("Invalid username/email or password. Please try again.");
     } else {
       router.push(callbackUrl);
       router.refresh();
@@ -50,15 +50,15 @@ function LoginForm() {
       )}
 
       <div className="space-y-2">
-        <Label htmlFor="email">Email Address</Label>
+        <Label htmlFor="email">Username or Email</Label>
         <Input
           id="email"
-          type="email"
+          type="text"
           value={email}
           onChange={(e) => setEmail(e.target.value)}
-          placeholder="you@example.com"
+          placeholder="username or you@example.com"
           required
-          autoComplete="email"
+          autoComplete="username"
         />
       </div>
 

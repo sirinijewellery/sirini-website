@@ -89,6 +89,9 @@ model Category {
 model User {
   id           String   @id @default(cuid())
   email        String   @unique
+  // Optional login handle (admins sign in with this, customers use email).
+  // Stored lowercased; matched case-insensitively.
+  username     String?  @unique
   name         String?
   phone        String?
   passwordHash String

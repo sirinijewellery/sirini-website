@@ -19,16 +19,18 @@ export const { handlers, auth, signIn, signOut } = NextAuth({
       async authorize(credentials) {
         if (!credentials?.email || !credentials?.password) return null;
 
-        const rawEmail = credentials.email as string;
-        const email = rawEmail.trim().toLowerCase();
+        // The single field accepts a username OR an email; match either,
+        // case-insensitively, so "Nishit.Savla" == "nishit.savla".
+        const identifier = (credentials.email as string).trim().toLowerCase();
 
-        let user = await prisma.user.findUnique({
-          where: { email },
+        const user = await prisma.user.findFirst({
+          where: {
+            OR: [
+              { email: { equals: identifier, mode: "insensitive" } },
+              { username: { equals: identifier, mode: "insensitive" } },
+            ],
+          },
         });
-        // Legacy accounts may have been stored with original casing
-        if (!user && email !== rawEmail) {
-          user = await prisma.user.findUnique({ where: { email: rawEmail } });
-        }
 
         // Always run a bcrypt compare so a non-existent user takes the same
         // time as a wrong password (prevents timing-based user enumeration).
