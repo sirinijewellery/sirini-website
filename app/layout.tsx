@@ -6,6 +6,7 @@ import { NavbarWrapper } from "@/components/NavbarWrapper";
 import { FooterWrapper } from "@/components/FooterWrapper";
 import { WhatsAppWrapper } from "@/components/WhatsAppWrapper";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
+import { Analytics } from "@vercel/analytics/next";
 import { baseMetadata } from "@/lib/seo";
 import { getRibbonMessages } from "@/lib/queries/site";
 import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
@@ -91,6 +92,7 @@ export default async function RootLayout({
         {process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID && (
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID} />
         )}
+        <Analytics />
       </body>
     </html>
   );

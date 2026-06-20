@@ -8,6 +8,7 @@ export interface HelpTopic {
   title: string;
   keywords: string; // extra search terms not already in title/steps
   steps: string[];
+  href: string; // admin route this topic should open ("Tell Me" deep link)
 }
 
 export const HELP_TOPICS: HelpTopic[] = [
@@ -28,6 +29,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Optional: pick a Badge, tick Occasions, toggle 'Featured' to show it on the home page, and set a 'Front-page position' to pin it.",
       "Click Save. The product is live immediately.",
     ],
+    href: "/admin/products/new",
   },
   {
     id: "edit-delete-product",
@@ -41,6 +43,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Change any field and click Save.",
       "To delete it, open the product and use the Delete button, then confirm.",
     ],
+    href: "/admin/products",
   },
   {
     id: "product-multiple-categories",
@@ -53,6 +56,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "The first ticked category is treated as its main category.",
       "Click Save. The product now shows under each chosen category in the shop.",
     ],
+    href: "/admin/products",
   },
   {
     id: "product-cover-image",
@@ -66,6 +70,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Hover an image and click its 'Cover' button to make it the cover, or the ✕ to remove it.",
       "Click Save.",
     ],
+    href: "/admin/products",
   },
   {
     id: "feature-product",
@@ -77,6 +82,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Toggle the 'Featured' switch on.",
       "Click Save — it will appear in the Featured section on the home page.",
     ],
+    href: "/admin/products",
   },
   {
     id: "product-frontpage-position",
@@ -89,6 +95,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Leave it blank to un-pin the product.",
       "Click Save.",
     ],
+    href: "/admin/products",
   },
   {
     id: "product-stock",
@@ -100,6 +107,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Change the Stock number. Set it to 0 to mark the product Out of Stock.",
       "Click Save.",
     ],
+    href: "/admin/products",
   },
   {
     id: "product-sale-price",
@@ -112,6 +120,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Enter the higher original price in 'Compare-at price' — it shows struck through next to the price.",
       "Click Save.",
     ],
+    href: "/admin/products",
   },
 
   // ── Categories ──────────────────────────────────────────────────────────
@@ -127,6 +136,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Paste an Image URL for the category card (a Cloudinary image URL works well). This is needed for it to show as a home-page card.",
       "Click Save.",
     ],
+    href: "/admin/categories",
   },
   {
     id: "edit-delete-category",
@@ -138,6 +148,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Click 'Edit' on the category row to change its name, slug, or image URL, then click Save.",
       "Click 'Delete' to remove it (products keep their category tag but the card disappears).",
     ],
+    href: "/admin/categories",
   },
 
   // ── Coupons ───────────────────────────────────────────────────────────────
@@ -154,6 +165,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Optional: set a Minimum order amount, a Max uses limit, and an Expiry date.",
       "Make sure 'Active' is on, then Save. Customers can now apply the code at checkout.",
     ],
+    href: "/admin/coupons",
   },
   {
     id: "edit-coupon",
@@ -165,6 +177,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Edit a coupon to change its value, limits or expiry, then Save.",
       "Switch 'Active' off to stop it working without deleting it, or use Delete to remove it.",
     ],
+    href: "/admin/coupons",
   },
 
   // ── Orders ────────────────────────────────────────────────────────────────
@@ -179,6 +192,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Use the status dropdown to move it through Processing → Shipped → Delivered, or Cancelled.",
       "The change saves immediately.",
     ],
+    href: "/admin/orders",
   },
 
   // ── Home page ─────────────────────────────────────────────────────────────
@@ -194,6 +208,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Set the 'Rotation speed' (seconds each slide stays) and click Save.",
       "Use the arrows to reorder, the eye icon to hide/show, or the bin to delete a slide.",
     ],
+    href: "/admin/hero",
   },
   {
     id: "hero-crop-devices",
@@ -207,6 +222,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Optionally click 'Use a different image on mobile' to upload a phone-specific photo.",
       "Changes save automatically.",
     ],
+    href: "/admin/hero",
   },
   {
     id: "edit-ribbon",
@@ -218,6 +234,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Edit any message, click 'Add message' for more, or the bin to remove one.",
       "Click 'Save changes' — the rotating bar at the very top of the site updates.",
     ],
+    href: "/admin/ribbons",
   },
 
   // ── Admins & account ──────────────────────────────────────────────────────
@@ -231,6 +248,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Under 'Add a new admin', enter a Username, an optional display name, and a Password.",
       "Click 'Create admin'. They can now sign in with that username (case-insensitive).",
     ],
+    href: "/admin/admins",
   },
   {
     id: "change-admin-credentials",
@@ -243,6 +261,7 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Change the Username and/or type a new Password, then click Save.",
       "You can't delete yourself or the last remaining admin.",
     ],
+    href: "/admin/admins",
   },
   {
     id: "change-own-account",
@@ -255,5 +274,6 @@ export const HELP_TOPICS: HelpTopic[] = [
       "Enter your Current password at the bottom (required to save any change).",
       "Click 'Save changes'. Use the new details next time you sign in.",
     ],
+    href: "/admin/account",
   },
 ];

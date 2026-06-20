@@ -1,6 +1,7 @@
 "use client";
 
 import { useMemo, useState } from "react";
+import Link from "next/link";
 import { Search, ChevronDown } from "lucide-react";
 import type { HelpTopic } from "@/lib/adminHelp";
 
@@ -47,11 +48,19 @@ export function AdminHelp({ topics }: { topics: HelpTopic[] }) {
           )}
         </button>
         {open && (
-          <ol className="px-4 pb-4 pt-1 space-y-2 list-decimal list-inside marker:text-slate-400 marker:font-medium">
-            {t.steps.map((s, i) => (
-              <li key={i} className="text-sm text-slate-600 leading-relaxed pl-1">{s}</li>
-            ))}
-          </ol>
+          <div className="px-4 pb-4 pt-1">
+            <ol className="space-y-2 list-decimal list-inside marker:text-slate-400 marker:font-medium">
+              {t.steps.map((s, i) => (
+                <li key={i} className="text-sm text-slate-600 leading-relaxed pl-1">{s}</li>
+              ))}
+            </ol>
+            <Link
+              href={t.href}
+              className="mt-4 inline-flex items-center gap-1.5 rounded-lg bg-slate-900 px-3 py-1.5 text-sm font-medium text-white hover:bg-slate-800"
+            >
+              Take me there →
+            </Link>
+          </div>
         )}
       </div>
     );
