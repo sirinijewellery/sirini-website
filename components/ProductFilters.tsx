@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-import { OCCASIONS, STYLES, PRICE_BUCKETS } from "@/lib/taxonomy";
+import { OCCASIONS, STYLES, PRICE_BUCKETS, categoryLabel } from "@/lib/taxonomy";
 
 interface ProductFiltersProps {
   categories: { id: string; name: string; slug: string }[];
@@ -117,7 +117,7 @@ export function ProductFilters({ categories, materials }: ProductFiltersProps) {
         <div className={rowClass} style={rowStyle}>
           {activeCategory && (
             <Chip
-              label={activeCategory}
+              label={categoryLabel(activeCategory)}
               onRemove={() => removeParam("category")}
               className={chipClass}
             />
@@ -187,9 +187,9 @@ export function ProductFilters({ categories, materials }: ProductFiltersProps) {
         {categories.map((cat) => (
           <button
             key={cat.id}
-            onClick={() => updateParam("category", cat.name)}
-            className={`${pillBase} ${activeCategory === cat.name ? pillActive : pillInactive}`}
-            aria-pressed={activeCategory === cat.name}
+            onClick={() => updateParam("category", cat.slug)}
+            className={`${pillBase} ${activeCategory === cat.slug ? pillActive : pillInactive}`}
+            aria-pressed={activeCategory === cat.slug}
           >
             {cat.name}
           </button>

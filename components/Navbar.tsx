@@ -14,7 +14,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { MegaMenu } from "@/components/MegaMenu";
 import { OccasionMenu } from "@/components/OccasionMenu";
 import { useCartStore } from "@/lib/store/cart";
-import { OCCASIONS, PRICE_BUCKETS } from "@/lib/taxonomy";
+import { OCCASIONS, PRICE_BUCKETS, categoryLabel } from "@/lib/taxonomy";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -377,7 +377,7 @@ export function Navbar({ messages }: { messages?: string[] }) {
                             {result.name}
                           </p>
                           <p className="text-xs text-muted-foreground font-sans">
-                            {result.category}
+                            {categoryLabel(result.category)}
                           </p>
                         </div>
 

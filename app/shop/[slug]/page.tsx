@@ -13,6 +13,7 @@ import { ProductJsonLd } from "@/components/ProductJsonLd";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 import { FAQJsonLd } from "@/components/FAQJsonLd";
 import { ProductReviews } from "@/components/ProductReviews";
+import { categoryLabel } from "@/lib/taxonomy";
 import { RecentlyViewedStrip } from "@/components/RecentlyViewedStrip";
 import { prisma } from "@/lib/prisma";
 
@@ -114,7 +115,7 @@ export default async function ProductPage({ params }: Props) {
           href={`/shop?category=${encodeURIComponent(product.category)}`}
           className="hover:text-primary transition-colors"
         >
-          {product.category}
+          {categoryLabel(product.category)}
         </Link>
         <span>/</span>
         <span className="text-foreground truncate max-w-[160px]">{product.name}</span>

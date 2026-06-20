@@ -6,6 +6,7 @@ import { useRouter } from "next/navigation";
 import { Package } from "lucide-react";
 
 import { cn } from "@/lib/utils";
+import { categoryLabel } from "@/lib/taxonomy";
 import { buttonVariants } from "@/components/ui/button";
 import { DeleteProductButton } from "@/components/admin/DeleteProductButton";
 
@@ -87,7 +88,7 @@ export function ProductRow({ product }: { product: ProductRowData }) {
       </td>
 
       {/* Category */}
-      <td className="px-4 py-3 text-sm text-gray-600">{product.category}</td>
+      <td className="px-4 py-3 text-sm text-gray-600">{categoryLabel(product.category)}</td>
 
       {/* Price */}
       <td className="px-4 py-3 text-sm text-gray-900 text-right font-medium">

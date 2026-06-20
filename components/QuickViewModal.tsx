@@ -12,6 +12,7 @@ import {
 } from "@/components/ui/dialog";
 import { AddToCartButton } from "@/components/AddToCartButton";
 import { PriceDisplay } from "@/components/PriceDisplay";
+import { categoryLabel } from "@/lib/taxonomy";
 
 interface ProductData {
   id: string;
@@ -150,7 +151,7 @@ export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
               <DialogHeader>
                 {/* Category label */}
                 <p className="text-xs font-label-caps tracking-widest uppercase text-muted-foreground">
-                  {product.category}
+                  {categoryLabel(product.category)}
                 </p>
 
                 {/* Product name */}

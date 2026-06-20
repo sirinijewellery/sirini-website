@@ -7,6 +7,7 @@ import { Separator } from "@/components/ui/separator";
 import { PriceDisplay, formatPrice } from "@/components/PriceDisplay";
 import { PincodeEstimator } from "@/components/PincodeEstimator";
 import { useRecentlyViewedStore } from "@/lib/store/recentlyViewed";
+import { categoryLabel } from "@/lib/taxonomy";
 
 interface ProductDetailClientProps {
   product: {
@@ -73,7 +74,7 @@ export default function ProductDetailClient({
       currency: "INR",
       minimumFractionDigits: 0,
     }).format(product.price);
-    const text = `✨ ${product.name} — ${price}\n\nHandcrafted ${product.category} by Sirini Jewellery. Check it out:\n${url}`;
+    const text = `✨ ${product.name} — ${price}\n\nHandcrafted ${categoryLabel(product.category)} by Sirini Jewellery. Check it out:\n${url}`;
     window.open(
       `https://wa.me/?text=${encodeURIComponent(text)}`,
       "_blank",
@@ -87,7 +88,7 @@ export default function ProductDetailClient({
       {/* Badge + Category */}
       <div className="flex items-center gap-2">
         <span className="text-xs font-sans uppercase tracking-widest text-muted-foreground">
-          {product.category}
+          {categoryLabel(product.category)}
         </span>
         {product.badge && (
           <span

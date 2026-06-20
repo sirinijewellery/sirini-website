@@ -6,6 +6,7 @@ import Link from "next/link";
 import { toast } from "sonner";
 import { parseImages } from "@/lib/parseImages";
 import { PriceDisplay } from "@/components/PriceDisplay";
+import { categoryLabel } from "@/lib/taxonomy";
 import type { WishlistItemWithProduct } from "@/lib/queries/wishlist";
 
 interface WishlistItemCardProps {
@@ -112,7 +113,7 @@ export function WishlistItemCard({ item }: WishlistItemCardProps) {
       <div className="flex flex-col flex-1 p-4 gap-3">
         <div className="flex-1 space-y-1">
           <p className="text-[10px] font-sans uppercase tracking-widest text-muted-foreground">
-            {product.category}
+            {categoryLabel(product.category)}
           </p>
           <h3 className="font-display text-base leading-snug text-foreground line-clamp-2">
             {product.name}

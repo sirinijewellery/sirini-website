@@ -13,6 +13,18 @@ export const NAV_CATEGORIES = [
   { slug: "anklets", label: "Anklets" },
 ] as const;
 
+/**
+ * Display label for a category SLUG. Slugs (lowercase, e.g. "earrings") are the
+ * canonical value used in URLs/filters/DB; this is the ONLY way category text
+ * should be shown to users so casing is consistent everywhere ("Earrings").
+ */
+export function categoryLabel(slug: string): string {
+  return (
+    NAV_CATEGORIES.find((c) => c.slug === slug)?.label ??
+    slug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())
+  );
+}
+
 export const OCCASIONS = [
   { slug: "bridal", label: "Bridal & Wedding", blurb: "Heirloom Kundan, Polki & Jadau statement sets for the big day." },
   { slug: "festive", label: "Festive Edit", blurb: "Meenakari, temple & jhumka pieces to light up every celebration." },

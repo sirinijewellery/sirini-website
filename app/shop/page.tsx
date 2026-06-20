@@ -266,7 +266,7 @@ async function ShopContent({ searchParams }: ShopPageProps) {
             ) : params.style ? (
               `${STYLES.find((s) => s.slug === params.style)?.label || params.style} Jewellery`
             ) : (
-              params.category || "All Jewellery"
+              params.category ? categoryLabel(params.category) : "All Jewellery"
             )}
           </h1>
         </div>

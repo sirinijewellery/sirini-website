@@ -9,6 +9,7 @@ import { toast } from "sonner";
 import { parseImages, selectCardImages } from "@/lib/parseImages";
 import { QuickViewModal } from "@/components/QuickViewModal";
 import { PriceDisplay, formatPrice } from "@/components/PriceDisplay";
+import { categoryLabel } from "@/lib/taxonomy";
 
 interface ProductCardProps {
   product: {
@@ -129,7 +130,7 @@ export function ProductCard({ product }: ProductCardProps) {
           <>
             <Image
               src={primaryImage}
-              alt={`${product.name} — handcrafted ${product.category} by Sirini Jewellery`}
+              alt={`${product.name} — handcrafted ${categoryLabel(product.category)} by Sirini Jewellery`}
               fill
               sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
               className={`object-cover [transition:opacity_300ms_ease-out,transform_700ms_ease-out] group-hover:scale-[1.08] ${
@@ -140,7 +141,7 @@ export function ProductCard({ product }: ProductCardProps) {
             {secondImage && (
               <Image
                 src={secondImage}
-                alt={`${product.name} — handcrafted ${product.category} by Sirini Jewellery - back view`}
+                alt={`${product.name} — handcrafted ${categoryLabel(product.category)} by Sirini Jewellery - back view`}
                 fill
                 sizes="(max-width: 640px) 50vw, (max-width: 1024px) 33vw, 25vw"
                 className="object-cover opacity-0 [transition:opacity_300ms_ease-out,transform_700ms_ease-out] group-hover:opacity-100 group-hover:scale-[1.08]"
