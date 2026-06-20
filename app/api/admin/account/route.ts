@@ -10,12 +10,24 @@ import { z } from "zod";
 // bcrypt hash.
 
 const schema = z.object({
+  username: z
+    .union([
+      z
+        .string()
+        .trim()
+        .toLowerCase()
+        .min(3, "Username must be at least 3 characters")
+        .max(40)
+        .regex(/^[a-z0-9._-]+$/, "Username can use lowercase letters, numbers, dots, hyphens and underscores"),
+      z.literal(""),
+    ])
+    .optional(),
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
   email: z.string().trim().toLowerCase().email("Invalid email address"),
   currentPassword: z.string().min(1, "Enter your current password to save changes"),
   // Empty string = "don't change the password"
   newPassword: z
-    .union([z.string().min(8, "New password must be at least 8 characters").max(72), z.literal("")])
+    .union([z.string().min(4, "New password must be at least 4 characters").max(72), z.literal("")])
     .optional(),
 });
 
@@ -26,7 +38,7 @@ export async function GET() {
   }
   const user = await prisma.user.findUnique({
     where: { id: session.user.id },
-    select: { email: true, name: true, createdAt: true },
+    select: { username: true, email: true, name: true, createdAt: true },
   });
   if (!user) return NextResponse.json({ error: "Not found" }, { status: 404 });
   return NextResponse.json(user);
@@ -49,7 +61,7 @@ export async function PATCH(req: Request) {
   if (!parsed.success) {
     return NextResponse.json({ error: parsed.error.issues[0].message }, { status: 400 });
   }
-  const { name, email, currentPassword, newPassword } = parsed.data;
+  const { username, name, email, currentPassword, newPassword } = parsed.data;
 
   const user = await prisma.user.findUnique({ where: { id: session.user.id } });
   if (!user) return NextResponse.json({ error: "Account not found" }, { status: 404 });
@@ -60,9 +72,16 @@ export async function PATCH(req: Request) {
     return NextResponse.json({ error: "Current password is incorrect" }, { status: 400 });
   }
 
-  const data: { name?: string; email?: string; passwordHash?: string } = {};
+  const data: { username?: string; name?: string; email?: string; passwordHash?: string } = {};
+  if (username && username !== user.username) {
+    const clash = await prisma.user.findFirst({ where: { username, id: { not: user.id } } });
+    if (clash) return NextResponse.json({ error: "That username is already taken" }, { status: 409 });
+    data.username = username;
+    // Keep a synthetic (.local) email in sync; leave real emails alone.
+    if (user.email.endsWith("@sirini.local")) data.email = `${username}@sirini.local`;
+  }
   if (name !== user.name) data.name = name;
-  if (email !== user.email) data.email = email;
+  if (email !== user.email && !data.email) data.email = email;
   if (newPassword && newPassword.length > 0) {
     data.passwordHash = await bcrypt.hash(newPassword, 12);
   }
@@ -75,7 +94,7 @@ export async function PATCH(req: Request) {
     await prisma.user.update({ where: { id: user.id }, data });
   } catch (e) {
     if (typeof e === "object" && e !== null && "code" in e && (e as { code: string }).code === "P2002") {
-      return NextResponse.json({ error: "That email is already in use" }, { status: 409 });
+      return NextResponse.json({ error: "That username or email is already in use" }, { status: 409 });
     }
     console.error("[Admin Account Update]", e);
     return NextResponse.json({ error: "Something went wrong. Please try again." }, { status: 500 });
@@ -83,7 +102,7 @@ export async function PATCH(req: Request) {
 
   return NextResponse.json({
     message: "Account updated successfully",
-    // Email/password changes apply to your NEXT sign-in.
-    reauth: Boolean(data.email || data.passwordHash),
+    // Username/email/password changes apply to your NEXT sign-in.
+    reauth: Boolean(data.username || data.email || data.passwordHash),
   });
 }

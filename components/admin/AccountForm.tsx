@@ -4,11 +4,13 @@ import { useState } from "react";
 import { toast } from "sonner";
 
 interface Props {
+  initialUsername: string;
   initialName: string;
   initialEmail: string;
 }
 
-export function AccountForm({ initialName, initialEmail }: Props) {
+export function AccountForm({ initialUsername, initialName, initialEmail }: Props) {
+  const [username, setUsername] = useState(initialUsername);
   const [name, setName] = useState(initialName);
   const [email, setEmail] = useState(initialEmail);
   const [currentPassword, setCurrentPassword] = useState("");
@@ -20,8 +22,8 @@ export function AccountForm({ initialName, initialEmail }: Props) {
     e.preventDefault();
 
     if (newPassword || confirmPassword) {
-      if (newPassword.length < 8) {
-        toast.error("New password must be at least 8 characters");
+      if (newPassword.length < 4) {
+        toast.error("New password must be at least 4 characters");
         return;
       }
       if (newPassword !== confirmPassword) {
@@ -39,7 +41,7 @@ export function AccountForm({ initialName, initialEmail }: Props) {
       const res = await fetch("/api/admin/account", {
         method: "PATCH",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name, email, currentPassword, newPassword: newPassword || "" }),
+        body: JSON.stringify({ username, name, email, currentPassword, newPassword: newPassword || "" }),
       });
       const data = await res.json();
       if (!res.ok) {
@@ -66,16 +68,21 @@ export function AccountForm({ initialName, initialEmail }: Props) {
 
   return (
     <form onSubmit={handleSubmit} className="bg-white border border-slate-200 rounded-xl p-5 space-y-6">
-      {/* Username + email */}
+      {/* Username + name + email */}
       <div className="space-y-4">
         <div>
-          <label className={labelClass} htmlFor="acc-name">Username</label>
-          <input id="acc-name" type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} autoComplete="username" />
+          <label className={labelClass} htmlFor="acc-username">Username</label>
+          <input id="acc-username" type="text" value={username} onChange={(e) => setUsername(e.target.value)} className={inputClass} placeholder="e.g. nishit.savla" autoComplete="username" />
+          <p className="text-xs text-slate-500 mt-1">You sign in with this (case-insensitive). Lowercase letters, numbers, dots, hyphens.</p>
+        </div>
+        <div>
+          <label className={labelClass} htmlFor="acc-name">Display name</label>
+          <input id="acc-name" type="text" value={name} onChange={(e) => setName(e.target.value)} className={inputClass} autoComplete="name" />
         </div>
         <div>
           <label className={labelClass} htmlFor="acc-email">Login email</label>
           <input id="acc-email" type="email" value={email} onChange={(e) => setEmail(e.target.value)} className={inputClass} autoComplete="email" />
-          <p className="text-xs text-slate-500 mt-1">This is the email you sign in with.</p>
+          <p className="text-xs text-slate-500 mt-1">You can also sign in with this email.</p>
         </div>
       </div>
 
@@ -91,7 +98,7 @@ export function AccountForm({ initialName, initialEmail }: Props) {
         </div>
         <div>
           <label className={labelClass} htmlFor="acc-newpw">New password</label>
-          <input id="acc-newpw" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputClass} placeholder="At least 8 characters" autoComplete="new-password" />
+          <input id="acc-newpw" type="password" value={newPassword} onChange={(e) => setNewPassword(e.target.value)} className={inputClass} placeholder="At least 4 characters" autoComplete="new-password" />
         </div>
         <div>
           <label className={labelClass} htmlFor="acc-confirmpw">Confirm new password</label>
