@@ -295,15 +295,20 @@ export async function getCategories() {
 }
 
 /**
- * Like getCategories(), but returns EVERY category (including newly created
- * ones without an image) so the shop filter bar can browse all of them.
+ * Categories for the shop filter bar: every category that has at least one
+ * product (regardless of whether it has an image), so any populated category is
+ * browsable while freshly-created empty ones don't clutter the bar.
  */
 export async function getShopCategories() {
-  const categories = await prisma.category.findMany({
-    orderBy: { name: "asc" },
-  });
+  const [categories, products] = await Promise.all([
+    prisma.category.findMany({ orderBy: { name: "asc" } }),
+    prisma.product.findMany({ select: { categories: true } }),
+  ]);
+  const used = new Set<string>();
+  for (const p of products) for (const slug of p.categories) used.add(slug);
+  const withProducts = categories.filter((c) => used.has(c.slug));
   // Always put Necklace Sets (or any necklace category) first
-  return categories.sort((a, b) => {
+  return withProducts.sort((a, b) => {
     const aIsNecklace = a.name.toLowerCase().includes("necklace");
     const bIsNecklace = b.name.toLowerCase().includes("necklace");
     if (aIsNecklace && !bIsNecklace) return -1;
