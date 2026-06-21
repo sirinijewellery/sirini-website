@@ -18,6 +18,9 @@ model Product {
   images      Json
   badge       String?
   isFeatured  Boolean  @default(false)
+  // Optional per-product SEO overrides (fall back to auto-generated when null).
+  metaTitle       String?
+  metaDescription String?
   // `category` is the PRIMARY category (kept for display/back-compat); a product
   // can belong to MANY categories via `categories` (slugs), which drives filtering.
   categories  String[] @default([])
@@ -80,10 +83,14 @@ model OrderItem {
 }
 
 model Category {
-  id    String  @id @default(cuid())
-  name  String
-  slug  String  @unique
-  image String?
+  id         String  @id @default(cuid())
+  name       String
+  slug       String  @unique
+  image      String?
+  // Owner-controlled homepage placement: lower sortOrder shows first;
+  // showOnHome toggles whether the category card appears on the homepage grid.
+  sortOrder  Int     @default(0)
+  showOnHome Boolean @default(true)
 }
 
 model User {
@@ -171,6 +178,28 @@ model HeroSlide {
 model Setting {
   key   String @id
   value Json
+}
+
+// Owner-managed blog / styling-guide articles. Mirrors the legacy `Article`
+// shape in lib/blog.ts so existing renderers work unchanged. `body` is a JSON
+// array of { heading?, paragraphs[] }; `relatedLinks` a JSON array of {label,href}.
+model BlogPost {
+  id              String    @id @default(cuid())
+  slug            String    @unique
+  title           String
+  excerpt         String
+  coverImage      String
+  body            Json      @default("[]")
+  relatedLinks    Json      @default("[]")
+  readMins        Int       @default(5)
+  isPublished     Boolean   @default(true)
+  metaTitle       String?
+  metaDescription String?
+  publishedAt     DateTime  @default(now())
+  createdAt       DateTime  @default(now())
+  updatedAt       DateTime  @updatedAt
+
+  @@index([isPublished, publishedAt])
 }
 
 model Review {
