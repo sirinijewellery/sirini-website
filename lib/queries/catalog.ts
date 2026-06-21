@@ -7,6 +7,7 @@
 // drag prisma into the browser bundle).
 // ─────────────────────────────────────────────────────────────────────────
 
+import { cache } from "react";
 import { getSetting } from "@/lib/queries/site";
 import {
   type BadgeDef,
@@ -23,7 +24,7 @@ import {
 export * from "@/lib/catalog";
 
 /** Owner-defined badges, falling back to the original 6 if unset/invalid. */
-export async function getBadges(): Promise<BadgeDef[]> {
+export const getBadges = cache(async (): Promise<BadgeDef[]> => {
   const v = await getSetting<unknown>(CATALOG_KEYS.badges, DEFAULT_BADGES);
   if (Array.isArray(v)) {
     const clean = v
@@ -39,10 +40,10 @@ export async function getBadges(): Promise<BadgeDef[]> {
     if (clean.length) return clean;
   }
   return DEFAULT_BADGES;
-}
+});
 
 /** Stock level at/below which the PDP shows the "only N left" urgency line. */
-export async function getLowStockThreshold(): Promise<number> {
+export const getLowStockThreshold = cache(async (): Promise<number> => {
   const v = await getSetting<number>(
     CATALOG_KEYS.lowStockThreshold,
     DEFAULT_LOW_STOCK_THRESHOLD
@@ -50,22 +51,22 @@ export async function getLowStockThreshold(): Promise<number> {
   return typeof v === "number" && Number.isFinite(v) && v >= 0
     ? Math.floor(v)
     : DEFAULT_LOW_STOCK_THRESHOLD;
-}
+});
 
 /** Whether sold-out products are hidden from shop listings. */
-export async function getHideOutOfStock(): Promise<boolean> {
+export const getHideOutOfStock = cache(async (): Promise<boolean> => {
   const v = await getSetting<boolean>(
     CATALOG_KEYS.hideOutOfStock,
     DEFAULT_HIDE_OUT_OF_STOCK
   );
   return typeof v === "boolean" ? v : DEFAULT_HIDE_OUT_OF_STOCK;
-}
+});
 
 /** Default sort applied on the shop when no sort is chosen by the visitor. */
-export async function getDefaultSort(): Promise<CatalogSort> {
+export const getDefaultSort = cache(async (): Promise<CatalogSort> => {
   const v = await getSetting<CatalogSort>(
     CATALOG_KEYS.defaultSort,
     DEFAULT_CATALOG_SORT
   );
   return VALID_CATALOG_SORTS.includes(v) ? v : DEFAULT_CATALOG_SORT;
-}
+});

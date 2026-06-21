@@ -41,7 +41,9 @@ export interface ShippingTime {
 }
 
 export const DEFAULT_SHIPPING_TIME: ShippingTime = {
-  deliveryDays: "3–7",
+  // Preserves the prior live Shipping/Terms copy ("5–7 business days"). The FAQ
+  // historically said "3–7"; the owner can unify both via /admin/settings/content.
+  deliveryDays: "5–7",
   refundDays: "5–7",
   returnDays: "7",
 };
