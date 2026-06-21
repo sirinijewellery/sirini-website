@@ -1,13 +1,16 @@
 import Image from "next/image";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/parseImages";
+import { getBusinessDetails } from "@/lib/queries/site";
 
-const INSTAGRAM_HANDLE = "sirinijewellerymanufacturerss";
-const INSTAGRAM_URL = `https://www.instagram.com/${INSTAGRAM_HANDLE}`;
-
-// Async server component — uses the highest-priced necklace-set products
-// (which carry the nicest model shots) as a stand-in Instagram feed.
+// Async server component — a curated highlight strip using the nicest model
+// shots, linking out to the real Instagram profile. Handle / URL / follower
+// label are owner-editable via admin → Settings → Business details.
 export async function InstagramStrip() {
+  const business = await getBusinessDetails();
+  const INSTAGRAM_HANDLE = business.instagramHandle;
+  const INSTAGRAM_URL = business.instagramUrl || `https://www.instagram.com/${INSTAGRAM_HANDLE}`;
+
   const products = await prisma.product.findMany({
     where: { category: "necklace-sets" },
     orderBy: { price: "desc" },
@@ -45,7 +48,7 @@ export async function InstagramStrip() {
             @{INSTAGRAM_HANDLE}
           </a>
           <p className="font-sans text-[11px] tracking-[0.2em] uppercase text-on-surface-variant">
-            Follow us on Instagram · 1.9k followers
+            {business.followerText ? `Follow us on Instagram · ${business.followerText}` : "Follow us on Instagram"}
           </p>
         </div>
 
@@ -62,7 +65,7 @@ export async function InstagramStrip() {
             >
               <Image
                 src={src}
-                alt={`Sirini Jewellery Instagram post ${i + 1}`}
+                alt={`Sirini Jewellery on Instagram ${i + 1}`}
                 fill
                 sizes="(max-width: 768px) 33vw, 16vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-110"

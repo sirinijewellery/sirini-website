@@ -5,6 +5,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { NAV_CATEGORIES, OCCASIONS, STYLES } from "@/lib/taxonomy";
+import type { BusinessDetails } from "@/lib/settings";
 
 const COMPANY_LINKS = [
   { href: "/about", label: "Our Story" },
@@ -21,7 +22,7 @@ const linkClass =
 const headingClass =
   "font-sans text-[10px] tracking-[0.2em] uppercase text-on-surface-variant/50 font-semibold mb-1";
 
-export function Footer() {
+export function Footer({ business }: { business: BusinessDetails }) {
   return (
     <footer className="bg-surface-container">
       <div className="px-6 md:px-16 pt-20 pb-12 w-full max-w-screen-2xl mx-auto">
@@ -51,13 +52,13 @@ export function Footer() {
               Mumbai since 2015.
             </p>
             <p className="font-sans text-xs text-on-surface-variant/60 tracking-wide">
-              Mumbai, Maharashtra, India
+              {business.addressLine}
             </p>
 
             {/* Socials */}
             <div className="flex gap-5 mt-2">
               <a
-                href="https://instagram.com"
+                href={business.instagramUrl}
                 target="_blank"
                 rel="noopener noreferrer"
                 aria-label="Instagram"
@@ -70,7 +71,7 @@ export function Footer() {
                 </svg>
               </a>
               <a
-                href="mailto:sirinijewellery@gmail.com"
+                href={`mailto:${business.email}`}
                 aria-label="Email"
                 className="text-on-surface-variant hover:text-primary transition-all duration-200 hover:-translate-y-0.5"
               >

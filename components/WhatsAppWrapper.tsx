@@ -3,8 +3,8 @@
 import { usePathname } from "next/navigation";
 import { WhatsAppButton } from "./WhatsAppButton";
 
-export function WhatsAppWrapper() {
+export function WhatsAppWrapper({ whatsapp }: { whatsapp: string }) {
   const pathname = usePathname();
   if (pathname.startsWith("/admin")) return null;
-  return <WhatsAppButton />;
+  return <WhatsAppButton whatsapp={whatsapp} />;
 }

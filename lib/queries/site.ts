@@ -1,4 +1,6 @@
+import { cache } from "react";
 import { prisma } from "@/lib/prisma";
+import { DEFAULT_BUSINESS, type BusinessDetails } from "@/lib/settings";
 
 export interface HeroSlideData {
   id: string;
@@ -62,3 +64,15 @@ export async function getRibbonMessages(): Promise<string[]> {
   const clean = Array.isArray(v) ? v.filter((s) => typeof s === "string" && s.trim()) : [];
   return clean.length ? clean : DEFAULT_RIBBON_MESSAGES;
 }
+
+// Business / contact details — single source of truth for the brand's contact
+// info, socials and address. Stored partial is merged over defaults so a
+// missing field always falls back to the correct current value.
+// `cache()` dedupes the query when several components read it in one render.
+export const getBusinessDetails = cache(async (): Promise<BusinessDetails> => {
+  const v = await getSetting<Partial<BusinessDetails> | null>("business.details", null);
+  if (v && typeof v === "object" && !Array.isArray(v)) {
+    return { ...DEFAULT_BUSINESS, ...v };
+  }
+  return DEFAULT_BUSINESS;
+});

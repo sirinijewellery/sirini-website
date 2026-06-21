@@ -1,7 +1,7 @@
 import Link from "next/link";
 
-export function WhatsAppButton() {
-  const number = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+export function WhatsAppButton({ whatsapp }: { whatsapp?: string }) {
+  const number = whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
   const message = encodeURIComponent(
     "Hi Sirini! 💛 I'd like to order / enquire about your jewellery. Could you help me?"
   );

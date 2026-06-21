@@ -8,7 +8,7 @@ import { WhatsAppWrapper } from "@/components/WhatsAppWrapper";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
 import { baseMetadata } from "@/lib/seo";
-import { getRibbonMessages } from "@/lib/queries/site";
+import { getRibbonMessages, getBusinessDetails } from "@/lib/queries/site";
 import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
 import { CartDrawer } from "@/components/CartDrawer";
 import { AbandonedCartNudge } from "@/components/AbandonedCartNudge";
@@ -56,7 +56,10 @@ export default async function RootLayout({
 }: Readonly<{
   children: React.ReactNode;
 }>) {
-  const ribbonMessages = await getRibbonMessages();
+  const [ribbonMessages, business] = await Promise.all([
+    getRibbonMessages(),
+    getBusinessDetails(),
+  ]);
   return (
     <html lang="en">
       {/* Google Tag Manager — lets the owner inject any checkout/conversion
@@ -82,8 +85,8 @@ export default async function RootLayout({
         <AuthProvider>
           <NavbarWrapper messages={ribbonMessages} />
           <main className="flex-1 pb-16 md:pb-0">{children}</main>
-          <FooterWrapper />
-          <WhatsAppWrapper />
+          <FooterWrapper business={business} />
+          <WhatsAppWrapper whatsapp={business.whatsapp} />
           <Toaster />
           <CartDrawer />
           <AbandonedCartNudge />

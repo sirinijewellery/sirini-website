@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import { Mail, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { pageMetadata } from "@/lib/seo";
+import { getBusinessDetails } from "@/lib/queries/site";
 
 export const metadata = pageMetadata(
   "Contact Us",
@@ -10,8 +11,9 @@ export const metadata = pageMetadata(
   { canonical: "/contact" },
 );
 
-export default function ContactPage() {
-  const whatsappNumber = process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
+export default async function ContactPage() {
+  const business = await getBusinessDetails();
+  const whatsappNumber = business.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
   const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi! I'd like to enquire about your jewellery.")}`;
 
   return (
@@ -67,10 +69,10 @@ export default function ContactPage() {
             <div>
               <p className="font-sans text-sm font-semibold text-foreground">Email</p>
               <a
-                href="mailto:sirinijewellery@gmail.com"
+                href={`mailto:${business.email}`}
                 className="font-sans text-sm text-primary hover:underline mt-0.5 inline-block"
               >
-                sirinijewellery@gmail.com
+                {business.email}
               </a>
               <p className="font-sans text-xs text-muted-foreground mt-1">
                 We respond within 24–48 hours
