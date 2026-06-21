@@ -1,7 +1,7 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Building2, ChevronRight } from "lucide-react";
+import { Building2, ChevronRight, IndianRupee } from "lucide-react";
 
 export const metadata = { title: "Settings" };
 
@@ -12,6 +12,12 @@ const AREAS = [
     icon: Building2,
     title: "Business details",
     desc: "Contact email, phone, WhatsApp, Instagram, address & hours — used across the whole site.",
+  },
+  {
+    href: "/admin/settings/commerce",
+    icon: IndianRupee,
+    title: "Pricing & shipping",
+    desc: "GST rate, gift-wrap fee, free-shipping threshold, shipping fee and Cash-on-Delivery rules.",
   },
 ];
 

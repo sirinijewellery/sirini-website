@@ -20,6 +20,7 @@ import { ShoppingBag, MapPin, Lock, ChevronRight, CreditCard, Banknote } from "l
 import { getMrp, formatPrice } from "@/components/PriceDisplay";
 import { CouponField } from "@/components/CouponField";
 import { CityCombobox } from "@/components/CityCombobox";
+import { computeTotals, type CommerceSettings } from "@/lib/commerce/pricing";
 
 /* ── Razorpay Checkout (loaded on demand) ───────────────────────────── */
 declare global {
@@ -57,6 +58,7 @@ interface Address {
 
 interface CheckoutFormProps {
   savedAddresses: Address[];
+  commerce: CommerceSettings;
 }
 
 /* ── India States / UTs ─────────────────────────────────────────────── */
@@ -296,7 +298,7 @@ function TrustBadges() {
 
 /* ── Component ───────────────────────────────────────────────────────── */
 
-export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
+export function CheckoutForm({ savedAddresses, commerce }: CheckoutFormProps) {
   const router = useRouter();
   const { data: session } = useSession();
   const { items, getTotal, appliedCoupon, setCoupon, clearCart } = useCartStore();
@@ -308,16 +310,21 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
   const [paymentMethod, setPaymentMethod] = useState<"razorpay" | "cod" | null>(null);
   const [giftWrap, setGiftWrap] = useState(false);
 
-  const GIFT_WRAP_FEE = 49; // ₹49 — kept in sync with server-side fee
-
   const subtotal = getTotal();
   const discount = appliedCoupon?.discountAmount ?? 0;
-  const discountedSubtotal = Math.max(0, subtotal - discount);
-  const gst = Math.round(discountedSubtotal * 0.03);
-  const shipping = 0; // Free shipping
-  const giftWrapFee = giftWrap ? GIFT_WRAP_FEE : 0;
-  // Allow ₹0 so a 100%-off coupon (e.g. FREE1) can make the order truly free.
-  const total = Math.max(0, discountedSubtotal + gst + shipping + giftWrapFee);
+  // Totals come from the shared single source of truth so the client matches
+  // both checkout API routes exactly (defaults = 3% GST, ₹49 wrap, free ship).
+  const { gst, shipping, giftWrapFee, total } = computeTotals({
+    subtotal,
+    discount,
+    giftWrap,
+    settings: commerce,
+  });
+  const gstLabel = `GST (${Math.round(commerce.gstRate * 100)}%)`;
+  // COD availability mirrors the server gate (cod route): off when disabled, or
+  // when the total exceeds the configured cap (0 = no cap). Free orders are unaffected.
+  const codAvailable =
+    commerce.codEnabled && (commerce.codMaxOrder === 0 || total <= commerce.codMaxOrder);
   const compareTotal = items.reduce(
     (s, i) => s + (i.compareAtPrice ?? getMrp(i.price)) * i.quantity,
     0
@@ -341,6 +348,12 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
 
   const stateValue = watch("state") ?? "";
   const cityValue = watch("city") ?? "";
+
+  // If COD becomes unavailable (disabled, or total pushed over the cap by a
+  // coupon/gift wrap), clear a stale COD selection so the user must re-pick.
+  useEffect(() => {
+    if (!codAvailable) setPaymentMethod((m) => (m === "cod" ? null : m));
+  }, [codAvailable]);
 
   // Session may resolve after mount — backfill name/email once available
   useEffect(() => {
@@ -829,32 +842,35 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                   </div>
                 </label>
 
-                {/* COD option */}
-                <label
-                  className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
-                    paymentMethod === "cod"
-                      ? "border-primary bg-blush/30"
-                      : "border-border hover:border-primary/50"
-                  }`}
-                >
-                  <input
-                    type="radio"
-                    name="paymentMethod"
-                    value="cod"
-                    checked={paymentMethod === "cod"}
-                    onChange={() => setPaymentMethod("cod")}
-                    className="mt-0.5 accent-primary"
-                  />
-                  <div className="flex items-start gap-3 flex-1 min-w-0">
-                    <Banknote className="h-4 w-4 text-primary shrink-0 mt-0.5" />
-                    <div>
-                      <p className="font-sans text-sm font-medium text-foreground">Cash on Delivery</p>
-                      <p className="font-sans text-xs text-muted-foreground mt-0.5">
-                        Pay in cash when your order arrives
-                      </p>
+                {/* COD option — hidden when the owner has disabled COD or the
+                    order total is over the COD cap */}
+                {codAvailable && (
+                  <label
+                    className={`flex items-start gap-3 p-4 rounded-lg border cursor-pointer transition-colors ${
+                      paymentMethod === "cod"
+                        ? "border-primary bg-blush/30"
+                        : "border-border hover:border-primary/50"
+                    }`}
+                  >
+                    <input
+                      type="radio"
+                      name="paymentMethod"
+                      value="cod"
+                      checked={paymentMethod === "cod"}
+                      onChange={() => setPaymentMethod("cod")}
+                      className="mt-0.5 accent-primary"
+                    />
+                    <div className="flex items-start gap-3 flex-1 min-w-0">
+                      <Banknote className="h-4 w-4 text-primary shrink-0 mt-0.5" />
+                      <div>
+                        <p className="font-sans text-sm font-medium text-foreground">Cash on Delivery</p>
+                        <p className="font-sans text-xs text-muted-foreground mt-0.5">
+                          Pay in cash when your order arrives
+                        </p>
+                      </div>
                     </div>
-                  </div>
-                </label>
+                  </label>
+                )}
               </div>
             </section>
           </div>
@@ -937,7 +953,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                     Add gift wrapping
                   </span>
                   <span className="block font-sans text-xs text-muted-foreground">
-                    Elegant box + ribbon · ₹49
+                    Elegant box + ribbon · {formatINR(commerce.giftWrapFee)}
                   </span>
                 </span>
                 <input
@@ -945,7 +961,7 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                   checked={giftWrap}
                   onChange={(e) => setGiftWrap(e.target.checked)}
                   className="h-4 w-4 shrink-0 accent-primary cursor-pointer"
-                  aria-label="Add gift wrapping for ₹49"
+                  aria-label={`Add gift wrapping for ${formatINR(commerce.giftWrapFee)}`}
                 />
               </label>
 
@@ -980,19 +996,23 @@ export function CheckoutForm({ savedAddresses }: CheckoutFormProps) {
                 )}
                 {/* GST */}
                 <div className="flex justify-between text-muted-foreground">
-                  <span>GST (3%)</span>
+                  <span>{gstLabel}</span>
                   <span>{formatINR(gst)}</span>
                 </div>
                 {/* Shipping */}
                 <div className="flex justify-between text-muted-foreground">
                   <span>Shipping</span>
-                  <span className="text-emerald-600 font-medium">Free</span>
+                  {shipping > 0 ? (
+                    <span>{formatINR(shipping)}</span>
+                  ) : (
+                    <span className="text-emerald-600 font-medium">Free</span>
+                  )}
                 </div>
                 {/* Gift wrap line item */}
                 {giftWrap && (
                   <div className="flex justify-between text-muted-foreground">
                     <span>Gift Wrap</span>
-                    <span>{formatINR(GIFT_WRAP_FEE)}</span>
+                    <span>{formatINR(giftWrapFee)}</span>
                   </div>
                 )}
               </div>

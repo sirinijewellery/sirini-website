@@ -44,7 +44,7 @@ export async function getHeroSlides(): Promise<HeroSlideData[]> {
   }];
 }
 
-async function getSetting<T>(key: string, fallback: T): Promise<T> {
+export async function getSetting<T>(key: string, fallback: T): Promise<T> {
   try {
     const row = await prisma.setting.findUnique({ where: { key } });
     if (row && row.value != null) return row.value as T;

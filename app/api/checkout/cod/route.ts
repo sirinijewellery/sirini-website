@@ -3,6 +3,8 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { sendNewOrderEmails } from "@/lib/email";
+import { getCommerceSettings } from "@/lib/queries/commerce";
+import { computeTotals } from "@/lib/commerce/pricing";
 
 const bodySchema = z.object({
   items: z
@@ -31,9 +33,6 @@ const bodySchema = z.object({
   notes: z.string().optional(),
   paymentMethod: z.enum(["cod", "online"]).optional(),
 });
-
-// ₹49 gift-wrap fee (kept in sync with the client-side fee in CheckoutForm)
-const GIFT_WRAP_FEE = 49;
 
 export async function POST(req: NextRequest) {
   // Use server-side session for userId — never trust client-supplied value
@@ -121,22 +120,46 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Gift-wrap fee — server-authoritative; only added when the client opted in
-  const giftWrapFee = giftWrap ? GIFT_WRAP_FEE : 0;
-
-  // Mirror the client total EXACTLY: discountedSubtotal + 3% GST + gift wrap.
-  const discountedSubtotal = Math.max(0, recalculatedSubtotal - recalculatedDiscount);
-  const gst = Math.round(discountedSubtotal * 0.03);
-  const recalculatedTotal = Math.max(0, discountedSubtotal + gst + giftWrapFee);
+  // Mirror the client total EXACTLY via the shared single source of truth.
+  // Fees/rates are owner-configurable; defaults equal the previous hardcoded
+  // values (3% GST, ₹49 gift wrap, free shipping).
+  const settings = await getCommerceSettings();
+  const { total: recalculatedTotal, totalPaise: recalculatedPaise } = computeTotals({
+    subtotal: recalculatedSubtotal,
+    discount: recalculatedDiscount,
+    giftWrap: !!giftWrap,
+    settings,
+  });
 
   // 3. Exact paise comparison — no ±1 tolerance that could be exploited
-  const recalculatedPaise = Math.round(recalculatedTotal * 100);
   const clientPaise = Math.round(totalAmount * 100);
   if (recalculatedPaise !== clientPaise) {
     return NextResponse.json(
       { error: "Order amount mismatch. Please restart checkout." },
       { status: 400 }
     );
+  }
+
+  // 3b. Enforce Cash-on-Delivery availability server-side. A genuine COD order
+  // (paymentMethod "cod") must be rejected when COD is disabled, or when the
+  // total exceeds the configured cap. Free orders that selected online payment
+  // (paymentMethod "online") are unaffected.
+  const isCodOrder = parsed.data.paymentMethod === "cod" || parsed.data.paymentMethod === undefined;
+  if (isCodOrder && recalculatedTotal > 0) {
+    if (!settings.codEnabled) {
+      return NextResponse.json(
+        { error: "Cash on Delivery is currently unavailable. Please pay online." },
+        { status: 400 }
+      );
+    }
+    if (settings.codMaxOrder > 0 && recalculatedTotal > settings.codMaxOrder) {
+      return NextResponse.json(
+        {
+          error: `Cash on Delivery is available only for orders up to ₹${settings.codMaxOrder}. Please pay online.`,
+        },
+        { status: 400 }
+      );
+    }
   }
 
   // Payment method / status.

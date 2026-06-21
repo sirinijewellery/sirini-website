@@ -60,10 +60,24 @@ export async function PATCH(req: NextRequest) {
     const key = (body as { key: string }).key;
     const value = (body as { value?: unknown }).value;
     const groupSchema = SETTINGS_REGISTRY[key];
-    if (!groupSchema) return NextResponse.json({ error: "Unknown setting" }, { status: 400 });
-    const result = groupSchema.safeParse(value);
-    if (!result.success) return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
-    const data = result.data as Prisma.InputJsonValue;
+    let data: Prisma.InputJsonValue;
+    if (groupSchema) {
+      // Strictly-validated settings groups.
+      const result = groupSchema.safeParse(value);
+      if (!result.success) return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
+      data = result.data as Prisma.InputJsonValue;
+    } else if (/^(commerce|home|content|catalog|theme|product|seo)\.[a-zA-Z0-9.]+$/.test(key)) {
+      // Generic owner-only settings (admin-gated above). Bounded JSON; managers
+      // do their own field validation. Strict schemas can be added to
+      // SETTINGS_REGISTRY later without changing callers.
+      if (value === undefined) return NextResponse.json({ error: "Missing value" }, { status: 400 });
+      let serialized: string;
+      try { serialized = JSON.stringify(value); } catch { return NextResponse.json({ error: "Value is not serializable" }, { status: 400 }); }
+      if (serialized.length > 100_000) return NextResponse.json({ error: "Value too large" }, { status: 400 });
+      data = value as Prisma.InputJsonValue;
+    } else {
+      return NextResponse.json({ error: "Unknown setting" }, { status: 400 });
+    }
     await prisma.setting.upsert({
       where: { key },
       create: { key, value: data },

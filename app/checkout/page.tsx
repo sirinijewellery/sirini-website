@@ -3,6 +3,7 @@ import { redirect } from "next/navigation";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { CheckoutForm } from "@/components/CheckoutForm";
+import { getCommerceSettings } from "@/lib/queries/commerce";
 
 export const metadata: Metadata = {
   title: "Checkout — Sirini Jewellery",
@@ -17,19 +18,22 @@ export default async function CheckoutPage() {
     redirect("/login?callbackUrl=/checkout");
   }
 
-  const addresses = session.user.id
-    ? await prisma.address.findMany({
-        where: { userId: session.user.id },
-        orderBy: { isDefault: "desc" },
-      })
-    : [];
+  const [addresses, commerce] = await Promise.all([
+    session.user.id
+      ? prisma.address.findMany({
+          where: { userId: session.user.id },
+          orderBy: { isDefault: "desc" },
+        })
+      : Promise.resolve([]),
+    getCommerceSettings(),
+  ]);
 
   return (
     <div className="max-w-6xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
       <h1 className="font-display text-4xl font-light text-foreground mb-10">
         Checkout
       </h1>
-      <CheckoutForm savedAddresses={addresses} />
+      <CheckoutForm savedAddresses={addresses} commerce={commerce} />
     </div>
   );
 }
