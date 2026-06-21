@@ -1,8 +1,8 @@
 "use client";
 
-import { Fragment, useState } from "react";
+import { Fragment, useRef, useState } from "react";
 import { toast } from "sonner";
-import { Pencil, Trash2, Plus, X, Check, Tag } from "lucide-react";
+import { Pencil, Trash2, Plus, X, Check, Tag, Upload, Loader2 } from "lucide-react";
 
 interface Category {
   id: string;
@@ -37,6 +37,32 @@ function InlineForm({ initial, onSave, onCancel, saving }: InlineFormProps) {
   const [slug, setSlug] = useState(initial?.slug ?? "");
   const [image, setImage] = useState(initial?.image ?? "");
   const [slugManuallyEdited, setSlugManuallyEdited] = useState(!!initial?.slug);
+  const fileRef = useRef<HTMLInputElement>(null);
+  const [uploading, setUploading] = useState(false);
+
+  async function handleUpload(file: File) {
+    setUploading(true);
+    const fd = new FormData();
+    fd.append("file", file);
+    try {
+      const res = await fetch("/api/admin/products/upload", {
+        method: "POST",
+        body: fd,
+      });
+      const json = await res.json();
+      if (!res.ok) {
+        toast.error(json.error ?? "Upload failed");
+        return;
+      }
+      setImage(json.url);
+      toast.success("Image uploaded");
+    } catch {
+      toast.error("Network error during upload");
+    } finally {
+      setUploading(false);
+      if (fileRef.current) fileRef.current.value = "";
+    }
+  }
 
   function handleNameChange(val: string) {
     setName(val);
@@ -61,7 +87,7 @@ function InlineForm({ initial, onSave, onCancel, saving }: InlineFormProps) {
 
   return (
     <form onSubmit={handleSubmit} className="flex flex-col gap-3">
-      <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
         {/* Name */}
         <div className="flex flex-col gap-1">
           <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
@@ -92,21 +118,66 @@ function InlineForm({ initial, onSave, onCancel, saving }: InlineFormProps) {
             disabled={saving}
           />
         </div>
+      </div>
 
-        {/* Image URL */}
-        <div className="flex flex-col gap-1">
-          <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
-            Image URL
-          </label>
+      {/* Image — paste a URL or browse to upload */}
+      <div className="flex flex-col gap-1">
+        <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+          Image
+        </label>
+        <div className="flex gap-2">
           <input
             type="url"
             value={image}
             onChange={(e) => setImage(e.target.value)}
-            placeholder="https://..."
-            className="h-9 px-3 rounded-lg border border-gray-200 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
-            disabled={saving}
+            placeholder="Paste an image URL, or upload →"
+            className="flex-1 h-9 px-3 rounded-lg border border-gray-200 text-sm text-slate-900 bg-white focus:outline-none focus:ring-2 focus:ring-primary/30 focus:border-primary transition-colors"
+            disabled={saving || uploading}
+          />
+          <button
+            type="button"
+            onClick={() => fileRef.current?.click()}
+            disabled={saving || uploading}
+            className="shrink-0 inline-flex items-center gap-1.5 px-3 h-9 rounded-lg border border-gray-200 text-sm font-medium text-slate-600 hover:bg-gray-50 hover:border-gray-300 transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
+          >
+            {uploading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Upload className="h-3.5 w-3.5" />
+            )}
+            {uploading ? "Uploading…" : "Browse"}
+          </button>
+          <input
+            ref={fileRef}
+            type="file"
+            accept="image/*"
+            className="sr-only"
+            onChange={(e) =>
+              e.target.files?.[0] && handleUpload(e.target.files[0])
+            }
           />
         </div>
+        {image && (
+          <div className="mt-1.5 flex items-center gap-2">
+            {/* eslint-disable-next-line @next/next/no-img-element */}
+            <img
+              src={image}
+              alt="Category preview"
+              className="h-12 w-12 rounded-lg object-cover border border-gray-200 bg-gray-50"
+            />
+            <button
+              type="button"
+              onClick={() => setImage("")}
+              disabled={saving || uploading}
+              className="text-xs font-medium text-red-500 hover:text-red-600 transition-colors disabled:opacity-60 cursor-pointer"
+            >
+              Remove
+            </button>
+          </div>
+        )}
+        <p className="text-[11px] text-gray-400 mt-0.5">
+          PNG, JPG or WebP — max 5 MB. Uploads go to your Cloudinary library.
+        </p>
       </div>
 
       {/* Action buttons */}
