@@ -10,7 +10,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const products = await prisma.product.findMany({
     select: { slug: true, createdAt: true },
   });
-  const articles = getAllArticles();
+  const articles = await getAllArticles();
 
   // Real, stable lastmod dates. Google ignores lastmod that changes on every
   // crawl, so catalog pages track the newest product, the blog index tracks the

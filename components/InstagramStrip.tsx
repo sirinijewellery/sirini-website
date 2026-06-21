@@ -124,7 +124,7 @@ export async function InstagramStrip() {
               <circle cx="12" cy="12" r="4.2" stroke="currentColor" strokeWidth="1.8" />
               <circle cx="17.4" cy="6.6" r="1.2" fill="currentColor" />
             </svg>
-            Follow @sirini
+            Follow @{INSTAGRAM_HANDLE}
           </a>
         </div>
       </div>

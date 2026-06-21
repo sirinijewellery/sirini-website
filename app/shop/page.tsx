@@ -10,6 +10,7 @@ import {
   STYLES,
   type GetProductsOptions,
 } from "@/lib/queries/products";
+import { getDefaultSort } from "@/lib/queries/catalog";
 import Link from "next/link";
 import { siteConfig } from "@/lib/seo";
 import { NAV_CATEGORIES } from "@/lib/taxonomy";
@@ -152,6 +153,9 @@ async function ShopContent({ searchParams }: ShopPageProps) {
   const params = await searchParams;
   const page = parsePage(params.page);
 
+  // Owner-configurable default sort applies only when the visitor hasn't chosen one.
+  const defaultSort = await getDefaultSort();
+
   const options: GetProductsOptions = {
     page,
     limit: 20,
@@ -159,7 +163,7 @@ async function ShopContent({ searchParams }: ShopPageProps) {
     material: params.material,
     priceMin: parseFloatParam(params.priceMin),
     priceMax: parseFloatParam(params.priceMax),
-    sort: (params.sort as GetProductsOptions["sort"]) || "newest",
+    sort: (params.sort as GetProductsOptions["sort"]) || defaultSort,
     search: params.search,
     occasion: params.occasion,
     style: params.style,
@@ -173,7 +177,7 @@ async function ShopContent({ searchParams }: ShopPageProps) {
   ]);
 
   const materials = getMaterials();
-  const currentSort = params.sort || "newest";
+  const currentSort = params.sort || defaultSort;
   const limit = options.limit ?? 20;
 
   // Visible breadcrumb label for the active facet (if any).
@@ -286,7 +290,7 @@ async function ShopContent({ searchParams }: ShopPageProps) {
             {Math.min(page * 20, total)} of {total}
           </p>
           <div className="ml-auto">
-            <SortSelect currentSort={currentSort} />
+            <SortSelect currentSort={currentSort} defaultSort={defaultSort} />
           </div>
         </div>
 

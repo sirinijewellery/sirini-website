@@ -10,9 +10,21 @@ const sortOptions = [
   { value: "name_asc", label: "Name A–Z" },
 ];
 
-export function SortSelect({ currentSort }: { currentSort: string }) {
+export function SortSelect({
+  currentSort,
+  defaultSort = "newest",
+}: {
+  currentSort: string;
+  /**
+   * Owner-configured default sort (catalog.defaultSort). Used when the visitor
+   * hasn't picked a sort, so the dropdown reflects the active default ordering.
+   * Defaults to "newest" to preserve the previous behaviour.
+   */
+  defaultSort?: string;
+}) {
   const router = useRouter();
   const searchParams = useSearchParams();
+  const selected = currentSort || defaultSort;
 
   function handleSort(value: string | null) {
     if (!value) return;
@@ -23,7 +35,7 @@ export function SortSelect({ currentSort }: { currentSort: string }) {
   }
 
   return (
-    <Select value={currentSort} onValueChange={handleSort}>
+    <Select value={selected} onValueChange={handleSort}>
       <SelectTrigger className="w-44 h-8 text-sm font-sans">
         <SelectValue />
       </SelectTrigger>

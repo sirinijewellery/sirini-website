@@ -1,14 +1,11 @@
-import Link from "next/link";
 import Image from "next/image";
-import { getCategories } from "@/lib/queries/products";
+import type { HomeCategory } from "@/lib/queries/home";
 
-// Async server component — fetches categories from DB.
-// Editorial tone: 3-column portrait grid, deliberate vertical offset on centre card,
-// gradient overlay for legibility, bold serif text at bottom of each card.
+// Editorial 3-/5-column portrait grid. Categories come from the server page
+// (getHomeCategories — those with showOnHome, ordered by sortOrder then name),
+// so the owner controls exactly what shows here and in what order.
 
-export async function CategoryGrid() {
-  const categories = await getCategories();
-
+export function CategoryGrid({ categories }: { categories: HomeCategory[] }) {
   if (categories.length === 0) return null;
 
   // Branded gradient backgrounds for placeholder cards

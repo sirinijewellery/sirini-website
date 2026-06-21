@@ -18,8 +18,11 @@ function formatDate(iso: string): string {
   });
 }
 
-export default function BlogPage() {
-  const articles = getAllArticles();
+// Re-render the index at most once an hour (ISR); new posts appear without a redeploy.
+export const revalidate = 3600;
+
+export default async function BlogPage() {
+  const articles = await getAllArticles();
 
   return (
     <div className="bg-background text-on-surface">

@@ -19,7 +19,7 @@ function toRfc822(isoDate: string): string {
 }
 
 export async function GET() {
-  const articles = getAllArticles();
+  const articles = await getAllArticles();
   const baseUrl = siteConfig.url;
   const feedLink = `${baseUrl}/blog`;
 

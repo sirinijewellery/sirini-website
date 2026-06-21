@@ -3,15 +3,21 @@ import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 
+// All fields optional so the admin table can persist a lone toggle
+// (showOnHome / sortOrder) without re-sending name + slug. The full edit form
+// still sends name + slug + image together.
 const updateSchema = z.object({
-  name: z.string().min(1, "Name is required"),
+  name: z.string().min(1, "Name is required").optional(),
   slug: z
     .string()
     .trim()
     .toLowerCase()
     .min(1, "Slug is required")
-    .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers and dashes"),
+    .regex(/^[a-z0-9-]+$/, "Slug may only contain lowercase letters, numbers and dashes")
+    .optional(),
   image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  sortOrder: z.number().int().min(0).max(9999).optional(),
+  showOnHome: z.boolean().optional(),
 });
 
 export async function PUT(
@@ -40,7 +46,7 @@ export async function PUT(
     );
   }
 
-  const { name, slug, image } = result.data;
+  const { name, slug, image, sortOrder, showOnHome } = result.data;
 
   // Verify category exists (prevent unhandled P2025 → 500)
   const categoryExists = await prisma.category.findUnique({ where: { id }, select: { id: true } });
@@ -48,24 +54,36 @@ export async function PUT(
     return NextResponse.json({ error: "Category not found" }, { status: 404 });
   }
 
-  // Check slug conflict (excluding this category)
-  const existing = await prisma.category.findFirst({
-    where: { slug, NOT: { id } },
-  });
-  if (existing) {
-    return NextResponse.json(
-      { error: "A category with this slug already exists" },
-      { status: 409 }
-    );
+  // Check slug conflict (excluding this category) — only when a slug is given.
+  if (slug !== undefined) {
+    const existing = await prisma.category.findFirst({
+      where: { slug, NOT: { id } },
+    });
+    if (existing) {
+      return NextResponse.json(
+        { error: "A category with this slug already exists" },
+        { status: 409 }
+      );
+    }
   }
+
+  // Build a partial update so a lone toggle doesn't clobber other fields.
+  const data: {
+    name?: string;
+    slug?: string;
+    image?: string | null;
+    sortOrder?: number;
+    showOnHome?: boolean;
+  } = {};
+  if (name !== undefined) data.name = name.trim();
+  if (slug !== undefined) data.slug = slug.trim();
+  if (image !== undefined) data.image = image && image.trim() ? image.trim() : null;
+  if (sortOrder !== undefined) data.sortOrder = sortOrder;
+  if (showOnHome !== undefined) data.showOnHome = showOnHome;
 
   const category = await prisma.category.update({
     where: { id },
-    data: {
-      name: name.trim(),
-      slug: slug.trim(),
-      image: image && image.trim() ? image.trim() : null,
-    },
+    data,
   });
 
   return NextResponse.json(category);

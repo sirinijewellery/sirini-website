@@ -1,6 +1,7 @@
 import Link from "next/link";
 import { FAQJsonLd } from "@/components/FAQJsonLd";
 import { pageMetadata } from "@/lib/seo";
+import { getFaq } from "@/lib/queries/content";
 
 export const metadata = pageMetadata(
   "FAQ — Sirini Jewellery",
@@ -10,58 +11,10 @@ export const metadata = pageMetadata(
 
 const WHATSAPP_URL = "https://wa.me/919322222216";
 
-const faqs: { q: string; a: string }[] = [
-  {
-    q: "Is Sirini jewellery made of real gold?",
-    a: "No — Sirini pieces are high-quality gold-plated fashion jewellery. The base metal is brass or copper, coated with 18–22K gold plating. They are not solid gold, but are crafted to look and feel luxurious at an accessible price.",
-  },
-  {
-    q: "How long does the gold plating last?",
-    a: "With proper care, the gold plating on Sirini jewellery typically lasts 1–3 years with regular wear, and considerably longer for pieces worn occasionally. Avoid contact with water, perfume, sweat and harsh chemicals to maximise the life of the plating.",
-  },
-  {
-    q: "How do I care for my Sirini jewellery?",
-    a: "Put your jewellery on last — after makeup, perfume and lotion have dried — and take it off first when you return home. Keep pieces away from water, sweat and chemicals. After wearing, gently wipe each piece with a soft dry microfibre cloth. Store in the pouch or box provided, separately from other jewellery to avoid scratches.",
-  },
-  {
-    q: "Do you offer free shipping across India?",
-    a: "Yes. Sirini offers free pan-India shipping on every order, with no minimum order value. We ship to all serviceable pin codes across India.",
-  },
-  {
-    q: "How long does delivery take?",
-    a: "Delivery typically takes 3–7 business days depending on your location. Metro cities usually receive orders within 3–4 days; smaller towns and remote pin codes may take up to 7 days. A tracking link is shared via WhatsApp once your order is dispatched.",
-  },
-  {
-    q: "What is the return and exchange policy?",
-    a: "We accept exchanges within 7 days of delivery for manufacturing defects or wrong items received. Please contact us via WhatsApp with photos of the issue within 7 days of receiving your order. We do not accept returns for change of mind or incorrect size selection.",
-  },
-  {
-    q: "Can I place bulk or wholesale orders?",
-    a: "Yes, we welcome bulk and wholesale enquiries — for weddings, gifting, resellers and corporate orders. Please reach out to us directly on WhatsApp or email with your requirements and we will share a custom quote.",
-  },
-  {
-    q: "What payment methods do you accept?",
-    a: "We accept all major payment methods via Razorpay — including UPI (GPay, PhonePe, Paytm), credit and debit cards, net banking, and EMI. Cash on Delivery (COD) is available at select pin codes.",
-  },
-  {
-    q: "How do I find the right ring or bangle size?",
-    a: "Each product page includes a size guide. For rings, wrap a thin strip of paper around your finger, mark where it overlaps, and measure the length in millimetres — that is your circumference. For bangles, measure around the widest part of your hand (knuckles) when folded. If you are between sizes, size up for bangles.",
-  },
-  {
-    q: "How can I contact Sirini Jewellery?",
-    a: "The fastest way to reach us is via WhatsApp — click the chat button on any page or message us directly at +91 93222 22216. We typically respond within a few hours during business hours (10 am – 7 pm IST, Monday to Saturday).",
-  },
-  {
-    q: "Are Kundan and Meenakari pieces suitable for daily wear?",
-    a: "Kundan and Meenakari pieces, with their intricate stone settings and enamel work, are best reserved for festive and occasional wear to keep them looking their best. Our simpler gold-plated bangles, rings and stud earrings are better suited to daily wear.",
-  },
-  {
-    q: "Do the jewellery pieces look exactly like the photos?",
-    a: "We photograph every piece under natural light to show the most accurate colour and detail. Slight variations in stone shade or finish may occur, as these are handcrafted pieces — this is what makes each one unique. If you have any concerns after receiving your order, contact us and we will make it right.",
-  },
-];
+export default async function FAQPage() {
+  // Single source of truth — the on-page list and FAQJsonLd both read getFaq().
+  const faqs = await getFaq();
 
-export default function FAQPage() {
   return (
     <div className="bg-background text-on-surface">
 

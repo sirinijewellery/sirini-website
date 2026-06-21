@@ -21,6 +21,7 @@ import {
 } from "@/components/ui/select";
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { getMaterials, parseImages } from "@/lib/parseImages";
+import { DEFAULT_BADGES, type BadgeDef } from "@/lib/catalog";
 
 // ---------- Types ----------
 interface Category {
@@ -48,6 +49,8 @@ interface ProductDB {
   compareAtPrice?: number | null;
   stock: number;
   displayOrder?: number | null;
+  metaTitle?: string | null;
+  metaDescription?: string | null;
   createdAt: Date;
 }
 
@@ -59,6 +62,11 @@ const OCCASION_OPTIONS = [
 interface ProductFormProps {
   product?: ProductDB;
   categories: Category[];
+  /**
+   * Owner-defined badges (label + colour). Optional: defaults to the original 6
+   * (DEFAULT_BADGES) so callers that don't pass it keep the current behaviour.
+   */
+  badges?: BadgeDef[];
 }
 
 // ---------- Zod schema ----------
@@ -72,14 +80,16 @@ const productFormSchema = z.object({
   material: z.string().min(1, "Material is required"),
   sku: z.string().min(1, "SKU is required"),
   images: z.array(z.string()).min(1, "At least one image is required"),
-  badge: z
-    .enum(["", "NEW", "HOT", "SALE", "Handcrafted", "Traditional", "Bestseller"])
-    .optional(),
+  // Free-text badge label (owner-defined via catalog.badges). "" = no badge.
+  badge: z.string().optional(),
   isFeatured: z.boolean(),
   occasions: z.array(z.string()),
   tags: z.array(z.string()),
   stock: z.number({ message: "Stock must be a number" }).int().min(0, "Stock must be 0 or more"),
   displayOrder: z.number().int().positive().optional(),
+  // Per-product SEO overrides. Blank → auto-generated from name/description.
+  metaTitle: z.string().optional(),
+  metaDescription: z.string().optional(),
 });
 
 type ProductFormValues = z.infer<typeof productFormSchema>;
@@ -133,7 +143,7 @@ function Field({
 }
 
 // ---------- Main form ----------
-export function ProductForm({ product, categories }: ProductFormProps) {
+export function ProductForm({ product, categories, badges = DEFAULT_BADGES }: ProductFormProps) {
   const router = useRouter();
   const isEditing = !!product;
 
@@ -167,20 +177,14 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       material: product?.material ?? "",
       sku: product?.sku ?? "",
       images: parseImages(product?.images),
-      badge:
-        (product?.badge as
-          | "NEW"
-          | "HOT"
-          | "SALE"
-          | "Handcrafted"
-          | "Traditional"
-          | "Bestseller"
-          | "") ?? "",
+      badge: product?.badge ?? "",
       isFeatured: product?.isFeatured ?? false,
       occasions: product?.occasions ?? [],
       tags: product?.tags ?? [],
       stock: product?.stock ?? 10,
       displayOrder: product?.displayOrder ?? undefined,
+      metaTitle: product?.metaTitle ?? "",
+      metaDescription: product?.metaDescription ?? "",
     },
   });
 
@@ -256,6 +260,9 @@ export function ProductForm({ product, categories }: ProductFormProps) {
       badge: values.badge || null,
       // Empty input → null so clearing the field unpins the product.
       displayOrder: values.displayOrder ?? null,
+      // Blank SEO overrides → null so generateMetadata auto-generates.
+      metaTitle: values.metaTitle?.trim() || null,
+      metaDescription: values.metaDescription?.trim() || null,
     };
 
     const url = isEditing
@@ -551,12 +558,17 @@ export function ProductForm({ product, categories }: ProductFormProps) {
                   </SelectTrigger>
                   <SelectContent>
                     <SelectItem value="">None</SelectItem>
-                    <SelectItem value="NEW">NEW</SelectItem>
-                    <SelectItem value="HOT">HOT</SelectItem>
-                    <SelectItem value="SALE">SALE</SelectItem>
-                    <SelectItem value="Handcrafted">Handcrafted</SelectItem>
-                    <SelectItem value="Traditional">Traditional</SelectItem>
-                    <SelectItem value="Bestseller">Bestseller</SelectItem>
+                    {badges.map((b) => (
+                      <SelectItem key={b.label} value={b.label}>
+                        {b.label}
+                      </SelectItem>
+                    ))}
+                    {/* Keep a previously-saved badge selectable even if the owner
+                        later removed it from the badge list. */}
+                    {field.value &&
+                      !badges.some((b) => b.label === field.value) && (
+                        <SelectItem value={field.value}>{field.value}</SelectItem>
+                      )}
                   </SelectContent>
                 </Select>
               )}

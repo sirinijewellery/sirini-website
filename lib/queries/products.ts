@@ -1,6 +1,7 @@
 import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { matchCategorySlugs } from "@/lib/taxonomy";
+import { getHideOutOfStock, getDefaultSort } from "@/lib/queries/catalog";
 
 export type ProductWithVariants = Awaited<ReturnType<typeof getProducts>>["products"][number];
 // NB: name retained for import compatibility; products no longer have variants
@@ -30,7 +31,7 @@ export async function getProducts(options: GetProductsOptions = {}) {
     priceMin,
     priceMax,
     material,
-    sort = "newest",
+    sort: sortOption,
     search,
     featuredOnly,
     occasion,
@@ -39,10 +40,20 @@ export async function getProducts(options: GetProductsOptions = {}) {
     minRating,
   } = options;
 
+  // Default sort: owner-configurable (catalog.defaultSort, default "newest").
+  // An explicit caller-supplied sort always wins.
+  const sort = sortOption ?? (await getDefaultSort());
+
+  // Hide sold-out products from listings when the owner opts in (default off).
+  const hideOutOfStock = await getHideOutOfStock();
+
   const ci = Prisma.QueryMode.insensitive;
   const searchCatSlugs = search ? matchCategorySlugs(search) : [];
 
   const where: Prisma.ProductWhereInput = {
+    // When enabled, exclude sold-out products. `inStock` (below) is stricter and
+    // already excludes them, so this only matters when inStock isn't set.
+    ...(hideOutOfStock && !inStock ? { stock: { gt: 0 } } : {}),
     // Multi-category: a product matches a category if its categories[] contains
     // the slug. With no category filter, show ALL products (including those in
     // newly created categories that don't yet have an image).

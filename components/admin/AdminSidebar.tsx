@@ -15,6 +15,7 @@ import {
   Megaphone,
   HelpCircle,
   Settings,
+  Newspaper,
   Menu,
   X,
 } from "lucide-react";
@@ -108,6 +109,7 @@ export function AdminSidebar() {
           <NavLink href="/admin/coupons" label="Coupons" icon={Ticket} />
           <NavLink href="/admin/hero" label="Hero Section" icon={Images} />
           <NavLink href="/admin/ribbons" label="Header Ribbon" icon={Megaphone} />
+          <NavLink href="/admin/blog" label="Blog" icon={Newspaper} />
           <NavLink href="/admin/settings" label="Settings" icon={Settings} />
           <NavLink href="/admin/admins" label="Admins" icon={Users} />
           <NavLink href="/admin/help" label="Help" icon={HelpCircle} />

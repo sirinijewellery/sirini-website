@@ -3,6 +3,7 @@ import type { Metadata } from "next";
 
 import { prisma } from "@/lib/prisma";
 import { ProductForm } from "@/components/admin/ProductForm";
+import { getBadges } from "@/lib/queries/catalog";
 
 export const metadata: Metadata = { title: "Edit Product" };
 
@@ -13,7 +14,7 @@ interface Props {
 export default async function EditProductPage({ params }: Props) {
   const { id } = await params;
 
-  const [product, categories] = await Promise.all([
+  const [product, categories, badges] = await Promise.all([
     prisma.product.findUnique({
       where: { id },
     }),
@@ -21,6 +22,7 @@ export default async function EditProductPage({ params }: Props) {
       orderBy: { name: "asc" },
       select: { id: true, name: true, slug: true, image: true },
     }),
+    getBadges(),
   ]);
 
   if (!product) notFound();
@@ -30,7 +32,7 @@ export default async function EditProductPage({ params }: Props) {
       <h1 className="text-2xl font-semibold text-slate-900 font-sans mb-6">
         Edit Product
       </h1>
-      <ProductForm product={product} categories={categories} />
+      <ProductForm product={product} categories={categories} badges={badges} />
     </div>
   );
 }

@@ -1,7 +1,15 @@
 import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import Link from "next/link";
-import { Building2, ChevronRight, IndianRupee } from "lucide-react";
+import {
+  Building2,
+  ChevronRight,
+  IndianRupee,
+  LayoutTemplate,
+  Package,
+  FileText,
+  Palette,
+} from "lucide-react";
 
 export const metadata = { title: "Settings" };
 
@@ -14,10 +22,34 @@ const AREAS = [
     desc: "Contact email, phone, WhatsApp, Instagram, address & hours — used across the whole site.",
   },
   {
+    href: "/admin/settings/homepage",
+    icon: LayoutTemplate,
+    title: "Homepage",
+    desc: "Promo banner, trust badges, testimonials, brand story, and which homepage sections show & in what order.",
+  },
+  {
     href: "/admin/settings/commerce",
     icon: IndianRupee,
     title: "Pricing & shipping",
     desc: "GST rate, gift-wrap fee, free-shipping threshold, shipping fee and Cash-on-Delivery rules.",
+  },
+  {
+    href: "/admin/settings/catalog",
+    icon: Package,
+    title: "Products & catalog",
+    desc: "Low-stock threshold, hide sold-out items, default sort, and product badge labels & colours.",
+  },
+  {
+    href: "/admin/settings/content",
+    icon: FileText,
+    title: "Pages & FAQ",
+    desc: "Edit the About, Shipping, Privacy and Terms pages and the FAQ list.",
+  },
+  {
+    href: "/admin/settings/theme",
+    icon: Palette,
+    title: "Theme & fonts",
+    desc: "Brand colours and the storefront font pairing.",
   },
 ];
 

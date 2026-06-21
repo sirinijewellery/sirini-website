@@ -16,6 +16,7 @@ import { ProductReviews } from "@/components/ProductReviews";
 import { categoryLabel } from "@/lib/taxonomy";
 import { RecentlyViewedStrip } from "@/components/RecentlyViewedStrip";
 import { prisma } from "@/lib/prisma";
+import { getBadges, getLowStockThreshold } from "@/lib/queries/catalog";
 
 // ISR — product pages are cached and served instantly, re-rendered at most
 // every 10 minutes. Stock is re-verified server-side at checkout, and
@@ -48,8 +49,25 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     slug: product.slug,
   });
 
+  // Per-product SEO overrides: use the owner-entered title/description when set,
+  // otherwise fall back to the auto-generated values from productMetadata().
+  const metaTitle = product.metaTitle?.trim() || undefined;
+  const metaDescription = product.metaDescription?.trim() || undefined;
+
   return {
     ...base,
+    ...(metaTitle ? { title: metaTitle } : {}),
+    ...(metaDescription ? { description: metaDescription } : {}),
+    openGraph: {
+      ...base.openGraph,
+      ...(metaTitle ? { title: metaTitle } : {}),
+      ...(metaDescription ? { description: metaDescription } : {}),
+    },
+    twitter: {
+      ...base.twitter,
+      ...(metaTitle ? { title: metaTitle } : {}),
+      ...(metaDescription ? { description: metaDescription } : {}),
+    },
     keywords: [
       product.name,
       product.category,
@@ -85,6 +103,12 @@ export default async function ProductPage({ params }: Props) {
 
   // Sort: model first → full set → detail close-ups
   const images = sortAllImages(parseImages(product.images));
+
+  // Owner-editable catalog settings (badges + low-stock threshold) for the PDP.
+  const [badges, lowStockThreshold] = await Promise.all([
+    getBadges(),
+    getLowStockThreshold(),
+  ]);
 
   // "Complete the Look" bundle — first 2 complementary pieces from other categories
   const pairing = await getPairingProducts(product.category, product.id);
@@ -142,6 +166,8 @@ export default async function ProductPage({ params }: Props) {
             stock: product.stock,
           }}
           images={images}
+          badges={badges}
+          lowStockThreshold={lowStockThreshold}
         />
       </div>
 

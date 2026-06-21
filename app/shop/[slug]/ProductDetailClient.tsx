@@ -8,6 +8,12 @@ import { PriceDisplay, formatPrice } from "@/components/PriceDisplay";
 import { PincodeEstimator } from "@/components/PincodeEstimator";
 import { useRecentlyViewedStore } from "@/lib/store/recentlyViewed";
 import { categoryLabel } from "@/lib/taxonomy";
+import {
+  DEFAULT_BADGES,
+  DEFAULT_LOW_STOCK_THRESHOLD,
+  badgeColor,
+  type BadgeDef,
+} from "@/lib/catalog";
 
 interface ProductDetailClientProps {
   product: {
@@ -24,17 +30,17 @@ interface ProductDetailClientProps {
     stock?: number;
   };
   images: string[];
+  /** Owner-defined badges. Defaults to the original 6 if not supplied. */
+  badges?: BadgeDef[];
+  /** Stock level at/below which the "only N left" line shows. Default 5. */
+  lowStockThreshold?: number;
 }
-
-const badgeStyle: Record<string, string> = {
-  NEW: "bg-emerald-100 text-emerald-700",
-  HOT: "bg-amber-100 text-amber-700",
-  SALE: "bg-rose-100 text-rose-700",
-};
 
 export default function ProductDetailClient({
   product,
   images,
+  badges = DEFAULT_BADGES,
+  lowStockThreshold = DEFAULT_LOW_STOCK_THRESHOLD,
 }: ProductDetailClientProps) {
   const ctaRef = useRef<HTMLDivElement>(null);
   const [showStickyBar, setShowStickyBar] = useState(false);
@@ -92,9 +98,10 @@ export default function ProductDetailClient({
         </span>
         {product.badge && (
           <span
-            className={`text-[10px] font-sans font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${
-              badgeStyle[product.badge] ?? "bg-muted text-muted-foreground"
-            }`}
+            className={`text-[10px] font-sans font-semibold uppercase tracking-wider px-2 py-0.5 rounded ${badgeColor(
+              badges,
+              product.badge
+            )}`}
           >
             {product.badge}
           </span>
@@ -126,7 +133,7 @@ export default function ProductDetailClient({
       </div>
 
       {/* Stock-level urgency line — complements the social-proof line above */}
-      {product.stock !== undefined && product.stock > 0 && product.stock <= 5 && (
+      {product.stock !== undefined && product.stock > 0 && product.stock <= lowStockThreshold && (
         <div className="flex items-center gap-2 text-[13px] font-sans font-medium text-rose-600">
           <span className="relative flex h-2 w-2" aria-hidden="true">
             <span className="absolute inline-flex h-full w-full rounded-full bg-rose-400 opacity-75 animate-ping" />

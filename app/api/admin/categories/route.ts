@@ -12,6 +12,8 @@ const categorySchema = z.object({
     .regex(/^[a-z0-9-]*$/, "Slug may only contain lowercase letters, numbers and dashes")
     .optional(),
   image: z.string().url("Must be a valid URL").optional().or(z.literal("")),
+  sortOrder: z.number().int().min(0).max(9999).optional(),
+  showOnHome: z.boolean().optional(),
 });
 
 function generateSlug(name: string): string {
@@ -55,7 +57,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { name, slug: rawSlug, image } = result.data;
+  const { name, slug: rawSlug, image, sortOrder, showOnHome } = result.data;
   const slug = rawSlug && rawSlug.trim() ? rawSlug.trim() : generateSlug(name);
 
   const existing = await prisma.category.findUnique({ where: { slug } });
@@ -71,6 +73,8 @@ export async function POST(req: NextRequest) {
       name: name.trim(),
       slug,
       image: image && image.trim() ? image.trim() : null,
+      ...(sortOrder !== undefined ? { sortOrder } : {}),
+      ...(showOnHome !== undefined ? { showOnHome } : {}),
     },
   });
 

@@ -29,6 +29,9 @@ const productSchema = z.object({
   stock: z.number().int().min(0),
   // Shop front-page position (1 = first). Null = unpin; absent = unchanged.
   displayOrder: z.number().int().positive().optional().nullable(),
+  // Per-product SEO overrides. Blank/absent → auto-generated in generateMetadata.
+  metaTitle: z.string().optional().nullable(),
+  metaDescription: z.string().optional().nullable(),
 });
 
 // GET /api/admin/products/[id]
@@ -115,6 +118,9 @@ export async function PUT(
       occasions: fields.occasions ?? [],
       tags: fields.tags ?? [],
       stock: fields.stock,
+      // Normalise blank SEO overrides to null so generateMetadata auto-generates.
+      metaTitle: fields.metaTitle?.trim() || null,
+      metaDescription: fields.metaDescription?.trim() || null,
     },
   });
 

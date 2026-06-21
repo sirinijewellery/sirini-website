@@ -10,19 +10,28 @@ interface Props {
   params: Promise<{ slug: string }>;
 }
 
-export function generateStaticParams() {
-  return getAllArticles().map((article) => ({ slug: article.slug }));
+// ISR: revalidate each article at most once an hour. Slugs not generated at
+// build time are rendered on first visit (dynamicParams defaults to true).
+export const revalidate = 3600;
+
+export async function generateStaticParams() {
+  const articles = await getAllArticles();
+  return articles.map((article) => ({ slug: article.slug }));
 }
 
 export async function generateMetadata({ params }: Props): Promise<Metadata> {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const article = await getArticleBySlug(slug);
   if (!article) return { title: "Article Not Found" };
 
-  return pageMetadata(article.title, article.excerpt, {
-    ogImage: article.coverImage,
-    canonical: `${siteConfig.url}/blog/${article.slug}`,
-  });
+  return pageMetadata(
+    article.metaTitle?.trim() || article.title,
+    article.metaDescription?.trim() || article.excerpt,
+    {
+      ogImage: article.coverImage,
+      canonical: `${siteConfig.url}/blog/${article.slug}`,
+    },
+  );
 }
 
 function formatDate(iso: string): string {
@@ -35,7 +44,7 @@ function formatDate(iso: string): string {
 
 export default async function ArticlePage({ params }: Props) {
   const { slug } = await params;
-  const article = getArticleBySlug(slug);
+  const article = await getArticleBySlug(slug);
 
   if (!article) notFound();
 

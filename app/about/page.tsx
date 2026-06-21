@@ -1,6 +1,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { pageMetadata } from "@/lib/seo";
+import { getAbout } from "@/lib/queries/content";
 
 export const metadata = pageMetadata(
   "Our Story — Handcrafted Since 2015",
@@ -18,7 +19,18 @@ const HERO_IMAGE =
 const ARTISAN_IMAGE =
   "https://res.cloudinary.com/dp8a2lvxg/image/upload/q_auto,f_auto/v1779798780/sirini-jewellery/brand/artisan-craft.jpg";
 
-export default function AboutPage() {
+export default async function AboutPage() {
+  const content = await getAbout();
+  // Story intro paragraphs (split on blank lines so the owner can keep the
+  // original two-paragraph rhythm or write their own).
+  const introParas = (content.intro ?? "")
+    .split(/\n{2,}/)
+    .map((p) => p.trim())
+    .filter(Boolean);
+  // sections[0] = "Crafted to Last" materials block; the rest fill the values strip.
+  const materials = content.sections[0];
+  const values = content.sections.slice(1);
+
   return (
     <div className="bg-background text-on-surface">
 
@@ -55,18 +67,20 @@ export default function AboutPage() {
             The Story
           </p>
           <h2 className="font-headline-lg text-headline-lg text-on-surface mb-6">
-            The Mumbai Workshop
+            {content.title}
           </h2>
-          <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed mb-4">
-            Sirini Jewellery was born in the bustling lanes of Mumbai in 2015 — not in a factory,
-            but at a family workbench. What started as a passion for preserving traditional
-            goldsmithing techniques grew into a brand worn by women across India.
-          </p>
-          <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-            Every piece we create carries the fingerprints of artisans who have inherited their craft
-            across generations. We do not cut corners — we cut metal, shape wire, and set stones
-            the way it has always been done: with patience, skill, and love.
-          </p>
+          {introParas.map((para, i) => (
+            <p
+              key={i}
+              className={
+                i === 0
+                  ? "font-body-lg text-body-lg text-on-surface-variant leading-relaxed mb-4"
+                  : "font-body-md text-body-md text-on-surface-variant leading-relaxed mb-4 last:mb-0"
+              }
+            >
+              {para}
+            </p>
+          ))}
         </div>
       </section>
 
@@ -90,22 +104,20 @@ export default function AboutPage() {
               Materials &amp; Intention
             </p>
             <h2 className="font-headline-lg text-headline-lg text-on-surface">
-              Crafted to Last
+              {materials?.heading ?? "Crafted to Last"}
             </h2>
             <p className="font-body-md text-body-md text-on-surface-variant leading-relaxed">
-              Sirini uses only ethically sourced materials — from gleaming 22kt gold plating
-              and intricate Kundan stonework to hand-painted Meenakari enamel and premium
-              oxidised silver. Every material is chosen for how it wears, not just how it looks.
+              {materials?.body}
             </p>
             <ul className="space-y-3">
               {[
-                "Ethically sourced gold &amp; silver plating",
-                "Hand-set Kundan &amp; Meenakari stones",
+                "Ethically sourced gold & silver plating",
+                "Hand-set Kundan & Meenakari stones",
                 "Rigorous quality checks before dispatch",
               ].map((item) => (
                 <li key={item} className="flex items-start gap-3 font-body-md text-body-md text-on-surface-variant">
                   <span className="text-primary mt-1">✦</span>
-                  <span dangerouslySetInnerHTML={{ __html: item }} />
+                  <span>{item}</span>
                 </li>
               ))}
             </ul>
@@ -116,13 +128,9 @@ export default function AboutPage() {
       {/* ── Values strip ──────────────────────────────────────────── */}
       <section className="bg-surface-container py-20 px-6 md:px-16">
         <div className="max-w-screen-2xl mx-auto grid grid-cols-1 sm:grid-cols-3 gap-12 text-center">
-          {[
-            { title: "Quality First", body: "Every piece passes hands-on quality inspection before it reaches you." },
-            { title: "Heritage Craft", body: "Techniques passed down through generations of Mumbai artisans." },
-            { title: "Thoughtful Gifting", body: "Beautiful packaging — every order is gift-ready from the box." },
-          ].map((v) => (
-            <div key={v.title}>
-              <h3 className="font-headline-md text-headline-md text-on-surface mb-3">{v.title}</h3>
+          {values.map((v) => (
+            <div key={v.heading}>
+              <h3 className="font-headline-md text-headline-md text-on-surface mb-3">{v.heading}</h3>
               <p className="font-body-md text-body-md text-on-surface-variant">{v.body}</p>
             </div>
           ))}

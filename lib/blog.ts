@@ -1,6 +1,12 @@
 // Blog / Styling Guides content.
+// Content now lives in the database (BlogPost model) and is managed from the
+// admin (/admin/blog). The hardcoded SEED_ARTICLES below are used as a fallback
+// so the live blog never goes blank if the BlogPost table is empty.
+//
 // Simple structured content (no MDX): each article body is an array of
 // sections with an optional heading and one or more paragraphs.
+
+import { prisma } from "@/lib/prisma";
 
 export interface ArticleSection {
   heading?: string;
@@ -22,15 +28,15 @@ export interface Article {
   body: ArticleSection[];
   /**
    * Internal links to relevant shop pages.
-   * Rendered as a "Shop the collection" footer row in app/blog/[slug]/page.tsx
-   * (that file may be updated separately to display these links).
-   * Adding this field here is safe — existing renderers that don't know about
-   * it will simply ignore it.
+   * Rendered as a "Shop the collection" footer row in app/blog/[slug]/page.tsx.
    */
   relatedLinks?: ArticleRelatedLink[];
+  /** Per-post SEO overrides. Blank/absent → derived from title/excerpt. */
+  metaTitle?: string | null;
+  metaDescription?: string | null;
 }
 
-// Known brand imagery on Cloudinary, reused across articles.
+// Known brand imagery on Cloudinary, reused across the seed articles.
 const HERO_MODEL =
   "https://res.cloudinary.com/dp8a2lvxg/image/upload/q_auto,f_auto,w_1200/v1780555156/sirini-jewellery/brand/hero-model.jpg";
 const ARTISAN_CRAFT =
@@ -38,7 +44,8 @@ const ARTISAN_CRAFT =
 const STORY_INFOGRAPHIC =
   "https://res.cloudinary.com/dp8a2lvxg/image/upload/q_auto,f_auto,w_1200/v1780555156/sirini-jewellery/brand/story-infographic.jpg";
 
-export const ARTICLES: Article[] = [
+// Seed content — also used as the live fallback when the DB has no posts.
+export const SEED_ARTICLES: Article[] = [
   {
     slug: "how-to-style-kundan-bridal",
     title: "How to Style a Kundan Necklace Set for Your Wedding",
@@ -192,9 +199,7 @@ export const ARTICLES: Article[] = [
         ],
       },
     ],
-    relatedLinks: [
-      { label: "Browse our collection", href: "/shop" },
-    ],
+    relatedLinks: [{ label: "Browse our collection", href: "/shop" }],
   },
   {
     slug: "festive-jewellery-edit",
@@ -246,11 +251,161 @@ export const ARTICLES: Article[] = [
   },
 ];
 
-export function getAllArticles(): Article[] {
-  // Newest first.
-  return [...ARTICLES].sort((a, b) => b.date.localeCompare(a.date));
+// ---------------------------------------------------------------------------
+// Row → Article mapping
+// ---------------------------------------------------------------------------
+
+// Minimal shape of a prisma.blogPost row we rely on (avoids importing Prisma types).
+interface BlogPostRow {
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverImage: string;
+  body: unknown;
+  relatedLinks: unknown;
+  readMins: number;
+  publishedAt: Date;
+  metaTitle: string | null;
+  metaDescription: string | null;
 }
 
-export function getArticleBySlug(slug: string): Article | undefined {
-  return ARTICLES.find((a) => a.slug === slug);
+function toISODate(d: Date): string {
+  // YYYY-MM-DD (the storefront formats this back into a friendly date).
+  return d.toISOString().slice(0, 10);
+}
+
+/** Coerce the JSON `body` column into a safe ArticleSection[]. */
+function parseBody(value: unknown): ArticleSection[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((section): ArticleSection | null => {
+      if (!section || typeof section !== "object") return null;
+      const s = section as Record<string, unknown>;
+      const paragraphs = Array.isArray(s.paragraphs)
+        ? s.paragraphs.filter((p): p is string => typeof p === "string")
+        : [];
+      const heading = typeof s.heading === "string" ? s.heading : undefined;
+      if (!heading && paragraphs.length === 0) return null;
+      return heading ? { heading, paragraphs } : { paragraphs };
+    })
+    .filter((s): s is ArticleSection => s !== null);
+}
+
+/** Coerce the JSON `relatedLinks` column into a safe ArticleRelatedLink[]. */
+function parseRelatedLinks(value: unknown): ArticleRelatedLink[] {
+  if (!Array.isArray(value)) return [];
+  return value
+    .map((link): ArticleRelatedLink | null => {
+      if (!link || typeof link !== "object") return null;
+      const l = link as Record<string, unknown>;
+      if (typeof l.label !== "string" || typeof l.href !== "string") return null;
+      if (!l.label.trim() || !l.href.trim()) return null;
+      return { label: l.label, href: l.href };
+    })
+    .filter((l): l is ArticleRelatedLink => l !== null);
+}
+
+/** Map a prisma.blogPost row to the storefront Article shape. */
+export function rowToArticle(row: BlogPostRow): Article {
+  return {
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    coverImage: row.coverImage,
+    date: toISODate(row.publishedAt),
+    readMins: row.readMins,
+    body: parseBody(row.body),
+    relatedLinks: parseRelatedLinks(row.relatedLinks),
+    metaTitle: row.metaTitle,
+    metaDescription: row.metaDescription,
+  };
+}
+
+// ---------------------------------------------------------------------------
+// Public queries (used by the storefront /blog pages)
+// ---------------------------------------------------------------------------
+
+/**
+ * All published articles, newest first.
+ * Falls back to SEED_ARTICLES when the BlogPost table is empty so the live
+ * blog never goes blank.
+ */
+export async function getAllArticles(): Promise<Article[]> {
+  try {
+    const rows = await prisma.blogPost.findMany({
+      where: { isPublished: true },
+      orderBy: { publishedAt: "desc" },
+    });
+    if (rows.length === 0) {
+      return [...SEED_ARTICLES].sort((a, b) => b.date.localeCompare(a.date));
+    }
+    return rows.map(rowToArticle);
+  } catch {
+    // DB unreachable — keep the blog alive with seed content.
+    return [...SEED_ARTICLES].sort((a, b) => b.date.localeCompare(a.date));
+  }
+}
+
+/**
+ * A single published article by slug, or undefined.
+ * Falls back to a matching SEED article when the table is empty.
+ */
+export async function getArticleBySlug(slug: string): Promise<Article | undefined> {
+  try {
+    const row = await prisma.blogPost.findFirst({
+      where: { slug, isPublished: true },
+    });
+    if (row) return rowToArticle(row);
+
+    // If there are no published posts at all, fall back to seed content.
+    const publishedCount = await prisma.blogPost.count({
+      where: { isPublished: true },
+    });
+    if (publishedCount === 0) {
+      return SEED_ARTICLES.find((a) => a.slug === slug);
+    }
+    return undefined;
+  } catch {
+    return SEED_ARTICLES.find((a) => a.slug === slug);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Admin query (includes unpublished)
+// ---------------------------------------------------------------------------
+
+export interface AdminBlogPost {
+  id: string;
+  slug: string;
+  title: string;
+  excerpt: string;
+  coverImage: string;
+  body: ArticleSection[];
+  relatedLinks: ArticleRelatedLink[];
+  readMins: number;
+  isPublished: boolean;
+  metaTitle: string | null;
+  metaDescription: string | null;
+  publishedAt: string; // ISO datetime
+}
+
+/** All posts (published + drafts), newest first — admin only. */
+export async function getAllPostsAdmin(): Promise<AdminBlogPost[]> {
+  const rows = await prisma.blogPost.findMany({
+    orderBy: { publishedAt: "desc" },
+  });
+  return rows.map((row) => ({
+    id: row.id,
+    slug: row.slug,
+    title: row.title,
+    excerpt: row.excerpt,
+    coverImage: row.coverImage,
+    body: parseBody(row.body),
+    relatedLinks: parseRelatedLinks(row.relatedLinks),
+    readMins: row.readMins,
+    isPublished: row.isPublished,
+    metaTitle: row.metaTitle,
+    metaDescription: row.metaDescription,
+    publishedAt: row.publishedAt.toISOString(),
+  }));
 }
