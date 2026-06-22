@@ -22,6 +22,7 @@ import {
 import { ImageUploader } from "@/components/admin/ImageUploader";
 import { getMaterials, parseImages } from "@/lib/parseImages";
 import { DEFAULT_BADGES, type BadgeDef } from "@/lib/catalog";
+import type { TaxonomyGroupData, TaxonomyTermData } from "@/lib/taxonomy";
 
 // ---------- Types ----------
 interface Category {
@@ -67,6 +68,10 @@ interface ProductFormProps {
    * (DEFAULT_BADGES) so callers that don't pass it keep the current behaviour.
    */
   badges?: BadgeDef[];
+  /** Admin-managed taxonomy (Category/Occasion/Collection/Look/Stone/Colour…). */
+  taxonomy?: TaxonomyGroupData[];
+  /** Edit mode: the product's assigned term slugs, grouped by dimension slug. */
+  productTerms?: Record<string, string[]>;
 }
 
 // ---------- Zod schema ----------
@@ -142,14 +147,84 @@ function Field({
   );
 }
 
+// Recursive checkbox row for a taxonomy term (indents hierarchical sub-categories).
+function TaxonomyTermCheckbox({
+  term,
+  depth,
+  selected,
+  onToggle,
+}: {
+  term: TaxonomyTermData;
+  depth: number;
+  selected: Set<string>;
+  onToggle: (id: string) => void;
+}) {
+  return (
+    <>
+      <label
+        className="flex items-center gap-2 text-sm text-slate-700 cursor-pointer"
+        style={{ paddingLeft: depth * 16 }}
+      >
+        <input
+          type="checkbox"
+          checked={selected.has(term.id)}
+          onChange={() => onToggle(term.id)}
+          className="h-4 w-4 accent-primary cursor-pointer"
+        />
+        <span className={depth === 0 && term.children.length > 0 ? "font-medium" : ""}>
+          {term.label}
+        </span>
+      </label>
+      {term.children.map((c) => (
+        <TaxonomyTermCheckbox
+          key={c.id}
+          term={c}
+          depth={depth + 1}
+          selected={selected}
+          onToggle={onToggle}
+        />
+      ))}
+    </>
+  );
+}
+
 // ---------- Main form ----------
-export function ProductForm({ product, categories, badges = DEFAULT_BADGES }: ProductFormProps) {
+export function ProductForm({
+  product,
+  categories,
+  badges = DEFAULT_BADGES,
+  taxonomy = [],
+  productTerms,
+}: ProductFormProps) {
   const router = useRouter();
   const isEditing = !!product;
 
   const [slugLocked, setSlugLocked] = useState(isEditing);
   const [cats, setCats] = useState(categories);
   const [newCategory, setNewCategory] = useState("");
+
+  // Taxonomy term assignment (ProductTerm). Holds selected term IDs; in edit
+  // mode it's seeded from the product's current term slugs.
+  const [selectedTermIds, setSelectedTermIds] = useState<Set<string>>(() => {
+    const ids = new Set<string>();
+    if (!productTerms) return ids;
+    const walk = (terms: TaxonomyTermData[], groupSlug: string) => {
+      for (const t of terms) {
+        if (productTerms[groupSlug]?.includes(t.slug)) ids.add(t.id);
+        walk(t.children, groupSlug);
+      }
+    };
+    for (const g of taxonomy) walk(g.terms, g.slug);
+    return ids;
+  });
+  function toggleTerm(id: string) {
+    setSelectedTermIds((prev) => {
+      const next = new Set(prev);
+      if (next.has(id)) next.delete(id);
+      else next.add(id);
+      return next;
+    });
+  }
 
   // Guard flag so the beforeunload warning doesn't fire during the post-save redirect.
   const savedRef = useRef(false);
@@ -263,6 +338,8 @@ export function ProductForm({ product, categories, badges = DEFAULT_BADGES }: Pr
       // Blank SEO overrides → null so generateMetadata auto-generates.
       metaTitle: values.metaTitle?.trim() || null,
       metaDescription: values.metaDescription?.trim() || null,
+      // Selected taxonomy term IDs (ProductTerm rows replaced server-side).
+      termIds: [...selectedTermIds],
     };
 
     const url = isEditing
@@ -619,6 +696,39 @@ export function ProductForm({ product, categories, badges = DEFAULT_BADGES }: Pr
             </Label>
           </div>
         </div>
+
+        {/* Shop taxonomy — Category (with sub-categories), Occasion, Collection, Look, Stone, Colour … */}
+        {taxonomy.length > 0 && (
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium text-gray-700">
+              Shop categories &amp; filters
+            </legend>
+            <p className="text-xs text-gray-400">
+              Assign this product across the Shop menu dimensions. These power the
+              mega-menu, shop filters and search. Pick as many as apply in each.
+            </p>
+            <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
+              {taxonomy.map((group) => (
+                <div key={group.id} className="rounded-lg border border-gray-200 p-3">
+                  <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
+                    {group.label}
+                  </p>
+                  <div className="space-y-1.5 max-h-56 overflow-y-auto pr-1">
+                    {group.terms.map((term) => (
+                      <TaxonomyTermCheckbox
+                        key={term.id}
+                        term={term}
+                        depth={0}
+                        selected={selectedTermIds}
+                        onToggle={toggleTerm}
+                      />
+                    ))}
+                  </div>
+                </div>
+              ))}
+            </div>
+          </fieldset>
+        )}
 
         {/* Occasions */}
         <fieldset className="space-y-2">

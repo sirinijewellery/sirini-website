@@ -21,6 +21,7 @@ import {
   Menu,
   X,
 } from "lucide-react";
+import { AdminQuickNav } from "./AdminQuickNav";
 
 interface NavLinkProps {
   href: string;
@@ -93,10 +94,10 @@ export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
         {/* Logo + close button */}
         <div className="px-6 py-5 border-b border-slate-700 flex items-center justify-between">
           <Link
-            href="/admin"
+            href="/"
             onClick={() => setMobileOpen(false)}
             className="group"
-            aria-label="Admin home"
+            aria-label="Go to the live site (sirinijewellery.com)"
           >
             <span className="font-display text-xl text-white font-light tracking-wide group-hover:text-primary transition-colors">
               Sirini Admin
@@ -114,6 +115,9 @@ export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
             <X className="h-5 w-5" />
           </button>
         </div>
+
+        {/* Quick "tell me what you want to do" launcher */}
+        <AdminQuickNav onNavigate={() => setMobileOpen(false)} />
 
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">

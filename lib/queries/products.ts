@@ -2,6 +2,16 @@ import { Prisma } from "@prisma/client";
 import { prisma } from "@/lib/prisma";
 import { matchCategorySlugs } from "@/lib/taxonomy";
 import { getHideOutOfStock, getDefaultSort } from "@/lib/queries/catalog";
+import { productIdsForFilters, expandCategorySlugs } from "@/lib/queries/taxonomy";
+
+/** A dimension filter value from the query string — a single slug or several. */
+export type DimensionFilter = string | string[] | undefined;
+
+/** Normalise a single-slug-or-array filter into a clean string[] (drops empties). */
+function toSlugArray(v: DimensionFilter): string[] {
+  if (!v) return [];
+  return (Array.isArray(v) ? v : [v]).map((s) => s.trim()).filter(Boolean);
+}
 
 export type ProductWithVariants = Awaited<ReturnType<typeof getProducts>>["products"][number];
 // NB: name retained for import compatibility; products no longer have variants

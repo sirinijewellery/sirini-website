@@ -30,6 +30,8 @@ const productSchema = z.object({
   // Per-product SEO overrides. Blank/absent → auto-generated in generateMetadata.
   metaTitle: z.string().optional().nullable(),
   metaDescription: z.string().optional().nullable(),
+  // Taxonomy term IDs to assign (Category / Occasion / Collection / …). Additive.
+  termIds: z.array(z.string().min(1)).optional(),
 });
 
 // GET /api/admin/products?page=1&search=ring
@@ -98,7 +100,8 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const fields = result.data;
+  // Separate taxonomy term IDs from the scalar product fields.
+  const { termIds, ...fields } = result.data;
 
   // Check unique slug
   const existingSlug = await prisma.product.findUnique({ where: { slug: fields.slug } });
@@ -110,6 +113,25 @@ export async function POST(req: NextRequest) {
   const existingSku = await prisma.product.findUnique({ where: { sku: fields.sku } });
   if (existingSku) {
     return NextResponse.json({ error: "SKU already in use" }, { status: 409 });
+  }
+
+  // Validate any taxonomy term IDs against the DB (de-dupe, drop unknowns).
+  let validTermIds: string[] = [];
+  if (termIds?.length) {
+    const unique = [...new Set(termIds)];
+    const found = await prisma.taxonomyTerm.findMany({
+      where: { id: { in: unique } },
+      select: { id: true },
+    });
+    const foundSet = new Set(found.map((t) => t.id));
+    const invalid = unique.filter((id) => !foundSet.has(id));
+    if (invalid.length) {
+      return NextResponse.json(
+        { error: "One or more selected taxonomy terms no longer exist" },
+        { status: 422 }
+      );
+    }
+    validTermIds = unique;
   }
 
   const product = await prisma.product.create({
@@ -126,6 +148,10 @@ export async function POST(req: NextRequest) {
       // Normalise blank SEO overrides to null so generateMetadata auto-generates.
       metaTitle: fields.metaTitle?.trim() || null,
       metaDescription: fields.metaDescription?.trim() || null,
+      // Assign taxonomy terms (ProductTerm rows) in the same write.
+      ...(validTermIds.length
+        ? { terms: { create: validTermIds.map((termId) => ({ termId })) } }
+        : {}),
     },
   });
 

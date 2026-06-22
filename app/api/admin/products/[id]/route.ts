@@ -32,6 +32,8 @@ const productSchema = z.object({
   // Per-product SEO overrides. Blank/absent → auto-generated in generateMetadata.
   metaTitle: z.string().optional().nullable(),
   metaDescription: z.string().optional().nullable(),
+  // Taxonomy term IDs to assign (replaces the product's current set).
+  termIds: z.array(z.string().min(1)).optional(),
 });
 
 // GET /api/admin/products/[id]
@@ -83,7 +85,8 @@ export async function PUT(
     );
   }
 
-  const fields = result.data;
+  // Separate taxonomy term IDs from the scalar product fields.
+  const { termIds, ...fields } = result.data;
 
   // Ensure product exists
   const existing = await prisma.product.findUnique({ where: { id } });
@@ -107,22 +110,48 @@ export async function PUT(
     return NextResponse.json({ error: "SKU already in use" }, { status: 409 });
   }
 
-  const updated = await prisma.product.update({
-    where: { id },
-    data: {
-      ...fields,
-      category: fields.categories[0],
-      categories: fields.categories,
-      badge: fields.badge ?? null,
-      images: fields.images,
-      occasions: fields.occasions ?? [],
-      tags: fields.tags ?? [],
-      stock: fields.stock,
-      // Normalise blank SEO overrides to null so generateMetadata auto-generates.
-      metaTitle: fields.metaTitle?.trim() || null,
-      metaDescription: fields.metaDescription?.trim() || null,
-    },
-  });
+  // Validate any taxonomy term IDs against the DB (de-dupe, reject unknowns).
+  const uniqueTermIds = termIds?.length ? [...new Set(termIds)] : [];
+  if (uniqueTermIds.length) {
+    const found = await prisma.taxonomyTerm.findMany({
+      where: { id: { in: uniqueTermIds } },
+      select: { id: true },
+    });
+    if (found.length !== uniqueTermIds.length) {
+      return NextResponse.json(
+        { error: "One or more selected taxonomy terms no longer exist" },
+        { status: 422 }
+      );
+    }
+  }
+
+  const productData = {
+    ...fields,
+    category: fields.categories[0],
+    categories: fields.categories,
+    badge: fields.badge ?? null,
+    images: fields.images,
+    occasions: fields.occasions ?? [],
+    tags: fields.tags ?? [],
+    stock: fields.stock,
+    // Normalise blank SEO overrides to null so generateMetadata auto-generates.
+    metaTitle: fields.metaTitle?.trim() || null,
+    metaDescription: fields.metaDescription?.trim() || null,
+  };
+
+  // Update the product and atomically replace its ProductTerm rows
+  // (deleteMany → createMany) so the assignment always reflects the form.
+  const [, updated] = await prisma.$transaction([
+    prisma.productTerm.deleteMany({ where: { productId: id } }),
+    prisma.product.update({ where: { id }, data: productData }),
+    ...(uniqueTermIds.length
+      ? [
+          prisma.productTerm.createMany({
+            data: uniqueTermIds.map((termId) => ({ productId: id, termId })),
+          }),
+        ]
+      : []),
+  ]);
 
   return NextResponse.json(updated);
 }
