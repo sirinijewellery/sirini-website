@@ -3,13 +3,24 @@
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
 import { OCCASIONS, STYLES, PRICE_BUCKETS, categoryLabel } from "@/lib/taxonomy";
+import type { TaxonomyGroupData } from "@/lib/taxonomy";
 
 interface ProductFiltersProps {
   categories: { id: string; name: string; slug: string }[];
   materials: string[];
+  /** Full admin-managed taxonomy tree (drives collection/look/stone/colour). */
+  taxonomy?: TaxonomyGroupData[];
 }
 
-export function ProductFilters({ categories, materials }: ProductFiltersProps) {
+/** The admin-managed dimensions ProductFilters renders as their own pill rows. */
+const DYNAMIC_DIMENSIONS: { groupSlug: string; param: string; label: string }[] = [
+  { groupSlug: "collection", param: "collection", label: "Collection" },
+  { groupSlug: "look", param: "look", label: "Look" },
+  { groupSlug: "stone", param: "stone", label: "Stone" },
+  { groupSlug: "colour", param: "colour", label: "Colour" },
+];
+
+export function ProductFilters({ categories, materials, taxonomy = [] }: ProductFiltersProps) {
   const router = useRouter();
   const searchParams = useSearchParams();
 
@@ -22,6 +33,22 @@ export function ProductFilters({ categories, materials }: ProductFiltersProps) {
   const minRating = searchParams.get("minRating") || "";
   const inStock = searchParams.get("inStock") || "";
 
+  // Resolve the dynamic dimensions to { …meta, terms[], active } — keeping only
+  // those that actually have terms, so empty dimensions don't render a row.
+  const dynamicGroups = DYNAMIC_DIMENSIONS.map((dim) => {
+    const group = taxonomy.find((g) => g.slug === dim.groupSlug);
+    return {
+      ...dim,
+      terms: group?.terms ?? [],
+      active: searchParams.get(dim.param) || "",
+    };
+  }).filter((d) => d.terms.length > 0);
+
+  const dynamicLabel = (groupSlug: string, slug: string): string =>
+    taxonomy
+      .find((g) => g.slug === groupSlug)
+      ?.terms.find((t) => t.slug === slug)?.label || slug;
+
   const hasFilters =
     activeCategory ||
     activeMaterial ||
@@ -30,7 +57,8 @@ export function ProductFilters({ categories, materials }: ProductFiltersProps) {
     priceMin ||
     priceMax ||
     minRating ||
-    inStock;
+    inStock ||
+    dynamicGroups.some((d) => d.active);
 
   // Generic single-param updater: set when truthy, delete when empty. Always
   // resets pagination so a new filter starts on page 1.
@@ -138,6 +166,17 @@ export function ProductFilters({ categories, materials }: ProductFiltersProps) {
               className={chipClass}
             />
           )}
+          {dynamicGroups.map(
+            (d) =>
+              d.active && (
+                <Chip
+                  key={d.param}
+                  label={dynamicLabel(d.groupSlug, d.active)}
+                  onRemove={() => removeParam(d.param)}
+                  className={chipClass}
+                />
+              )
+          )}
           {priceChipLabel && (
             <Chip
               label={priceChipLabel}
@@ -225,6 +264,23 @@ export function ProductFilters({ categories, materials }: ProductFiltersProps) {
           </button>
         ))}
       </div>
+
+      {/* ── Admin-managed dimensions (Collection / Look / Stone / Colour) ── */}
+      {dynamicGroups.map((d) => (
+        <div key={d.param} className={rowClass} style={rowStyle}>
+          <span className={groupLabel}>{d.label}</span>
+          {d.terms.map((t) => (
+            <button
+              key={t.id}
+              onClick={() => updateParam(d.param, d.active === t.slug ? "" : t.slug)}
+              className={`${pillBase} ${d.active === t.slug ? pillActive : pillInactive}`}
+              aria-pressed={d.active === t.slug}
+            >
+              {t.label}
+            </button>
+          ))}
+        </div>
+      ))}
 
       {/* ── Group 4: Price + Rating + In stock ── */}
       <div className={rowClass} style={rowStyle}>

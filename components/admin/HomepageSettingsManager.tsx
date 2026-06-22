@@ -47,7 +47,9 @@ const TRUST_ICONS: { value: TrustIconKey; label: string }[] = [
 
 // Friendly labels + descriptions for each configurable section key.
 const SECTION_META: Record<HomeSectionKey, { label: string; desc: string }> = {
-  categories: { label: "Curated Collections", desc: "Category cards grid" },
+  categories: { label: "Shop by Category", desc: "Category cards grid (taxonomy mains)" },
+  shopByOccasion: { label: "Shop by Occasion", desc: "Occasion cards (Bridal, Festive…)" },
+  shopByCollection: { label: "Shop by Collection", desc: "Collection cards (curated edits)" },
   featuredProducts: { label: "Featured Products", desc: "New-arrivals rail" },
   bestsellers: { label: "Bestsellers", desc: "Most-reviewed products rail" },
   shopByPrice: { label: "Shop by Price", desc: "Price-discovery band" },
@@ -539,12 +541,14 @@ function AutoNotes() {
             never looks empty.
           </p>
           <p>
-            <span className="font-medium text-slate-800">Category cards</span> on the
-            homepage are controlled from the{" "}
-            <a href="/admin/categories" className="underline hover:text-slate-900">
-              Categories
-            </a>{" "}
-            page — set each category&apos;s homepage order and toggle &ldquo;On home&rdquo; there.
+            <span className="font-medium text-slate-800">Shop by Category / Occasion / Collection</span>{" "}
+            cards are driven by your{" "}
+            <a href="/admin/shop" className="underline hover:text-slate-900">
+              Shop &amp; taxonomy
+            </a>
+            : the Category section shows the main category terms, and the Occasion
+            and Collection sections show those groups&apos; terms — each in the order
+            set there. Cards are imageless until a term gets a cover image.
           </p>
           <p>
             <span className="font-medium text-slate-800">Instagram</span> handle and follower

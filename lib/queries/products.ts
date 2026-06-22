@@ -4,15 +4,6 @@ import { matchCategorySlugs } from "@/lib/taxonomy";
 import { getHideOutOfStock, getDefaultSort } from "@/lib/queries/catalog";
 import { productIdsForFilters, expandCategorySlugs } from "@/lib/queries/taxonomy";
 
-/** A dimension filter value from the query string — a single slug or several. */
-export type DimensionFilter = string | string[] | undefined;
-
-/** Normalise a single-slug-or-array filter into a clean string[] (drops empties). */
-function toSlugArray(v: DimensionFilter): string[] {
-  if (!v) return [];
-  return (Array.isArray(v) ? v : [v]).map((s) => s.trim()).filter(Boolean);
-}
-
 export type ProductWithVariants = Awaited<ReturnType<typeof getProducts>>["products"][number];
 // NB: name retained for import compatibility; products no longer have variants
 // (stock lives on Product.stock).
@@ -29,8 +20,78 @@ export interface GetProductsOptions {
   featuredOnly?: boolean;
   occasion?: string;
   style?: string;
+  /** Admin-managed taxonomy dimensions (ProductTerm-backed). */
+  collection?: string;
+  look?: string;
+  stone?: string;
+  colour?: string;
   inStock?: boolean;
   minRating?: number;
+}
+
+/**
+ * Resolve the ProductTerm-backed taxonomy filters into an AND-list of Prisma
+ * `id` constraints — one constraint per active dimension.
+ *
+ * For `category` and `occasion` we keep LEGACY COMPATIBILITY: most of the 191
+ * products aren't tagged with ProductTerm yet, so a product ALSO matches if its
+ * legacy `categories[]` / `occasions[]` array contains the slug (category: any
+ * of its expanded sub-category slugs). So the matched IDs for those two
+ * dimensions are (ProductTerm matches) UNION (legacy array matches). The
+ * remaining dimensions (collection/look/stone/colour) are ProductTerm-only.
+ *
+ * Each active dimension contributes one `{ id: { in: [...] } }` clause; ANDing
+ * them in the caller's `where` enforces AND-across-dimensions while each clause
+ * is itself an OR-within-dimension (handled by productIdsForFilters / `has`).
+ */
+async function taxonomyIdConstraints(opts: {
+  category?: string;
+  occasion?: string;
+  collection?: string;
+  look?: string;
+  stone?: string;
+  colour?: string;
+}): Promise<Prisma.ProductWhereInput[]> {
+  const constraints: Prisma.ProductWhereInput[] = [];
+
+  // ── ProductTerm-only dimensions: collection / look / stone / colour ──
+  // AND across whichever are active; OR within (single slug here, but the
+  // helper accepts arrays). productIdsForFilters returns null when no filters.
+  const termOnly: Record<string, string[]> = {};
+  if (opts.collection) termOnly.collection = [opts.collection];
+  if (opts.look) termOnly.look = [opts.look];
+  if (opts.stone) termOnly.stone = [opts.stone];
+  if (opts.colour) termOnly.colour = [opts.colour];
+  if (Object.keys(termOnly).length > 0) {
+    const ids = await productIdsForFilters(termOnly);
+    // ids is non-null because we passed filters; [] means "nothing matches".
+    constraints.push({ id: { in: ids ?? [] } });
+  }
+
+  // ── Category: ProductTerm matches UNION legacy categories[] (expanded) ──
+  if (opts.category) {
+    const expanded = await expandCategorySlugs(opts.category);
+    const termIds = await productIdsForFilters({ category: [opts.category] });
+    constraints.push({
+      OR: [
+        { id: { in: termIds ?? [] } },
+        { categories: { hasSome: expanded } },
+      ],
+    });
+  }
+
+  // ── Occasion: ProductTerm matches UNION legacy occasions[] ──
+  if (opts.occasion) {
+    const termIds = await productIdsForFilters({ occasion: [opts.occasion] });
+    constraints.push({
+      OR: [
+        { id: { in: termIds ?? [] } },
+        { occasions: { has: opts.occasion } },
+      ],
+    });
+  }
+
+  return constraints;
 }
 
 export async function getProducts(options: GetProductsOptions = {}) {
@@ -46,6 +107,10 @@ export async function getProducts(options: GetProductsOptions = {}) {
     featuredOnly,
     occasion,
     style,
+    collection,
+    look,
+    stone,
+    colour,
     inStock,
     minRating,
   } = options;
@@ -60,17 +125,28 @@ export async function getProducts(options: GetProductsOptions = {}) {
   const ci = Prisma.QueryMode.insensitive;
   const searchCatSlugs = search ? matchCategorySlugs(search) : [];
 
+  // Resolve taxonomy dimensions (category/occasion with legacy-array fallback,
+  // plus the ProductTerm-only collection/look/stone/colour) into AND-ed id
+  // constraints. AND across dimensions; OR within each.
+  const taxonomyAnd = await taxonomyIdConstraints({
+    category,
+    occasion,
+    collection,
+    look,
+    stone,
+    colour,
+  });
+
   const where: Prisma.ProductWhereInput = {
     // When enabled, exclude sold-out products. `inStock` (below) is stricter and
     // already excludes them, so this only matters when inStock isn't set.
     ...(hideOutOfStock && !inStock ? { stock: { gt: 0 } } : {}),
-    // Multi-category: a product matches a category if its categories[] contains
-    // the slug. With no category filter, show ALL products (including those in
-    // newly created categories that don't yet have an image).
-    ...(category ? { categories: { has: category } } : {}),
+    // category & occasion are resolved via taxonomyAnd (ProductTerm matches
+    // UNION legacy categories[]/occasions[]); collection/look/stone/colour are
+    // ProductTerm-only — all folded into the AND list below.
+    ...(taxonomyAnd.length ? { AND: taxonomyAnd } : {}),
     ...(material && { material }),
     ...(featuredOnly && { isFeatured: true }),
-    ...(occasion && { occasions: { has: occasion } }),
     ...(style && { styles: { has: style } }),
     ...(inStock && { stock: { gt: 0 } }),
     ...(priceMin !== undefined || priceMax !== undefined

@@ -14,6 +14,23 @@ export async function GET(request: Request) {
   const ci = "insensitive" as const;
   const catSlugs = matchCategorySlugs(q);
 
+  // Also surface products whose assigned taxonomy term LABELS contain the query
+  // (e.g. searching "ruby" matches products tagged with the "Ruby" stone term).
+  // Resolve matching term labels → ProductTerm links → productIds, then fold
+  // those ids into the product OR below alongside the name/description matches.
+  const matchedTerms = await prisma.taxonomyTerm.findMany({
+    where: { label: { contains: q, mode: ci } },
+    select: { id: true },
+  });
+  let termProductIds: string[] = [];
+  if (matchedTerms.length) {
+    const links = await prisma.productTerm.findMany({
+      where: { termId: { in: matchedTerms.map((t) => t.id) } },
+      select: { productId: true },
+    });
+    termProductIds = [...new Set(links.map((l) => l.productId))];
+  }
+
   const products = await prisma.product.findMany({
     where: {
       OR: [
@@ -22,6 +39,7 @@ export async function GET(request: Request) {
         { material: { contains: q, mode: ci } },
         { sku: { contains: q, mode: ci } },
         ...(catSlugs.length ? [{ categories: { hasSome: catSlugs } }] : []),
+        ...(termProductIds.length ? [{ id: { in: termProductIds } }] : []),
       ],
     },
     take: 8,

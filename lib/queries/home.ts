@@ -1,6 +1,7 @@
 import { cache } from "react";
 import { prisma } from "@/lib/prisma";
 import { getSetting } from "@/lib/queries/site";
+import { getTaxonomyTree } from "@/lib/queries/taxonomy";
 
 // ---------------------------------------------------------------------------
 // Homepage storefront settings — getters + defaults.
@@ -185,6 +186,8 @@ export const getFeaturedTestimonials = cache(async (): Promise<FeaturedTestimoni
 
 export type HomeSectionKey =
   | "categories"
+  | "shopByOccasion"
+  | "shopByCollection"
   | "featuredProducts"
   | "bestsellers"
   | "shopByPrice"
@@ -200,16 +203,20 @@ export interface HomeSection {
   enabled: boolean;
 }
 
-// Default = the CURRENT order of the configurable (post-hero) sections, all on.
+// Default = the post-hero section order, all on. The taxonomy "shop by" trio
+// (Category → Occasion → Collection) leads, then the existing editorial /
+// product sections, with Brand Story (Story) moved BELOW testimonials.
 // NOTE: Hero + TrustStrip sit above this list and are always rendered.
 export const DEFAULT_SECTIONS: HomeSection[] = [
   { key: "categories", enabled: true },
+  { key: "shopByOccasion", enabled: true },
+  { key: "shopByCollection", enabled: true },
   { key: "featuredProducts", enabled: true },
   { key: "bestsellers", enabled: true },
   { key: "shopByPrice", enabled: true },
   { key: "pullQuote", enabled: true },
-  { key: "brandStory", enabled: true },
   { key: "testimonials", enabled: true },
+  { key: "brandStory", enabled: true },
   { key: "instagram", enabled: true },
   { key: "newsletter", enabled: true },
   { key: "askAI", enabled: true },
@@ -292,7 +299,7 @@ export const getPullQuote = cache(async (): Promise<PullQuoteContent> => {
   return DEFAULT_PULL_QUOTE;
 });
 
-/* ── 7) Home category cards ───────────────────────────────────── */
+/* ── 7) Taxonomy-driven "shop by" cards (category / occasion / collection) ── */
 
 export interface HomeCategory {
   id: string;
@@ -302,18 +309,62 @@ export interface HomeCategory {
 }
 
 /**
- * Categories shown on the homepage grid: those with showOnHome === true,
- * ordered by sortOrder asc, then name asc. Independent of products.ts so the
- * owner controls homepage placement directly.
+ * "Shop by Category" cards = the MAIN terms of the admin-managed `category`
+ * taxonomy group (necklace-set / earrings / bangles / accessories), in their
+ * sortOrder. Sub-categories are intentionally NOT shown here — the grid stays
+ * to the top-level mains, and each links to /shop?category=<slug> (the shop
+ * expands a main slug to include its sub-categories).
  */
 export const getHomeCategories = cache(async (): Promise<HomeCategory[]> => {
   try {
-    return await prisma.category.findMany({
-      where: { showOnHome: true },
-      orderBy: [{ sortOrder: "asc" }, { name: "asc" }],
-      select: { id: true, name: true, slug: true, image: true },
-    });
+    const tree = await getTaxonomyTree();
+    const group = tree.find((g) => g.slug === "category");
+    if (!group) return [];
+    return group.terms.map((t) => ({
+      id: t.id,
+      name: t.label,
+      slug: t.slug,
+      image: t.coverImage, // null for now — CategoryGrid renders a clean label card
+    }));
   } catch {
     return [];
   }
 });
+
+/**
+ * A generic "shop by <dimension>" tile — used for occasion & collection. The
+ * `param` is the /shop query-string key (e.g. "occasion") so a card links to
+ * /shop?<param>=<slug>.
+ */
+export interface HomeTaxonomyTile {
+  id: string;
+  slug: string;
+  label: string;
+  blurb: string | null;
+}
+
+async function getGroupTerms(groupSlug: string): Promise<HomeTaxonomyTile[]> {
+  try {
+    const tree = await getTaxonomyTree();
+    const group = tree.find((g) => g.slug === groupSlug);
+    if (!group) return [];
+    return group.terms.map((t) => ({
+      id: t.id,
+      slug: t.slug,
+      label: t.label,
+      blurb: t.blurb,
+    }));
+  } catch {
+    return [];
+  }
+}
+
+/** "Shop by Occasion" tiles — top-level terms of the `occasion` group. */
+export const getHomeOccasions = cache(
+  async (): Promise<HomeTaxonomyTile[]> => getGroupTerms("occasion"),
+);
+
+/** "Shop by Collection" tiles — top-level terms of the `collection` group. */
+export const getHomeCollections = cache(
+  async (): Promise<HomeTaxonomyTile[]> => getGroupTerms("collection"),
+);

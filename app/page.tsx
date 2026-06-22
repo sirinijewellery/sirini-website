@@ -1,6 +1,8 @@
 import { Suspense } from "react";
 import { HeroSection } from "@/components/HeroSection";
 import { CategoryGrid } from "@/components/CategoryGrid";
+import { ShopByOccasion } from "@/components/ShopByOccasion";
+import { ShopByCollection } from "@/components/ShopByCollection";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { BestsellersRail } from "@/components/BestsellersRail";
 import { ShopByPrice } from "@/components/ShopByPrice";
@@ -23,6 +25,8 @@ import {
   getBrandStory,
   getPullQuote,
   getHomeCategories,
+  getHomeOccasions,
+  getHomeCollections,
 } from "@/lib/queries/home";
 
 export const metadata = pageMetadata(
@@ -45,31 +49,44 @@ const BLUSH = "#FAF0EC";
 // bridge); a gradient bridge is inserted only where the background changes.
 // On reorder/hide this still yields a coherent alternating look.
 const SECTION_BG: Record<HomeSectionKey, string> = {
-  categories: BLUSH,        // original Zone 2 — warm blush
-  featuredProducts: CREAM,  // original Zone 3 — cream
+  categories: BLUSH,        // Shop by Category — warm blush (first zone after hero)
+  shopByOccasion: CREAM,    // Shop by Occasion — cream
+  shopByCollection: BLUSH,  // Shop by Collection — warm blush
+  featuredProducts: CREAM,  // cream
   bestsellers: CREAM,       // cream (follows featured)
   shopByPrice: CREAM,       // cream (transparent band)
   pullQuote: CREAM,         // cream (editorial interruption)
-  brandStory: BLUSH,        // original Zone 4 — warm blush
   testimonials: BLUSH,      // warm blush
+  brandStory: BLUSH,        // Brand Story now sits below testimonials — warm blush
   instagram: BLUSH,         // warm blush (component also paints its own blush)
-  newsletter: CREAM,        // original Zone 5 — cream
+  newsletter: CREAM,        // cream
   askAI: CREAM,             // cream (last word before footer)
 };
 
 export default async function HomePage() {
   // Resolve every owner-configurable input on the server. cache() dedupes the
   // settings reads across components in this render.
-  const [promo, trustBadges, testimonials, sections, brandStory, pullQuote, homeCategories] =
-    await Promise.all([
-      getPromoBanner(),
-      getTrustBadges(),
-      getFeaturedTestimonials(),
-      getHomeSections(),
-      getBrandStory(),
-      getPullQuote(),
-      getHomeCategories(),
-    ]);
+  const [
+    promo,
+    trustBadges,
+    testimonials,
+    sections,
+    brandStory,
+    pullQuote,
+    homeCategories,
+    homeOccasions,
+    homeCollections,
+  ] = await Promise.all([
+    getPromoBanner(),
+    getTrustBadges(),
+    getFeaturedTestimonials(),
+    getHomeSections(),
+    getBrandStory(),
+    getPullQuote(),
+    getHomeCategories(),
+    getHomeOccasions(),
+    getHomeCollections(),
+  ]);
 
   // Registry: section key → rendered node. Each entry already carries its own
   // <Suspense> wrapper where the underlying component fetches data, so the zone
@@ -78,6 +95,16 @@ export default async function HomePage() {
     categories: (
       <Suspense fallback={<div className="h-96 animate-pulse" />}>
         <CategoryGrid categories={homeCategories} />
+      </Suspense>
+    ),
+    shopByOccasion: (
+      <Suspense fallback={<div className="h-96 animate-pulse" />}>
+        <ShopByOccasion occasions={homeOccasions} />
+      </Suspense>
+    ),
+    shopByCollection: (
+      <Suspense fallback={<div className="h-96 animate-pulse" />}>
+        <ShopByCollection collections={homeCollections} />
       </Suspense>
     ),
     featuredProducts: (

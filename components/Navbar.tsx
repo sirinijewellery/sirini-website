@@ -14,7 +14,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { MegaMenu } from "@/components/MegaMenu";
 import { OccasionMenu } from "@/components/OccasionMenu";
 import { useCartStore } from "@/lib/store/cart";
-import { OCCASIONS, PRICE_BUCKETS, categoryLabel } from "@/lib/taxonomy";
+import { PRICE_BUCKETS, categoryLabel, type TaxonomyGroupData } from "@/lib/taxonomy";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -74,8 +74,21 @@ const inrFormatter = new Intl.NumberFormat("en-IN", {
 
 // ─── Component ───────────────────────────────────────────────────────────────
 
-export function Navbar({ messages }: { messages?: string[] }) {
+export function Navbar({
+  messages,
+  groups,
+}: {
+  messages?: string[];
+  groups: TaxonomyGroupData[];
+}) {
   const ANNOUNCEMENTS = messages && messages.length ? messages : DEFAULT_ANNOUNCEMENTS;
+
+  // Split the admin-managed menu taxonomy for the mobile sheet (the desktop
+  // mega-menu handles its own splitting). "category" is hierarchical (MAINS +
+  // sub-categories); every other showInMenu group is flat.
+  const categoryGroup = groups.find((g) => g.slug === "category");
+  const mobileMains = categoryGroup?.terms ?? [];
+  const mobileGroups = groups.filter((g) => g.slug !== "category");
   const pathname = usePathname();
   const router = useRouter();
   const { data: session } = useSession();
@@ -259,7 +272,7 @@ export function Navbar({ messages }: { messages?: string[] }) {
             ))}
 
             {/* Shop mega-menu trigger */}
-            <MegaMenu />
+            <MegaMenu groups={groups} />
 
             {/* Shop by Occasion dropdown trigger */}
             <OccasionMenu />
@@ -529,26 +542,64 @@ export function Navbar({ messages }: { messages?: string[] }) {
                               {link.label}
                             </Link>
 
-                            {/* Compact grouped shop links */}
+                            {/* Compact grouped shop links — data-driven from taxonomy */}
                             <div className="pb-3 pl-4 flex flex-col gap-3">
-                              {/* Occasion */}
-                              <div>
-                                <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
-                                  Occasion
-                                </p>
-                                <div className="flex flex-col gap-0.5">
-                                  {OCCASIONS.map((o) => (
-                                    <Link
-                                      key={o.slug}
-                                      href={`/shop?occasion=${o.slug}`}
-                                      onClick={() => setMobileOpen(false)}
-                                      className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
-                                    >
-                                      {o.label}
-                                    </Link>
-                                  ))}
+                              {/* Category (MAINS + sub-categories) */}
+                              {mobileMains.length > 0 && (
+                                <div>
+                                  <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
+                                    Category
+                                  </p>
+                                  <div className="flex flex-col gap-0.5">
+                                    {mobileMains.map((main) => (
+                                      <div key={main.id}>
+                                        <Link
+                                          href={`/shop?category=${main.slug}`}
+                                          onClick={() => setMobileOpen(false)}
+                                          className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                                        >
+                                          {main.label}
+                                        </Link>
+                                        {main.children.length > 0 && (
+                                          <div className="flex flex-col gap-0.5 pl-3">
+                                            {main.children.map((sub) => (
+                                              <Link
+                                                key={sub.id}
+                                                href={`/shop?category=${sub.slug}`}
+                                                onClick={() => setMobileOpen(false)}
+                                                className="py-0.5 text-xs font-sans text-muted-foreground hover:text-primary transition-colors"
+                                              >
+                                                {sub.label}
+                                              </Link>
+                                            ))}
+                                          </div>
+                                        )}
+                                      </div>
+                                    ))}
+                                  </div>
                                 </div>
-                              </div>
+                              )}
+
+                              {/* One block per other showInMenu group (Occasion, Collection, …) */}
+                              {mobileGroups.map((group) => (
+                                <div key={group.id}>
+                                  <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
+                                    {group.label}
+                                  </p>
+                                  <div className="flex flex-col gap-0.5">
+                                    {group.terms.map((term) => (
+                                      <Link
+                                        key={term.id}
+                                        href={`/shop?${group.slug}=${term.slug}`}
+                                        onClick={() => setMobileOpen(false)}
+                                        className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                                      >
+                                        {term.label}
+                                      </Link>
+                                    ))}
+                                  </div>
+                                </div>
+                              ))}
 
                               {/* Price */}
                               <div>

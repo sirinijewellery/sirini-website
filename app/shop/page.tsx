@@ -11,6 +11,8 @@ import {
   type GetProductsOptions,
 } from "@/lib/queries/products";
 import { getDefaultSort } from "@/lib/queries/catalog";
+import { getTaxonomyTree } from "@/lib/queries/taxonomy";
+import type { TaxonomyGroupData, TaxonomyTermData } from "@/lib/taxonomy";
 import Link from "next/link";
 import { siteConfig } from "@/lib/seo";
 import { NAV_CATEGORIES } from "@/lib/taxonomy";
@@ -36,9 +38,37 @@ interface ShopPageProps {
     search?: string;
     occasion?: string;
     style?: string;
+    collection?: string;
+    look?: string;
+    stone?: string;
+    colour?: string;
     minRating?: string;
     inStock?: string;
   }>;
+}
+
+/**
+ * Find a term's display label within the taxonomy tree by its group + slug
+ * (walks nested children for hierarchical groups). Falls back to a prettified
+ * slug so a freshly-added term always shows *something* readable.
+ */
+function termLabel(
+  tree: TaxonomyGroupData[],
+  groupSlug: string,
+  termSlug: string
+): string {
+  const group = tree.find((g) => g.slug === groupSlug);
+  const pretty = termSlug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+  if (!group) return pretty;
+  const walk = (terms: TaxonomyTermData[]): string | null => {
+    for (const t of terms) {
+      if (t.slug === termSlug) return t.label;
+      const found = walk(t.children);
+      if (found) return found;
+    }
+    return null;
+  };
+  return walk(group.terms) ?? pretty;
 }
 
 /** Parse a positive integer query param; falls back to 1 on NaN/garbage. */
@@ -167,13 +197,18 @@ async function ShopContent({ searchParams }: ShopPageProps) {
     search: params.search,
     occasion: params.occasion,
     style: params.style,
+    collection: params.collection,
+    look: params.look,
+    stone: params.stone,
+    colour: params.colour,
     minRating: parseFloatParam(params.minRating),
     inStock: params.inStock === "1",
   };
 
-  const [{ products, total, totalPages }, categories] = await Promise.all([
+  const [{ products, total, totalPages }, categories, taxonomyTree] = await Promise.all([
     getProducts(options),
     getShopCategories(),
+    getTaxonomyTree(),
   ]);
 
   const materials = getMaterials();
@@ -189,7 +224,15 @@ async function ShopContent({ searchParams }: ShopPageProps) {
         ? `${STYLES.find((s) => s.slug === params.style)?.label || params.style} Jewellery`
         : params.category
           ? categoryLabel(params.category)
-          : null;
+          : params.collection
+            ? termLabel(taxonomyTree, "collection", params.collection)
+            : params.look
+              ? termLabel(taxonomyTree, "look", params.look)
+              : params.stone
+                ? termLabel(taxonomyTree, "stone", params.stone)
+                : params.colour
+                  ? termLabel(taxonomyTree, "colour", params.colour)
+                  : null;
 
   // ItemList structured data for the products on the current page.
   const itemListSchema =
@@ -213,7 +256,15 @@ async function ShopContent({ searchParams }: ShopPageProps) {
       ? `${siteConfig.url}/shop?occasion=${encodeURIComponent(params.occasion)}`
       : params.style
         ? `${siteConfig.url}/shop?style=${encodeURIComponent(params.style)}`
-        : null;
+        : params.collection
+          ? `${siteConfig.url}/shop?collection=${encodeURIComponent(params.collection)}`
+          : params.look
+            ? `${siteConfig.url}/shop?look=${encodeURIComponent(params.look)}`
+            : params.stone
+              ? `${siteConfig.url}/shop?stone=${encodeURIComponent(params.stone)}`
+              : params.colour
+                ? `${siteConfig.url}/shop?colour=${encodeURIComponent(params.colour)}`
+                : null;
 
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -264,13 +315,8 @@ async function ShopContent({ searchParams }: ShopPageProps) {
                 <em style={{ fontStyle: "italic" }}>Results for</em>{" "}
                 &ldquo;{params.search}&rdquo;
               </>
-            ) : params.occasion ? (
-              OCCASIONS.find((o) => o.slug === params.occasion)?.label ||
-              params.occasion
-            ) : params.style ? (
-              `${STYLES.find((s) => s.slug === params.style)?.label || params.style} Jewellery`
             ) : (
-              params.category ? categoryLabel(params.category) : "All Jewellery"
+              facetLabel ?? "All Jewellery"
             )}
           </h1>
         </div>
@@ -281,7 +327,11 @@ async function ShopContent({ searchParams }: ShopPageProps) {
 
       <div className="space-y-6">
         {/* Pill filter bar — full width, scrollable on mobile */}
-        <ProductFilters categories={categories} materials={materials} />
+        <ProductFilters
+          categories={categories}
+          materials={materials}
+          taxonomy={taxonomyTree}
+        />
 
         {/* Sort bar */}
         <div className="flex items-center justify-between">
@@ -452,6 +502,10 @@ function buildHref(
   if (params.search) p.set("search", params.search);
   if (params.occasion) p.set("occasion", params.occasion);
   if (params.style) p.set("style", params.style);
+  if (params.collection) p.set("collection", params.collection);
+  if (params.look) p.set("look", params.look);
+  if (params.stone) p.set("stone", params.stone);
+  if (params.colour) p.set("colour", params.colour);
   if (params.minRating) p.set("minRating", params.minRating);
   if (params.inStock) p.set("inStock", params.inStock);
   if (page > 1) p.set("page", String(page));
