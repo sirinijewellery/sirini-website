@@ -117,7 +117,11 @@ export const metadata = {
   //   app/icon.png (512²), app/apple-icon.png (180²), app/favicon.ico (32²)
   // These are square + branded so Google/Chrome render the Sirini mark.
   verification: {
-    google: process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ?? "",
+    // Google Search Console verification token. An env var override wins if set;
+    // the fallback is the verified token for https://sirinijewellery.com.
+    google:
+      process.env.NEXT_PUBLIC_GOOGLE_SITE_VERIFICATION ??
+      "HyECf3SM6I_ej62Z0q4HiDZqaC7mkQAZ3BpKQw-o70w",
   },
 };
 
