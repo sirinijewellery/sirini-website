@@ -69,6 +69,44 @@ export function matchCategorySlugs(search: string): string[] {
   ).map((c) => c.slug);
 }
 
+/* ── Admin-managed taxonomy (DB-driven) — client-safe shapes ─────────────── */
+// Mirrors the Prisma TaxonomyGroup / TaxonomyTerm models. Reads live in
+// lib/queries/taxonomy.ts (server); admin writes go through /api/admin/taxonomy.
+export interface TaxonomyTermData {
+  id: string;
+  slug: string;
+  label: string;
+  blurb: string | null;
+  coverImage: string | null;
+  sortOrder: number;
+  showInMenu: boolean;
+  parentId: string | null;
+  /** Populated for hierarchical (category) groups. */
+  children: TaxonomyTermData[];
+}
+
+export interface TaxonomyGroupData {
+  id: string;
+  slug: string;
+  label: string;
+  hierarchical: boolean;
+  sortOrder: number;
+  showInMenu: boolean;
+  isSystem: boolean;
+  /** Top-level terms (sub-terms nested under `children`). */
+  terms: TaxonomyTermData[];
+}
+
+/** The fixed system dimension slugs seeded at launch (owner may add more). */
+export const SYSTEM_GROUP_SLUGS = [
+  "category",
+  "occasion",
+  "collection",
+  "look",
+  "stone",
+  "colour",
+] as const;
+
 export const PRICE_BUCKETS = [
   { slug: "under-999", label: "Under ₹999", priceMin: undefined as number | undefined, priceMax: 999 },
   { slug: "1000-2499", label: "₹1,000 – ₹2,499", priceMin: 1000, priceMax: 2499 },

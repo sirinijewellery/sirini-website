@@ -16,6 +16,8 @@ import {
   HelpCircle,
   Settings,
   Newspaper,
+  Store,
+  ClipboardList,
   Menu,
   X,
 } from "lucide-react";
@@ -25,15 +27,18 @@ interface NavLinkProps {
   label: string;
   icon: React.ComponentType<{ className?: string }>;
   exact?: boolean;
+  badge?: number;
+  onNavigate?: () => void;
 }
 
-function NavLink({ href, label, icon: Icon, exact }: NavLinkProps) {
+function NavLink({ href, label, icon: Icon, exact, badge, onNavigate }: NavLinkProps) {
   const pathname = usePathname();
   const isActive = exact ? pathname === href : pathname.startsWith(href);
 
   return (
     <Link
       href={href}
+      onClick={onNavigate}
       className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-sans text-sm transition-colors duration-150 ${
         isActive
           ? "bg-primary/20 text-primary font-medium"
@@ -41,12 +46,17 @@ function NavLink({ href, label, icon: Icon, exact }: NavLinkProps) {
       }`}
     >
       <Icon className="h-4 w-4 shrink-0" />
-      {label}
+      <span className="flex-1">{label}</span>
+      {badge !== undefined && badge > 0 && (
+        <span className="ml-auto inline-flex items-center justify-center min-w-[1.25rem] h-5 px-1.5 rounded-full bg-amber-500 text-slate-900 text-[11px] font-semibold">
+          {badge}
+        </span>
+      )}
     </Link>
   );
 }
 
-export function AdminSidebar() {
+export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -82,14 +92,19 @@ export function AdminSidebar() {
       >
         {/* Logo + close button */}
         <div className="px-6 py-5 border-b border-slate-700 flex items-center justify-between">
-          <div>
-            <span className="font-display text-xl text-white font-light tracking-wide">
+          <Link
+            href="/admin"
+            onClick={() => setMobileOpen(false)}
+            className="group"
+            aria-label="Admin home"
+          >
+            <span className="font-display text-xl text-white font-light tracking-wide group-hover:text-primary transition-colors">
               Sirini Admin
             </span>
             <span className="font-sans text-xs text-slate-400 block mt-0.5 tracking-wider uppercase">
               Management Panel
             </span>
-          </div>
+          </Link>
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
@@ -103,9 +118,14 @@ export function AdminSidebar() {
         {/* Navigation */}
         <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
           <NavLink href="/admin" label="Dashboard" icon={LayoutDashboard} exact />
+          {/* Pending sits up top while there's work; drops to the bottom when empty. */}
+          {pendingCount > 0 && (
+            <NavLink href="/admin/pending" label="Pending" icon={ClipboardList} badge={pendingCount} />
+          )}
           <NavLink href="/admin/orders" label="Orders" icon={ShoppingBag} />
           <NavLink href="/admin/products" label="Products" icon={Package} />
           <NavLink href="/admin/categories" label="Categories" icon={Tag} />
+          <NavLink href="/admin/shop" label="Shop" icon={Store} />
           <NavLink href="/admin/coupons" label="Coupons" icon={Ticket} />
           <NavLink href="/admin/hero" label="Hero Section" icon={Images} />
           <NavLink href="/admin/ribbons" label="Header Ribbon" icon={Megaphone} />
@@ -114,6 +134,9 @@ export function AdminSidebar() {
           <NavLink href="/admin/admins" label="Admins" icon={Users} />
           <NavLink href="/admin/help" label="Help" icon={HelpCircle} />
           <NavLink href="/admin/account" label="My Account" icon={UserCog} />
+          {pendingCount === 0 && (
+            <NavLink href="/admin/pending" label="Pending" icon={ClipboardList} />
+          )}
         </nav>
 
         {/* Footer */}

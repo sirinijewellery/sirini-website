@@ -37,10 +37,57 @@ model Product {
   orderItems    OrderItem[]
   wishlistItems WishlistItem[]
   reviews       Review[]
+  terms         ProductTerm[]
 
   @@index([category])
   @@index([material])
   @@index([isFeatured])
+}
+
+// ── Admin-managed taxonomy (dynamic, multi-dimension) ──────────────────────
+// A TaxonomyGroup is a "Shop by ___" dimension (Category, Look, Collection,
+// Stone, Colour, Occasion, or any new one the owner creates). Terms are the
+// options within it; only the Category group is hierarchical (main -> sub).
+// Products link to terms via ProductTerm (many-to-many).
+model TaxonomyGroup {
+  id           String         @id @default(cuid())
+  slug         String         @unique
+  label        String
+  hierarchical Boolean        @default(false)
+  sortOrder    Int            @default(0)
+  showInMenu   Boolean        @default(true)
+  isSystem     Boolean        @default(false)
+  terms        TaxonomyTerm[]
+}
+
+model TaxonomyTerm {
+  id         String         @id @default(cuid())
+  groupId    String
+  group      TaxonomyGroup  @relation(fields: [groupId], references: [id], onDelete: Cascade)
+  parentId   String?
+  parent     TaxonomyTerm?  @relation("TermChildren", fields: [parentId], references: [id], onDelete: SetNull)
+  children   TaxonomyTerm[] @relation("TermChildren")
+  slug       String
+  label      String
+  blurb      String?
+  coverImage String?
+  sortOrder  Int            @default(0)
+  showInMenu Boolean        @default(true)
+  products   ProductTerm[]
+
+  @@unique([groupId, slug])
+  @@index([groupId])
+  @@index([parentId])
+}
+
+model ProductTerm {
+  productId String
+  termId    String
+  product   Product      @relation(fields: [productId], references: [id], onDelete: Cascade)
+  term      TaxonomyTerm @relation(fields: [termId], references: [id], onDelete: Cascade)
+
+  @@id([productId, termId])
+  @@index([termId])
 }
 
 model Order {
