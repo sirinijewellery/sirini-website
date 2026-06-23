@@ -1,112 +1,244 @@
 # Sirini Jewellery — Project Handoff
 
-Living context for continuing this build in a fresh Claude Code session. Read this
-first, plus `AGENTS.md` / `CLAUDE.md` (auto-loaded). The full codebase and git
-history are present in this repo.
+Living context for continuing in a fresh Claude Code session. Read this first.
+`AGENTS.md` / `CLAUDE.md` auto-load too. Git history + full codebase are present.
+
+---
 
 ## What this is
 Production e-commerce site for **Sirini Jewellery** (Mumbai handcrafted fashion
 jewellery — Kundan, Meenakari, gold-plated). Live at **https://sirinijewellery.com**
-(Vercel). Customers browse/buy; the owner manages everything from `/admin`.
+(Vercel, auto-deploys from `main`). Owner manages everything from `/admin`.
 
-## Stack & important gotchas
-- **Next.js 16 (App Router, Turbopack)** — this is a *modified* Next; APIs differ
-  from training data. The middleware file is **`proxy.ts`** (not middleware.ts).
-  On `next/image` use **`preload`** (not `priority`). ISR via `revalidate` +
-  `generateStaticParams`. Read `node_modules/next/dist/docs/` before relying on
-  Next behaviour.
-- **Prisma 7 + Neon Postgres** (`PrismaPg` adapter). Schema: `prisma/schema.prisma`.
-- **Tailwind CSS v4** (`@tailwindcss/postcss`), design tokens in `app/globals.css`.
-- **NextAuth (Auth.js v5)**, Credentials provider, JWT sessions (`lib/auth.ts`).
-- **Cloudinary** CDN for all images (custom loader `lib/cloudinaryLoader.ts`,
-  cloud `dp8a2lvxg`). **Razorpay** payments (live keys are Vercel env only — never
-  hardcode). **GA4** + **Vercel Web Analytics** for visitor tracking.
+---
+
+## Stack & critical gotchas
+
+| Layer | Detail |
+|---|---|
+| **Next.js 16** (App Router, Turbopack) | *Modified* — APIs differ from training data. Middleware = **`proxy.ts`** not middleware.ts. `next/image` uses **`preload`** not `priority`. Read `node_modules/next/dist/docs/` before relying on Next behaviour. |
+| **Prisma 7 + Neon** | `PrismaPg` adapter. Schema: `prisma/schema.prisma`. Run scripts against live Neon only. |
+| **Tailwind v4** | Design tokens as CSS custom properties in `app/globals.css`. `@theme inline`. No `tailwind.config.js`. |
+| **NextAuth v5 (Auth.js)** | JWT sessions. `auth()` in server components. `isAdmin` flag on user. |
+| **Cloudinary** | Custom loader `lib/cloudinaryLoader.ts`, cloud `dp8a2lvxg`. Upload endpoint `POST /api/admin/products/upload` (FormData `{file}` → `{url}`). |
+| **Razorpay** | Live keys are Vercel env only. `computeTotals()` in `lib/commerce/pricing.ts` is used by both client + server to avoid paise mismatch. |
+
+---
 
 ## How to work in this repo
-- **Run scripts** (one-offs hit the LIVE Neon DB):
-  `DOTENV_CONFIG_PATH=.env.local npx tsx -r dotenv/config scripts/<file>.ts`
-- **Type-check:** `npx tsc --noEmit`  • **Build:** `DOTENV_CONFIG_PATH=.env.local npm run build`
-- **DB schema change:** edit schema → `DOTENV_CONFIG_PATH=.env.local npx prisma db push` (add `--accept-data-loss` for additive nullable columns) → `npx prisma generate`.
-- **Deploy = `git push` to `main`** → Vercel auto-builds & deploys (~2–3 min). On
-  `main`, branch only if asked; commit/push only when the user asks (this project's
-  norm is to commit+push each change). End commit messages with
-  `Co-Authored-By: Claude Opus 4.8 <noreply@anthropic.com>`.
-- **Dev preview** (`.claude/launch.json`, `npm run dev`, port 3000): Turbopack dev
-  gets a stale-chunk error ("module factory is not available") after long sessions /
-  prisma regen — fix by stopping the server, `rm -rf .next/dev .next/cache`,
-  restart. First compile of a route can take 1–2 min. The screenshot preview tool
-  is flaky; verify via DOM/`curl`/build when it hangs.
+
+```bash
+# Type-check
+npx tsc --noEmit
+
+# Production build (verifies everything)
+DOTENV_CONFIG_PATH=.env.local npm run build
+
+# DB schema change
+# 1. Edit prisma/schema.prisma
+# 2. DOTENV_CONFIG_PATH=.env.local npx prisma db push
+# 3. npx prisma generate
+
+# Run a one-off script against live Neon DB
+DOTENV_CONFIG_PATH=.env.local npx tsx -r dotenv/config scripts/<file>.ts
+
+# Deploy = git push to main (Vercel auto-builds, ~2-3 min)
+```
+
+LF→CRLF warnings on Windows are benign. Always `tsc` + production build before push.
+
+---
 
 ## Architecture quick map
-- `app/` routes: `page.tsx` (home), `shop/`, `shop/[slug]/` (product, ISR +
-  generateStaticParams for all products), `(auth)/login`, `admin/*`, API under
-  `app/api/*`, plus `sitemap.ts`, `robots.ts`, `manifest.ts`, `product-feed.xml`,
-  `image-sitemap.xml`, `opengraph-image.tsx`.
-- `lib/queries/products.ts` — product/category queries (filtering, search,
-  featured, bestsellers, `getCategories` (image-bearing, homepage cards),
-  `getShopCategories` (categories that have products, for shop filter bar)).
-- `lib/queries/site.ts` — hero slides + settings (ribbon, hero duration).
-- `lib/seo.ts` — metadata helpers + `SITE_URL` (canonical; ignores `*.vercel.app`).
-- `lib/taxonomy.ts` — `NAV_CATEGORIES`, `OCCASIONS`, `STYLES`, `categoryLabel()`,
-  `matchCategorySlugs()` (search→category).
-- `lib/adminHelp.ts` — content for the admin Help/"Tell Me" tab.
-- `components/admin/*` — admin UI (ProductForm, CategoriesClient, HeroManager,
-  RibbonManager, AdminsManager, AccountForm, AdminHelp, AdminSidebar).
-- `scripts/*` — one-off maintenance/seed/migration scripts (kept as records).
 
-## Category system (the subtle part)
-- A product has **`categories String[]`** (slugs) — multi-category — plus a legacy
-  primary `category` string kept = `categories[0]` for display/back-compat.
-- Filtering uses `categories: { has/hasSome }`. Slugs are canonical & lowercase.
-- **Three "category" surfaces:** (1) `NAV_CATEGORIES` (code) drives the nav
-  mega-menu/footer + `categoryLabel`; (2) the **Category DB table** (name, slug,
-  image) drives the admin product form's options + homepage cards; (3)
-  `getShopCategories()` (categories with ≥1 product) drives the shop filter pills.
-- The admin product form lists ALL DB categories and can **create a category
-  inline** (`POST /api/admin/categories`). SKU "Auto" button + form store slugs.
-- 14 categories exist. Newest 8 (Bracelet, Tops, Nose Ring (Nath), Belt, Tikka,
-  Kalgi, Hathpaan, Groom Mala) have no images/products yet — owner is uploading.
+```
+app/
+  page.tsx                  Homepage (section-registry driven via home.sections setting)
+  shop/                     Shop listing (dynamic, server-rendered)
+  shop/[slug]/              Product detail (ISR, generateStaticParams)
+  admin/                    Admin panel (isAdmin gated via layout.tsx)
+    layout.tsx              Fetches pendingCount → AdminSidebar
+    pending/page.tsx        PENDING tab (untagged products + terms missing covers)
+    shop/page.tsx           Taxonomy/Shop-by dimension manager
+    products/, orders/, categories/, coupons/, hero/, ribbons/, blog/, settings/*
+  api/admin/
+    taxonomy/               CRUD for TaxonomyGroup + TaxonomyTerm
+    products/, categories/, settings/, blog/, ...
 
-## Admin panel (`/admin`, gated by `isAdmin`)
-Dashboard, Orders, Products, Categories, Coupons, **Hero Section** (DB-driven
-rotating slides + per-device focal crop + duration; `HeroSlide` model),
-**Header Ribbon** (announcement messages; `Setting` key `ribbon.messages`),
-**Admins** (list/create/edit/delete admins), **Help** (searchable how-to with
-"Take me there →" deep links), **My Account** (edit own username/email/password).
+lib/
+  taxonomy.ts               CLIENT-SAFE: types TaxonomyGroupData/TaxonomyTermData,
+                            PRICE_BUCKETS, SYSTEM_GROUP_SLUGS. NO prisma import.
+  queries/taxonomy.ts       SERVER: getTaxonomyTree, getMenuTaxonomy,
+                            expandCategorySlugs, productIdsForFilters,
+                            getProductTermsGrouped
+  queries/products.ts       getProducts (now accepts collection/look/stone/colour),
+                            getShopCategories, getMaterials
+  queries/home.ts           Homepage section getters (getHomeCategories reads taxonomy)
+  queries/catalog.ts        getBadges, getLowStockThreshold, getHideOutOfStock, getDefaultSort
+  queries/commerce.ts       getCommerceSettings (GST, gift-wrap, COD, shipping)
+  queries/content.ts        getAbout, getShipping, getPrivacy, getTerms, getFaq
+  queries/theme.ts          getThemeSettings
+  queries/pending.ts        getPendingItems / getPendingCount (sidebar badge)
+  queries/site.ts           getSetting, hero slides
+  commerce/pricing.ts       computeTotals() — shared by CheckoutForm + checkout API routes
+  catalog.ts                CLIENT-SAFE: BadgeDef, DEFAULT_BADGES, catalog constants
+  seo.ts                    baseMetadata, siteConfig, productMetadata
+  blog.ts                   getAllArticles (async, DB + SEED_ARTICLES fallback)
 
-## Auth / admins
-- Login accepts **username OR email**, case-insensitive (`lib/auth.ts`).
-- Admins sign in with a **username** (customers use email). Username-only admins
-  have a synthetic `@sirini.local` email kept in sync.
-- Current admins: **`nishit.savla`** (main owner; weak temp password — should be
-  changed) and **`sirini.jewellery`**.
+components/
+  MegaMenu.tsx              "use client" — accepts groups: TaxonomyGroupData[]
+  NavbarWrapper.tsx         async SERVER — fetches getMenuTaxonomy(), passes to NavbarGate
+  NavbarGate.tsx            "use client" — usePathname admin gate
+  Navbar.tsx                accepts groups prop, mobile drawer
+  admin/AdminSidebar.tsx    pendingCount prop; title → live site; AdminQuickNav below it
+  admin/AdminQuickNav.tsx   "tell me what you want to do" launcher
+  admin/ProductForm.tsx     taxonomy multi-select (selectedTermIds → termIds in payload)
+  admin/ShopTaxonomyManager.tsx   CRUD UI for /admin/shop
+  ShopByOccasion.tsx, ShopByCollection.tsx   Homepage sections
+```
 
-## Current data state (live Neon DB)
-- 191 products (all with unique 100–150 word descriptions, clean slug categories).
-- 14 categories. 0 orders. 0 coupons. Reviews were all synthetic and were deleted
-  (so product pages currently show no ratings until real reviews arrive — the
-  Product schema emits `aggregateRating` only when reviewCount > 0).
+---
 
-## Conventions
-- Commit + push each change; keep the working tree clean. LF→CRLF git warnings on
-  Windows are benign.
-- Verify before claiming done: `tsc` + production build; for DB changes, a
-  read-only check script. Destructive DB ops only with explicit user authorization
-  (show before/after counts).
-- Use `categoryLabel(slug)` for any user-facing category text; store slugs.
+## The taxonomy / Shop-by system (shipped 2026-06-22)
+
+### Data model
+```prisma
+TaxonomyGroup { id, slug(unique), label, hierarchical, sortOrder, showInMenu, isSystem }
+TaxonomyTerm  { id, groupId, parentId?, slug(unique within group), label, blurb?, coverImage?,
+                sortOrder, showInMenu }
+ProductTerm   { productId, termId }  ← many-to-many join
+```
+Product also has `terms ProductTerm[]`.
+
+### Seeded dimensions (6 groups, 50 terms)
+| Group slug | Type | Terms |
+|---|---|---|
+| `category` | hierarchical | **Necklace Set** (short necklaces, chokers, pendant set, long set, mangalsutra, groom mala) · **Earrings** (jhumkis, studs, danglers, chandbalis) · **Bangles** (kada, bracelets, pair bangle, jota) · **Accessories** (anklet, maangtika, hathpan, belt, nath, kalgi, finger ring) |
+| `occasion` | flat | bridal, festive, party, daily |
+| `collection` | flat | heritage, kundan, antique gold, temple, victorian, demi-fine |
+| `look` | flat | western, traditional, indo-western, daily wear |
+| `stone` | flat | polki kundan, ruby, emerald, kemp |
+| `colour` | flat | white, ruby, mint, pink, mint+pink, green, others |
+
+Owner can add whole new dimensions from `/admin/shop`.
+
+### Legacy-compat (critical — live shop is not empty pre-tagging)
+Products are **currently UNTAGGED** in the new system (owner tags them over time).
+`getProducts()` matches a product if it has a `ProductTerm` OR its legacy
+`categories[]` / `occasions[]` slug array contains the slug. So earrings/bangles
+still populate (exact slug match). New slugs like `necklace-set` (singular, vs
+old `necklace-sets` plural) only populate after the owner tags.
+
+### PENDING tab
+`/admin/pending` tracks: products missing a category term, products with no terms,
+terms missing a cover image. Count shown as badge on sidebar (top when >0, bottom
+when 0). `lib/queries/pending.ts` → `getPendingCount()` feeds `AdminSidebar`.
+
+---
+
+## Admin panel — complete surface map
+
+| URL | Purpose |
+|---|---|
+| `/admin` | Dashboard |
+| `/admin/orders` | Order list + detail |
+| `/admin/products` | Product list; `/new` + `/[id]/edit` |
+| `/admin/categories` | Legacy category CRUD + image browse-upload |
+| `/admin/shop` | **Taxonomy/Shop-by CRUD** (new) |
+| `/admin/pending` | **PENDING checklist** (new) |
+| `/admin/coupons` | Coupon CRUD |
+| `/admin/hero` | Hero slides (image, focal, duration) |
+| `/admin/ribbons` | Header announcement ribbon |
+| `/admin/blog` | Blog/Journal CMS |
+| `/admin/settings` | Hub → 6 sub-pages |
+| `/admin/settings/business` | Contact, social, address |
+| `/admin/settings/homepage` | Promo banner, trust badges, section order |
+| `/admin/settings/commerce` | GST, gift-wrap, shipping, COD |
+| `/admin/settings/catalog` | Badges, low-stock, hide-sold-out, default sort |
+| `/admin/settings/content` | About, Shipping, Privacy, Terms, FAQ |
+| `/admin/settings/theme` | Brand colours, font pairing |
+| `/admin/admins` | Admin user management |
+| `/admin/help` | Searchable how-to guide |
+| `/admin/account` | Own profile / password |
+
+### Settings pattern
+Every setting is a `Setting { key, value(JSON) }` row. Generic `PATCH /api/admin/settings`
+accepts `{key, value}`. Keys namespaced: `commerce.*`, `home.*`, `content.*`,
+`catalog.*`, `theme.*`. Server getters in `lib/queries/*` wrapped in `cache()`.
+Golden rule: **defaults always equal the current live value** so deploy changes nothing
+until the owner edits.
+
+### Auth pattern (admin API routes)
+```ts
+const session = await auth();
+if (!session?.user?.isAdmin) return NextResponse.json({error:"Forbidden"},{status:403});
+```
+Admin page guard: `if (!session?.user?.isAdmin) redirect("/login?callbackUrl=/admin/...");`
+
+---
+
+## Homepage (section-registry driven)
+Default section order (editable at `/admin/settings/homepage`):
+**hero → trust strip → Shop by Category → Shop by Occasion → Shop by Collection →
+featuredProducts → bestsellers → shopByPrice → pullQuote → testimonials →
+brandStory → instagram → newsletter → askAI**
+
+`CategoryGrid` now reads the taxonomy `category` group's mains (not `prisma.category`).
+`ShopByOccasion` + `ShopByCollection` are new components registered in `app/page.tsx`.
+
+---
+
+## Mega-menu architecture
+`app/layout.tsx` renders `<NavbarWrapper>` (server component, unchanged file).
+NavbarWrapper calls `getMenuTaxonomy()` → passes `groups` into `NavbarGate`
+(client, usePathname admin gate) → `Navbar` → `<MegaMenu groups={groups} />`.
+MegaMenu: "Shop by Category" column = 4 mains, hover reveals sub-category flyout
+(keyboard accessible, Escape closes); one column per other `showInMenu` group;
+Price column + "View All" preserved.
+
+---
+
+## Current data state (live Neon)
+- **191 products** — all have descriptions, images, SKUs; **no ProductTerm rows yet**.
+- **50 taxonomy terms** across 6 groups (just seeded; owner needs to tag products).
+- **0 orders, 0 coupons, 0 blog posts in DB** (seed articles show from code).
+- **1 hero slide, 1 ribbon message** (editable from admin).
+- Admin users: `nishit.savla` (owner), `sirini.jewellery`.
+
+---
 
 ## Pending — needs the OWNER (can't be done from code)
-Tracked in **`Sirini Pending Tasks.docx`** on the Desktop. Highlights:
-- `www.sirinijewellery.com` domain — DONE (cert valid).
-- Set **`NEXT_PUBLIC_SITE_URL=https://sirinijewellery.com`** in Vercel (code now
-  forces the real domain regardless, but set it for cleanliness).
-- **Resend** (order emails): add `RESEND_API_KEY` + `ORDER_FROM_EMAIL`.
-- **Razorpay webhook** + `RAZORPAY_WEBHOOK_SECRET`; **`CRON_SECRET`** for daily digest.
-- **Google Search Console** (verify + submit `sitemap.xml`) and **Merchant Center**
-  (submit `/product-feed.xml`). Optional `NEXT_PUBLIC_GA4_MEASUREMENT_ID` and
-  enabling **Vercel Web Analytics** in the dashboard.
+Full doc: **`Sirini Pending Tasks.docx`** on the Desktop (updated 2026-06-22).
 
-## Likely next requests (from recent sessions)
-- More admin customizability (homepage section toggles/order, theme colours,
-  About/contact content editing, trust-badge text, etc.).
-- Set images for the 8 new categories once product folders are uploaded.
+| Task | Steps |
+|---|---|
+| **Tag 191 products** | `/admin/products` → edit each → assign taxonomy terms (category, occasion, etc.). PENDING tab tracks progress. |
+| **Add cover images** | `/admin/shop` → each term has a Browse button for cover image. |
+| **Resend (order emails)** | Sign up resend.com → verify domain DNS → get API key → Vercel: `RESEND_API_KEY` + `ORDER_FROM_EMAIL=Sirini Jewellery <orders@sirinijewellery.com>` → redeploy. |
+| **Razorpay webhook** | dashboard.razorpay.com → Account & Settings → Webhooks → URL: `https://sirinijewellery.com/api/webhooks/razorpay`, events: `payment.captured` + `order.paid`, note secret → Vercel: `RAZORPAY_WEBHOOK_SECRET` → redeploy. |
+| **CRON_SECRET** | Vercel env var: `CRON_SECRET = 205b3ba0c29ea419744e6925595ecc80577029e4d27ee505d5691f18ee507993` → redeploy. |
+| **Merchant Center** | merchants.google.com → create account → add feed URL `https://sirinijewellery.com/product-feed.xml` (scheduled daily). |
+| **Google Search Console** | ✅ DONE — verified (HTML tag), sitemap.xml submitted. |
+
+---
+
+## Decisions the owner should give Claude answers to
+(from the pending tasks doc — just reply yes/no/etc. and Claude will build it)
+
+1. Customer reviews post live with no approval — want an **admin approval step**? (yes/no)
+2. Rate-limiting on forms to block bots (needs free Upstash account)? (yes/later)
+3. When online-paid order is cancelled, flag "refund owed"? (yes/no)
+4. Delete stray personal files in the repo (`ABoutUSPage.png`, `Logo.jpeg`, `logo_proper.jpeg`, `IMPROVEMENTS.MD`, `marketing.txt`)? (yes/keep)
+5. TEST1 coupon (₹10,000, used up): delete/keep/reset?
+6. Instagram strip — real Instagram feed or leave as product images?
+
+---
+
+## Known cleanup items (not yet done)
+- Legacy `prisma.category` table + legacy Categories admin now coexist with the
+  new taxonomy (redundant); can be retired once tagging is complete.
+- Legacy `styles[]` product field retained but unused (Collection replaced Style).
+- Product form still shows the legacy category multi-select alongside the new
+  taxonomy multi-select; both write to their respective fields.
+- `matchCategorySlugs()` in `lib/taxonomy.ts` (search keyword→old slug) still
+  active; can be replaced entirely by taxonomy term label search once tagging done.
