@@ -325,8 +325,8 @@ async function ShopContent({ searchParams }: ShopPageProps) {
         </p>
       </div>
 
-      {/* Flex row: sidebar (lg+) | products */}
-      <div className="flex gap-6 items-start">
+      {/* Sidebar beside products on lg+; stacked on mobile */}
+      <div className="lg:flex lg:gap-6 lg:items-start">
         {/* Sidebar / mobile filter bar */}
         <ProductFilters
           categories={categories}
@@ -335,7 +335,7 @@ async function ShopContent({ searchParams }: ShopPageProps) {
         />
 
         {/* Products column */}
-        <div className="flex-1 min-w-0 space-y-6">
+        <div className="mt-6 lg:mt-0 lg:flex-1 lg:min-w-0 space-y-6">
           {/* Sort bar */}
           <div className="flex items-center justify-between">
             <p className="text-sm text-muted-foreground font-sans hidden sm:block">
