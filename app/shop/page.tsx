@@ -325,57 +325,61 @@ async function ShopContent({ searchParams }: ShopPageProps) {
         </p>
       </div>
 
-      <div className="space-y-6">
-        {/* Pill filter bar — full width, scrollable on mobile */}
+      {/* Flex row: sidebar (lg+) | products */}
+      <div className="flex gap-6 items-start">
+        {/* Sidebar / mobile filter bar */}
         <ProductFilters
           categories={categories}
           materials={materials}
           taxonomy={taxonomyTree}
         />
 
-        {/* Sort bar */}
-        <div className="flex items-center justify-between">
-          <p className="text-sm text-muted-foreground font-sans hidden sm:block">
-            Showing {total === 0 ? 0 : Math.min((page - 1) * 20 + 1, total)}–
-            {Math.min(page * 20, total)} of {total}
-          </p>
-          <div className="ml-auto">
-            <SortSelect currentSort={currentSort} defaultSort={defaultSort} />
+        {/* Products column */}
+        <div className="flex-1 min-w-0 space-y-6">
+          {/* Sort bar */}
+          <div className="flex items-center justify-between">
+            <p className="text-sm text-muted-foreground font-sans hidden sm:block">
+              Showing {total === 0 ? 0 : Math.min((page - 1) * 20 + 1, total)}–
+              {Math.min(page * 20, total)} of {total}
+            </p>
+            <div className="ml-auto">
+              <SortSelect currentSort={currentSort} defaultSort={defaultSort} />
+            </div>
           </div>
+
+          <ProductGrid products={products} />
+
+          {/* Pagination */}
+          {totalPages > 1 && (
+            <div className="flex justify-center gap-2 mt-12">
+              {page > 1 && (
+                <PaginationLink href={buildHref(params, page - 1)} label="← Previous" />
+              )}
+              {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
+                const p = i + 1;
+                return (
+                  <PaginationLink
+                    key={p}
+                    href={buildHref(params, p)}
+                    label={String(p)}
+                    active={p === page}
+                  />
+                );
+              })}
+              {page < totalPages && (
+                <PaginationLink href={buildHref(params, page + 1)} label="Next →" />
+              )}
+            </div>
+          )}
+
+          {/* SEO copy block */}
+          <SeoCopyBlock
+            category={params.category}
+            occasion={params.occasion}
+            style={params.style}
+            search={params.search}
+          />
         </div>
-
-        <ProductGrid products={products} />
-
-        {/* Pagination */}
-        {totalPages > 1 && (
-          <div className="flex justify-center gap-2 mt-12">
-            {page > 1 && (
-              <PaginationLink href={buildHref(params, page - 1)} label="← Previous" />
-            )}
-            {Array.from({ length: Math.min(totalPages, 7) }, (_, i) => {
-              const p = i + 1;
-              return (
-                <PaginationLink
-                  key={p}
-                  href={buildHref(params, p)}
-                  label={String(p)}
-                  active={p === page}
-                />
-              );
-            })}
-            {page < totalPages && (
-              <PaginationLink href={buildHref(params, page + 1)} label="Next →" />
-            )}
-          </div>
-        )}
-
-        {/* SEO copy block — only on clean single-facet pages, never on search results */}
-        <SeoCopyBlock
-          category={params.category}
-          occasion={params.occasion}
-          style={params.style}
-          search={params.search}
-        />
       </div>
     </div>
   );

@@ -11,6 +11,9 @@ const patchSchema = z.object({
   mobileImageUrl: z.string().url().nullable().optional(),
   focalDesktop: focal,
   focalMobile: focal,
+  brightness: z.number().min(0.2).max(2).optional(),
+  contrast: z.number().min(0.2).max(2).optional(),
+  overlayOpacity: z.number().min(0).max(1).optional(),
   order: z.number().int().optional(),
   isActive: z.boolean().optional(),
 });

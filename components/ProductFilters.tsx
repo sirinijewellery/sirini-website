@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback, useState } from "react";
-import { SlidersHorizontal, X } from "lucide-react";
+import { SlidersHorizontal, X, ChevronLeft } from "lucide-react";
 import { OCCASIONS, STYLES } from "@/lib/taxonomy";
 import type { TaxonomyGroupData, TaxonomyTermData } from "@/lib/taxonomy";
 
@@ -32,6 +32,7 @@ export function ProductFilters({ materials, taxonomy = [] }: ProductFiltersProps
   const router = useRouter();
   const searchParams = useSearchParams();
   const [drawerOpen, setDrawerOpen] = useState(false);
+  const [sidebarOpen, setSidebarOpen] = useState(true);
 
   const activeCategories = parseMulti(searchParams.get("category"));
   const activeMaterials = parseMulti(searchParams.get("material"));
@@ -102,195 +103,211 @@ export function ProductFilters({ materials, taxonomy = [] }: ProductFiltersProps
     router.push("/shop");
   }
 
-  // Check if any main category is selected, to show sub-categories
-  const selectedMains = mainCategories.filter((m) => activeCategories.includes(m.slug));
-  const subCategories: TaxonomyTermData[] = selectedMains.flatMap((m) => m.children ?? []);
+  const activeChips = buildActiveChips({
+    activeCategories, activeOccasions, activeStyles, activeMaterials,
+    minRating, inStock, dynamicGroups, mainCategories, dynamicLabel,
+  });
 
-  const pillBase =
-    "shrink-0 px-4 py-1.5 rounded-full text-sm font-sans border transition-colors duration-200 cursor-pointer whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-primary focus-visible:ring-offset-1";
-  const pillInactive =
-    "border-border text-muted-foreground hover:border-primary hover:text-primary bg-background";
-  const pillActive = "border-primary bg-primary text-primary-foreground";
+  const sectionHeading = "text-[10px] font-sans font-semibold uppercase tracking-[0.18em] text-on-surface-variant mb-2";
 
-  const rowClass = "flex items-center gap-2 overflow-x-auto pb-1";
-  const rowStyle = { scrollbarWidth: "none", msOverflowStyle: "none" } as const;
-  const groupLabel =
-    "shrink-0 text-[10px] font-sans uppercase tracking-[0.18em] text-on-surface-variant pr-1 self-center";
+  const checkClass = (active: boolean) =>
+    `w-4 h-4 rounded border-[1.5px] flex items-center justify-center shrink-0 transition-colors ${active ? "bg-primary border-primary text-white" : "border-on-surface-variant/40 bg-background"}`;
 
   const chipClass =
-    "inline-flex items-center gap-1.5 shrink-0 pl-3 pr-2 py-1 rounded-full text-xs font-sans border border-primary/40 bg-primary/5 text-primary whitespace-nowrap";
+    "inline-flex items-center gap-1 shrink-0 pl-2.5 pr-1.5 py-0.5 rounded-full text-[11px] font-sans border border-primary/40 bg-primary/5 text-primary whitespace-nowrap";
 
   return (
-    <div className="w-full space-y-3">
-      {/* Active-filter chips */}
-      {hasFilters && (
-        <div className={rowClass} style={rowStyle}>
-          {activeCategories.map((slug) => {
-            const label = findCategoryLabel(mainCategories, slug);
-            return (
-              <Chip key={`cat-${slug}`} label={label} onRemove={() => toggleParam("category", slug)} className={chipClass} />
-            );
-          })}
-          {activeOccasions.map((slug) => (
-            <Chip key={`occ-${slug}`} label={OCCASIONS.find((o) => o.slug === slug)?.label || slug} onRemove={() => toggleParam("occasion", slug)} className={chipClass} />
-          ))}
-          {activeStyles.map((slug) => (
-            <Chip key={`sty-${slug}`} label={STYLES.find((s) => s.slug === slug)?.label || slug} onRemove={() => toggleParam("style", slug)} className={chipClass} />
-          ))}
-          {dynamicGroups.map((d) =>
-            d.active.map((slug) => (
-              <Chip key={`${d.param}-${slug}`} label={dynamicLabel(d.groupSlug, slug)} onRemove={() => toggleParam(d.param, slug)} className={chipClass} />
-            )),
-          )}
-          {minRating && <Chip label={`${minRating}★ & up`} onRemove={() => removeParam("minRating")} className={chipClass} />}
-          {inStock && <Chip label="In stock" onRemove={() => removeParam("inStock")} className={chipClass} />}
-          {activeMaterials.map((m) => (
-            <Chip key={`mat-${m}`} label={m} onRemove={() => toggleParam("material", m)} className={chipClass} />
-          ))}
-          <button onClick={clearAll} className="shrink-0 ml-1 text-xs font-sans underline text-muted-foreground hover:text-primary whitespace-nowrap focus:outline-none focus-visible:ring-2 focus-visible:ring-primary rounded cursor-pointer">
-            Clear all
-          </button>
-        </div>
-      )}
+    <>
+      {/* ── DESKTOP SIDEBAR (lg+) ─────────────────────────────── */}
+      <div className="hidden lg:block" data-sidebar-state={sidebarOpen ? "open" : "closed"}>
+        {sidebarOpen ? (
+          <div className="sticky top-24 max-h-[calc(100vh-7rem)] overflow-y-auto pr-4 pb-6 w-fit min-w-[170px] max-w-[220px]">
+            {/* Sidebar header */}
+            <div className="flex items-center justify-between mb-5">
+              <h2 className="text-xs font-sans font-semibold uppercase tracking-[0.15em] text-on-surface">Filters</h2>
+              <button
+                onClick={() => setSidebarOpen(false)}
+                className="p-1 rounded hover:bg-surface-container transition-colors cursor-pointer"
+                aria-label="Collapse filters"
+              >
+                <ChevronLeft className="h-4 w-4 text-on-surface-variant" />
+              </button>
+            </div>
 
-      {/* Categories — taxonomy-based main categories */}
-      <div className={rowClass} style={rowStyle}>
+            {/* Active chips */}
+            {hasFilters && (
+              <div className="flex flex-wrap gap-1.5 mb-5 pb-4 border-b border-outline-variant">
+                {activeChips.map((c) => (
+                  <span key={c.key} className={chipClass}>
+                    {c.label}
+                    <button onClick={() => c.onRemove(toggleParam, removeParam)} aria-label={`Remove ${c.label}`} className="inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-primary/15 cursor-pointer">
+                      <span className="text-[9px]">✕</span>
+                    </button>
+                  </span>
+                ))}
+                <button onClick={clearAll} className="text-[11px] font-sans underline text-muted-foreground hover:text-primary cursor-pointer mt-0.5">
+                  Clear all
+                </button>
+              </div>
+            )}
+
+            {/* Category */}
+            {mainCategories.length > 0 && (
+              <div className="mb-5">
+                <h3 className={sectionHeading}>Category</h3>
+                <div className="space-y-0.5">
+                  {mainCategories.map((cat) => {
+                    const catActive = activeCategories.includes(cat.slug);
+                    return (
+                      <div key={cat.id}>
+                        <button onClick={() => toggleParam("category", cat.slug)} className="flex items-center gap-2 w-full py-1 text-[13px] font-sans text-on-surface hover:text-primary transition-colors cursor-pointer">
+                          <span className={checkClass(catActive)}>{catActive && <Check />}</span>
+                          {cat.label}
+                        </button>
+                        {cat.children.length > 0 && (
+                          <div className="ml-6 space-y-0.5">
+                            {cat.children.map((sub) => {
+                              const subActive = activeCategories.includes(sub.slug);
+                              return (
+                                <button key={sub.id} onClick={() => toggleParam("category", sub.slug)} className="flex items-center gap-2 w-full py-0.5 text-[12px] font-sans text-muted-foreground hover:text-primary transition-colors cursor-pointer">
+                                  <span className={checkClass(subActive)}>{subActive && <Check />}</span>
+                                  {sub.label}
+                                </button>
+                              );
+                            })}
+                          </div>
+                        )}
+                      </div>
+                    );
+                  })}
+                </div>
+              </div>
+            )}
+
+            {/* Occasion */}
+            <SidebarSection heading="Occasion" headingClass={sectionHeading}>
+              {OCCASIONS.map((o) => (
+                <CheckItem key={o.slug} label={o.label} active={activeOccasions.includes(o.slug)} onClick={() => toggleParam("occasion", o.slug)} checkClass={checkClass} />
+              ))}
+            </SidebarSection>
+
+            {/* Style */}
+            <SidebarSection heading="Style" headingClass={sectionHeading}>
+              {STYLES.map((s) => (
+                <CheckItem key={s.slug} label={s.label} active={activeStyles.includes(s.slug)} onClick={() => toggleParam("style", s.slug)} checkClass={checkClass} />
+              ))}
+            </SidebarSection>
+
+            {/* Dynamic groups */}
+            {dynamicGroups.map((d) => (
+              <SidebarSection key={d.param} heading={d.label} headingClass={sectionHeading}>
+                {d.terms.map((t) => (
+                  <CheckItem key={t.id} label={t.label} active={d.active.includes(t.slug)} onClick={() => toggleParam(d.param, t.slug)} checkClass={checkClass} />
+                ))}
+              </SidebarSection>
+            ))}
+
+            {/* Rating */}
+            <SidebarSection heading="Rating" headingClass={sectionHeading}>
+              <CheckItem
+                label="4★ & up"
+                active={minRating === "4"}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  if (minRating === "4") params.delete("minRating");
+                  else params.set("minRating", "4");
+                  params.delete("page");
+                  router.push(`/shop?${params.toString()}`);
+                }}
+                checkClass={checkClass}
+              />
+            </SidebarSection>
+
+            {/* Availability */}
+            <SidebarSection heading="Availability" headingClass={sectionHeading}>
+              <CheckItem
+                label="In stock only"
+                active={inStock === "1"}
+                onClick={() => {
+                  const params = new URLSearchParams(searchParams.toString());
+                  if (inStock === "1") params.delete("inStock");
+                  else params.set("inStock", "1");
+                  params.delete("page");
+                  router.push(`/shop?${params.toString()}`);
+                }}
+                checkClass={checkClass}
+              />
+            </SidebarSection>
+
+            {/* Materials */}
+            {materials.length > 0 && (
+              <SidebarSection heading="Material" headingClass={sectionHeading}>
+                {materials.map((m) => (
+                  <CheckItem key={m} label={m} active={activeMaterials.includes(m)} onClick={() => toggleParam("material", m)} checkClass={checkClass} />
+                ))}
+              </SidebarSection>
+            )}
+          </div>
+        ) : (
+          /* Collapsed state: just a vertical strip */
+          <div className="sticky top-24 flex flex-col items-start gap-2 pr-4">
+            <button
+              onClick={() => setSidebarOpen(true)}
+              className="flex items-center gap-1.5 px-3 py-1.5 rounded-full text-xs font-sans border border-border text-muted-foreground hover:border-primary hover:text-primary bg-background transition-colors cursor-pointer"
+            >
+              <SlidersHorizontal className="h-3.5 w-3.5" />
+              Filters
+            </button>
+            {/* Active chips stacked vertically */}
+            {activeChips.length > 0 && (
+              <div className="flex flex-col gap-1 mt-1">
+                {activeChips.map((c) => (
+                  <span key={c.key} className={chipClass}>
+                    {c.label}
+                    <button onClick={() => c.onRemove(toggleParam, removeParam)} aria-label={`Remove ${c.label}`} className="inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-primary/15 cursor-pointer">
+                      <span className="text-[9px]">✕</span>
+                    </button>
+                  </span>
+                ))}
+                <button onClick={clearAll} className="text-[11px] font-sans underline text-muted-foreground hover:text-primary cursor-pointer mt-0.5">
+                  Clear all
+                </button>
+              </div>
+            )}
+          </div>
+        )}
+      </div>
+
+      {/* ── MOBILE: Filter button + chip row + drawer (< lg) ─── */}
+      <div className="lg:hidden w-full space-y-3">
+        {/* Active chips */}
+        {hasFilters && (
+          <div className="flex items-center gap-2 overflow-x-auto pb-1" style={{ scrollbarWidth: "none", msOverflowStyle: "none" } as React.CSSProperties}>
+            {activeChips.map((c) => (
+              <span key={c.key} className={chipClass}>
+                {c.label}
+                <button onClick={() => c.onRemove(toggleParam, removeParam)} aria-label={`Remove ${c.label}`} className="inline-flex h-5 w-5 items-center justify-center rounded-full hover:bg-primary/15 cursor-pointer">
+                  <span className="text-[10px]">✕</span>
+                </button>
+              </span>
+            ))}
+            <button onClick={clearAll} className="shrink-0 text-xs font-sans underline text-muted-foreground hover:text-primary whitespace-nowrap cursor-pointer">
+              Clear all
+            </button>
+          </div>
+        )}
+
         <button
           onClick={() => setDrawerOpen(true)}
-          className="shrink-0 flex items-center gap-1.5 px-3 py-1.5 rounded-full text-sm font-sans border border-border text-muted-foreground hover:border-primary hover:text-primary bg-background transition-colors cursor-pointer"
-          aria-label="Open all filters"
+          className="flex items-center gap-1.5 px-4 py-2 rounded-full text-sm font-sans border border-border text-muted-foreground hover:border-primary hover:text-primary bg-background transition-colors cursor-pointer"
         >
-          <SlidersHorizontal className="h-3.5 w-3.5" />
+          <SlidersHorizontal className="h-4 w-4" />
           Filters
+          {hasFilters && <span className="ml-1 text-xs text-primary">({activeChips.length})</span>}
         </button>
-        <div className="shrink-0 w-px h-5 bg-border mx-0.5 self-center" aria-hidden="true" />
-        <button
-          onClick={() => updateParam("category", [])}
-          className={`${pillBase} ${activeCategories.length === 0 ? pillActive : pillInactive}`}
-          aria-pressed={activeCategories.length === 0}
-        >
-          All Jewellery
-        </button>
-        {mainCategories.map((cat) => (
-          <button
-            key={cat.id}
-            onClick={() => toggleParam("category", cat.slug)}
-            className={`${pillBase} ${activeCategories.includes(cat.slug) ? pillActive : pillInactive}`}
-            aria-pressed={activeCategories.includes(cat.slug)}
-          >
-            {cat.label}
-          </button>
-        ))}
       </div>
 
-      {/* Sub-categories — shown when a main category is selected */}
-      {subCategories.length > 0 && (
-        <div className={rowClass} style={rowStyle}>
-          <span className={groupLabel}>Sub-category</span>
-          {subCategories.map((sub) => (
-            <button
-              key={sub.id}
-              onClick={() => toggleParam("category", sub.slug)}
-              className={`${pillBase} ${activeCategories.includes(sub.slug) ? pillActive : pillInactive}`}
-              aria-pressed={activeCategories.includes(sub.slug)}
-            >
-              {sub.label}
-            </button>
-          ))}
-        </div>
-      )}
-
-      {/* Occasion */}
-      <div className={rowClass} style={rowStyle}>
-        <span className={groupLabel}>Occasion</span>
-        {OCCASIONS.map((o) => (
-          <button
-            key={o.slug}
-            onClick={() => toggleParam("occasion", o.slug)}
-            className={`${pillBase} ${activeOccasions.includes(o.slug) ? pillActive : pillInactive}`}
-            aria-pressed={activeOccasions.includes(o.slug)}
-          >
-            {o.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Style */}
-      <div className={rowClass} style={rowStyle}>
-        <span className={groupLabel}>Style</span>
-        {STYLES.map((s) => (
-          <button
-            key={s.slug}
-            onClick={() => toggleParam("style", s.slug)}
-            className={`${pillBase} ${activeStyles.includes(s.slug) ? pillActive : pillInactive}`}
-            aria-pressed={activeStyles.includes(s.slug)}
-          >
-            {s.label}
-          </button>
-        ))}
-      </div>
-
-      {/* Admin-managed dimensions */}
-      {dynamicGroups.map((d) => (
-        <div key={d.param} className={rowClass} style={rowStyle}>
-          <span className={groupLabel}>{d.label}</span>
-          {d.terms.map((t) => (
-            <button
-              key={t.id}
-              onClick={() => toggleParam(d.param, t.slug)}
-              className={`${pillBase} ${d.active.includes(t.slug) ? pillActive : pillInactive}`}
-              aria-pressed={d.active.includes(t.slug)}
-            >
-              {t.label}
-            </button>
-          ))}
-        </div>
-      ))}
-
-      {/* Rating + In stock + Materials */}
-      <div className={rowClass} style={rowStyle}>
-        <button
-          onClick={() => {
-            const params = new URLSearchParams(searchParams.toString());
-            if (minRating === "4") params.delete("minRating");
-            else params.set("minRating", "4");
-            params.delete("page");
-            router.push(`/shop?${params.toString()}`);
-          }}
-          className={`${pillBase} ${minRating === "4" ? pillActive : pillInactive}`}
-          aria-pressed={minRating === "4"}
-        >
-          4★ &amp; up
-        </button>
-        <button
-          onClick={() => {
-            const params = new URLSearchParams(searchParams.toString());
-            if (inStock === "1") params.delete("inStock");
-            else params.set("inStock", "1");
-            params.delete("page");
-            router.push(`/shop?${params.toString()}`);
-          }}
-          className={`${pillBase} ${inStock === "1" ? pillActive : pillInactive}`}
-          aria-pressed={inStock === "1"}
-        >
-          In stock
-        </button>
-        {materials.length > 0 && (
-          <div className="shrink-0 w-px h-5 bg-border mx-1 self-center" aria-hidden="true" />
-        )}
-        {materials.map((m) => (
-          <button
-            key={m}
-            onClick={() => toggleParam("material", m)}
-            className={`${pillBase} ${activeMaterials.includes(m) ? pillActive : pillInactive}`}
-            aria-pressed={activeMaterials.includes(m)}
-          >
-            {m}
-          </button>
-        ))}
-      </div>
-
-      {/* Full-page filter drawer */}
+      {/* Mobile drawer */}
       {drawerOpen && (
         <FilterDrawer
           taxonomy={taxonomy}
@@ -305,8 +322,75 @@ export function ProductFilters({ materials, taxonomy = [] }: ProductFiltersProps
           onClose={() => setDrawerOpen(false)}
         />
       )}
+    </>
+  );
+}
+
+/* ── Shared sub-components ─────────────────────────────────────────────── */
+
+function SidebarSection({ heading, headingClass, children }: {
+  heading: string; headingClass: string; children: React.ReactNode;
+}) {
+  return (
+    <div className="mb-5">
+      <h3 className={headingClass}>{heading}</h3>
+      <div className="space-y-0.5">{children}</div>
     </div>
   );
+}
+
+function CheckItem({ label, active, onClick, checkClass }: {
+  label: string; active: boolean; onClick: () => void; checkClass: (a: boolean) => string;
+}) {
+  return (
+    <button onClick={onClick} className="flex items-center gap-2 w-full py-1 text-[13px] font-sans text-on-surface hover:text-primary transition-colors cursor-pointer">
+      <span className={checkClass(active)}>{active && <Check />}</span>
+      {label}
+    </button>
+  );
+}
+
+interface ActiveChip {
+  key: string;
+  label: string;
+  onRemove: (toggle: (k: string, v: string) => void, remove: (...k: string[]) => void) => void;
+}
+
+function buildActiveChips({
+  activeCategories, activeOccasions, activeStyles, activeMaterials,
+  minRating, inStock, dynamicGroups, mainCategories, dynamicLabel,
+}: {
+  activeCategories: string[];
+  activeOccasions: string[];
+  activeStyles: string[];
+  activeMaterials: string[];
+  minRating: string;
+  inStock: string;
+  dynamicGroups: { groupSlug: string; param: string; label: string; terms: TaxonomyTermData[]; active: string[] }[];
+  mainCategories: TaxonomyTermData[];
+  dynamicLabel: (g: string, s: string) => string;
+}): ActiveChip[] {
+  const chips: ActiveChip[] = [];
+  for (const slug of activeCategories) {
+    chips.push({ key: `cat-${slug}`, label: findCategoryLabel(mainCategories, slug), onRemove: (t) => t("category", slug) });
+  }
+  for (const slug of activeOccasions) {
+    chips.push({ key: `occ-${slug}`, label: OCCASIONS.find((o) => o.slug === slug)?.label || slug, onRemove: (t) => t("occasion", slug) });
+  }
+  for (const slug of activeStyles) {
+    chips.push({ key: `sty-${slug}`, label: STYLES.find((s) => s.slug === slug)?.label || slug, onRemove: (t) => t("style", slug) });
+  }
+  for (const d of dynamicGroups) {
+    for (const slug of d.active) {
+      chips.push({ key: `${d.param}-${slug}`, label: dynamicLabel(d.groupSlug, slug), onRemove: (t) => t(d.param, slug) });
+    }
+  }
+  if (minRating) chips.push({ key: "rating", label: `${minRating}★ & up`, onRemove: (_t, r) => r("minRating") });
+  if (inStock) chips.push({ key: "stock", label: "In stock", onRemove: (_t, r) => r("inStock") });
+  for (const m of activeMaterials) {
+    chips.push({ key: `mat-${m}`, label: m, onRemove: (t) => t("material", m) });
+  }
+  return chips;
 }
 
 function findCategoryLabel(mains: TaxonomyTermData[], slug: string): string {
@@ -319,22 +403,15 @@ function findCategoryLabel(mains: TaxonomyTermData[], slug: string): string {
   return slug.replace(/-/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
 }
 
-function Chip({ label, onRemove, className }: { label: string; onRemove: () => void; className: string }) {
+function Check() {
   return (
-    <span className={className}>
-      {label}
-      <button
-        onClick={onRemove}
-        aria-label={`Remove ${label} filter`}
-        className="inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary cursor-pointer"
-      >
-        <span aria-hidden="true" className="text-xs">✕</span>
-      </button>
-    </span>
+    <svg width="10" height="10" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2.5" strokeLinecap="round" strokeLinejoin="round">
+      <polyline points="2,6 5,9 10,3" />
+    </svg>
   );
 }
 
-/* ── Full-page filter drawer ─────────────────────────────────────────────── */
+/* ── Mobile filter drawer ──────────────────────────────────────────────── */
 
 function FilterDrawer({
   mainCategories,
@@ -352,10 +429,7 @@ function FilterDrawer({
   onApply: (params: URLSearchParams) => void;
   onClose: () => void;
 }) {
-  const [draft, setDraft] = useState(() => {
-    const p = new URLSearchParams(searchParams.toString());
-    return p;
-  });
+  const [draft, setDraft] = useState(() => new URLSearchParams(searchParams.toString()));
 
   function getDraftMulti(key: string): string[] {
     const val = draft.get(key);
@@ -396,7 +470,6 @@ function FilterDrawer({
         className="relative w-full max-w-md bg-background h-full overflow-y-auto shadow-2xl animate-in slide-in-from-right duration-200"
         onClick={(e) => e.stopPropagation()}
       >
-        {/* Header */}
         <div className="sticky top-0 z-10 flex items-center justify-between px-6 py-4 bg-background border-b border-outline-variant">
           <h2 className="text-lg font-semibold text-on-surface font-sans">All Filters</h2>
           <button onClick={onClose} aria-label="Close filters" className="p-2 rounded-lg hover:bg-surface-container transition-colors cursor-pointer">
@@ -405,7 +478,6 @@ function FilterDrawer({
         </div>
 
         <div className="px-6 py-6 space-y-8">
-          {/* Categories */}
           {mainCategories.length > 0 && (
             <div>
               <h3 className={sectionHeading}>Category</h3>
@@ -415,7 +487,7 @@ function FilterDrawer({
                   return (
                     <div key={cat.id}>
                       <button onClick={() => toggleDraft("category", cat.slug)} className="flex items-center gap-3 w-full py-1.5 text-sm font-sans text-on-surface hover:text-primary transition-colors cursor-pointer">
-                        <span className={checkClass(catActive)}>{catActive && <Check />}</span>
+                        <span className={checkClass(catActive)}>{catActive && <DrawerCheck />}</span>
                         {cat.label}
                       </button>
                       {cat.children.length > 0 && (
@@ -424,7 +496,7 @@ function FilterDrawer({
                             const subActive = getDraftMulti("category").includes(sub.slug);
                             return (
                               <button key={sub.id} onClick={() => toggleDraft("category", sub.slug)} className="flex items-center gap-3 w-full py-1 text-xs font-sans text-muted-foreground hover:text-primary transition-colors cursor-pointer">
-                                <span className={checkClass(subActive)}>{subActive && <Check />}</span>
+                                <span className={checkClass(subActive)}>{subActive && <DrawerCheck />}</span>
                                 {sub.label}
                               </button>
                             );
@@ -438,7 +510,6 @@ function FilterDrawer({
             </div>
           )}
 
-          {/* Occasion */}
           <div>
             <h3 className={sectionHeading}>Occasion</h3>
             <div className="space-y-2">
@@ -446,7 +517,7 @@ function FilterDrawer({
                 const active = getDraftMulti("occasion").includes(o.slug);
                 return (
                   <button key={o.slug} onClick={() => toggleDraft("occasion", o.slug)} className="flex items-center gap-3 w-full py-1.5 text-sm font-sans text-on-surface hover:text-primary transition-colors cursor-pointer">
-                    <span className={checkClass(active)}>{active && <Check />}</span>
+                    <span className={checkClass(active)}>{active && <DrawerCheck />}</span>
                     {o.label}
                   </button>
                 );
@@ -454,7 +525,6 @@ function FilterDrawer({
             </div>
           </div>
 
-          {/* Style */}
           <div>
             <h3 className={sectionHeading}>Style</h3>
             <div className="space-y-2">
@@ -462,7 +532,7 @@ function FilterDrawer({
                 const active = getDraftMulti("style").includes(s.slug);
                 return (
                   <button key={s.slug} onClick={() => toggleDraft("style", s.slug)} className="flex items-center gap-3 w-full py-1.5 text-sm font-sans text-on-surface hover:text-primary transition-colors cursor-pointer">
-                    <span className={checkClass(active)}>{active && <Check />}</span>
+                    <span className={checkClass(active)}>{active && <DrawerCheck />}</span>
                     {s.label}
                   </button>
                 );
@@ -470,7 +540,6 @@ function FilterDrawer({
             </div>
           </div>
 
-          {/* Dynamic groups */}
           {dynamicGroups.map((d) => (
             <div key={d.param}>
               <h3 className={sectionHeading}>{d.label}</h3>
@@ -479,7 +548,7 @@ function FilterDrawer({
                   const active = getDraftMulti(d.param).includes(t.slug);
                   return (
                     <button key={t.id} onClick={() => toggleDraft(d.param, t.slug)} className="flex items-center gap-3 w-full py-1.5 text-sm font-sans text-on-surface hover:text-primary transition-colors cursor-pointer">
-                      <span className={checkClass(active)}>{active && <Check />}</span>
+                      <span className={checkClass(active)}>{active && <DrawerCheck />}</span>
                       {t.label}
                     </button>
                   );
@@ -488,25 +557,22 @@ function FilterDrawer({
             </div>
           ))}
 
-          {/* Rating */}
           <div>
             <h3 className={sectionHeading}>Rating</h3>
             <button onClick={() => toggleDraftSingle("minRating", "4")} className="flex items-center gap-3 w-full py-1.5 text-sm font-sans text-on-surface hover:text-primary transition-colors cursor-pointer">
-              <span className={checkClass(draft.get("minRating") === "4")}>{draft.get("minRating") === "4" && <Check />}</span>
+              <span className={checkClass(draft.get("minRating") === "4")}>{draft.get("minRating") === "4" && <DrawerCheck />}</span>
               4★ & up
             </button>
           </div>
 
-          {/* In stock */}
           <div>
             <h3 className={sectionHeading}>Availability</h3>
             <button onClick={() => toggleDraftSingle("inStock", "1")} className="flex items-center gap-3 w-full py-1.5 text-sm font-sans text-on-surface hover:text-primary transition-colors cursor-pointer">
-              <span className={checkClass(draft.get("inStock") === "1")}>{draft.get("inStock") === "1" && <Check />}</span>
+              <span className={checkClass(draft.get("inStock") === "1")}>{draft.get("inStock") === "1" && <DrawerCheck />}</span>
               In stock only
             </button>
           </div>
 
-          {/* Materials */}
           {materials.length > 0 && (
             <div>
               <h3 className={sectionHeading}>Material</h3>
@@ -515,7 +581,7 @@ function FilterDrawer({
                   const active = getDraftMulti("material").includes(m);
                   return (
                     <button key={m} onClick={() => toggleDraft("material", m)} className="flex items-center gap-3 w-full py-1.5 text-sm font-sans text-on-surface hover:text-primary transition-colors cursor-pointer">
-                      <span className={checkClass(active)}>{active && <Check />}</span>
+                      <span className={checkClass(active)}>{active && <DrawerCheck />}</span>
                       {m}
                     </button>
                   );
@@ -525,7 +591,6 @@ function FilterDrawer({
           )}
         </div>
 
-        {/* Footer */}
         <div className="sticky bottom-0 flex items-center gap-3 px-6 py-4 bg-background border-t border-outline-variant">
           <button onClick={clearDraft} className="flex-1 py-3 rounded-lg border border-border text-sm font-sans font-medium text-on-surface hover:bg-surface-container transition-colors cursor-pointer">
             Clear all
@@ -539,7 +604,7 @@ function FilterDrawer({
   );
 }
 
-function Check() {
+function DrawerCheck() {
   return (
     <svg width="12" height="12" viewBox="0 0 12 12" fill="none" stroke="currentColor" strokeWidth="2" strokeLinecap="round" strokeLinejoin="round">
       <polyline points="2,6 5,9 10,3" />

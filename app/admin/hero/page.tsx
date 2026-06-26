@@ -14,7 +14,9 @@ export default async function AdminHeroPage() {
     orderBy: [{ order: "asc" }, { createdAt: "asc" }],
     select: {
       id: true, imageUrl: true, mobileImageUrl: true,
-      focalDesktop: true, focalMobile: true, order: true, isActive: true,
+      focalDesktop: true, focalMobile: true,
+      brightness: true, contrast: true, overlayOpacity: true,
+      order: true, isActive: true,
     },
   });
   const durationRow = await prisma.setting.findUnique({ where: { key: "hero.durationMs" } });

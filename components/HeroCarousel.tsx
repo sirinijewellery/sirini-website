@@ -36,13 +36,13 @@ export function HeroCarousel({
         {slides.map((s, i) => {
           const active = i === idx;
           const mobileSrc = s.mobileImageUrl || s.imageUrl;
+          const cssFilter = `brightness(${s.brightness ?? 1}) contrast(${s.contrast ?? 1})`;
           return (
             <div
               key={s.id}
               aria-hidden={!active}
               className={`absolute inset-0 transition-opacity duration-[900ms] ease-out ${active ? "opacity-100" : "opacity-0"}`}
             >
-              {/* Phone image (focal = focalMobile) */}
               <Image
                 src={mobileSrc}
                 alt="Sirini Jewellery — handcrafted necklace set"
@@ -50,10 +50,9 @@ export function HeroCarousel({
                 preload={i === 0}
                 quality={90}
                 sizes="100vw"
-                style={{ objectPosition: s.focalMobile }}
+                style={{ objectPosition: s.focalMobile, filter: cssFilter }}
                 className="object-cover md:hidden hero-breathe"
               />
-              {/* PC image (focal = focalDesktop) */}
               <Image
                 src={s.imageUrl}
                 alt="Sirini Jewellery — handcrafted necklace set"
@@ -61,7 +60,7 @@ export function HeroCarousel({
                 preload={i === 0}
                 quality={90}
                 sizes="100vw"
-                style={{ objectPosition: s.focalDesktop }}
+                style={{ objectPosition: s.focalDesktop, filter: cssFilter }}
                 className="object-cover hidden md:block hero-breathe"
               />
             </div>
@@ -69,8 +68,8 @@ export function HeroCarousel({
         })}
       </div>
 
-      {/* Legibility scrims — PC only */}
-      <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" />
+      {/* Legibility scrims — PC only, opacity driven by active slide */}
+      <div className="hidden md:block absolute inset-0 bg-gradient-to-r from-background/95 via-background/60 to-transparent" style={{ opacity: slides[idx]?.overlayOpacity != null ? slides[idx].overlayOpacity / 0.4 : 1 }} />
       <div className="hidden md:block absolute inset-0 bg-gradient-to-t from-background/45 via-transparent to-transparent" />
 
       {/* Slide dots (only when multiple) */}

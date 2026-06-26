@@ -8,6 +8,9 @@ export interface HeroSlideData {
   mobileImageUrl: string | null;
   focalDesktop: string;
   focalMobile: string;
+  brightness: number;
+  contrast: number;
+  overlayOpacity: number;
 }
 
 // Falls back to the current editorial hero so the home page never breaks,
@@ -29,6 +32,7 @@ export async function getHeroSlides(): Promise<HeroSlideData[]> {
       select: {
         id: true, imageUrl: true, mobileImageUrl: true,
         focalDesktop: true, focalMobile: true,
+        brightness: true, contrast: true, overlayOpacity: true,
       },
     });
     if (slides.length) return slides;
@@ -41,6 +45,9 @@ export async function getHeroSlides(): Promise<HeroSlideData[]> {
     mobileImageUrl: null,
     focalDesktop: "62% 50%",
     focalMobile: "62% 50%",
+    brightness: 1.0,
+    contrast: 1.0,
+    overlayOpacity: 0.4,
   }];
 }
 
