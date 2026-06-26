@@ -44,9 +44,14 @@ export interface GetProductsOptions {
  * them in the caller's `where` enforces AND-across-dimensions while each clause
  * is itself an OR-within-dimension (handled by productIdsForFilters / `has`).
  */
+function parseSlugs(val: string): string[] {
+  return val.split(",").map((s) => s.trim()).filter(Boolean);
+}
+
 async function taxonomyIdConstraints(opts: {
   category?: string;
   occasion?: string;
+  style?: string;
   collection?: string;
   look?: string;
   stone?: string;
@@ -54,41 +59,46 @@ async function taxonomyIdConstraints(opts: {
 }): Promise<Prisma.ProductWhereInput[]> {
   const constraints: Prisma.ProductWhereInput[] = [];
 
-  // ── ProductTerm-only dimensions: collection / look / stone / colour ──
-  // AND across whichever are active; OR within (single slug here, but the
-  // helper accepts arrays). productIdsForFilters returns null when no filters.
   const termOnly: Record<string, string[]> = {};
-  if (opts.collection) termOnly.collection = [opts.collection];
-  if (opts.look) termOnly.look = [opts.look];
-  if (opts.stone) termOnly.stone = [opts.stone];
-  if (opts.colour) termOnly.colour = [opts.colour];
+  if (opts.collection) termOnly.collection = parseSlugs(opts.collection);
+  if (opts.look) termOnly.look = parseSlugs(opts.look);
+  if (opts.stone) termOnly.stone = parseSlugs(opts.stone);
+  if (opts.colour) termOnly.colour = parseSlugs(opts.colour);
   if (Object.keys(termOnly).length > 0) {
     const ids = await productIdsForFilters(termOnly);
-    // ids is non-null because we passed filters; [] means "nothing matches".
     constraints.push({ id: { in: ids ?? [] } });
   }
 
-  // ── Category: ProductTerm matches UNION legacy categories[] (expanded) ──
   if (opts.category) {
-    const expanded = await expandCategorySlugs(opts.category);
-    const termIds = await productIdsForFilters({ category: [opts.category] });
+    const slugs = parseSlugs(opts.category);
+    const allExpanded: string[] = [];
+    for (const s of slugs) {
+      const expanded = await expandCategorySlugs(s);
+      allExpanded.push(...expanded);
+    }
+    const termIds = await productIdsForFilters({ category: slugs });
     constraints.push({
       OR: [
         { id: { in: termIds ?? [] } },
-        { categories: { hasSome: expanded } },
+        { categories: { hasSome: allExpanded } },
       ],
     });
   }
 
-  // ── Occasion: ProductTerm matches UNION legacy occasions[] ──
   if (opts.occasion) {
-    const termIds = await productIdsForFilters({ occasion: [opts.occasion] });
+    const slugs = parseSlugs(opts.occasion);
+    const termIds = await productIdsForFilters({ occasion: slugs });
     constraints.push({
       OR: [
         { id: { in: termIds ?? [] } },
-        { occasions: { has: opts.occasion } },
+        { occasions: { hasSome: slugs } },
       ],
     });
+  }
+
+  if (opts.style) {
+    const slugs = parseSlugs(opts.style);
+    constraints.push({ styles: { hasSome: slugs } });
   }
 
   return constraints;
@@ -131,23 +141,21 @@ export async function getProducts(options: GetProductsOptions = {}) {
   const taxonomyAnd = await taxonomyIdConstraints({
     category,
     occasion,
+    style,
     collection,
     look,
     stone,
     colour,
   });
 
+  const materialSlugs = material ? parseSlugs(material) : [];
+
   const where: Prisma.ProductWhereInput = {
-    // When enabled, exclude sold-out products. `inStock` (below) is stricter and
-    // already excludes them, so this only matters when inStock isn't set.
     ...(hideOutOfStock && !inStock ? { stock: { gt: 0 } } : {}),
-    // category & occasion are resolved via taxonomyAnd (ProductTerm matches
-    // UNION legacy categories[]/occasions[]); collection/look/stone/colour are
-    // ProductTerm-only — all folded into the AND list below.
     ...(taxonomyAnd.length ? { AND: taxonomyAnd } : {}),
-    ...(material && { material }),
+    ...(materialSlugs.length === 1 ? { material: materialSlugs[0] } : {}),
+    ...(materialSlugs.length > 1 ? { material: { in: materialSlugs } } : {}),
     ...(featuredOnly && { isFeatured: true }),
-    ...(style && { styles: { has: style } }),
     ...(inStock && { stock: { gt: 0 } }),
     ...(priceMin !== undefined || priceMax !== undefined
       ? {

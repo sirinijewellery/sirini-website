@@ -55,7 +55,7 @@ const navLinks = [
 
 const DEFAULT_ANNOUNCEMENTS = [
   "Free Pan-India Shipping on All Orders",
-  "Handcrafted Since 2015 · Genuine Kundan & Meenakari",
+  "Handcrafted Since 2017 · Genuine Kundan & Meenakari",
   "Cash on Delivery Available · First Order: Flat 10% OFF",
 ];
 

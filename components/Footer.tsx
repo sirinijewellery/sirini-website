@@ -49,7 +49,7 @@ export function Footer({ business }: { business: BusinessDetails }) {
             />
             <p className="font-sans text-sm text-on-surface-variant leading-relaxed max-w-sm">
               Handcrafted Kundan, Meenakari &amp; gold-plated jewellery — made in
-              Mumbai since 2015.
+              Mumbai since 2017.
             </p>
             <p className="font-sans text-xs text-on-surface-variant/60 tracking-wide">
               {business.addressLine}
@@ -83,7 +83,7 @@ export function Footer({ business }: { business: BusinessDetails }) {
             </div>
 
             <p className="font-sans text-xs text-on-surface-variant/50 mt-4">
-              © Sirini Jewellery, Est. 2015
+              © Sirini Jewellery, Est. 2017
             </p>
           </div>
 

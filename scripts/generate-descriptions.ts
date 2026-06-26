@@ -168,7 +168,7 @@ const CLOSERS = [
   "Each piece is handcrafted in Mumbai by Sirini Jewellery, with free shipping across India and Cash on Delivery available.",
   "Handmade in our Mumbai atelier and delivered free anywhere in India — Cash on Delivery available.",
   "Crafted by hand at Sirini Jewellery, Mumbai, and shipped free across India.",
-  "Made by hand since 2015 in Mumbai, with complimentary pan-India shipping and COD.",
+  "Made by hand since 2017 in Mumbai, with complimentary pan-India shipping and COD.",
 ];
 
 function detectTechniques(material: string, styles: string[], name: string): string[] {

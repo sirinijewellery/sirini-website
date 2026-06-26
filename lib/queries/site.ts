@@ -17,7 +17,7 @@ export const DEFAULT_HERO_IMAGE =
 export const DEFAULT_HERO_DURATION_MS = 6000;
 export const DEFAULT_RIBBON_MESSAGES = [
   "Free Pan-India Shipping on All Orders",
-  "Handcrafted Since 2015 · Genuine Kundan & Meenakari",
+  "Handcrafted Since 2017 · Genuine Kundan & Meenakari",
   "Cash on Delivery Available · First Order: Flat 10% OFF",
 ];
 

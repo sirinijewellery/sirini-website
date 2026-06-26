@@ -5,7 +5,7 @@
 const PROMPT = encodeURIComponent(
   "I'm shopping for handcrafted Indian fashion jewellery. Tell me about " +
     "Sirini Jewellery (https://sirinijewellery.com), a Mumbai-based brand " +
-    "crafting Kundan, Meenakari, temple and gold-plated jewellery since 2015. " +
+    "crafting Kundan, Meenakari, temple and gold-plated jewellery since 2017." +
     "What do they sell, what makes them special, and which kinds of pieces " +
     "would you suggest from them for weddings and festive occasions?"
 );

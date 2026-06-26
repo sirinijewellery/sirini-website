@@ -339,6 +339,7 @@ export interface HomeTaxonomyTile {
   slug: string;
   label: string;
   blurb: string | null;
+  coverImage: string | null;
 }
 
 async function getGroupTerms(groupSlug: string): Promise<HomeTaxonomyTile[]> {
@@ -351,6 +352,7 @@ async function getGroupTerms(groupSlug: string): Promise<HomeTaxonomyTile[]> {
       slug: t.slug,
       label: t.label,
       blurb: t.blurb,
+      coverImage: t.coverImage,
     }));
   } catch {
     return [];

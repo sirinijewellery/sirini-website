@@ -97,7 +97,7 @@ export function HeroCarousel({
         <div className="flex flex-col gap-5 md:gap-6 max-w-xl">
           <div className="w-10 h-px bg-[#C9A96E] animate-slide-up-fade" />
           <p className="font-label-caps text-label-caps tracking-[0.3em] text-primary uppercase animate-slide-up-fade">
-            Handcrafted Since 2015
+            Handcrafted Since 2017
           </p>
           <h1
             className="font-display-lg text-[44px] sm:text-[68px] md:text-[92px] leading-[1.06] md:leading-[1.04] tracking-[-0.02em] text-on-surface animate-slide-up-fade"

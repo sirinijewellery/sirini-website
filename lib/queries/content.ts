@@ -58,25 +58,25 @@ export const getShippingTime = cache(async (): Promise<ShippingTime> => {
 
 // ── About ────────────────────────────────────────────────────────────────────
 export const DEFAULT_ABOUT: PageContent = {
-  title: "The Mumbai Workshop",
+  title: "We Don't Just Make Jewellery. We Make Memories.",
   intro:
-    "Sirini Jewellery was born in the bustling lanes of Mumbai in 2015 — not in a factory, but at a family workbench. What started as a passion for preserving traditional goldsmithing techniques grew into a brand worn by women across India.\n\nEvery piece we create carries the fingerprints of artisans who have inherited their craft across generations. We do not cut corners — we cut metal, shape wire, and set stones the way it has always been done: with patience, skill, and love.",
+    "Sirini Jewellery was born in Mumbai in 2017, rooted in one simple belief — that every bride deserves to feel extraordinary, without compromise.\n\nFounded by Nishit Savla, Sirini grew from years of hands-on manufacturing experience into something far more personal: a brand built for the women at the heart of India's most cherished celebrations. We understood the craft from the inside out — the precision, the detailing, the hours that go into every piece. And we asked ourselves: why should this artistry be out of reach for most?\n\nWith gold prices soaring to heights that make bridal dreams feel distant, we saw a gap that needed filling — not with cheaper jewellery, but with equally stunning alternatives. Every Sirini piece is crafted in brass with the same rigorous craftsmanship as fine gold jewellery. The same intricate designs. The same weight of tradition. The same pride in every finish. The only difference? A price tag that lets you say yes without hesitation.\n\nOur collections are deeply inspired by India's rich design heritage — bold, traditional, and made for the woman who wants to look like a bride, not just dress like one. Because for a bride, this isn't just a day. It's the day. And the jewellery she wears will live in photographs, in memory, and in her heart for a lifetime.\n\nAt Sirini, we don't sell jewellery. We give brides and their loved ones something far more precious — the freedom to celebrate fully, beautifully, and without compromise.",
   sections: [
     {
       heading: "Crafted to Last",
-      body: "Sirini uses only ethically sourced materials — from gleaming 22kt gold plating and intricate Kundan stonework to hand-painted Meenakari enamel and premium oxidised silver. Every material is chosen for how it wears, not just how it looks.",
+      body: "Every Sirini piece is crafted in brass with the same rigorous craftsmanship as fine gold jewellery — from gleaming 22kt gold plating and intricate Kundan stonework to hand-painted Meenakari enamel. The same intricate designs. The same weight of tradition.",
     },
     {
-      heading: "Quality First",
-      body: "Every piece passes hands-on quality inspection before it reaches you.",
+      heading: "Built for Brides",
+      body: "Our collections are deeply inspired by India's rich design heritage — bold, traditional, and made for the woman who wants to look like a bride, not just dress like one.",
     },
     {
       heading: "Heritage Craft",
-      body: "Techniques passed down through generations of Mumbai artisans.",
+      body: "Founded by Nishit Savla with years of hands-on manufacturing experience, Sirini understands the craft from the inside out — the precision, the detailing, the hours that go into every piece.",
     },
     {
-      heading: "Thoughtful Gifting",
-      body: "Beautiful packaging — every order is gift-ready from the box.",
+      heading: "Celebrate Without Compromise",
+      body: "We give brides and their loved ones something far more precious — the freedom to celebrate fully, beautifully, and without compromise.",
     },
   ],
 };

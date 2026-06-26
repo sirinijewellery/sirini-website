@@ -21,16 +21,29 @@ interface LightboxProps {
 
 function Lightbox({ images, productName, startIndex, onClose }: LightboxProps) {
   const [index, setIndex] = useState(startIndex);
+  const [scale, setScale] = useState(1);
+  const [translate, setTranslate] = useState({ x: 0, y: 0 });
+  const imgRef = useRef<HTMLDivElement>(null);
+  const dragRef = useRef({ dragging: false, startX: 0, startY: 0, startTx: 0, startTy: 0 });
+  const pinchRef = useRef({ active: false, startDist: 0, startScale: 1 });
+
+  const isZoomed = scale > 1.05;
+
+  function resetZoom() {
+    setScale(1);
+    setTranslate({ x: 0, y: 0 });
+  }
 
   const prev = useCallback(() => {
     setIndex((i) => (i - 1 + images.length) % images.length);
+    resetZoom();
   }, [images.length]);
 
   const next = useCallback(() => {
     setIndex((i) => (i + 1) % images.length);
+    resetZoom();
   }, [images.length]);
 
-  /* Keyboard navigation */
   useEffect(() => {
     function handleKey(e: KeyboardEvent) {
       if (e.key === "Escape") onClose();
@@ -41,7 +54,6 @@ function Lightbox({ images, productName, startIndex, onClose }: LightboxProps) {
     return () => document.removeEventListener("keydown", handleKey);
   }, [onClose, prev, next]);
 
-  /* Prevent body scroll while open */
   useEffect(() => {
     const original = document.body.style.overflow;
     document.body.style.overflow = "hidden";
@@ -49,6 +61,66 @@ function Lightbox({ images, productName, startIndex, onClose }: LightboxProps) {
       document.body.style.overflow = original;
     };
   }, []);
+
+  useEffect(() => {
+    const el = imgRef.current;
+    if (!el) return;
+    function onWheel(e: WheelEvent) {
+      e.preventDefault();
+      setScale((s) => {
+        const next = Math.min(3, Math.max(1, s - e.deltaY * 0.002));
+        if (next <= 1.05) setTranslate({ x: 0, y: 0 });
+        return next;
+      });
+    }
+    el.addEventListener("wheel", onWheel, { passive: false });
+    return () => el.removeEventListener("wheel", onWheel);
+  }, []);
+
+  function onPointerDown(e: React.PointerEvent) {
+    if (!isZoomed || e.pointerType === "touch") return;
+    e.preventDefault();
+    dragRef.current = { dragging: true, startX: e.clientX, startY: e.clientY, startTx: translate.x, startTy: translate.y };
+    (e.target as HTMLElement).setPointerCapture(e.pointerId);
+  }
+  function onPointerMove(e: React.PointerEvent) {
+    if (!dragRef.current.dragging) return;
+    const dx = e.clientX - dragRef.current.startX;
+    const dy = e.clientY - dragRef.current.startY;
+    setTranslate({ x: dragRef.current.startTx + dx, y: dragRef.current.startTy + dy });
+  }
+  function onPointerUp() {
+    dragRef.current.dragging = false;
+  }
+
+  function getTouchDist(touches: React.TouchList) {
+    const [a, b] = [touches[0], touches[1]];
+    return Math.hypot(a.clientX - b.clientX, a.clientY - b.clientY);
+  }
+  function onTouchStart(e: React.TouchEvent) {
+    if (e.touches.length === 2) {
+      pinchRef.current = { active: true, startDist: getTouchDist(e.touches), startScale: scale };
+    } else if (e.touches.length === 1 && isZoomed) {
+      dragRef.current = { dragging: true, startX: e.touches[0].clientX, startY: e.touches[0].clientY, startTx: translate.x, startTy: translate.y };
+    }
+  }
+  function onTouchMove(e: React.TouchEvent) {
+    if (pinchRef.current.active && e.touches.length === 2) {
+      e.preventDefault();
+      const dist = getTouchDist(e.touches);
+      const next = Math.min(3, Math.max(1, pinchRef.current.startScale * (dist / pinchRef.current.startDist)));
+      setScale(next);
+      if (next <= 1.05) setTranslate({ x: 0, y: 0 });
+    } else if (dragRef.current.dragging && e.touches.length === 1) {
+      const dx = e.touches[0].clientX - dragRef.current.startX;
+      const dy = e.touches[0].clientY - dragRef.current.startY;
+      setTranslate({ x: dragRef.current.startTx + dx, y: dragRef.current.startTy + dy });
+    }
+  }
+  function onTouchEnd() {
+    pinchRef.current.active = false;
+    dragRef.current.dragging = false;
+  }
 
   const showArrows = images.length > 1;
 
@@ -58,9 +130,8 @@ function Lightbox({ images, productName, startIndex, onClose }: LightboxProps) {
       role="dialog"
       aria-modal="true"
       aria-label={`Image ${index + 1} of ${images.length} — ${productName}`}
-      onClick={onClose}
+      onClick={() => { if (!isZoomed) onClose(); }}
     >
-      {/* Close button */}
       <button
         onClick={onClose}
         aria-label="Close image viewer"
@@ -69,13 +140,19 @@ function Lightbox({ images, productName, startIndex, onClose }: LightboxProps) {
         <X className="w-5 h-5" />
       </button>
 
-      {/* Main image — stop propagation so click on image doesn't close */}
       <div
-        className="relative flex items-center justify-center w-full px-4 md:px-20"
+        ref={imgRef}
+        className="relative flex items-center justify-center w-full px-4 md:px-20 touch-none"
         onClick={(e) => e.stopPropagation()}
+        onPointerDown={onPointerDown}
+        onPointerMove={onPointerMove}
+        onPointerUp={onPointerUp}
+        onTouchStart={onTouchStart}
+        onTouchMove={onTouchMove}
+        onTouchEnd={onTouchEnd}
+        onDoubleClick={resetZoom}
       >
-        {/* Desktop: side arrows */}
-        {showArrows && (
+        {showArrows && !isZoomed && (
           <button
             onClick={prev}
             aria-label="Previous image"
@@ -89,11 +166,12 @@ function Lightbox({ images, productName, startIndex, onClose }: LightboxProps) {
         <img
           src={images[index]}
           alt={`${productName} — image ${index + 1} of ${images.length}`}
-          className="max-h-[80vh] max-w-[90vw] md:max-w-[70vw] w-auto h-auto object-contain rounded-lg select-none"
+          className="max-h-[80vh] max-w-[90vw] md:max-w-[70vw] w-auto h-auto object-contain rounded-lg select-none transition-transform duration-150 ease-out"
+          style={{ transform: `scale(${scale}) translate(${translate.x / scale}px, ${translate.y / scale}px)`, cursor: isZoomed ? "grab" : "zoom-in" }}
           draggable={false}
         />
 
-        {showArrows && (
+        {showArrows && !isZoomed && (
           <button
             onClick={next}
             aria-label="Next image"
@@ -104,8 +182,7 @@ function Lightbox({ images, productName, startIndex, onClose }: LightboxProps) {
         )}
       </div>
 
-      {/* Mobile: prev / next buttons below image */}
-      {showArrows && (
+      {showArrows && !isZoomed && (
         <div
           className="flex md:hidden gap-6 mt-5"
           onClick={(e) => e.stopPropagation()}
@@ -129,13 +206,19 @@ function Lightbox({ images, productName, startIndex, onClose }: LightboxProps) {
         </div>
       )}
 
-      {/* Image counter */}
-      <p
-        className="mt-4 text-white/60 text-xs font-sans tracking-widest select-none"
+      <div
+        className="mt-4 flex items-center gap-3"
         onClick={(e) => e.stopPropagation()}
       >
-        {index + 1} / {images.length}
-      </p>
+        <p className="text-white/60 text-xs font-sans tracking-widest select-none">
+          {index + 1} / {images.length}
+        </p>
+        {isZoomed && (
+          <button onClick={resetZoom} className="text-white/60 text-xs font-sans hover:text-white transition-colors cursor-pointer">
+            {Math.round(scale * 100)}% — double-click to reset
+          </button>
+        )}
+      </div>
     </div>,
     document.body
   );

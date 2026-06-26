@@ -15,7 +15,7 @@ const siteConfig = {
   name: "Sirini Jewellery",
   tagline: "Handcrafted Kundan & Gold-Plated Jewellery",
   description:
-    "Mumbai's premier handcrafted jewellery brand — Kundan necklace sets, Meenakari earrings, gold-plated bangles, rings & anklets. Free pan-India shipping since 2015.",
+    "Mumbai's premier handcrafted jewellery brand — Kundan necklace sets, Meenakari earrings, gold-plated bangles, rings & anklets. Free pan-India shipping since 2017.",
   url: SITE_URL,
   // Cloudinary brand hero used as the site-wide social sharing card
   defaultOgImage:

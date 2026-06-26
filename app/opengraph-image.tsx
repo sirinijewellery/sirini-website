@@ -2,7 +2,7 @@ import { ImageResponse } from "next/og";
 
 // Image metadata
 export const alt =
-  "Sirini Jewellery — Handcrafted Kundan, Meenakari & Gold-Plated Jewellery, Mumbai, Since 2015";
+  "Sirini Jewellery — Handcrafted Kundan, Meenakari & Gold-Plated Jewellery, Mumbai, Since 2017";
 export const size = { width: 1200, height: 630 };
 export const contentType = "image/png";
 
@@ -55,7 +55,7 @@ export default async function Image() {
             fontFamily: "Helvetica, Arial, sans-serif",
           }}
         >
-          Est. 2015 · Mumbai
+          Est. 2017 · Mumbai
         </div>
 
         {/* Wordmark */}
@@ -99,7 +99,7 @@ export default async function Image() {
             fontFamily: "Helvetica, Arial, sans-serif",
           }}
         >
-          Mumbai · Since 2015
+          Mumbai · Since 2017
         </div>
 
         {/* Domain */}

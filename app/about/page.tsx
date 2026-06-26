@@ -4,8 +4,8 @@ import { pageMetadata } from "@/lib/seo";
 import { getAbout } from "@/lib/queries/content";
 
 export const metadata = pageMetadata(
-  "Our Story — Handcrafted Since 2015",
-  "Born in Mumbai in 2015, Sirini Jewellery blends traditional craftsmanship with modern elegance. A family. A craft. A promise.",
+  "Our Story — Handcrafted Since 2017",
+  "Born in Mumbai in 2017, Sirini Jewellery blends traditional craftsmanship with modern elegance. A family. A craft. A promise.",
   { canonical: "/about" },
 );
 
@@ -41,7 +41,7 @@ export default async function AboutPage() {
       <section className="relative w-full bg-[#FAF0EC] overflow-hidden aspect-[3/4] sm:aspect-[16/10] lg:aspect-[21/9] max-h-[85vh]">
         <Image
           src={HERO_IMAGE}
-          alt="The Sirini story — handcrafted in Mumbai since 2015"
+          alt="The Sirini story — handcrafted in Mumbai since 2017"
           fill
           preload
           className="object-contain object-center"
@@ -52,7 +52,7 @@ export default async function AboutPage() {
         {/* Headline over image */}
         <div className="absolute bottom-0 left-0 right-0 px-6 md:px-16 pb-8 sm:pb-12 lg:pb-16 max-w-screen-2xl mx-auto">
           <p className="font-label-caps text-label-caps tracking-[0.25em] text-primary mb-3 uppercase">
-            Since 2015
+            Since 2017
           </p>
           <h1 className="font-display-lg text-display-lg md:text-[56px] md:leading-[1.1] text-on-surface max-w-2xl">
             A Family. A Craft. A Promise.
