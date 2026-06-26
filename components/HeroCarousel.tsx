@@ -75,17 +75,19 @@ export function HeroCarousel({
 
       {/* Slide dots (only when multiple) */}
       {multi && (
-        <div className="absolute z-20 bottom-4 left-1/2 -translate-x-1/2 md:left-16 md:translate-x-0 flex items-center gap-2">
+        <div className="absolute z-20 bottom-4 left-1/2 -translate-x-1/2 md:left-16 md:translate-x-0 flex items-center gap-1">
           {slides.map((s, i) => (
             <button
               key={s.id}
               type="button"
               aria-label={`Show slide ${i + 1}`}
               onClick={() => setIdx(i)}
-              className={`h-1.5 rounded-full transition-all duration-300 cursor-pointer ${
-                i === idx ? "w-6 bg-primary" : "w-1.5 bg-on-surface/30 hover:bg-on-surface/50"
-              }`}
-            />
+              className="flex items-center justify-center h-10 w-10 cursor-pointer"
+            >
+              <span className={`block h-2 rounded-full transition-all duration-300 ${
+                i === idx ? "w-7 bg-primary" : "w-2 bg-on-surface/30"
+              }`} />
+            </button>
           ))}
         </div>
       )}

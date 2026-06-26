@@ -28,7 +28,6 @@ import NextTopLoader from "nextjs-toploader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
 import { ScrollProgressBar } from "@/components/ScrollProgressBar";
-import { CountdownBanner } from "@/components/CountdownBanner";
 import { LocalBusinessJsonLd } from "@/components/LocalBusinessJsonLd";
 import type { Viewport } from "next";
 
@@ -146,18 +145,20 @@ export default async function RootLayout({
   const themeOverrideCss = buildThemeOverrideCss(themeSettings);
   return (
     <html lang="en">
-      {/* Google Tag Manager — lets the owner inject any checkout/conversion
-          scripts (Meta Pixel, Google Ads, etc.) from the GTM dashboard without
-          code. Set NEXT_PUBLIC_GTM_ID in Vercel to activate. */}
-      {process.env.NEXT_PUBLIC_GTM_ID && (
-        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
-      )}
       {/* Owner theme overrides — colours + font pairing. Rendered only when the
           owner has customized something; otherwise this is empty and the site
           uses the defaults from globals.css. Values are sanitized in
           lib/queries/theme.ts so this inlined CSS is always safe. */}
       {themeOverrideCss && (
-        <style id="theme-overrides" dangerouslySetInnerHTML={{ __html: themeOverrideCss }} />
+        <head>
+          <style dangerouslySetInnerHTML={{ __html: themeOverrideCss }} />
+        </head>
+      )}
+      {/* Google Tag Manager — lets the owner inject any checkout/conversion
+          scripts (Meta Pixel, Google Ads, etc.) from the GTM dashboard without
+          code. Set NEXT_PUBLIC_GTM_ID in Vercel to activate. */}
+      {process.env.NEXT_PUBLIC_GTM_ID && (
+        <GoogleTagManager gtmId={process.env.NEXT_PUBLIC_GTM_ID} />
       )}
       <body
         className={`${fontVariables} antialiased min-h-screen flex flex-col bg-background text-foreground`}
@@ -167,7 +168,6 @@ export default async function RootLayout({
             preconnect is what gets reused. */}
         <link rel="preconnect" href="https://res.cloudinary.com" />
         <link rel="dns-prefetch" href="https://res.cloudinary.com" />
-        <CountdownBanner />
         <NextTopLoader color="#B76E79" height={3} showSpinner={false} crawl={true} />
         <ScrollReveal />
         <ScrollProgressBar />

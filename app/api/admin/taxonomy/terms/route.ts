@@ -24,6 +24,8 @@ const createTermSchema = z.object({
     .or(z.literal("")),
   blurb: z.string().optional().nullable(),
   coverImage: z.string().optional().nullable(),
+  coverFocal: z.string().optional().nullable(),
+  hexColor: z.string().optional().nullable(),
   showInMenu: z.boolean().optional(),
   sortOrder: z.number().int().min(0).max(9999).optional(),
 });
@@ -50,7 +52,7 @@ export async function POST(req: NextRequest) {
     );
   }
 
-  const { groupId, label, blurb, coverImage, showInMenu, sortOrder } = result.data;
+  const { groupId, label, blurb, coverImage, coverFocal, hexColor, showInMenu, sortOrder } = result.data;
   const parentId = result.data.parentId ?? null;
 
   const group = await prisma.taxonomyGroup.findUnique({
@@ -126,6 +128,8 @@ export async function POST(req: NextRequest) {
       slug,
       blurb: blurb?.trim() ? blurb.trim() : null,
       coverImage: coverImage?.trim() ? coverImage.trim() : null,
+      coverFocal: coverFocal?.trim() ? coverFocal.trim() : "center",
+      hexColor: hexColor?.trim() ? hexColor.trim() : null,
       showInMenu: showInMenu ?? true,
       sortOrder: order,
     },

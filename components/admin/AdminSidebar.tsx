@@ -20,6 +20,7 @@ import {
   ClipboardList,
   Menu,
   X,
+  Palette,
 } from "lucide-react";
 import { AdminQuickNav } from "./AdminQuickNav";
 
@@ -40,7 +41,7 @@ function NavLink({ href, label, icon: Icon, exact, badge, onNavigate }: NavLinkP
     <Link
       href={href}
       onClick={onNavigate}
-      className={`flex items-center gap-3 px-3 py-2.5 rounded-lg font-sans text-sm transition-colors duration-150 ${
+      className={`flex items-center gap-3 px-3 py-3 rounded-lg font-sans text-sm transition-colors duration-150 ${
         isActive
           ? "bg-primary/20 text-primary font-medium"
           : "text-slate-300 hover:bg-slate-800 hover:text-white"
@@ -66,7 +67,7 @@ export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
       <button
         type="button"
         onClick={() => setMobileOpen(true)}
-        className="md:hidden fixed top-3 left-3 z-50 p-2 bg-slate-900 text-white rounded-lg shadow-lg"
+        className="md:hidden fixed top-3 left-3 z-50 p-3 bg-slate-900 text-white rounded-xl shadow-lg"
         aria-label="Open navigation menu"
       >
         <Menu className="h-5 w-5" />
@@ -85,7 +86,7 @@ export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
       <aside
         className={`
           fixed md:sticky md:relative inset-y-0 left-0 z-50
-          w-60 h-screen bg-slate-900 flex flex-col shrink-0
+          w-60 h-dvh bg-slate-900 flex flex-col shrink-0
           transition-transform duration-300 ease-in-out md:translate-x-0
           ${mobileOpen ? "translate-x-0" : "-translate-x-full"}
           top-0
@@ -109,7 +110,7 @@ export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
           <button
             type="button"
             onClick={() => setMobileOpen(false)}
-            className="md:hidden text-slate-400 hover:text-white transition-colors p-1"
+            className="md:hidden text-slate-400 hover:text-white transition-colors p-2.5 -mr-1"
             aria-label="Close navigation menu"
           >
             <X className="h-5 w-5" />
@@ -120,7 +121,7 @@ export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
         <AdminQuickNav onNavigate={() => setMobileOpen(false)} />
 
         {/* Navigation */}
-        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto">
+        <nav className="flex-1 px-3 py-4 space-y-1 overflow-y-auto" onClick={() => setMobileOpen(false)}>
           <NavLink href="/admin" label="Dashboard" icon={LayoutDashboard} exact />
           {/* Pending sits up top while there's work; drops to the bottom when empty. */}
           {pendingCount > 0 && (
@@ -130,6 +131,7 @@ export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
           <NavLink href="/admin/products" label="Products" icon={Package} />
           <NavLink href="/admin/categories" label="Categories" icon={Tag} />
           <NavLink href="/admin/shop" label="Shop" icon={Store} />
+          <NavLink href="/admin/colors" label="Colors" icon={Palette} />
           <NavLink href="/admin/coupons" label="Coupons" icon={Ticket} />
           <NavLink href="/admin/hero" label="Hero Section" icon={Images} />
           <NavLink href="/admin/ribbons" label="Header Ribbon" icon={Megaphone} />

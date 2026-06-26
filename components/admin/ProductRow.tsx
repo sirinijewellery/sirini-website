@@ -44,7 +44,7 @@ export function ProductRow({ product }: { product: ProductRowData }) {
       aria-label={`Edit ${product.name}`}
     >
       {/* Stock — first column */}
-      <td className="px-4 py-3 text-sm text-right">
+      <td className="px-4 py-3 text-sm text-right hidden sm:table-cell">
         <span
           className={
             product.stock === 0
@@ -77,10 +77,10 @@ export function ProductRow({ product }: { product: ProductRowData }) {
             )}
           </div>
           <div className="min-w-0">
-            <p className="text-sm font-medium text-gray-900 truncate max-w-[180px]">
+            <p className="text-sm font-medium text-gray-900 truncate max-w-[140px] sm:max-w-[180px]">
               {product.name}
             </p>
-            <p className="text-xs text-gray-400 truncate max-w-[180px]">
+            <p className="text-xs text-gray-400 truncate max-w-[140px] sm:max-w-[180px]">
               {product.sku}
             </p>
           </div>
@@ -88,7 +88,7 @@ export function ProductRow({ product }: { product: ProductRowData }) {
       </td>
 
       {/* Category */}
-      <td className="px-4 py-3 text-sm text-gray-600">{categoryLabel(product.category)}</td>
+      <td className="px-4 py-3 text-sm text-gray-600 hidden md:table-cell">{categoryLabel(product.category)}</td>
 
       {/* Price */}
       <td className="px-4 py-3 text-sm text-gray-900 text-right font-medium">
@@ -96,7 +96,7 @@ export function ProductRow({ product }: { product: ProductRowData }) {
       </td>
 
       {/* Badge */}
-      <td className="px-4 py-3 text-center">
+      <td className="px-4 py-3 text-center hidden lg:table-cell">
         {product.badge ? (
           <span
             className={`inline-flex items-center rounded-full border px-2 py-0.5 text-[10px] font-semibold uppercase tracking-wider ${
@@ -111,7 +111,7 @@ export function ProductRow({ product }: { product: ProductRowData }) {
       </td>
 
       {/* Featured */}
-      <td className="px-4 py-3 text-center">
+      <td className="px-4 py-3 text-center hidden lg:table-cell">
         {product.isFeatured ? (
           <svg
             className="h-4 w-4 text-emerald-500 mx-auto"

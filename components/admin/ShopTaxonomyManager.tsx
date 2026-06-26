@@ -40,14 +40,37 @@ async function uploadImage(file: File): Promise<string | null> {
   }
 }
 
-// A small browse-to-upload control with a thumbnail preview + remove.
+// Maps Cloudinary focal-point slug → CSS object-position value.
+const FOCAL_POSITION: Record<string, string> = {
+  north_west: "0% 0%",
+  north: "50% 0%",
+  north_east: "100% 0%",
+  west: "0% 50%",
+  center: "50% 50%",
+  east: "100% 50%",
+  south_west: "0% 100%",
+  south: "50% 100%",
+  south_east: "100% 100%",
+};
+
+const FOCAL_GRID: [string, string, string][] = [
+  ["north_west", "north", "north_east"],
+  ["west", "center", "east"],
+  ["south_west", "south", "south_east"],
+];
+
+// A small browse-to-upload control with a thumbnail preview + remove + focal-point picker.
 function CoverImageField({
   value,
   onChange,
+  focal,
+  onFocalChange,
   disabled,
 }: {
   value: string;
   onChange: (url: string) => void;
+  focal: string;
+  onFocalChange: (f: string) => void;
   disabled?: boolean;
 }) {
   const fileRef = useRef<HTMLInputElement>(null);
@@ -75,36 +98,39 @@ function CoverImageField({
           <img
             src={value}
             alt="Cover preview"
-            className="h-12 w-12 rounded-lg object-cover border border-slate-200 bg-slate-50"
+            className="h-32 w-32 rounded-lg object-cover border border-slate-200 bg-slate-50"
+            style={{ objectPosition: FOCAL_POSITION[focal] ?? "50% 50%" }}
           />
         ) : (
-          <div className="h-12 w-12 rounded-lg border border-dashed border-slate-300 bg-slate-50 grid place-items-center text-slate-300">
-            <Layers className="h-4 w-4" />
+          <div className="h-32 w-32 rounded-lg border border-dashed border-slate-300 bg-slate-50 grid place-items-center text-slate-300">
+            <Layers className="h-6 w-6" />
           </div>
         )}
-        <button
-          type="button"
-          onClick={() => fileRef.current?.click()}
-          disabled={disabled || uploading}
-          className="inline-flex items-center gap-1.5 px-3 h-9 rounded-lg border border-slate-300 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
-        >
-          {uploading ? (
-            <Loader2 className="h-3.5 w-3.5 animate-spin" />
-          ) : (
-            <Upload className="h-3.5 w-3.5" />
-          )}
-          {uploading ? "Uploading…" : value ? "Replace" : "Browse"}
-        </button>
-        {value && (
+        <div className="flex flex-col gap-2">
           <button
             type="button"
-            onClick={() => onChange("")}
+            onClick={() => fileRef.current?.click()}
             disabled={disabled || uploading}
-            className="text-xs font-medium text-red-500 hover:text-red-600 transition-colors disabled:opacity-60 cursor-pointer"
+            className="inline-flex items-center gap-1.5 px-3 h-9 rounded-lg border border-slate-300 text-sm font-medium text-slate-600 hover:bg-slate-50 transition-colors disabled:opacity-60 disabled:cursor-not-allowed cursor-pointer"
           >
-            Remove
+            {uploading ? (
+              <Loader2 className="h-3.5 w-3.5 animate-spin" />
+            ) : (
+              <Upload className="h-3.5 w-3.5" />
+            )}
+            {uploading ? "Uploading…" : value ? "Replace" : "Browse"}
           </button>
-        )}
+          {value && (
+            <button
+              type="button"
+              onClick={() => onChange("")}
+              disabled={disabled || uploading}
+              className="text-xs font-medium text-red-500 hover:text-red-600 transition-colors disabled:opacity-60 cursor-pointer"
+            >
+              Remove
+            </button>
+          )}
+        </div>
       </div>
       <input
         ref={fileRef}
@@ -113,6 +139,29 @@ function CoverImageField({
         className="sr-only"
         onChange={(e) => e.target.files?.[0] && handleFile(e.target.files[0])}
       />
+      <div className="flex flex-col gap-1 mt-0.5">
+        <label className="text-xs font-medium text-slate-500 uppercase tracking-wider">
+          Focal point
+        </label>
+        <div className="grid grid-cols-3 gap-0.5 w-[76px]">
+          {FOCAL_GRID.map((row) =>
+            row.map((slug) => (
+              <button
+                key={slug}
+                type="button"
+                onClick={() => onFocalChange(slug)}
+                disabled={disabled}
+                title={slug.replace(/_/g, " ")}
+                className={`h-6 w-6 rounded-sm border cursor-pointer disabled:cursor-not-allowed ${
+                  focal === slug
+                    ? "bg-slate-900 border-slate-900"
+                    : "bg-slate-200 border-slate-200"
+                }`}
+              />
+            ))
+          )}
+        </div>
+      </div>
     </div>
   );
 }
@@ -124,6 +173,7 @@ interface TermDraft {
   label: string;
   blurb: string;
   coverImage: string;
+  coverFocal: string;
   showInMenu: boolean;
 }
 
@@ -145,6 +195,7 @@ function TermForm({
   const [label, setLabel] = useState(initial?.label ?? "");
   const [blurb, setBlurb] = useState(initial?.blurb ?? "");
   const [coverImage, setCoverImage] = useState(initial?.coverImage ?? "");
+  const [coverFocal, setCoverFocal] = useState(initial?.coverFocal ?? "center");
   const [showInMenu, setShowInMenu] = useState(initial?.showInMenu ?? true);
 
   async function submit(e: React.FormEvent) {
@@ -157,6 +208,7 @@ function TermForm({
       label: label.trim(),
       blurb: blurb.trim(),
       coverImage: coverImage.trim(),
+      coverFocal,
       showInMenu,
     });
   }
@@ -223,6 +275,8 @@ function TermForm({
       <CoverImageField
         value={coverImage}
         onChange={setCoverImage}
+        focal={coverFocal}
+        onFocalChange={setCoverFocal}
         disabled={saving}
       />
 
@@ -306,6 +360,7 @@ export function ShopTaxonomyManager({
           label: draft.label,
           blurb: draft.blurb || null,
           coverImage: draft.coverImage || null,
+          coverFocal: draft.coverFocal || "center",
           showInMenu: draft.showInMenu,
         }),
       });
@@ -334,6 +389,7 @@ export function ShopTaxonomyManager({
           label: draft.label,
           blurb: draft.blurb || null,
           coverImage: draft.coverImage || null,
+          coverFocal: draft.coverFocal || "center",
           showInMenu: draft.showInMenu,
         }),
       });
@@ -780,6 +836,7 @@ function TermRow({
               label: term.label,
               blurb: term.blurb ?? "",
               coverImage: term.coverImage ?? "",
+              coverFocal: term.coverFocal ?? "center",
               showInMenu: term.showInMenu,
             }}
             onSave={onEdit}
@@ -824,6 +881,7 @@ function TermRow({
                           label: child.label,
                           blurb: child.blurb ?? "",
                           coverImage: child.coverImage ?? "",
+                          coverFocal: child.coverFocal ?? "center",
                           showInMenu: child.showInMenu,
                         }}
                         onSave={(draft) => onEditChild(child.id, draft)}

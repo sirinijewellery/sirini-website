@@ -22,6 +22,8 @@ const updateSchema = z.object({
     .optional(),
   blurb: z.string().optional().nullable(),
   coverImage: z.string().optional().nullable(),
+  coverFocal: z.string().optional().nullable(),
+  hexColor: z.string().optional().nullable(),
   showInMenu: z.boolean().optional(),
   sortOrder: z.number().int().min(0).max(9999).optional(),
 });
@@ -61,7 +63,7 @@ export async function PATCH(
     return NextResponse.json({ error: "Term not found" }, { status: 404 });
   }
 
-  const { label, blurb, coverImage, showInMenu, sortOrder } = result.data;
+  const { label, blurb, coverImage, coverFocal, hexColor, showInMenu, sortOrder } = result.data;
 
   // If the slug changes, keep it unique within the group.
   if (result.data.slug !== undefined) {
@@ -83,6 +85,8 @@ export async function PATCH(
     slug?: string;
     blurb?: string | null;
     coverImage?: string | null;
+    coverFocal?: string | null;
+    hexColor?: string | null;
     showInMenu?: boolean;
     sortOrder?: number;
   } = {};
@@ -97,6 +101,12 @@ export async function PATCH(
   if (blurb !== undefined) data.blurb = blurb?.trim() ? blurb.trim() : null;
   if (coverImage !== undefined) {
     data.coverImage = coverImage?.trim() ? coverImage.trim() : null;
+  }
+  if (coverFocal !== undefined) {
+    data.coverFocal = coverFocal?.trim() ? coverFocal.trim() : "center";
+  }
+  if (hexColor !== undefined) {
+    data.hexColor = hexColor?.trim() ? hexColor.trim() : null;
   }
   if (showInMenu !== undefined) data.showInMenu = showInMenu;
   if (sortOrder !== undefined) data.sortOrder = sortOrder;

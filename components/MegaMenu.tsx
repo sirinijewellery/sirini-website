@@ -3,17 +3,8 @@
 import Link from "next/link";
 import { useState, useRef, useEffect } from "react";
 import { usePathname } from "next/navigation";
-import { ChevronDown, ChevronRight } from "lucide-react";
-import { PRICE_BUCKETS, type TaxonomyGroupData } from "@/lib/taxonomy";
-
-// Build a /shop URL from a price bucket, omitting undefined bounds.
-function priceHref(priceMin?: number, priceMax?: number): string {
-  const params = new URLSearchParams();
-  if (priceMin !== undefined) params.set("priceMin", String(priceMin));
-  if (priceMax !== undefined) params.set("priceMax", String(priceMax));
-  const qs = params.toString();
-  return qs ? `/shop?${qs}` : "/shop";
-}
+import { ChevronDown } from "lucide-react";
+import { type TaxonomyGroupData } from "@/lib/taxonomy";
 
 const columnHeading =
   "font-label-caps text-xs font-semibold tracking-[0.2em] uppercase text-[#C9A96E] mb-3";
@@ -36,6 +27,7 @@ const columnLink =
 export function MegaMenu({ groups }: { groups: TaxonomyGroupData[] }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
+  const [panelTop, setPanelTop] = useState(0);
   // Slug of the MAIN category whose sub-category flyout is currently revealed.
   const [activeMain, setActiveMain] = useState<string | null>(null);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -58,6 +50,9 @@ export function MegaMenu({ groups }: { groups: TaxonomyGroupData[] }) {
 
   function openMenu() {
     clearCloseTimer();
+    if (containerRef.current) {
+      setPanelTop(containerRef.current.getBoundingClientRect().bottom + 12);
+    }
     setOpen(true);
   }
 
@@ -116,11 +111,11 @@ export function MegaMenu({ groups }: { groups: TaxonomyGroupData[] }) {
     }
   }
 
-  // Has anything to show beyond price + "View All"?
+  // Has anything to show beyond "View All"?
   const hasTaxonomy = mains.length > 0 || otherGroups.length > 0;
 
-  // Column count adapts to what's present (category + each other group).
-  const columnCount = (mains.length > 0 ? 1 : 0) + otherGroups.length + 1; // +1 = price
+  // Column count: category column (if any mains) + one per other showInMenu group.
+  const columnCount = (mains.length > 0 ? 1 : 0) + otherGroups.length;
 
   return (
     <div
@@ -135,7 +130,12 @@ export function MegaMenu({ groups }: { groups: TaxonomyGroupData[] }) {
         type="button"
         aria-expanded={open}
         aria-haspopup="true"
-        onClick={() => setOpen((v) => !v)}
+        onClick={() => {
+          if (!open && containerRef.current) {
+            setPanelTop(containerRef.current.getBoundingClientRect().bottom + 12);
+          }
+          setOpen((v) => !v);
+        }}
         onFocus={openMenu}
         className={`relative flex items-center gap-1 font-label-caps text-sm font-semibold tracking-widest uppercase transition-colors duration-300 cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
           isActive || open
@@ -152,90 +152,85 @@ export function MegaMenu({ groups }: { groups: TaxonomyGroupData[] }) {
         />
       </button>
 
-      {/* Mega panel */}
+      {/* Mega panel — fixed so it's centered on the viewport, not the narrow button */}
       {open && (
         <div
           role="menu"
           aria-label="Shop"
-          className="absolute left-1/2 -translate-x-1/2 top-full mt-3 w-[min(64rem,92vw)] bg-background border border-outline-variant shadow-xl z-50"
+          style={{ top: panelTop, maxHeight: `calc(100svh - ${panelTop}px - 16px)` }}
+          className="fixed left-1/2 -translate-x-1/2 w-[min(56rem,90vw)] bg-background border border-outline-variant shadow-xl z-[100] overflow-y-auto"
         >
           <div
-            className="grid gap-8 p-8"
+            className="grid gap-6 p-6 lg:gap-8 lg:p-8"
             style={{
               gridTemplateColumns: `repeat(${Math.max(columnCount, 1)}, minmax(0, 1fr))`,
             }}
           >
-            {/* ── Shop by Category — 4 MAINS, each with a sub-category flyout ── */}
+            {/* ── Shop by Category — mains with inline sub-category expansion ── */}
             {mains.length > 0 && (
               <div>
                 <h3 className={columnHeading}>Shop by Category</h3>
-                <ul className="space-y-1">
+                <ul className="space-y-0.5">
                   {mains.map((main) => {
                     const hasChildren = main.children.length > 0;
                     const isExpanded = activeMain === main.slug;
                     return (
                       <li
                         key={main.id}
-                        className="relative"
                         onMouseEnter={() => setActiveMain(main.slug)}
+                        onMouseLeave={() => setActiveMain(null)}
                       >
                         <Link
                           href={`/shop?category=${main.slug}`}
                           role="menuitem"
-                          aria-haspopup={hasChildren ? "true" : undefined}
-                          aria-expanded={hasChildren ? isExpanded : undefined}
                           onClick={closeNow}
                           onFocus={() => setActiveMain(main.slug)}
                           onKeyDown={(e) => handleMainKeyDown(e, main)}
-                          className={`group flex items-center justify-between gap-2 py-1 text-sm font-sans transition-colors duration-200 ${
+                          className={`flex items-center justify-between gap-2 py-1.5 text-sm font-sans transition-colors duration-200 ${
                             isExpanded
-                              ? "text-primary"
+                              ? "text-primary font-medium"
                               : "text-on-surface-variant hover:text-primary"
                           }`}
                         >
                           <span>{main.label}</span>
                           {hasChildren && (
-                            <ChevronRight
-                              className="h-3.5 w-3.5 shrink-0 opacity-60"
+                            <ChevronDown
+                              className={`h-3 w-3 shrink-0 opacity-50 transition-transform duration-150 ${isExpanded ? "rotate-180" : ""}`}
                               aria-hidden="true"
                             />
                           )}
                         </Link>
 
-                        {/* Sub-category flyout — appears to the right of the MAIN */}
+                        {/* Sub-categories expand inline below the main */}
                         {hasChildren && isExpanded && (
-                          <div
+                          <ul
                             role="menu"
                             aria-label={`${main.label} sub-categories`}
-                            className="absolute left-full top-0 ml-2 w-56 bg-background border border-outline-variant shadow-xl z-50 p-4 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:slide-in-from-left-1 motion-safe:duration-150"
+                            className="pl-3 pb-1 border-l border-outline-variant/50 ml-1 space-y-0.5 motion-safe:animate-in motion-safe:fade-in-0 motion-safe:duration-100"
                           >
-                            <h4 className={columnHeading}>{main.label}</h4>
-                            <ul className="space-y-2">
-                              {/* "All <main>" shortcut → the MAIN slug itself */}
-                              <li>
+                            <li>
+                              <Link
+                                href={`/shop?category=${main.slug}`}
+                                role="menuitem"
+                                onClick={closeNow}
+                                className="block py-1 text-xs font-sans font-medium text-on-surface-variant hover:text-primary transition-colors duration-150"
+                              >
+                                All {main.label}
+                              </Link>
+                            </li>
+                            {main.children.map((sub) => (
+                              <li key={sub.id}>
                                 <Link
-                                  href={`/shop?category=${main.slug}`}
+                                  href={`/shop?category=${sub.slug}`}
                                   role="menuitem"
                                   onClick={closeNow}
-                                  className={`${columnLink} font-medium`}
+                                  className="block py-1 text-xs font-sans text-muted-foreground hover:text-primary transition-colors duration-150"
                                 >
-                                  All {main.label}
+                                  {sub.label}
                                 </Link>
                               </li>
-                              {main.children.map((sub) => (
-                                <li key={sub.id}>
-                                  <Link
-                                    href={`/shop?category=${sub.slug}`}
-                                    role="menuitem"
-                                    onClick={closeNow}
-                                    className={columnLink}
-                                  >
-                                    {sub.label}
-                                  </Link>
-                                </li>
-                              ))}
-                            </ul>
-                          </div>
+                            ))}
+                          </ul>
                         )}
                       </li>
                     );
@@ -270,24 +265,6 @@ export function MegaMenu({ groups }: { groups: TaxonomyGroupData[] }) {
               </div>
             ))}
 
-            {/* ── Shop by Price — always present ── */}
-            <div>
-              <h3 className={columnHeading}>Shop by Price</h3>
-              <ul className="space-y-2.5">
-                {PRICE_BUCKETS.map((b) => (
-                  <li key={b.slug}>
-                    <Link
-                      href={priceHref(b.priceMin, b.priceMax)}
-                      role="menuitem"
-                      onClick={closeNow}
-                      className={columnLink}
-                    >
-                      {b.label}
-                    </Link>
-                  </li>
-                ))}
-              </ul>
-            </div>
           </div>
 
           {/* View all footer */}
@@ -300,8 +277,7 @@ export function MegaMenu({ groups }: { groups: TaxonomyGroupData[] }) {
             View All Jewellery →
           </Link>
 
-          {/* Screen-reader hint when taxonomy is empty (price + View All only). */}
-          {!hasTaxonomy && <span className="sr-only">Browse all jewellery by price.</span>}
+          {!hasTaxonomy && <span className="sr-only">Browse all jewellery.</span>}
         </div>
       )}
     </div>

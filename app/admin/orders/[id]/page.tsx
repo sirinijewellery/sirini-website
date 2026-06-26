@@ -154,7 +154,7 @@ export default async function AdminOrderDetailPage({ params }: Props) {
   );
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Back link + header */}
       <div className="mb-6">
         <Link

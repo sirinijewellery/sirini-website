@@ -15,7 +15,7 @@ export default async function AdminPendingPage() {
   const open = items.filter((item) => item.count > 0);
 
   return (
-    <div className="p-6 lg:p-8 max-w-3xl space-y-6">
+    <div className="p-4 sm:p-6 lg:p-8 max-w-3xl space-y-6">
       {/* Heading */}
       <div className="flex items-start gap-3">
         <div className="w-10 h-10 rounded-lg bg-amber-50 flex items-center justify-center shrink-0">

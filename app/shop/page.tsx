@@ -478,7 +478,7 @@ function PaginationLink({
   return (
     <Link
       href={href}
-      className={`px-3 py-1.5 text-sm font-sans rounded border transition-colors ${
+      className={`inline-flex items-center justify-center min-w-[44px] min-h-[44px] px-3 py-2 text-sm font-sans rounded border transition-colors ${
         active
           ? "bg-primary text-primary-foreground border-primary"
           : "border-border text-muted-foreground hover:border-primary hover:text-primary"

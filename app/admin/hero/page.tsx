@@ -2,6 +2,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { prisma } from "@/lib/prisma";
 import { HeroManager, type HeroSlide } from "@/components/admin/HeroManager";
+import { DEFAULT_HERO_IMAGE } from "@/lib/queries/site";
 
 export const metadata = { title: "Hero Section" };
 
@@ -27,7 +28,7 @@ export default async function AdminHeroPage() {
           The big images at the top of your home page. Add multiple to rotate them, set how each is cropped per device, and choose the speed.
         </p>
       </div>
-      <HeroManager initialSlides={slides as HeroSlide[]} initialDurationMs={durationMs} />
+      <HeroManager initialSlides={slides as HeroSlide[]} initialDurationMs={durationMs} defaultImageUrl={DEFAULT_HERO_IMAGE} />
     </div>
   );
 }

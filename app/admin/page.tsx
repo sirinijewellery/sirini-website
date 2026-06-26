@@ -97,10 +97,10 @@ export default async function AdminDashboard() {
   ];
 
   return (
-    <div className="p-6 lg:p-8 space-y-8">
+    <div className="p-4 sm:p-6 lg:p-8 space-y-8">
       {/* Page heading */}
       <div>
-        <h1 className="font-sans text-2xl font-semibold text-slate-900">
+        <h1 className="font-sans text-xl sm:text-2xl font-semibold text-slate-900">
           Dashboard
         </h1>
         <p className="font-sans text-sm text-slate-500 mt-1">
@@ -138,7 +138,7 @@ export default async function AdminDashboard() {
       {/* Recent orders */}
       <div className="bg-white rounded-xl border border-slate-100 shadow-sm overflow-hidden">
         {/* Table header */}
-        <div className="px-6 py-4 border-b border-slate-100 flex items-center justify-between">
+        <div className="px-3 sm:px-6 py-4 border-b border-slate-100 flex items-center justify-between">
           <h2 className="font-sans text-base font-semibold text-slate-900">
             Recent Orders
           </h2>
@@ -155,22 +155,22 @@ export default async function AdminDashboard() {
           <table className="w-full">
             <thead>
               <tr className="border-b border-slate-100 bg-slate-50/60">
-                <th className="px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Order ID
                 </th>
-                <th className="px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Customer
                 </th>
-                <th className="px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">
+                <th className="px-3 sm:px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider hidden sm:table-cell">
                   Items
                 </th>
-                <th className="px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Total
                 </th>
-                <th className="px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider">
+                <th className="px-3 sm:px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider">
                   Status
                 </th>
-                <th className="px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">
+                <th className="px-3 sm:px-6 py-3 text-left font-sans text-xs font-semibold text-slate-500 uppercase tracking-wider hidden md:table-cell">
                   Date
                 </th>
               </tr>
@@ -191,7 +191,7 @@ export default async function AdminDashboard() {
                     key={order.id}
                     className="hover:bg-slate-50/80 transition-colors duration-100 cursor-pointer"
                   >
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4">
                       <Link
                         href={`/admin/orders/${order.id}`}
                         className="font-sans text-sm font-medium text-slate-900 hover:text-primary transition-colors font-mono"
@@ -199,7 +199,7 @@ export default async function AdminDashboard() {
                         #{order.id.slice(0, 8).toUpperCase()}
                       </Link>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4">
                       <Link href={`/admin/orders/${order.id}`} className="block">
                         <span className="font-sans text-sm text-slate-800 block">
                           {order.customerName}
@@ -209,21 +209,21 @@ export default async function AdminDashboard() {
                         </span>
                       </Link>
                     </td>
-                    <td className="px-6 py-4 hidden sm:table-cell">
+                    <td className="px-3 sm:px-6 py-4 hidden sm:table-cell">
                       <span className="font-sans text-sm text-slate-600">
                         {order.items.length}{" "}
                         {order.items.length === 1 ? "item" : "items"}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4">
                       <span className="font-sans text-sm font-medium text-slate-900">
                         {inr(order.totalAmount)}
                       </span>
                     </td>
-                    <td className="px-6 py-4">
+                    <td className="px-3 sm:px-6 py-4">
                       <StatusBadge status={order.orderStatus} />
                     </td>
-                    <td className="px-6 py-4 hidden md:table-cell">
+                    <td className="px-3 sm:px-6 py-4 hidden md:table-cell">
                       <span className="font-sans text-sm text-slate-500">
                         {formatDate(order.createdAt)}
                       </span>

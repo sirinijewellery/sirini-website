@@ -175,7 +175,7 @@ function Pagination({
   const end = Math.min(page * limit, total);
 
   return (
-    <div className="flex items-center justify-between px-4 py-3 border-t border-gray-200">
+    <div className="flex flex-col sm:flex-row items-center justify-between gap-2 px-4 py-3 border-t border-gray-200">
       <p className="text-sm text-gray-500 font-sans">
         Showing{" "}
         <span className="font-medium text-gray-700">
@@ -187,27 +187,27 @@ function Pagination({
         {prevHref ? (
           <Link
             href={prevHref}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-150"
+            className="inline-flex items-center justify-center min-h-[44px] px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-150"
           >
-            ← Previous
+            ← Prev
           </Link>
         ) : (
-          <span className="px-3 py-1.5 text-sm font-medium text-gray-400 bg-white border border-gray-200 rounded-lg cursor-not-allowed">
-            ← Previous
+          <span className="inline-flex items-center justify-center min-h-[44px] px-3 py-2 text-sm font-medium text-gray-400 bg-white border border-gray-200 rounded-lg cursor-not-allowed">
+            ← Prev
           </span>
         )}
         <span className="text-sm text-gray-500 font-sans">
-          Page {page} of {totalPages}
+          {page}/{totalPages}
         </span>
         {nextHref ? (
           <Link
             href={nextHref}
-            className="px-3 py-1.5 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-150"
+            className="inline-flex items-center justify-center min-h-[44px] px-3 py-2 text-sm font-medium text-gray-700 bg-white border border-gray-300 rounded-lg hover:bg-gray-50 transition-colors duration-150"
           >
             Next →
           </Link>
         ) : (
-          <span className="px-3 py-1.5 text-sm font-medium text-gray-400 bg-white border border-gray-200 rounded-lg cursor-not-allowed">
+          <span className="inline-flex items-center justify-center min-h-[44px] px-3 py-2 text-sm font-medium text-gray-400 bg-white border border-gray-200 rounded-lg cursor-not-allowed">
             Next →
           </span>
         )}
@@ -242,11 +242,11 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
   ]);
 
   return (
-    <div className="p-6 lg:p-8">
+    <div className="p-4 sm:p-6 lg:p-8">
       {/* Header */}
       <div className="flex items-center justify-between mb-6">
         <div className="flex items-center gap-3">
-          <h1 className="text-2xl font-semibold text-slate-900 font-sans">
+          <h1 className="text-xl sm:text-2xl font-semibold text-slate-900 font-sans">
             Orders
           </h1>
           <span className="inline-flex items-center px-2.5 py-0.5 rounded-full text-xs font-semibold bg-slate-100 text-slate-700">
@@ -300,23 +300,23 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
                     <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3">
                       Customer
                     </th>
-                    <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3">
+                    <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3 hidden sm:table-cell">
                       Items
                     </th>
                     <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3">
                       Total
                     </th>
                     <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3">
-                      Order Status
+                      Status
                     </th>
-                    <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3">
+                    <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3 hidden md:table-cell">
                       Payment
                     </th>
-                    <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3">
+                    <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3 hidden lg:table-cell">
                       Date
                     </th>
                     <th className="bg-gray-50 text-xs font-semibold text-gray-500 uppercase tracking-wider text-left px-4 py-3">
-                      Action
+                      <span className="sr-only">Action</span>
                     </th>
                   </tr>
                 </thead>
@@ -332,14 +332,14 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
                         </span>
                       </td>
                       <td className="px-4 py-3 text-gray-900">
-                        <p className="font-medium text-gray-800 leading-tight">
+                        <p className="font-medium text-gray-800 leading-tight truncate max-w-[120px] sm:max-w-none">
                           {order.customerName}
                         </p>
-                        <p className="text-xs text-gray-500 mt-0.5">
+                        <p className="text-xs text-gray-500 mt-0.5 truncate max-w-[120px] sm:max-w-none">
                           {order.customerEmail}
                         </p>
                       </td>
-                      <td className="px-4 py-3 text-gray-900">
+                      <td className="px-4 py-3 text-gray-900 hidden sm:table-cell">
                         <span className="inline-flex items-center justify-center w-6 h-6 rounded-full bg-slate-100 text-slate-700 text-xs font-semibold">
                           {order.items.length}
                         </span>
@@ -350,24 +350,24 @@ export default async function AdminOrdersPage({ searchParams }: Props) {
                       <td className="px-4 py-3">
                         <OrderStatusBadge status={order.orderStatus} />
                       </td>
-                      <td className="px-4 py-3">
+                      <td className="px-4 py-3 hidden md:table-cell">
                         <PaymentBadge
                           paymentMethod={order.paymentMethod}
                           paymentStatus={order.paymentStatus}
                           totalAmount={order.totalAmount}
                         />
                       </td>
-                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap">
+                      <td className="px-4 py-3 text-gray-500 text-xs whitespace-nowrap hidden lg:table-cell">
                         {formatDate(order.createdAt)}
                       </td>
                       <td className="px-4 py-3">
                         <Link
                           href={`/admin/orders/${order.id}`}
-                          className="inline-flex items-center gap-1 px-3 py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors duration-150 cursor-pointer"
+                          className="inline-flex items-center justify-center h-9 w-9 sm:w-auto sm:px-3 sm:h-auto sm:py-1.5 text-xs font-medium text-slate-700 bg-slate-100 hover:bg-slate-200 rounded-lg transition-colors duration-150 cursor-pointer"
                         >
-                          View
+                          <span className="hidden sm:inline">View</span>
                           <svg
-                            className="w-3 h-3"
+                            className="w-4 h-4 sm:w-3 sm:h-3 sm:ml-1"
                             fill="none"
                             viewBox="0 0 24 24"
                             stroke="currentColor"

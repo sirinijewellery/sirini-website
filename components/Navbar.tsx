@@ -14,7 +14,7 @@ import { LanguageToggle } from "@/components/LanguageToggle";
 import { MegaMenu } from "@/components/MegaMenu";
 import { OccasionMenu } from "@/components/OccasionMenu";
 import { useCartStore } from "@/lib/store/cart";
-import { PRICE_BUCKETS, categoryLabel, type TaxonomyGroupData } from "@/lib/taxonomy";
+import { categoryLabel, type TaxonomyGroupData } from "@/lib/taxonomy";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -38,6 +38,7 @@ const navLinksLeading = [
 const navLinksTrailing = [
   { href: "/faq", label: "FAQ" },
   { href: "/about", label: "Our Story" },
+  { href: "/blog", label: "Journal" },
   { href: "/contact", label: "Contact" },
 ];
 
@@ -48,17 +49,9 @@ const navLinks = [
   { href: "/occasions", label: "Shop by Occasion" },
   { href: "/faq", label: "FAQ" },
   { href: "/about", label: "Our Story" },
+  { href: "/blog", label: "Journal" },
   { href: "/contact", label: "Contact" },
 ];
-
-// Helper for the mobile sheet: build a /shop URL from a price bucket.
-function priceHref(priceMin?: number, priceMax?: number): string {
-  const params = new URLSearchParams();
-  if (priceMin !== undefined) params.set("priceMin", String(priceMin));
-  if (priceMax !== undefined) params.set("priceMax", String(priceMax));
-  const qs = params.toString();
-  return qs ? `/shop?${qs}` : "/shop";
-}
 
 const DEFAULT_ANNOUNCEMENTS = [
   "Free Pan-India Shipping on All Orders",
@@ -550,24 +543,24 @@ export function Navbar({
                                   <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
                                     Category
                                   </p>
-                                  <div className="flex flex-col gap-0.5">
+                                  <div className="flex flex-col">
                                     {mobileMains.map((main) => (
                                       <div key={main.id}>
                                         <Link
                                           href={`/shop?category=${main.slug}`}
                                           onClick={() => setMobileOpen(false)}
-                                          className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                                          className="block py-2 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
                                         >
                                           {main.label}
                                         </Link>
                                         {main.children.length > 0 && (
-                                          <div className="flex flex-col gap-0.5 pl-3">
+                                          <div className="flex flex-col pl-3">
                                             {main.children.map((sub) => (
                                               <Link
                                                 key={sub.id}
                                                 href={`/shop?category=${sub.slug}`}
                                                 onClick={() => setMobileOpen(false)}
-                                                className="py-0.5 text-xs font-sans text-muted-foreground hover:text-primary transition-colors"
+                                                className="block py-1.5 text-sm font-sans text-muted-foreground hover:text-primary transition-colors"
                                               >
                                                 {sub.label}
                                               </Link>
@@ -586,13 +579,13 @@ export function Navbar({
                                   <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
                                     {group.label}
                                   </p>
-                                  <div className="flex flex-col gap-0.5">
+                                  <div className="flex flex-col">
                                     {group.terms.map((term) => (
                                       <Link
                                         key={term.id}
                                         href={`/shop?${group.slug}=${term.slug}`}
                                         onClick={() => setMobileOpen(false)}
-                                        className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
+                                        className="block py-2 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
                                       >
                                         {term.label}
                                       </Link>
@@ -601,24 +594,6 @@ export function Navbar({
                                 </div>
                               ))}
 
-                              {/* Price */}
-                              <div>
-                                <p className="font-label-caps text-[10px] tracking-[0.2em] uppercase text-[#C9A96E] mb-1.5">
-                                  Price
-                                </p>
-                                <div className="flex flex-col gap-0.5">
-                                  {PRICE_BUCKETS.map((b) => (
-                                    <Link
-                                      key={b.slug}
-                                      href={priceHref(b.priceMin, b.priceMax)}
-                                      onClick={() => setMobileOpen(false)}
-                                      className="py-1 text-sm font-sans text-on-surface-variant hover:text-primary transition-colors"
-                                    >
-                                      {b.label}
-                                    </Link>
-                                  ))}
-                                </div>
-                              </div>
                             </div>
                           </div>
                         ) : link.href === "/occasions" ? (

@@ -52,7 +52,6 @@ const SECTION_META: Record<HomeSectionKey, { label: string; desc: string }> = {
   shopByCollection: { label: "Shop by Collection", desc: "Collection cards (curated edits)" },
   featuredProducts: { label: "Featured Products", desc: "New-arrivals rail" },
   bestsellers: { label: "Bestsellers", desc: "Most-reviewed products rail" },
-  shopByPrice: { label: "Shop by Price", desc: "Price-discovery band" },
   pullQuote: { label: "Pull Quote", desc: "Editorial customer quote" },
   brandStory: { label: "Brand Story", desc: "Crafted with Intention block" },
   testimonials: { label: "Testimonials", desc: "Voices of Sirini carousel" },

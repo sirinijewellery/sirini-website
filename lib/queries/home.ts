@@ -190,7 +190,6 @@ export type HomeSectionKey =
   | "shopByCollection"
   | "featuredProducts"
   | "bestsellers"
-  | "shopByPrice"
   | "pullQuote"
   | "brandStory"
   | "testimonials"
@@ -213,7 +212,6 @@ export const DEFAULT_SECTIONS: HomeSection[] = [
   { key: "shopByCollection", enabled: true },
   { key: "featuredProducts", enabled: true },
   { key: "bestsellers", enabled: true },
-  { key: "shopByPrice", enabled: true },
   { key: "pullQuote", enabled: true },
   { key: "testimonials", enabled: true },
   { key: "brandStory", enabled: true },

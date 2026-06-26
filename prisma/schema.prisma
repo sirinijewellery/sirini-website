@@ -71,6 +71,8 @@ model TaxonomyTerm {
   label      String
   blurb      String?
   coverImage String?
+  coverFocal String?        @default("center")
+  hexColor   String?
   sortOrder  Int            @default(0)
   showInMenu Boolean        @default(true)
   products   ProductTerm[]

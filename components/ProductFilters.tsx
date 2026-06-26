@@ -2,7 +2,7 @@
 
 import { useRouter, useSearchParams } from "next/navigation";
 import { useCallback } from "react";
-import { OCCASIONS, STYLES, PRICE_BUCKETS, categoryLabel } from "@/lib/taxonomy";
+import { OCCASIONS, STYLES, categoryLabel } from "@/lib/taxonomy";
 import type { TaxonomyGroupData } from "@/lib/taxonomy";
 
 interface ProductFiltersProps {
@@ -28,8 +28,6 @@ export function ProductFilters({ categories, materials, taxonomy = [] }: Product
   const activeMaterial = searchParams.get("material") || "";
   const activeOccasion = searchParams.get("occasion") || "";
   const activeStyle = searchParams.get("style") || "";
-  const priceMin = searchParams.get("priceMin") || "";
-  const priceMax = searchParams.get("priceMax") || "";
   const minRating = searchParams.get("minRating") || "";
   const inStock = searchParams.get("inStock") || "";
 
@@ -54,8 +52,6 @@ export function ProductFilters({ categories, materials, taxonomy = [] }: Product
     activeMaterial ||
     activeOccasion ||
     activeStyle ||
-    priceMin ||
-    priceMax ||
     minRating ||
     inStock ||
     dynamicGroups.some((d) => d.active);
@@ -76,19 +72,7 @@ export function ProductFilters({ categories, materials, taxonomy = [] }: Product
     [router, searchParams]
   );
 
-  // Price buckets set two params at once (min/max), so they need their own setter.
-  const applyPriceBucket = useCallback(
-    (min: number | undefined, max: number | undefined) => {
-      const params = new URLSearchParams(searchParams.toString());
-      min !== undefined ? params.set("priceMin", String(min)) : params.delete("priceMin");
-      max !== undefined ? params.set("priceMax", String(max)) : params.delete("priceMax");
-      params.delete("page");
-      router.push(`/shop?${params.toString()}`);
-    },
-    [router, searchParams]
-  );
-
-  // Remove a single param (used by the chip ✕ buttons). Price chip clears both.
+  // Remove a single param (used by the chip ✕ buttons).
   const removeParam = useCallback(
     (...keys: string[]) => {
       const params = new URLSearchParams(searchParams.toString());
@@ -102,24 +86,6 @@ export function ProductFilters({ categories, materials, taxonomy = [] }: Product
   function clearAll() {
     router.push("/shop");
   }
-
-  const isPriceBucketActive = (min: number | undefined, max: number | undefined) =>
-    priceMin === (min !== undefined ? String(min) : "") &&
-    priceMax === (max !== undefined ? String(max) : "");
-
-  // Label for the currently active price filter (for the chip + matching a bucket).
-  const activePriceBucket = PRICE_BUCKETS.find((b) =>
-    isPriceBucketActive(b.priceMin, b.priceMax)
-  );
-  const priceChipLabel = activePriceBucket
-    ? activePriceBucket.label
-    : priceMin && priceMax
-      ? `₹${priceMin} – ₹${priceMax}`
-      : priceMin
-        ? `₹${priceMin}+`
-        : priceMax
-          ? `Under ₹${priceMax}`
-          : "";
 
   // ── Pill styling (shared) ──
   const pillBase =
@@ -176,13 +142,6 @@ export function ProductFilters({ categories, materials, taxonomy = [] }: Product
                   className={chipClass}
                 />
               )
-          )}
-          {priceChipLabel && (
-            <Chip
-              label={priceChipLabel}
-              onRemove={() => removeParam("priceMin", "priceMax")}
-              className={chipClass}
-            />
           )}
           {minRating && (
             <Chip
@@ -282,30 +241,8 @@ export function ProductFilters({ categories, materials, taxonomy = [] }: Product
         </div>
       ))}
 
-      {/* ── Group 4: Price + Rating + In stock ── */}
+      {/* ── Rating + In stock + Materials ── */}
       <div className={rowClass} style={rowStyle}>
-        <span className={groupLabel}>Price</span>
-        {PRICE_BUCKETS.map((b) => {
-          const active = isPriceBucketActive(b.priceMin, b.priceMax);
-          return (
-            <button
-              key={b.slug}
-              onClick={() =>
-                active
-                  ? applyPriceBucket(undefined, undefined)
-                  : applyPriceBucket(b.priceMin, b.priceMax)
-              }
-              className={`${pillBase} ${active ? pillActive : pillInactive}`}
-              aria-pressed={active}
-            >
-              {b.label}
-            </button>
-          );
-        })}
-
-        <div className="shrink-0 w-px h-5 bg-border mx-1 self-center" aria-hidden="true" />
-
-        {/* Rating */}
         <button
           onClick={() => updateParam("minRating", minRating === "4" ? "" : "4")}
           className={`${pillBase} ${minRating === "4" ? pillActive : pillInactive}`}
@@ -314,7 +251,6 @@ export function ProductFilters({ categories, materials, taxonomy = [] }: Product
           4★ &amp; up
         </button>
 
-        {/* In stock toggle */}
         <button
           onClick={() => updateParam("inStock", inStock === "1" ? "" : "1")}
           className={`${pillBase} ${inStock === "1" ? pillActive : pillInactive}`}
@@ -323,7 +259,6 @@ export function ProductFilters({ categories, materials, taxonomy = [] }: Product
           In stock
         </button>
 
-        {/* ── Materials (kept) ── */}
         {materials.length > 0 && (
           <div className="shrink-0 w-px h-5 bg-border mx-1 self-center" aria-hidden="true" />
         )}
@@ -357,9 +292,9 @@ function Chip({
       <button
         onClick={onRemove}
         aria-label={`Remove ${label} filter`}
-        className="inline-flex h-4 w-4 items-center justify-center rounded-full hover:bg-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
+        className="inline-flex h-6 w-6 items-center justify-center rounded-full hover:bg-primary/15 focus:outline-none focus-visible:ring-2 focus-visible:ring-primary"
       >
-        <span aria-hidden="true">✕</span>
+        <span aria-hidden="true" className="text-xs">✕</span>
       </button>
     </span>
   );

@@ -78,6 +78,8 @@ export interface TaxonomyTermData {
   label: string;
   blurb: string | null;
   coverImage: string | null;
+  coverFocal: string | null;
+  hexColor: string | null;
   sortOrder: number;
   showInMenu: boolean;
   parentId: string | null;

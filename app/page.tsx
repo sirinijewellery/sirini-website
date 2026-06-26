@@ -5,7 +5,6 @@ import { ShopByOccasion } from "@/components/ShopByOccasion";
 import { ShopByCollection } from "@/components/ShopByCollection";
 import { FeaturedProducts } from "@/components/FeaturedProducts";
 import { BestsellersRail } from "@/components/BestsellersRail";
-import { ShopByPrice } from "@/components/ShopByPrice";
 import { BrandStory } from "@/components/BrandStory";
 import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { InstagramStrip } from "@/components/InstagramStrip";
@@ -54,7 +53,6 @@ const SECTION_BG: Record<HomeSectionKey, string> = {
   shopByCollection: BLUSH,  // Shop by Collection — warm blush
   featuredProducts: CREAM,  // cream
   bestsellers: CREAM,       // cream (follows featured)
-  shopByPrice: CREAM,       // cream (transparent band)
   pullQuote: CREAM,         // cream (editorial interruption)
   testimonials: BLUSH,      // warm blush
   brandStory: BLUSH,        // Brand Story now sits below testimonials — warm blush
@@ -117,7 +115,6 @@ export default async function HomePage() {
         <BestsellersRail />
       </Suspense>
     ),
-    shopByPrice: <ShopByPrice />,
     pullQuote: <PullQuote content={pullQuote} />,
     brandStory: <BrandStory content={brandStory} />,
     testimonials: <TestimonialsSection items={testimonials} />,

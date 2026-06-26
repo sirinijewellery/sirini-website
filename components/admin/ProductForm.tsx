@@ -226,6 +226,14 @@ export function ProductForm({
     });
   }
 
+  const colourGroup = taxonomy.find((g) => g.slug === "colour") ?? null;
+  const [colourTerms, setColourTerms] = useState<TaxonomyTermData[]>(
+    () => colourGroup?.terms ?? []
+  );
+  const [newColourLabel, setNewColourLabel] = useState("");
+  const [newColourHex, setNewColourHex] = useState("#C9A96E");
+  const [addingColour, setAddingColour] = useState(false);
+
   // Guard flag so the beforeunload warning doesn't fire during the post-save redirect.
   const savedRef = useRef(false);
 
@@ -297,6 +305,32 @@ export function ProductForm({
     if (!slugLocked) {
       setValue("slug", generateSlug(name), { shouldValidate: true });
     }
+  }
+
+  async function addColour() {
+    const label = newColourLabel.trim();
+    if (!label || !colourGroup) return;
+    setAddingColour(true);
+    try {
+      const res = await fetch("/api/admin/taxonomy/terms", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({
+          groupId: colourGroup.id,
+          label,
+          hexColor: newColourHex || null,
+        }),
+      });
+      const json = await res.json();
+      if (!res.ok) { toast.error(json.error ?? "Could not add colour"); return; }
+      const newTerm = { ...json.term, children: [] } as TaxonomyTermData;
+      setColourTerms((prev) => [...prev, newTerm]);
+      setSelectedTermIds((prev) => new Set([...prev, newTerm.id]));
+      setNewColourLabel("");
+      setNewColourHex("#C9A96E");
+      toast.success(`Colour "${label}" added`);
+    } catch { toast.error("Network error"); }
+    finally { setAddingColour(false); }
   }
 
   async function addCategory() {
@@ -697,8 +731,73 @@ export function ProductForm({
           </div>
         </div>
 
-        {/* Shop taxonomy — Category (with sub-categories), Occasion, Collection, Look, Stone, Colour … */}
-        {taxonomy.length > 0 && (
+        {/* Colour picker — dedicated swatch UI for the "colour" taxonomy group */}
+        {colourGroup && (
+          <fieldset className="space-y-3">
+            <legend className="text-sm font-medium text-gray-700">Colour</legend>
+            <p className="text-xs text-gray-400">
+              Pick the colour(s) for this piece. Create a new colour if it&apos;s not listed yet.
+            </p>
+            {/* Colour swatches */}
+            <div className="flex flex-wrap gap-2">
+              {colourTerms.map((term) => {
+                const isSelected = selectedTermIds.has(term.id);
+                return (
+                  <button
+                    key={term.id}
+                    type="button"
+                    onClick={() => toggleTerm(term.id)}
+                    title={term.label}
+                    className={`flex items-center gap-1.5 pl-1.5 pr-3 h-8 rounded-full border text-sm transition-colors cursor-pointer ${
+                      isSelected
+                        ? "border-slate-900 bg-slate-900 text-white"
+                        : "border-gray-200 text-gray-700 hover:border-gray-400"
+                    }`}
+                  >
+                    <span
+                      className="h-5 w-5 rounded-full border border-white/30 shrink-0"
+                      style={{ backgroundColor: term.hexColor ?? "#E2E2E2" }}
+                      aria-hidden="true"
+                    />
+                    {term.label}
+                  </button>
+                );
+              })}
+            </div>
+            {/* Inline create */}
+            <div className="flex gap-2 items-center pt-1">
+              <input
+                type="color"
+                value={newColourHex}
+                onChange={(e) => setNewColourHex(e.target.value)}
+                className="h-8 w-10 rounded border border-gray-200 cursor-pointer p-0.5"
+                title="Pick a colour"
+                disabled={addingColour}
+              />
+              <Input
+                placeholder="New colour name…"
+                value={newColourLabel}
+                onChange={(e) => setNewColourLabel(e.target.value)}
+                onKeyDown={(e) => { if (e.key === "Enter") { e.preventDefault(); addColour(); } }}
+                className="flex-1"
+                disabled={addingColour}
+              />
+              <Button
+                type="button"
+                variant="outline"
+                size="sm"
+                onClick={addColour}
+                disabled={addingColour || !newColourLabel.trim()}
+                className="shrink-0"
+              >
+                {addingColour ? "Adding…" : "Add colour"}
+              </Button>
+            </div>
+          </fieldset>
+        )}
+
+        {/* Shop taxonomy — Category (with sub-categories), Occasion, Collection, Look, Stone … */}
+        {taxonomy.filter((g) => g.slug !== "colour").length > 0 && (
           <fieldset className="space-y-3">
             <legend className="text-sm font-medium text-gray-700">
               Shop categories &amp; filters
@@ -708,7 +807,7 @@ export function ProductForm({
               mega-menu, shop filters and search. Pick as many as apply in each.
             </p>
             <div className="grid grid-cols-1 md:grid-cols-2 gap-4 pt-1">
-              {taxonomy.map((group) => (
+              {taxonomy.filter((g) => g.slug !== "colour").map((group) => (
                 <div key={group.id} className="rounded-lg border border-gray-200 p-3">
                   <p className="text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">
                     {group.label}
