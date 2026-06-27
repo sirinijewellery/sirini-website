@@ -246,6 +246,22 @@ export const DEFAULT_FAQ: FaqItem[] = [
     q: "Do the jewellery pieces look exactly like the photos?",
     a: "We photograph every piece under natural light to show the most accurate colour and detail. Slight variations in stone shade or finish may occur, as these are handcrafted pieces — this is what makes each one unique. If you have any concerns after receiving your order, contact us and we will make it right.",
   },
+  {
+    q: "Is Sirini jewellery safe for sensitive skin?",
+    a: "Most customers with sensitive skin wear our gold-plated pieces comfortably, as the plating sits over a brass or copper base rather than raw nickel. That said, everyone's skin is different — if you have a known metal allergy, we recommend short initial wear and keeping pieces dry, since moisture and sweat are the main triggers for irritation.",
+  },
+  {
+    q: "Will the jewellery tarnish or turn my skin green?",
+    a: "Gold-plated fashion jewellery can tarnish over time if exposed to water, sweat, perfume and humidity — that's normal for the category, not a defect. To keep pieces bright and avoid any skin discolouration, wear them last, take them off before washing or sleeping, wipe with a soft dry cloth after use, and store them in the pouch provided away from moisture.",
+  },
+  {
+    q: "Do you ship internationally?",
+    a: "At the moment Sirini ships within India only, with free pan-India delivery to all serviceable pin codes. We are working on international shipping — if you are outside India and would like a piece, message us on WhatsApp and we will let you know the options.",
+  },
+  {
+    q: "Do you offer gift wrapping or packaging?",
+    a: "Yes. Every order arrives in protective Sirini packaging suitable for gifting. If it is for a special occasion and you would like a particular presentation or a gift note included, mention it on WhatsApp when you order and we will arrange it.",
+  },
 ];
 
 export const getFaq = cache(async (): Promise<FaqItem[]> => {

@@ -90,7 +90,7 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
 
   // Count "indexable" facets. A page is canonical-worthy only when it has at
   // most ONE of these primary facets and no secondary refinements / pagination.
-  const primaryFacets = [params.category, params.occasion, params.style].filter(Boolean);
+  const primaryFacets = [params.category, params.occasion, params.style, params.collection].filter(Boolean);
   const hasRefinement = Boolean(
     params.material ||
       params.priceMin ||
@@ -113,7 +113,9 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
               ? `/shop?style=${params.style}`
               : params.category
                 ? `/shop?category=${encodeURIComponent(params.category)}`
-                : "/shop",
+                : params.collection
+                  ? `/shop?collection=${encodeURIComponent(params.collection)}`
+                  : "/shop",
         },
         robots: { index: true, follow: true },
       }
@@ -129,21 +131,29 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
       ? `/shop?style=${params.style}`
       : params.category
         ? `/shop?category=${encodeURIComponent(params.category)}`
-        : "/shop";
-  const build = (title: string, description: string): Metadata => ({
-    title,
-    description,
-    openGraph: {
+        : params.collection
+          ? `/shop?collection=${encodeURIComponent(params.collection)}`
+          : "/shop";
+  // `title` is brand-free; the root layout's title template appends
+  // "| Sirini Jewellery" to the <title>. Social cards aren't templated, so we
+  // add the brand to the OG/Twitter titles explicitly (single brand, no dupes).
+  const build = (title: string, description: string): Metadata => {
+    const socialTitle = `${title} | ${siteConfig.name}`;
+    return {
       title,
       description,
-      type: "website",
-      locale: "en_IN",
-      url: `${siteConfig.url}${ogPath}`,
-      images: [{ url: ogImage, width: 1200, height: 630 }],
-    },
-    twitter: { card: "summary_large_image", title, description, images: [ogImage] },
-    ...seo,
-  });
+      openGraph: {
+        title: socialTitle,
+        description,
+        type: "website",
+        locale: "en_IN",
+        url: `${siteConfig.url}${ogPath}`,
+        images: [{ url: ogImage, width: 1200, height: 630 }],
+      },
+      twitter: { card: "summary_large_image", title: socialTitle, description, images: [ogImage] },
+      ...seo,
+    };
+  };
 
   if (params.occasion) {
     const occ = OCCASIONS.find((o) => o.slug === params.occasion);
@@ -154,7 +164,7 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
           ? "Festive Jewellery"
           : `${occ?.label ?? params.occasion} Jewellery`;
     return build(
-      `${title} | Sirini Jewellery`,
+      title,
       occ?.blurb ??
         `Shop handcrafted jewellery for ${params.occasion} occasions. Free shipping across India.`,
     );
@@ -162,7 +172,7 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
   if (params.style) {
     const st = STYLES.find((s) => s.slug === params.style);
     return build(
-      `${st?.label ?? params.style} Jewellery | Sirini Jewellery`,
+      `${st?.label ?? params.style} Jewellery`,
       `Shop handcrafted ${st?.label ?? params.style} jewellery — necklace sets, earrings, bangles & more. Free shipping across India.`,
     );
   }
@@ -171,6 +181,15 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
     return build(
       `${label} — Buy Handcrafted Indian Jewellery Online`,
       `Shop handcrafted ${label.toLowerCase()} — Kundan, Meenakari & gold-plated designs by Sirini Jewellery, Mumbai. Free shipping across India, COD available.`,
+    );
+  }
+  if (params.collection) {
+    const label = params.collection
+      .replace(/-/g, " ")
+      .replace(/\b\w/g, (m) => m.toUpperCase());
+    return build(
+      `${label} Collection — Handcrafted Jewellery`,
+      `Explore the ${label} collection by Sirini Jewellery — a curated edit of handcrafted Kundan, Meenakari & gold-plated pieces. Free shipping across India, COD available.`,
     );
   }
   return build(

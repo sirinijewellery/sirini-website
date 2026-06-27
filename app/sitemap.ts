@@ -2,6 +2,7 @@ import { MetadataRoute } from "next";
 import { prisma } from "@/lib/prisma";
 import { siteConfig } from "@/lib/seo";
 import { OCCASIONS, STYLES, NAV_CATEGORIES } from "@/lib/taxonomy";
+import { getTaxonomyTree } from "@/lib/queries/taxonomy";
 import { getAllArticles } from "@/lib/blog";
 
 const BASE_URL = siteConfig.url;
@@ -11,6 +12,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     select: { slug: true, createdAt: true },
   });
   const articles = await getAllArticles();
+
+  // Admin-managed "collection" taxonomy terms — promoted in the nav and on the
+  // homepage, so their filtered shop URLs belong in the sitemap too.
+  const taxonomyTree = await getTaxonomyTree().catch(() => []);
+  const collectionTerms =
+    taxonomyTree.find((g) => g.slug === "collection")?.terms ?? [];
 
   // Real, stable lastmod dates. Google ignores lastmod that changes on every
   // crawl, so catalog pages track the newest product, the blog index tracks the
@@ -71,6 +78,14 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // ── Collection facet URLs ────────────────────────────────────────
+  const collectionRoutes: MetadataRoute.Sitemap = collectionTerms.map((c) => ({
+    url: `${BASE_URL}/shop?collection=${encodeURIComponent(c.slug)}`,
+    lastModified: safeCatalog,
+    changeFrequency: "weekly" as const,
+    priority: 0.7,
+  }));
+
   // ── Product detail pages ─────────────────────────────────────────
   const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${BASE_URL}/shop/${p.slug}`,
@@ -85,6 +100,7 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...occasionRoutes,
     ...styleRoutes,
     ...categoryRoutes,
+    ...collectionRoutes,
     ...blogRoutes,
     ...productRoutes,
   ];
