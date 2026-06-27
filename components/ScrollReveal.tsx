@@ -78,6 +78,35 @@ export function ScrollReveal() {
 
     scan();
 
+    // ── Reveal-on-scroll fallback (page lifetime) ─────────────────────
+    // The IntersectionObserver can miss elements in some conditions
+    // (background/throttled tabs, deep-page content scrolled to after the
+    // initial safety window, certain mobile browsers), leaving headings stuck
+    // at opacity:0 forever. As a guarantee, reveal anything the user has
+    // actually scrolled into view. Adding `.active` still plays the CSS
+    // transition, so the entrance animation is preserved. rAF-throttled.
+    let revealRaf = 0;
+    const revealInView = () => {
+      revealRaf = 0;
+      const vh = window.innerHeight;
+      document
+        .querySelectorAll<HTMLElement>(".reveal:not(.active)")
+        .forEach((el) => {
+          const rect = el.getBoundingClientRect();
+          if (rect.top < vh * 0.95 && rect.bottom > 0) {
+            el.classList.add("active");
+            io.unobserve(el);
+          }
+        });
+    };
+    const onRevealScroll = () => {
+      if (revealRaf) return;
+      revealRaf = requestAnimationFrame(revealInView);
+    };
+    window.addEventListener("scroll", onRevealScroll, { passive: true });
+    window.addEventListener("resize", onRevealScroll, { passive: true });
+    revealInView();
+
     // Catch content that streams in later (Suspense boundaries, route changes).
     const mo = new MutationObserver(() => scan());
     mo.observe(document.body, { childList: true, subtree: true });
@@ -105,6 +134,9 @@ export function ScrollReveal() {
       mo.disconnect();
       window.clearInterval(safety);
       window.clearTimeout(stopSafety);
+      window.removeEventListener("scroll", onRevealScroll);
+      window.removeEventListener("resize", onRevealScroll);
+      if (revealRaf) cancelAnimationFrame(revealRaf);
       if (!prefersReduced) {
         window.removeEventListener("scroll", onScroll);
         window.removeEventListener("resize", onScroll);

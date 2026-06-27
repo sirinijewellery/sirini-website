@@ -13,6 +13,7 @@ import { CartBadge } from "@/components/CartBadge";
 import { LanguageToggle } from "@/components/LanguageToggle";
 import { MegaMenu } from "@/components/MegaMenu";
 import { OccasionMenu } from "@/components/OccasionMenu";
+import { CollectionMenu } from "@/components/CollectionMenu";
 import { useCartStore } from "@/lib/store/cart";
 import { categoryLabel, type TaxonomyGroupData } from "@/lib/taxonomy";
 
@@ -251,7 +252,7 @@ export function Navbar({
           </Link>
 
           {/* Desktop nav — centered in remaining space, single line (no overlap with logo/icons) */}
-          <nav className="hidden md:flex flex-nowrap gap-x-3.5 lg:gap-x-5 items-center flex-1 justify-center">
+          <nav className="hidden md:flex flex-nowrap gap-x-2.5 lg:gap-x-4 items-center flex-1 justify-center">
             {navLinksLeading.map((link) => (
               <Link
                 key={link.href}
@@ -271,6 +272,9 @@ export function Navbar({
 
             {/* Shop by Occasion dropdown trigger */}
             <OccasionMenu />
+
+            {/* Shop by Collection dropdown trigger */}
+            <CollectionMenu groups={groups} />
 
             {navLinksTrailing.map((link) => (
               <Link
