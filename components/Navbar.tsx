@@ -250,8 +250,8 @@ export function Navbar({
             />
           </Link>
 
-          {/* Desktop nav — centered in remaining space (no overlap with logo/icons) */}
-          <nav className="hidden md:flex flex-wrap gap-x-3 lg:gap-x-4 gap-y-1 items-center flex-1 justify-center">
+          {/* Desktop nav — centered in remaining space, single line (no overlap with logo/icons) */}
+          <nav className="hidden md:flex flex-nowrap gap-x-3.5 lg:gap-x-5 items-center flex-1 justify-center">
             {navLinksLeading.map((link) => (
               <Link
                 key={link.href}
@@ -268,17 +268,6 @@ export function Navbar({
 
             {/* Shop mega-menu trigger */}
             <MegaMenu groups={groups} />
-
-            {/* Each shop category as its own top-level link */}
-            {mobileMains.map((cat) => (
-              <Link
-                key={cat.id}
-                href={`/shop?category=${cat.slug}`}
-                className="relative font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 text-on-surface-variant hover:text-primary after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left after:scale-x-0 hover:after:scale-x-100"
-              >
-                {cat.label}
-              </Link>
-            ))}
 
             {/* Shop by Occasion dropdown trigger */}
             <OccasionMenu />
