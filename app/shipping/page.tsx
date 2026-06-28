@@ -1,6 +1,7 @@
 import type { Metadata } from "next";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, siteConfig } from "@/lib/seo";
 import { getShipping, getShippingTime } from "@/lib/queries/content";
+import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 export const metadata: Metadata = pageMetadata(
   "Shipping & Returns — Sirini Jewellery",
@@ -17,6 +18,12 @@ export default async function ShippingPage() {
 
   return (
     <div className="max-w-3xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteConfig.url },
+          { name: "Shipping & Returns", url: `${siteConfig.url}/shipping` },
+        ]}
+      />
       <h1 className="font-display text-4xl md:text-5xl font-light text-foreground mb-4">
         {content.title}
       </h1>

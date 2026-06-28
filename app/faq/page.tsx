@@ -1,7 +1,8 @@
 import Link from "next/link";
 import { FAQJsonLd } from "@/components/FAQJsonLd";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, siteConfig } from "@/lib/seo";
 import { getFaq } from "@/lib/queries/content";
+import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 export const metadata = pageMetadata(
   "FAQ — Sirini Jewellery",
@@ -17,6 +18,12 @@ export default async function FAQPage() {
 
   return (
     <div className="bg-background text-on-surface">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteConfig.url },
+          { name: "FAQ", url: `${siteConfig.url}/faq` },
+        ]}
+      />
 
       {/* ── Heading section ───────────────────────────────────────── */}
       <section className="py-20 px-6 md:px-16 max-w-screen-2xl mx-auto">

@@ -2,8 +2,9 @@ import { ContactForm } from "@/components/ContactForm";
 import { Separator } from "@/components/ui/separator";
 import { Mail, MessageCircle } from "lucide-react";
 import Link from "next/link";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, siteConfig } from "@/lib/seo";
 import { getBusinessDetails } from "@/lib/queries/site";
+import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 export const metadata = pageMetadata(
   "Contact Us",
@@ -18,6 +19,12 @@ export default async function ContactPage() {
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteConfig.url },
+          { name: "Contact", url: `${siteConfig.url}/contact` },
+        ]}
+      />
       {/* Header */}
       <div className="text-center mb-12">
         <p className="font-sans text-xs uppercase tracking-[0.25em] text-primary mb-3">We&apos;d love to hear from you</p>
@@ -98,6 +105,43 @@ export default async function ContactPage() {
           </div>
         </div>
       </div>
+
+      {/* FAQ rich results for the inline Q&As */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "FAQPage",
+            mainEntity: [
+              {
+                "@type": "Question",
+                name: "Do you offer gift wrapping?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Yes! Add a note at checkout and we'll wrap it beautifully.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "Can I customise an order?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "Reach out on WhatsApp for customisation requests.",
+                },
+              },
+              {
+                "@type": "Question",
+                name: "What are your shipping timelines?",
+                acceptedAnswer: {
+                  "@type": "Answer",
+                  text: "3–7 business days across India.",
+                },
+              },
+            ],
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
     </div>
   );
 }

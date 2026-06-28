@@ -85,10 +85,6 @@ export function baseMetadata(): Metadata {
     },
     alternates: {
       canonical: siteConfig.url,
-      languages: {
-        "en-IN": siteConfig.url,
-        "x-default": siteConfig.url,
-      },
     },
   };
 }

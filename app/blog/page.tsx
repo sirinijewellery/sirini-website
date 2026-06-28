@@ -103,6 +103,31 @@ export default async function BlogPage() {
           ))}
         </div>
       </section>
+
+      {/* CollectionPage schema for blog index */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "CollectionPage",
+            name: "Sirini Jewellery Journal",
+            description:
+              "Styling guides, jewellery care tips and traditional craft explainers from Sirini Jewellery.",
+            url: `${siteConfig.url}/blog`,
+            mainEntity: {
+              "@type": "ItemList",
+              numberOfItems: articles.length,
+              itemListElement: articles.map((a, i) => ({
+                "@type": "ListItem",
+                position: i + 1,
+                url: `${siteConfig.url}/blog/${a.slug}`,
+                name: a.title,
+              })),
+            },
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
     </div>
   );
 }

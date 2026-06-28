@@ -30,6 +30,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     {
       ogImage: article.coverImage,
       canonical: `${siteConfig.url}/blog/${article.slug}`,
+      openGraph: {
+        type: "article",
+        publishedTime: article.date,
+        authors: ["Sirini Jewellery"],
+        section: "Jewellery Guides",
+      },
     },
   );
 }
@@ -50,6 +56,11 @@ export default async function ArticlePage({ params }: Props) {
 
   const articleUrl = `${siteConfig.url}/blog/${article.slug}`;
 
+  const wordCount = article.body.reduce(
+    (sum, s) => sum + s.paragraphs.join(" ").split(/\s+/).length,
+    0,
+  );
+
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "BlogPosting",
@@ -58,6 +69,8 @@ export default async function ArticlePage({ params }: Props) {
     image: article.coverImage,
     datePublished: article.date,
     dateModified: article.date,
+    inLanguage: "en-IN",
+    wordCount,
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": articleUrl,

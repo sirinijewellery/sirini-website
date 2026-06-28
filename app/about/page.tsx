@@ -1,7 +1,8 @@
 import Image from "next/image";
 import Link from "next/link";
-import { pageMetadata } from "@/lib/seo";
+import { pageMetadata, siteConfig } from "@/lib/seo";
 import { getAbout } from "@/lib/queries/content";
+import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 export const metadata = pageMetadata(
   "Our Story — Handcrafted Since 2017",
@@ -33,6 +34,12 @@ export default async function AboutPage() {
 
   return (
     <div className="bg-background text-on-surface">
+      <BreadcrumbJsonLd
+        items={[
+          { name: "Home", url: siteConfig.url },
+          { name: "Our Story", url: `${siteConfig.url}/about` },
+        ]}
+      />
 
       {/* ── Hero ──────────────────────────────────────────────────── */}
       {/* Portrait infographic poster: show it whole (object-contain) on a cream
