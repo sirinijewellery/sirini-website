@@ -9,6 +9,7 @@ import {
   Package,
   FileText,
   Palette,
+  PanelTop,
 } from "lucide-react";
 
 export const metadata = { title: "Settings" };
@@ -44,6 +45,12 @@ const AREAS = [
     icon: FileText,
     title: "Pages & FAQ",
     desc: "Edit the About, Shipping, Privacy and Terms pages and the FAQ list.",
+  },
+  {
+    href: "/admin/settings/navbar",
+    icon: PanelTop,
+    title: "Navbar",
+    desc: "Navigation bar colours, link order, and which menu items are visible.",
   },
   {
     href: "/admin/settings/theme",

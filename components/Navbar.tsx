@@ -16,6 +16,7 @@ import { OccasionMenu } from "@/components/OccasionMenu";
 import { CollectionMenu } from "@/components/CollectionMenu";
 import { useCartStore } from "@/lib/store/cart";
 import { categoryLabel, type TaxonomyGroupData } from "@/lib/taxonomy";
+import type { NavbarConfig, NavLink } from "@/lib/queries/navbar";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -29,32 +30,6 @@ interface SearchResult {
 }
 
 // ─── Constants ──────────────────────────────────────────────────────────────
-
-// Links shown BEFORE the "Shop" mega-menu trigger in the desktop nav.
-const navLinksLeading = [
-  { href: "/", label: "Home" },
-];
-
-// Links shown AFTER the "Shop" mega-menu and "Shop by Occasion" dropdown.
-const navLinksTrailing = [
-  { href: "/faq", label: "FAQ" },
-  { href: "/about", label: "Our Story" },
-  { href: "/blog", label: "Journal" },
-  { href: "/shipping", label: "Shipping" },
-  { href: "/contact", label: "Contact" },
-];
-
-// Flat list used by the mobile sheet (mega menu is desktop-only).
-const navLinks = [
-  { href: "/", label: "Home" },
-  { href: "/shop", label: "Shop" },
-  { href: "/occasions", label: "Shop by Occasion" },
-  { href: "/faq", label: "FAQ" },
-  { href: "/about", label: "Our Story" },
-  { href: "/blog", label: "Journal" },
-  { href: "/shipping", label: "Shipping" },
-  { href: "/contact", label: "Contact" },
-];
 
 const DEFAULT_ANNOUNCEMENTS = [
   "Free Pan-India Shipping on All Orders",
@@ -73,11 +48,36 @@ const inrFormatter = new Intl.NumberFormat("en-IN", {
 export function Navbar({
   messages,
   groups,
+  navbarConfig,
 }: {
   messages?: string[];
   groups: TaxonomyGroupData[];
+  navbarConfig: NavbarConfig;
 }) {
   const ANNOUNCEMENTS = messages && messages.length ? messages : DEFAULT_ANNOUNCEMENTS;
+
+  // Derive visible links from admin config
+  const visibleLinks = navbarConfig.links.filter((l) => l.visible);
+  // For the mobile sheet: all visible links as a flat list, with special types
+  // mapped to a reasonable href for the top-level link.
+  const mobileLinks = visibleLinks.map((l) => ({
+    id: l.id,
+    href:
+      l.type === "megamenu" ? "/shop" :
+      l.type === "occasion" ? "/occasions" :
+      l.type === "collection" ? "/shop" :
+      l.href,
+    label: l.label,
+    type: l.type,
+  }));
+
+  // Admin-customizable colours (inline style overrides; empty = use defaults)
+  const announcementStyle: React.CSSProperties = {};
+  if (navbarConfig.announcementBg) announcementStyle.backgroundColor = navbarConfig.announcementBg;
+  if (navbarConfig.announcementText) announcementStyle.color = navbarConfig.announcementText;
+  const headerStyle: React.CSSProperties = {};
+  if (navbarConfig.headerBg) headerStyle.backgroundColor = navbarConfig.headerBg;
+  const accentColor = navbarConfig.accentColor || "#C9A96E";
 
   // Split the admin-managed menu taxonomy for the mobile sheet (the desktop
   // mega-menu handles its own splitting). "category" is hierarchical (MAINS +
@@ -208,7 +208,10 @@ export function Navbar({
   return (
     <>
       {/* Announcement bar — rotating messages + language toggle */}
-      <div className="relative bg-primary text-on-primary py-2 px-12 md:px-4 text-center text-[10px] md:text-xs font-label-caps tracking-[0.2em] uppercase">
+      <div
+        className="relative bg-primary text-on-primary py-2 px-12 md:px-4 text-center text-[10px] md:text-xs font-label-caps tracking-[0.2em] uppercase"
+        style={announcementStyle}
+      >
         <span className="relative block h-[1.4em]">
           {ANNOUNCEMENTS.map((msg, i) => (
             <span
@@ -229,7 +232,10 @@ export function Navbar({
       </div>
 
       {/* Sticky header */}
-      <header className="bg-background/90 backdrop-blur-md w-full top-0 sticky z-50">
+      <header
+        className={`${navbarConfig.headerBg ? "" : "bg-background/90 "}backdrop-blur-md w-full top-0 sticky z-50`}
+        style={headerStyle}
+      >
         <div className="flex items-center gap-4 w-full px-6 md:px-16 py-2 max-w-screen-2xl mx-auto">
 
           {/* Logo — goes home; when already home, glides up to the hero */}
@@ -252,43 +258,28 @@ export function Navbar({
           </Link>
 
           {/* Desktop nav — centered in remaining space, single line (no overlap with logo/icons) */}
-          <nav className="hidden md:flex flex-nowrap gap-x-2.5 lg:gap-x-4 items-center flex-1 justify-center">
-            {navLinksLeading.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`relative font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
-                  pathname === link.href
-                    ? "text-primary after:scale-x-100"
-                    : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
-
-            {/* Shop mega-menu trigger */}
-            <MegaMenu groups={groups} />
-
-            {/* Shop by Occasion dropdown trigger */}
-            <OccasionMenu />
-
-            {/* Shop by Collection dropdown trigger */}
-            <CollectionMenu groups={groups} />
-
-            {navLinksTrailing.map((link) => (
-              <Link
-                key={link.href}
-                href={link.href}
-                className={`relative font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
-                  pathname === link.href
-                    ? "text-primary after:scale-x-100"
-                    : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
-                }`}
-              >
-                {link.label}
-              </Link>
-            ))}
+          <nav
+            className="hidden md:flex flex-nowrap gap-x-2.5 lg:gap-x-4 items-center flex-1 justify-center"
+            style={{ "--nav-accent": accentColor } as React.CSSProperties}
+          >
+            {visibleLinks.map((link) => {
+              if (link.type === "megamenu") return <MegaMenu key={link.id} groups={groups} label={link.label} />;
+              if (link.type === "occasion") return <OccasionMenu key={link.id} label={link.label} />;
+              if (link.type === "collection") return <CollectionMenu key={link.id} groups={groups} label={link.label} />;
+              return (
+                <Link
+                  key={link.id}
+                  href={link.href}
+                  className={`nav-accent-link relative font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:transition-transform after:duration-200 after:origin-left ${
+                    pathname === link.href
+                      ? "text-primary after:scale-x-100"
+                      : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
+                  }`}
+                >
+                  {link.label}
+                </Link>
+              );
+            })}
           </nav>
 
           {/* Right icons */}
@@ -523,10 +514,10 @@ export function Navbar({
 
                     {/* Mobile nav links — onClick closes the sheet */}
                     <nav className="flex flex-col gap-1 mt-6 overflow-y-auto">
-                      {navLinks.map((link) =>
-                        link.href === "/shop" ? (
+                      {mobileLinks.map((link) =>
+                        link.type === "megamenu" ? (
                           <div
-                            key={link.href}
+                            key={link.id}
                             className="border-b border-outline-variant"
                           >
                             <Link
@@ -602,9 +593,9 @@ export function Navbar({
 
                             </div>
                           </div>
-                        ) : link.href === "/occasions" ? (
+                        ) : link.type === "occasion" ? (
                           <Link
-                            key={link.href}
+                            key={link.id}
                             href={link.href}
                             onClick={() => setMobileOpen(false)}
                             className={`py-3 px-2 font-label-caps text-label-caps font-semibold border-b border-outline-variant transition-colors flex items-center gap-1.5 ${
@@ -618,7 +609,7 @@ export function Navbar({
                           </Link>
                         ) : (
                           <Link
-                            key={link.href}
+                            key={link.id}
                             href={link.href}
                             onClick={() => setMobileOpen(false)}
                             className={`py-3 px-2 font-label-caps text-label-caps font-semibold border-b border-outline-variant transition-colors ${

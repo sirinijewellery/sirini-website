@@ -66,7 +66,7 @@ export async function PATCH(req: NextRequest) {
       const result = groupSchema.safeParse(value);
       if (!result.success) return NextResponse.json({ error: result.error.issues[0].message }, { status: 400 });
       data = result.data as Prisma.InputJsonValue;
-    } else if (/^(commerce|home|content|catalog|theme|product|seo)\.[a-zA-Z0-9.]+$/.test(key)) {
+    } else if (/^(commerce|home|content|catalog|theme|product|seo|navbar)\.[a-zA-Z0-9.]+$/.test(key)) {
       // Generic owner-only settings (admin-gated above). Bounded JSON; managers
       // do their own field validation. Strict schemas can be added to
       // SETTINGS_REGISTRY later without changing callers.

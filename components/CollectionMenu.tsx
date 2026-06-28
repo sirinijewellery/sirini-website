@@ -15,7 +15,7 @@ const panelLink =
  * each links to /shop?collection=<slug>. The trigger is a button (there is no
  * dedicated /collections page) that also opens the panel.
  */
-export function CollectionMenu({ groups }: { groups: TaxonomyGroupData[] }) {
+export function CollectionMenu({ groups, label: triggerLabel }: { groups: TaxonomyGroupData[]; label?: string }) {
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
   const containerRef = useRef<HTMLDivElement>(null);
@@ -78,13 +78,13 @@ export function CollectionMenu({ groups }: { groups: TaxonomyGroupData[] }) {
         aria-haspopup="true"
         onClick={() => setOpen((v) => !v)}
         onFocus={openMenu}
-        className={`relative flex items-center gap-1 font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
+        className={`nav-accent-link relative flex items-center gap-1 font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:transition-transform after:duration-200 after:origin-left ${
           open
             ? "text-primary after:scale-x-100"
             : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
         }`}
       >
-        Shop by Collection
+        {triggerLabel ?? "Shop by Collection"}
         <ChevronDown
           className={`h-3.5 w-3.5 transition-transform duration-200 ${
             open ? "rotate-180" : ""

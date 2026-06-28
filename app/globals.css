@@ -145,6 +145,11 @@
   text-transform: uppercase;
 }
 
+/* ── Nav accent underline — uses --nav-accent from Navbar inline style ── */
+.nav-accent-link::after {
+  background-color: var(--nav-accent, #C9A96E);
+}
+
 /* ── Scroll reveal ───────────────────────────────── */
 .reveal {
   opacity: 0;

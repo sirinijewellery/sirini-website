@@ -15,7 +15,7 @@ const panelLink =
  * closes on mouse leave, Escape, or link click.
  * The trigger label is a Link to /occasions so the page stays reachable.
  */
-export function OccasionMenu() {
+export function OccasionMenu({ label: triggerLabel }: { label?: string } = {}) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const closeTimer = useRef<ReturnType<typeof setTimeout> | null>(null);
@@ -78,13 +78,13 @@ export function OccasionMenu() {
         aria-expanded={open}
         aria-haspopup="true"
         onFocus={openMenu}
-        className={`relative flex items-center gap-1 font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
+        className={`nav-accent-link relative flex items-center gap-1 font-label-caps text-[13px] font-semibold tracking-[0.12em] uppercase whitespace-nowrap transition-colors duration-300 cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:transition-transform after:duration-200 after:origin-left ${
           isActive || open
             ? "text-primary after:scale-x-100"
             : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
         }`}
       >
-        Shop by Occasion
+        {triggerLabel ?? "Shop by Occasion"}
         <ChevronDown
           className={`h-3.5 w-3.5 transition-transform duration-200 ${
             open ? "rotate-180" : ""

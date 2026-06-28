@@ -24,7 +24,7 @@ const columnLink =
  * Within "Shop by Category", hovering/focusing a MAIN reveals its sub-category
  * flyout; ArrowRight/Enter opens it, ArrowLeft/Escape collapses it.
  */
-export function MegaMenu({ groups }: { groups: TaxonomyGroupData[] }) {
+export function MegaMenu({ groups, label: triggerLabel }: { groups: TaxonomyGroupData[]; label?: string }) {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
   const [panelTop, setPanelTop] = useState(0);
@@ -137,13 +137,13 @@ export function MegaMenu({ groups }: { groups: TaxonomyGroupData[] }) {
           setOpen((v) => !v);
         }}
         onFocus={openMenu}
-        className={`relative flex items-center gap-1 font-label-caps text-sm font-semibold tracking-widest uppercase transition-colors duration-300 cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:bg-[#C9A96E] after:transition-transform after:duration-200 after:origin-left ${
+        className={`nav-accent-link relative flex items-center gap-1 font-label-caps text-sm font-semibold tracking-widest uppercase transition-colors duration-300 cursor-pointer after:absolute after:bottom-0 after:left-0 after:h-px after:w-full after:transition-transform after:duration-200 after:origin-left ${
           isActive || open
             ? "text-primary after:scale-x-100"
             : "text-on-surface-variant hover:text-primary after:scale-x-0 hover:after:scale-x-100"
         }`}
       >
-        Shop
+        {triggerLabel ?? "Shop"}
         <ChevronDown
           className={`h-3.5 w-3.5 transition-transform duration-200 ${
             open ? "rotate-180" : ""
