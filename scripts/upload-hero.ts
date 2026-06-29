@@ -9,10 +9,11 @@ cloudinary.config({
 });
 
 async function main() {
-  const res = await cloudinary.uploader.upload("D:/Owner/Desktop/new-hero.png", {
+  const res = await cloudinary.uploader.upload("D:/Owner/Desktop/new hero.png", {
     public_id: "hero-editorial",
     folder: "sirini-jewellery/brand",
     overwrite: true,
+    invalidate: true,
     resource_type: "image",
     tags: ["hero", "brand"],
   });
