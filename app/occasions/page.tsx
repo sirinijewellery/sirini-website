@@ -135,6 +135,25 @@ export default async function OccasionsPage() {
           View all jewellery
         </Link>
       </section>
+
+      {/* ItemList schema for occasion cards */}
+      <script
+        type="application/ld+json"
+        dangerouslySetInnerHTML={{
+          __html: JSON.stringify({
+            "@context": "https://schema.org",
+            "@type": "ItemList",
+            name: "Shop Jewellery by Occasion",
+            numberOfItems: OCCASIONS.length,
+            itemListElement: OCCASIONS.map((o, i) => ({
+              "@type": "ListItem",
+              position: i + 1,
+              url: `${siteConfig.url}/shop?occasion=${o.slug}`,
+              name: o.label,
+            })),
+          }).replace(/</g, "\\u003c"),
+        }}
+      />
     </div>
   );
 }

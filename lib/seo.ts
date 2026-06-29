@@ -197,7 +197,7 @@ export function productMetadata(product: {
     openGraph: {
       title: `${product.name} | ${siteConfig.name}`,
       description: ogDescription,
-      type: "website",
+      type: "article",
       locale: "en_IN",
       images: [{ url: image, width: 800, height: 800, alt: product.name }],
     },

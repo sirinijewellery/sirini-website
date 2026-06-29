@@ -70,11 +70,12 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     keywords: [
       product.name,
-      product.category,
+      ...(product.category ? [product.category, `buy ${product.category} online`] : []),
+      ...(product.material ? [product.material, `${product.material} jewellery`] : []),
       "Sirini Jewellery",
-      "handcrafted",
-      "Indian jewellery",
-      "buy online India",
+      "handcrafted jewellery",
+      "Indian jewellery online",
+      "free shipping India",
     ],
     alternates: {
       canonical: `${siteConfig.url}/shop/${product.slug}`,
