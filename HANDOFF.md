@@ -12,6 +12,47 @@ jewellery — Kundan, Meenakari, gold-plated). Live at **https://sirinijewellery
 
 ---
 
+## ⭐ Latest session — 2026-06-30 (read this first)
+
+Recent commits (newest first):
+- `d8d43aa` On-demand revalidation on product create/update/delete (targeted `revalidatePath`
+  for `/shop/<slug>`, `/shop`, `/` — never the broad `"/","layout"` nuke). Edits show instantly.
+- `615904a` Hero animations: centre-out **curtain reveal**, word-by-word **split-text headline**,
+  **magnetic CTA**. CSS in `app/globals.css` (`.hero-curtain`, `.word-rise`); logic in `HeroCarousel.tsx`.
+- `e60a99d` **Infra cost fixes** (both free tiers were maxed):
+  - *Vercel ISR writes* hit 100% of free 200k. Cause: `components/ProductJsonLd.tsx` used
+    `Date.now()` for `priceValidUntil`, so every product page's JSON-LD differed every render →
+    every revalidation = a write. Fixed → deterministic `${nextYear}-12-31`.
+  - *Cloudinary* at 112% of free 25 credits. Trimmed `next.config.ts` `deviceSizes`/`imageSizes`
+    (8+8 → 4+3) + hero `quality` 90 → 75.
+- `7dff052` Hero image = emerald-necklace "cleaned_hero" at Cloudinary public_id
+  **`hero-editorial-3`** (`lib/queries/site.ts` `DEFAULT_HERO_IMAGE`).
+- `dd73ff0` 4 "easy" animations: navbar shrink-on-scroll, product card hover lift,
+  gold focus glow on inputs, page-fade `app/template.tsx`.
+
+**Open / next:**
+- [ ] **Monitor free-tier usage for a few days.** Cloudinary dashboard → is the overage
+  Transformations / Storage / Bandwidth? (fixes target transforms+bandwidth; quota resets monthly;
+  upgrade Plus $89/mo only if real bandwidth growth persists). Vercel → ISR Writes chart should
+  flatten hard after the determinism fix (should stay on free Hobby).
+- [ ] **Scroll-counter animation NOT done** — needs real numbers from owner ("X+ customers",
+  "since 2017"), then add count-up on scroll-into-view.
+
+**Two hard-won gotchas (don't relearn these):**
+1. **Cloudinary image won't change for users?** Overwriting a public_id doesn't reliably bump the
+   version, and browsers cache derived images 30 days (`max-age=2592000`); a versionless URL never
+   busts. ALWAYS upload under a NEW public_id (`…-2`, `…-3`) and point code at the new versioned URL.
+   Tool: `scripts/upload-hero.ts` (env `HERO_SRC`, `HERO_PUBLIC_ID`). Verify by hashing:
+   `curl -s "<prod transformed url>" | md5sum` vs the local source.
+2. **Keep ISR output deterministic** — any `Date.now()`/`Math.random()`/per-render timestamp in an
+   ISR page makes every revalidation a costly write. All custom animations live in `app/globals.css`
+   behind one `prefers-reduced-motion` guard — add new ones there.
+
+See the project skill **`/deploy-and-verify`** (`.claude/skills/deploy-and-verify/`) for the full
+ship → verify-on-prod loop.
+
+---
+
 ## Stack & critical gotchas
 
 | Layer | Detail |
