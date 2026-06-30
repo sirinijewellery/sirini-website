@@ -16,7 +16,7 @@ export interface HeroSlideData {
 // Falls back to the current editorial hero so the home page never breaks,
 // even before the owner adds any slides.
 export const DEFAULT_HERO_IMAGE =
-  "https://res.cloudinary.com/dp8a2lvxg/image/upload/sirini-jewellery/brand/hero-editorial.png";
+  "https://res.cloudinary.com/dp8a2lvxg/image/upload/v1782792375/sirini-jewellery/brand/hero-editorial-2.png";
 export const DEFAULT_HERO_DURATION_MS = 6000;
 export const DEFAULT_RIBBON_MESSAGES = [
   "Free Pan-India Shipping on All Orders",

@@ -100,6 +100,7 @@ export function Navbar({
   // Other state
   const [mobileOpen, setMobileOpen] = useState(false);
   const [announcementIdx, setAnnouncementIdx] = useState(0);
+  const [scrolled, setScrolled] = useState(false);
 
   // Refs
   const searchRef = useRef<HTMLInputElement>(null);
@@ -117,6 +118,14 @@ export function Navbar({
       setAnnouncementIdx((prev) => (prev + 1) % ANNOUNCEMENTS.length);
     }, 4000);
     return () => clearInterval(timer);
+  }, []);
+
+  // Shrink the header once the user scrolls past the announcement bar
+  useEffect(() => {
+    const onScroll = () => setScrolled(window.scrollY > 24);
+    onScroll();
+    window.addEventListener("scroll", onScroll, { passive: true });
+    return () => window.removeEventListener("scroll", onScroll);
   }, []);
 
   // Click-outside to close search dropdown
@@ -233,10 +242,10 @@ export function Navbar({
 
       {/* Sticky header */}
       <header
-        className={`${navbarConfig.headerBg ? "" : "bg-background/90 "}backdrop-blur-md w-full top-0 sticky z-50`}
+        className={`${navbarConfig.headerBg ? "" : "bg-background/90 "}backdrop-blur-md w-full top-0 sticky z-50 transition-shadow duration-300 ${scrolled ? "shadow-[0_2px_16px_-6px_rgba(44,44,44,0.22)]" : ""}`}
         style={headerStyle}
       >
-        <div className="flex items-center gap-4 w-full px-6 md:px-16 py-2 max-w-screen-2xl mx-auto">
+        <div className={`flex items-center gap-4 w-full px-6 md:px-16 max-w-screen-2xl mx-auto transition-all duration-300 ${scrolled ? "py-1" : "py-2"}`}>
 
           {/* Logo — goes home; when already home, glides up to the hero */}
           <Link
@@ -252,7 +261,7 @@ export function Navbar({
               alt="Sirini Jewellery"
               width={500}
               height={500}
-              className="h-20 w-auto object-contain"
+              className={`w-auto object-contain transition-all duration-300 ${scrolled ? "h-14" : "h-20"}`}
               preload
             />
           </Link>

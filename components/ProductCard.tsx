@@ -123,7 +123,7 @@ export function ProductCard({ product }: ProductCardProps) {
     <>
     <Link href={`/shop/${product.slug}`} className="group block cursor-pointer">
       {/* ── Image container ─────────────────────────────────────── */}
-      <div className="relative aspect-[4/5] bg-surface-container overflow-hidden border border-outline-variant group-hover:border-primary/30 transition-colors duration-300 mb-4">
+      <div className="relative aspect-[4/5] bg-surface-container overflow-hidden border border-outline-variant group-hover:border-primary/30 card-lift-group mb-4">
 
         {/* Primary image */}
         {primaryImage ? (

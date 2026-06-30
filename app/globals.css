@@ -397,6 +397,20 @@ a:hover > .img-zoom,
     0 18px 36px -12px rgba(34, 26, 21, 0.18);
 }
 
+/* Group variant — rises when an ancestor `.group` is hovered (product cards,
+   where the whole card is the hover target, not just the image). */
+.card-lift-group {
+  transition: transform 350ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 350ms cubic-bezier(0.22, 1, 0.36, 1),
+              border-color 300ms ease;
+}
+.group:hover .card-lift-group {
+  transform: translateY(-6px);
+  box-shadow:
+    0 2px 6px rgba(34, 26, 21, 0.05),
+    0 18px 36px -12px rgba(34, 26, 21, 0.18);
+}
+
 /* ── Press feedback — tactile scale-down on click ── */
 .press-scale {
   transition: transform 120ms ease-out;
@@ -597,11 +611,36 @@ a:hover > .img-zoom,
   pointer-events: none;
 }
 
+/* ── Gold focus glow — warm ring on raw form fields (footer contact form,
+   newsletter, checkout). Scoped with :not([data-slot]) so design-system
+   primitives (base-ui/shadcn inputs) keep their own focus ring, and excludes
+   checkboxes/radios/buttons. ── */
+input:not([data-slot]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]),
+textarea:not([data-slot]) {
+  transition: box-shadow 200ms ease, border-color 200ms ease;
+}
+input:not([data-slot]):not([type="checkbox"]):not([type="radio"]):not([type="submit"]):not([type="button"]):focus,
+textarea:not([data-slot]):focus {
+  outline: none;
+  border-color: #c9a96e;
+  box-shadow: 0 0 0 3px rgba(201, 169, 110, 0.18);
+}
+
+/* ── Page enter — gentle fade-up on every route navigation (via app/template) ── */
+@keyframes pageEnter {
+  from { opacity: 0; transform: translateY(6px); }
+  to   { opacity: 1; transform: translateY(0); }
+}
+.page-enter {
+  animation: pageEnter 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
+}
+
 /* ── Global reduced-motion guard — covers EVERY custom animation ── */
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .stagger-grid > *,
   .hero-stagger > *,
+  .page-enter,
   .drawer-cascade > * {
     opacity: 1 !important;
     transform: none !important;
@@ -613,6 +652,7 @@ a:hover > .img-zoom,
   }
   .img-zoom,
   .card-lift,
+  .card-lift-group,
   .press-scale,
   .link-sweep::after,
   .btn-sheen::before,
@@ -620,6 +660,7 @@ a:hover > .img-zoom,
     transition: none !important;
   }
   .group:hover .img-zoom,
+  .group:hover .card-lift-group,
   .card-lift:hover {
     transform: none !important;
   }
