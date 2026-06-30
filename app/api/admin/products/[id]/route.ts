@@ -1,9 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
+import { revalidatePath } from "next/cache";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
 import { deleteFromCloudinary } from "@/lib/cloudinary";
 import { parseImages } from "@/lib/queries/products";
+
+// On-demand revalidation: refresh only the pages a product change can affect,
+// so edits show up instantly without nuking the whole site's ISR cache.
+function revalidateProduct(slug: string) {
+  revalidatePath(`/shop/${slug}`); // the product detail page
+  revalidatePath("/shop"); // the listing/grid
+  revalidatePath("/"); // home (featured / bestsellers rails)
+}
 
 const productSchema = z.object({
   name: z.string().min(1, "Name is required"),
@@ -153,6 +162,10 @@ export async function PUT(
       : []),
   ]);
 
+  // Refresh the affected pages now. If the slug changed, refresh the old URL too.
+  revalidateProduct(fields.slug);
+  if (existing.slug !== fields.slug) revalidatePath(`/shop/${existing.slug}`);
+
   return NextResponse.json(updated);
 }
 
@@ -174,6 +187,9 @@ export async function DELETE(
   }
 
   await prisma.product.delete({ where: { id } });
+
+  // Drop the deleted product's page + listings from cache immediately.
+  revalidateProduct(existing.slug);
 
   // Best-effort Cloudinary cleanup — don't fail the request if deletion errors
   try {
