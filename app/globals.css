@@ -635,17 +635,41 @@ textarea:not([data-slot]):focus {
   animation: pageEnter 420ms cubic-bezier(0.16, 1, 0.3, 1) both;
 }
 
+/* ── Hero curtain — image unveils from the centre outward on first paint ── */
+@keyframes heroCurtain {
+  from { clip-path: inset(0 50% 0 50%); }
+  to   { clip-path: inset(0 0 0 0); }
+}
+.hero-curtain {
+  animation: heroCurtain 1100ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* ── Word rise — headline reveals word-by-word, each lifting into place ── */
+@keyframes wordRise {
+  from { opacity: 0; transform: translateY(0.5em) rotate(1.2deg); }
+  to   { opacity: 1; transform: translateY(0) rotate(0); }
+}
+.word-rise > span {
+  display: inline-block;
+  animation: wordRise 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 /* ── Global reduced-motion guard — covers EVERY custom animation ── */
 @media (prefers-reduced-motion: reduce) {
   .reveal,
   .stagger-grid > *,
   .hero-stagger > *,
   .page-enter,
+  .hero-curtain,
+  .word-rise > *,
   .drawer-cascade > * {
     opacity: 1 !important;
     transform: none !important;
     transition: none !important;
     animation: none !important;
+  }
+  .hero-curtain {
+    clip-path: none !important;
   }
   .reveal.reveal-clip {
     clip-path: none !important;

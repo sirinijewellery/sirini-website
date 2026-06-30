@@ -1,7 +1,8 @@
 "use client";
 
 import Image from "next/image";
-import { useState, useEffect } from "react";
+import Link from "next/link";
+import { useState, useEffect, useRef } from "react";
 import type { HeroSlideData } from "@/lib/queries/site";
 
 // Rotating hero. Layout matches the original:
@@ -20,6 +21,22 @@ export function HeroCarousel({
   const [idx, setIdx] = useState(0);
   const multi = slides.length > 1;
 
+  // Magnetic CTA — the button gently drifts toward the cursor when hovered.
+  // Applied to a wrapper span so the button keeps its own press-scale/sheen.
+  // Disabled for touch (mousemove doesn't fire) and reduced-motion users.
+  const ctaRef = useRef<HTMLSpanElement>(null);
+  function handleCtaMove(e: React.MouseEvent<HTMLSpanElement>) {
+    const el = ctaRef.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = el.getBoundingClientRect();
+    const mx = e.clientX - (r.left + r.width / 2);
+    const my = e.clientY - (r.top + r.height / 2);
+    el.style.transform = `translate(${(mx * 0.2).toFixed(1)}px, ${(my * 0.35).toFixed(1)}px)`;
+  }
+  function handleCtaLeave() {
+    if (ctaRef.current) ctaRef.current.style.transform = "";
+  }
+
   useEffect(() => {
     if (!multi) return;
     const t = setInterval(() => {
@@ -32,7 +49,7 @@ export function HeroCarousel({
     <section className="relative w-full overflow-hidden bg-background reveal md:h-[100svh] md:min-h-[560px]">
 
       {/* Image stage — phone: in-flow ratio band; PC: absolute full-bleed */}
-      <div className="relative w-full aspect-[1312/816] hero-glint md:absolute md:inset-0 md:aspect-auto md:h-full">
+      <div className="relative w-full aspect-[1312/816] hero-glint hero-curtain md:absolute md:inset-0 md:aspect-auto md:h-full">
         {slides.map((s, i) => {
           const active = i === idx;
           const mobileSrc = s.mobileImageUrl || s.imageUrl;
@@ -98,11 +115,12 @@ export function HeroCarousel({
           <p className="font-label-caps text-label-caps tracking-[0.3em] text-primary uppercase animate-slide-up-fade">
             Handcrafted Since 2017
           </p>
-          <h1
-            className="font-display-lg text-[44px] sm:text-[68px] md:text-[92px] leading-[1.06] md:leading-[1.04] tracking-[-0.02em] text-on-surface animate-slide-up-fade"
-            style={{ animationDelay: "100ms" }}
-          >
-            The Heritage<br className="hidden sm:block" /> <em style={{ fontStyle: "italic" }}>of Elegance</em>
+          <h1 className="font-display-lg text-[44px] sm:text-[68px] md:text-[92px] leading-[1.06] md:leading-[1.04] tracking-[-0.02em] text-on-surface word-rise">
+            <span style={{ animationDelay: "180ms" }}>The</span>{" "}
+            <span style={{ animationDelay: "290ms" }}>Heritage</span>{" "}
+            <br className="hidden sm:block" />
+            <span style={{ animationDelay: "400ms", fontStyle: "italic" }}>of</span>{" "}
+            <span style={{ animationDelay: "510ms", fontStyle: "italic" }}>Elegance</span>
           </h1>
           <p
             className="font-body-lg text-body-lg text-on-surface-variant max-w-sm leading-relaxed animate-slide-up-fade"
@@ -111,14 +129,21 @@ export function HeroCarousel({
             Kundan, Meenakari &amp; gold-plated jewellery —<br className="hidden md:block" />
             crafted in Mumbai for every occasion.
           </p>
-          <a
-            href="/shop"
-            className="group w-fit inline-flex items-center justify-center gap-2 px-8 py-4 border border-primary text-primary hover:bg-primary hover:text-on-primary font-label-caps text-label-caps font-semibold transition-colors duration-300 animate-slide-up-fade cursor-pointer btn-sheen press-scale"
+          <span
+            ref={ctaRef}
+            onMouseMove={handleCtaMove}
+            onMouseLeave={handleCtaLeave}
+            className="inline-block w-fit animate-slide-up-fade [transition:transform_300ms_cubic-bezier(0.22,1,0.36,1)]"
             style={{ animationDelay: "360ms" }}
           >
-            Shop the Collection
-            <span className="inline-block transition-transform duration-300 ease-out group-hover:translate-x-1" aria-hidden="true">→</span>
-          </a>
+            <Link
+              href="/shop"
+              className="group w-fit inline-flex items-center justify-center gap-2 px-8 py-4 border border-primary text-primary hover:bg-primary hover:text-on-primary font-label-caps text-label-caps font-semibold transition-colors duration-300 cursor-pointer btn-sheen press-scale"
+            >
+              Shop the Collection
+              <span className="inline-block transition-transform duration-300 ease-out group-hover:translate-x-1" aria-hidden="true">→</span>
+            </Link>
+          </span>
         </div>
       </div>
     </section>
