@@ -48,7 +48,7 @@ export function HeroCarousel({
                 alt="Sirini Jewellery — handcrafted necklace set"
                 fill
                 preload={i === 0}
-                quality={90}
+                quality={75}
                 sizes="100vw"
                 style={{ objectPosition: s.focalMobile, filter: cssFilter }}
                 className="object-cover md:hidden hero-breathe"
@@ -58,7 +58,7 @@ export function HeroCarousel({
                 alt="Sirini Jewellery — handcrafted necklace set"
                 fill
                 preload={i === 0}
-                quality={90}
+                quality={75}
                 sizes="100vw"
                 style={{ objectPosition: s.focalDesktop, filter: cssFilter }}
                 className="object-cover hidden md:block hero-breathe"

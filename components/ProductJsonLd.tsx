@@ -38,10 +38,12 @@ export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLd
     product.inStock ??
     (product.stock !== undefined ? product.stock > 0 : true);
 
-  // ~1 year out — required by Google for valid Offer rich results
-  const priceValidUntil = new Date(Date.now() + 365 * 864e5)
-    .toISOString()
-    .split("T")[0];
+  // Future date required by Google for valid Offer rich results. MUST be
+  // deterministic: using Date.now() here made the JSON-LD change on every
+  // render, so every ISR revalidation of every product page wrote fresh cache
+  // (200k+ ISR writes). Anchoring to "end of next year" only changes once a
+  // year, so revalidations with unchanged data now cost zero writes.
+  const priceValidUntil = `${new Date().getFullYear() + 1}-12-31`;
 
   const jsonLd: Record<string, unknown> = {
     "@context": "https://schema.org",

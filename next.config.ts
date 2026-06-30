@@ -7,6 +7,12 @@ const nextConfig: NextConfig = {
     // through Vercel's optimizer. Dramatically smaller transfers.
     loader: "custom",
     loaderFile: "./lib/cloudinaryLoader.ts",
+    // Trim the srcset width ladder. Each distinct width becomes its own
+    // Cloudinary derived transformation (counts against the monthly credit
+    // quota), so the 8+8 Next defaults multiplied transformations needlessly.
+    // These 4 + 3 widths still cover phone → tablet → desktop → retina cleanly.
+    deviceSizes: [640, 828, 1080, 1920],
+    imageSizes: [128, 256, 384],
     remotePatterns: [
       {
         protocol: "https",
