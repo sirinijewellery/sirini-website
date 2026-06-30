@@ -9,17 +9,22 @@ cloudinary.config({
 });
 
 async function main() {
-  const res = await cloudinary.uploader.upload("D:/Owner/Desktop/new hero.png", {
-    // New public_id (…-2) gives the asset a brand-new URL so returning
-    // visitors' browsers (which cached the old hero for 30 days under the
-    // previous URL) fetch it fresh instead of serving stale cache.
-    public_id: "hero-editorial-2",
-    folder: "sirini-jewellery/brand",
-    overwrite: true,
-    invalidate: true,
-    resource_type: "image",
-    tags: ["hero", "brand"],
-  });
+  const res = await cloudinary.uploader.upload(
+    process.env.HERO_SRC || "D:/Owner/Desktop/new hero.png",
+    {
+      // Fresh public_id (…-3) gives the asset a brand-new URL so returning
+      // visitors' browsers (which cached the old hero under the previous URL)
+      // fetch it fresh instead of serving stale cache. Store as png so the
+      // delivered URL keeps the existing .png convention.
+      public_id: process.env.HERO_PUBLIC_ID || "hero-editorial-2",
+      folder: "sirini-jewellery/brand",
+      format: "png",
+      overwrite: true,
+      invalidate: true,
+      resource_type: "image",
+      tags: ["hero", "brand"],
+    },
+  );
   console.log(JSON.stringify({
     public_id: res.public_id,
     secure_url: res.secure_url,
