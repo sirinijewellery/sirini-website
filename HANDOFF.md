@@ -35,8 +35,6 @@ Recent commits (newest first):
   Transformations / Storage / Bandwidth? (fixes target transforms+bandwidth; quota resets monthly;
   upgrade Plus $89/mo only if real bandwidth growth persists). Vercel → ISR Writes chart should
   flatten hard after the determinism fix (should stay on free Hobby).
-- [ ] **Scroll-counter animation NOT done** — needs real numbers from owner ("X+ customers",
-  "since 2017"), then add count-up on scroll-into-view.
 
 **Two hard-won gotchas (don't relearn these):**
 1. **Cloudinary image won't change for users?** Overwriting a public_id doesn't reliably bump the
