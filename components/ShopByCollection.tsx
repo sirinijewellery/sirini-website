@@ -24,7 +24,7 @@ export function ShopByCollection({ collections }: { collections: HomeTaxonomyTil
         </p>
       </div>
 
-      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 reveal stagger-grid">
+      <div className="grid grid-cols-2 sm:grid-cols-2 lg:grid-cols-3 gap-4 md:gap-6 reveal stagger-grid stagger-tilt">
         {collections.map((col) =>
           col.coverImage ? (
             // ── Portrait image card ──────────────────────────────────────

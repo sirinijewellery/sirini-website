@@ -94,8 +94,8 @@ export default async function AboutPage() {
       {/* ── Artisan image + Materials ──────────────────────────────── */}
       <section className="py-0 pb-24 px-6 md:px-16 max-w-screen-2xl mx-auto">
         <div className="grid grid-cols-1 md:grid-cols-2 gap-12 items-center">
-          {/* Artisan image */}
-          <div className="relative aspect-[4/3] overflow-hidden bg-surface-container">
+          {/* Artisan image — unveils with a clip-path wipe on scroll into view */}
+          <div className="relative aspect-[4/3] overflow-hidden bg-surface-container reveal reveal-clip">
             <Image
               src={ARTISAN_IMAGE}
               alt="Artisan crafting jewellery at the Mumbai workshop"

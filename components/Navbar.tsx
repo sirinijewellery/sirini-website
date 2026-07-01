@@ -5,7 +5,7 @@ import Image from "next/image";
 import { usePathname, useRouter } from "next/navigation";
 import { useState, useRef, useEffect } from "react";
 import { signOut, useSession } from "next-auth/react";
-import { ShoppingBag, Heart, Search, Menu, User, LogOut, Settings, X } from "lucide-react";
+import { ShoppingBag, Heart, Search, User, LogOut, Settings, X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Sheet, SheetContent, SheetTrigger } from "@/components/ui/sheet";
@@ -497,7 +497,11 @@ export function Navbar({
                   className="md:hidden inline-flex items-center justify-center h-10 w-10 rounded-full text-primary hover:bg-surface-container transition-colors press-scale cursor-pointer"
                   aria-label="Menu"
                 >
-                  <Menu className="h-6 w-6" />
+                  <span className={`hamburger ${mobileOpen ? "open" : ""}`} aria-hidden="true">
+                    <span />
+                    <span />
+                    <span />
+                  </span>
                 </SheetTrigger>
                 <SheetContent side="right" className="w-72 bg-background">
                   <div className="flex flex-col h-full">

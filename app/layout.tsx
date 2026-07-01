@@ -171,6 +171,8 @@ export default async function RootLayout({
         <NextTopLoader color="#B76E79" height={3} showSpinner={false} crawl={true} />
         <ScrollReveal />
         <ScrollProgressBar />
+        {/* Ambient gold edge-warmth that deepens as the page scrolls (CSS scroll-timeline) */}
+        <div className="scroll-warmth" aria-hidden="true" />
         <WebSiteJsonLd />
         <LocalBusinessJsonLd />
         <AuthProvider>

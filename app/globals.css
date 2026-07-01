@@ -654,6 +654,99 @@ textarea:not([data-slot]):focus {
   animation: wordRise 760ms cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
+/* ── Grid tilt entrance — stagger children settle from a slight rotation.
+   Layers on top of .stagger-grid (which handles the reveal timing/stagger). ── */
+.stagger-grid.stagger-tilt > * {
+  transform: translateY(24px) rotate(-1.4deg) scale(0.985);
+}
+.stagger-grid.stagger-tilt.active > * {
+  transform: translateY(0) rotate(0) scale(1);
+}
+
+/* ── Gold sparkle — faint dust motes drifting up across the hero ── */
+@keyframes sparkleDrift {
+  0%   { opacity: 0; transform: translateY(10px) scale(0.5); }
+  20%  { opacity: var(--spark-max, 0.7); }
+  80%  { opacity: var(--spark-max, 0.7); }
+  100% { opacity: 0; transform: translateY(-28px) scale(1); }
+}
+
+/* ── Cursor spotlight — warm glow following the pointer over the hero image ── */
+.hero-spotlight {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 5;
+  opacity: 0;
+  transition: opacity 400ms ease;
+  background: radial-gradient(
+    220px circle at var(--sx, 50%) var(--sy, 50%),
+    rgba(232, 213, 176, 0.2),
+    transparent 70%
+  );
+  mix-blend-mode: screen;
+}
+.hero-spotlight.on {
+  opacity: 1;
+}
+
+/* ── 3D card tilt — product card leans toward the cursor (JS sets transform) ── */
+.card-tilt {
+  transition: transform 200ms cubic-bezier(0.22, 1, 0.36, 1),
+              box-shadow 300ms ease-out, border-color 300ms ease;
+  will-change: transform;
+}
+.group:hover .card-tilt {
+  box-shadow:
+    0 2px 6px rgba(34, 26, 21, 0.05),
+    0 18px 36px -12px rgba(34, 26, 21, 0.18);
+}
+
+/* ── Scroll warmth — gold edge-vignette that deepens as the page scrolls ── */
+.scroll-warmth {
+  position: fixed;
+  inset: 0;
+  pointer-events: none;
+  z-index: 30;
+  background: radial-gradient(
+    130% 105% at 50% 45%,
+    transparent 58%,
+    rgba(201, 169, 110, 0.11) 100%
+  );
+  opacity: 0;
+  animation: scrollWarmth linear both;
+  animation-timeline: scroll(root);
+}
+@keyframes scrollWarmth {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+
+/* ── Animated hamburger → X (mobile menu toggle) ── */
+.hamburger {
+  position: relative;
+  display: inline-block;
+  width: 22px;
+  height: 16px;
+  color: currentColor;
+}
+.hamburger > span {
+  position: absolute;
+  left: 0;
+  height: 2px;
+  width: 100%;
+  border-radius: 2px;
+  background: currentColor;
+  transition: transform 300ms cubic-bezier(0.22, 1, 0.36, 1),
+              opacity 200ms ease, top 300ms ease;
+}
+.hamburger > span:nth-child(1) { top: 0; }
+.hamburger > span:nth-child(2) { top: 7px; }
+.hamburger > span:nth-child(3) { top: 14px; }
+.hamburger.open > span:nth-child(1) { top: 7px; transform: rotate(45deg); }
+.hamburger.open > span:nth-child(2) { opacity: 0; }
+.hamburger.open > span:nth-child(3) { top: 7px; transform: rotate(-45deg); }
+
 /* ── Global reduced-motion guard — covers EVERY custom animation ── */
 @media (prefers-reduced-motion: reduce) {
   .reveal,
@@ -677,16 +770,24 @@ textarea:not([data-slot]):focus {
   .img-zoom,
   .card-lift,
   .card-lift-group,
+  .card-tilt,
   .press-scale,
   .link-sweep::after,
   .btn-sheen::before,
-  .crossfade-top {
+  .crossfade-top,
+  .hamburger > span {
     transition: none !important;
   }
   .group:hover .img-zoom,
   .group:hover .card-lift-group,
   .card-lift:hover {
     transform: none !important;
+  }
+  /* Ambient / pointer effects add nothing essential — switch them off. */
+  .scroll-warmth,
+  .hero-spotlight,
+  .hero-sparkles {
+    display: none !important;
   }
   .animate-heart-pop,
   .animate-badge-pop,

@@ -3,6 +3,7 @@
 import Image from "next/image";
 import Link from "next/link";
 import { useState, useEffect, useRef } from "react";
+import { HeroSparkles } from "@/components/HeroSparkles";
 import type { HeroSlideData } from "@/lib/queries/site";
 
 // Rotating hero. Layout matches the original:
@@ -37,6 +38,20 @@ export function HeroCarousel({
     if (ctaRef.current) ctaRef.current.style.transform = "";
   }
 
+  // Cursor spotlight — a warm glow that tracks the pointer over the hero image.
+  const spotlightRef = useRef<HTMLDivElement>(null);
+  function handleHeroMove(e: React.MouseEvent<HTMLElement>) {
+    const el = spotlightRef.current;
+    if (!el) return;
+    const r = e.currentTarget.getBoundingClientRect();
+    el.style.setProperty("--sx", `${(((e.clientX - r.left) / r.width) * 100).toFixed(1)}%`);
+    el.style.setProperty("--sy", `${(((e.clientY - r.top) / r.height) * 100).toFixed(1)}%`);
+    el.classList.add("on");
+  }
+  function handleHeroLeave() {
+    spotlightRef.current?.classList.remove("on");
+  }
+
   useEffect(() => {
     if (!multi) return;
     const t = setInterval(() => {
@@ -46,7 +61,11 @@ export function HeroCarousel({
   }, [multi, slides.length, durationMs]);
 
   return (
-    <section className="relative w-full overflow-hidden bg-background reveal md:h-[100svh] md:min-h-[560px]">
+    <section
+      className="relative w-full overflow-hidden bg-background reveal md:h-[100svh] md:min-h-[560px]"
+      onMouseMove={handleHeroMove}
+      onMouseLeave={handleHeroLeave}
+    >
 
       {/* Image stage — phone: in-flow ratio band; PC: absolute full-bleed */}
       <div className="relative w-full aspect-[1312/816] hero-glint hero-curtain md:absolute md:inset-0 md:aspect-auto md:h-full">
@@ -83,6 +102,10 @@ export function HeroCarousel({
             </div>
           );
         })}
+
+        {/* Pointer spotlight + drifting gold dust — overlay the image, under the copy */}
+        <div ref={spotlightRef} className="hero-spotlight" aria-hidden="true" />
+        <HeroSparkles />
       </div>
 
       {/* Legibility scrims — PC only, opacity driven by active slide */}

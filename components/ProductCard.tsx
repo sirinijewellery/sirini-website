@@ -2,7 +2,7 @@
 
 import Link from "next/link";
 import Image from "next/image";
-import { useState } from "react";
+import { useState, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { useRouter } from "next/navigation";
 import { toast } from "sonner";
@@ -77,6 +77,23 @@ export function ProductCard({ product }: ProductCardProps) {
   const [wishlistLoading, setWishlistLoading] = useState(false);
   const [quickViewOpen, setQuickViewOpen] = useState(false);
 
+  // 3D tilt — the image card leans toward the cursor. `perspective()` lives in
+  // the transform itself, so no preserve-3d (which would break overflow-hidden).
+  const tiltRef = useRef<HTMLDivElement>(null);
+  function handleTiltMove(e: React.MouseEvent<HTMLDivElement>) {
+    const el = tiltRef.current;
+    if (!el || window.matchMedia("(prefers-reduced-motion: reduce)").matches) return;
+    const r = el.getBoundingClientRect();
+    const px = (e.clientX - r.left) / r.width; // 0..1
+    const py = (e.clientY - r.top) / r.height; // 0..1
+    const rx = (0.5 - py) * 7;
+    const ry = (px - 0.5) * 7;
+    el.style.transform = `perspective(800px) rotateX(${rx.toFixed(2)}deg) rotateY(${ry.toFixed(2)}deg) translateY(-6px)`;
+  }
+  function handleTiltLeave() {
+    if (tiltRef.current) tiltRef.current.style.transform = "";
+  }
+
   const images = parseImages(product.images);
   const { primary: primaryImage, hover: secondImage } = selectCardImages(images);
 
@@ -123,7 +140,12 @@ export function ProductCard({ product }: ProductCardProps) {
     <>
     <Link href={`/shop/${product.slug}`} className="group block cursor-pointer">
       {/* ── Image container ─────────────────────────────────────── */}
-      <div className="relative aspect-[4/5] bg-surface-container overflow-hidden border border-outline-variant group-hover:border-primary/30 card-lift-group mb-4">
+      <div
+        ref={tiltRef}
+        onMouseMove={handleTiltMove}
+        onMouseLeave={handleTiltLeave}
+        className="relative aspect-[4/5] bg-surface-container overflow-hidden border border-outline-variant group-hover:border-primary/30 card-tilt mb-4"
+      >
 
         {/* Primary image */}
         {primaryImage ? (

@@ -1,4 +1,6 @@
 import Image from "next/image";
+import Link from "next/link";
+import { Magnetic } from "@/components/Magnetic";
 import type { HomeCategory } from "@/lib/queries/home";
 
 // Editorial category grid. Categories are the MAIN terms of the admin-managed
@@ -41,16 +43,18 @@ export function CategoryGrid({ categories }: { categories: HomeCategory[] }) {
             Find your piece by what you&apos;re looking for.
           </p>
         </div>
-        <a
-          className="font-label-caps text-label-caps font-semibold text-primary border-b border-primary pb-1 hover:text-on-primary-fixed-variant hover:border-on-primary-fixed-variant transition-colors"
-          href="/shop"
-        >
-          View All Categories
-        </a>
+        <Magnetic strength={0.4}>
+          <Link
+            className="font-label-caps text-label-caps font-semibold text-primary border-b border-primary pb-1 hover:text-on-primary-fixed-variant hover:border-on-primary-fixed-variant transition-colors"
+            href="/shop"
+          >
+            View All Categories
+          </Link>
+        </Magnetic>
       </div>
 
       {/* Equal-height grid — tiles stagger in one-by-one on scroll */}
-      <div className={`grid grid-cols-2 md:grid-cols-3 ${desktopCols} gap-4 md:gap-6 reveal stagger-grid`}>
+      <div className={`grid grid-cols-2 md:grid-cols-3 ${desktopCols} gap-4 md:gap-6 reveal stagger-grid stagger-tilt`}>
         {categories.map((cat) => (
           <a
             key={cat.id}
