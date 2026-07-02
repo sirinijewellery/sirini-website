@@ -4,6 +4,8 @@ import { prisma } from "@/lib/prisma";
 import { verifyRazorpaySignature, fetchRazorpayOrder } from "@/lib/payment";
 import { auth } from "@/lib/auth";
 import { sendNewOrderEmails } from "@/lib/email";
+import { getCommerceSettings } from "@/lib/queries/commerce";
+import { computeTotals } from "@/lib/commerce/pricing";
 
 const bodySchema = z.object({
   razorpayOrderId: z.string().min(1),
@@ -138,16 +140,20 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Mirror the client total EXACTLY: discountedSubtotal + 3% GST + gift wrap.
-  const giftWrapFee = giftWrap ? 49 : 0;
-  const discountedSubtotal = Math.max(0, recalculatedSubtotal - recalculatedDiscount);
-  const gst = Math.round(discountedSubtotal * 0.03);
-  const recalculatedTotal = Math.max(0, discountedSubtotal + gst + giftWrapFee);
+  // Mirror the client total EXACTLY via the shared single source of truth —
+  // the same computeTotals() that create-order used to set the Razorpay
+  // charge amount, so owner-edited rates/fees can never cause a mismatch here.
+  const settings = await getCommerceSettings();
+  const { total: recalculatedTotal, totalPaise: recalculatedPaise } = computeTotals({
+    subtotal: recalculatedSubtotal,
+    discount: recalculatedDiscount,
+    giftWrap: !!giftWrap,
+    settings,
+  });
 
   // 4. Exact paise comparison — no ±1 tolerance that could be exploited.
   // The amount actually charged at Razorpay MUST equal the recalculated cart
   // total — otherwise a cheap payment could be replayed against a pricier cart.
-  const recalculatedPaise = Math.round(recalculatedTotal * 100);
   const clientPaise = Math.round(totalAmount * 100);
   if (recalculatedPaise !== clientPaise || razorpayAmountPaise !== recalculatedPaise) {
     return NextResponse.json(

@@ -255,7 +255,7 @@ Full doc: **`Sirini Pending Tasks.docx`** on the Desktop (updated 2026-06-22).
 | **Add cover images** | `/admin/shop` → each term has a Browse button for cover image. |
 | **Resend (order emails)** | Sign up resend.com → verify domain DNS → get API key → Vercel: `RESEND_API_KEY` + `ORDER_FROM_EMAIL=Sirini Jewellery <orders@sirinijewellery.com>` → redeploy. |
 | **Razorpay webhook** | dashboard.razorpay.com → Account & Settings → Webhooks → URL: `https://sirinijewellery.com/api/webhooks/razorpay`, events: `payment.captured` + `order.paid`, note secret → Vercel: `RAZORPAY_WEBHOOK_SECRET` → redeploy. |
-| **CRON_SECRET** | Vercel env var: `CRON_SECRET = 205b3ba0c29ea419744e6925595ecc80577029e4d27ee505d5691f18ee507993` → redeploy. |
+| **CRON_SECRET** | ✅ DONE (2026-07-02) — fresh secret generated and set in Vercel Production via CLI (never committed; the old value that briefly lived in this file is dead — do NOT reuse it). Route now fails closed (401) in production if the var is ever missing. |
 | **Merchant Center** | merchants.google.com → create account → add feed URL `https://sirinijewellery.com/product-feed.xml` (scheduled daily). |
 | **Google Search Console** | ✅ DONE — verified (HTML tag), sitemap.xml submitted. |
 

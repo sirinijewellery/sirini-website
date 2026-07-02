@@ -18,8 +18,13 @@ export async function GET(req: NextRequest) {
     if (provided.length !== expected.length || !timingSafeEqual(provided, expected)) {
       return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
     }
+  } else if (process.env.NODE_ENV === "production") {
+    // Fail closed in production — without a secret anyone could trigger the
+    // digest (email-quota burn + order-table scan on every hit).
+    console.warn("[cron] CRON_SECRET not set — refusing unauthenticated digest request.");
+    return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
   } else {
-    console.warn("[cron] CRON_SECRET not set — daily-digest endpoint is unauthenticated.");
+    console.warn("[cron] CRON_SECRET not set — allowing in non-production only.");
   }
 
   const since = new Date(Date.now() - 24 * 60 * 60 * 1000);
@@ -65,5 +70,7 @@ export async function GET(req: NextRequest) {
     })),
   });
 
-  return NextResponse.json({ ok: true, orders: orders.length, revenue });
+  // Don't echo business numbers back to the caller — the digest email is the
+  // delivery channel; the response only needs to acknowledge the run.
+  return NextResponse.json({ ok: true, orders: orders.length });
 }

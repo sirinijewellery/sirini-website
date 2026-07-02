@@ -2,6 +2,8 @@ import { NextRequest, NextResponse } from "next/server";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
+import { getCommerceSettings } from "@/lib/queries/commerce";
+import { computeTotals } from "@/lib/commerce/pricing";
 
 const bodySchema = z.object({
   items: z
@@ -29,9 +31,6 @@ const bodySchema = z.object({
   giftWrap: z.boolean().optional(),
   notes: z.string().optional(),
 });
-
-// ₹49 gift-wrap fee (kept in sync with the client-side fee in CheckoutForm)
-const GIFT_WRAP_FEE = 49;
 
 export async function POST(req: NextRequest) {
   // Admin-only: this route creates an order (and reserves stock / consumes a
@@ -123,16 +122,18 @@ export async function POST(req: NextRequest) {
     }
   }
 
-  // Gift-wrap fee — server-authoritative; only added when the client opted in
-  const giftWrapFee = giftWrap ? GIFT_WRAP_FEE : 0;
-
-  // Mirror the client total EXACTLY: discountedSubtotal + 3% GST + gift wrap.
-  const discountedSubtotal = Math.max(0, recalculatedSubtotal - recalculatedDiscount);
-  const gst = Math.round(discountedSubtotal * 0.03);
-  const recalculatedTotal = Math.max(0, discountedSubtotal + gst + giftWrapFee);
+  // Mirror the client total EXACTLY via the shared single source of truth
+  // (same computeTotals() as create-order/cod/verify), so owner-edited
+  // rates/fees can never cause a mismatch here.
+  const settings = await getCommerceSettings();
+  const { total: recalculatedTotal, totalPaise: recalculatedPaise } = computeTotals({
+    subtotal: recalculatedSubtotal,
+    discount: recalculatedDiscount,
+    giftWrap: !!giftWrap,
+    settings,
+  });
 
   // 3. Exact paise comparison — no ±1 tolerance
-  const recalculatedPaise = Math.round(recalculatedTotal * 100);
   const clientPaise = Math.round(totalAmount * 100);
   if (recalculatedPaise !== clientPaise) {
     return NextResponse.json(
