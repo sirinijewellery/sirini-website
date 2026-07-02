@@ -40,7 +40,9 @@ export async function OrganizationJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      // Escape "<" so admin-edited business details (email, phone, etc.) can't
+      // break out of the script tag via "</script>" — prevents stored XSS.
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
     />
   );
 }

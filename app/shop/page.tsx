@@ -17,6 +17,7 @@ import Link from "next/link";
 import { siteConfig } from "@/lib/seo";
 import { NAV_CATEGORIES } from "@/lib/taxonomy";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
+import { SubcategoryGrid } from "@/components/SubcategoryGrid";
 import type { Metadata } from "next";
 
 /** Pretty label for a category slug ("necklace-sets" → "Necklace Sets"). */
@@ -343,6 +344,21 @@ async function ShopContent({ searchParams }: ShopPageProps) {
           {total} {total === 1 ? "piece" : "pieces"}
         </p>
       </div>
+
+      {/* Subcategory grid — shown when a parent category with children is selected */}
+      {(() => {
+        if (!params.category) return null;
+        const catGroup = taxonomyTree.find((g) => g.slug === "category");
+        if (!catGroup) return null;
+        const parent = catGroup.terms.find((t) => t.slug === params.category);
+        if (!parent || parent.children.length === 0) return null;
+        return (
+          <SubcategoryGrid
+            parentLabel={parent.label}
+            subcategories={parent.children}
+          />
+        );
+      })()}
 
       {/* Sidebar beside products on lg+; stacked on mobile */}
       <div className="lg:flex lg:gap-6 lg:items-start">

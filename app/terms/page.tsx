@@ -6,6 +6,7 @@ import { getTerms, getShippingTime } from "@/lib/queries/content";
 export const metadata: Metadata = pageMetadata(
   "Terms of Service — Sirini Jewellery",
   "Terms and conditions for shopping with Sirini Jewellery.",
+  { canonical: "/terms" },
 );
 
 // Render a stored plain-text body as safe structured paragraphs.

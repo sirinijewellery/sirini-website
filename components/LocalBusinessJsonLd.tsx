@@ -37,8 +37,10 @@ export async function LocalBusinessJsonLd() {
   return (
     <script
       type="application/ld+json"
+      // Escape "<" so admin-edited business details can't break out of the
+      // script tag via "</script>" — prevents stored XSS.
       dangerouslySetInnerHTML={{
-        __html: JSON.stringify(localBusinessSchema, null, 2),
+        __html: JSON.stringify(localBusinessSchema, null, 2).replace(/</g, "\\u003c"),
       }}
     />
   );

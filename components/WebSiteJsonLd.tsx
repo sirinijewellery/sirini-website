@@ -27,7 +27,10 @@ export function WebSiteJsonLd() {
   return (
     <script
       type="application/ld+json"
-      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }}
+      // Escape "<" for consistency with other JSON-LD components — no DB
+      // content here today, but prevents future stored XSS if this ever
+      // reads admin-editable values.
+      dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd).replace(/</g, "\\u003c") }}
     />
   );
 }

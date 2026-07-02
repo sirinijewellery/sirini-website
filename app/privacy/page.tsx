@@ -5,6 +5,7 @@ import { getPrivacy } from "@/lib/queries/content";
 export const metadata: Metadata = pageMetadata(
   "Privacy Policy — Sirini Jewellery",
   "How Sirini Jewellery collects, uses, and protects your personal information.",
+  { canonical: "/privacy" },
 );
 
 // Render a stored plain-text body as safe structured paragraphs.
