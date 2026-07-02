@@ -152,7 +152,7 @@ Product also has `terms ProductTerm[]`.
 ### Seeded dimensions (6 groups, 50 terms)
 | Group slug | Type | Terms |
 |---|---|---|
-| `category` | hierarchical | **Necklace Set** (short necklaces, chokers, pendant set, long set, mangalsutra, groom mala) · **Earrings** (jhumkis, studs, danglers, chandbalis) · **Bangles** (kada, bracelets, pair bangle, jota) · **Accessories** (anklet, maangtika, hathpan, belt, nath, kalgi, finger ring) |
+| `category` | hierarchical | **Necklace Set** (short necklaces, chokers, pendant set, long set, mangalsutra, groom mala) · **Earrings** (jhumkis, studs, danglers, chandbalis) · **Bangles** (kada, bracelets, pair bangle, jota) · **Accessories** (anklet, maangtika, hathpan, belt, nath, kalira, sheeshphool) |
 | `occasion` | flat | bridal, festive, party, daily |
 | `collection` | flat | heritage, kundan, antique gold, temple, victorian, demi-fine |
 | `look` | flat | western, traditional, indo-western, daily wear |

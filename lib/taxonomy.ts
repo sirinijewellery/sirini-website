@@ -11,7 +11,7 @@ export const NAV_CATEGORIES = [
   { slug: "nose-ring", label: "Nose Ring (Nath)" },
   { slug: "belt", label: "Belt" },
   { slug: "tikka", label: "Tikka" },
-  { slug: "kalgi", label: "Kalgi" },
+  { slug: "kalira", label: "Kalira" },
   { slug: "hathpaan", label: "Hathpaan" },
   { slug: "groom-mala", label: "Groom Mala" },
   { slug: "necklace-sets", label: "Necklace Sets" },
