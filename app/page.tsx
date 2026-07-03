@@ -131,10 +131,14 @@ export default async function HomePage() {
   // always sit above this list in the opening cream zone.
   const visible = sections.filter((s) => s.enabled);
 
-  // Track the previous visible section's background so we only insert a gradient
-  // bridge when the zone colour actually changes. The Hero + TrustStrip zone
-  // above is CREAM.
-  let prevBg = CREAM;
+  // Precompute each section's background and whether a gradient bridge is
+  // needed from the section above it (the Hero + TrustStrip zone is CREAM).
+  // Pure derivation — no mutation during render.
+  const zoned = visible.map((section, i) => {
+    const bg = SECTION_BG[section.key];
+    const bridgeFrom = i === 0 ? CREAM : SECTION_BG[visible[i - 1].key];
+    return { section, bg, bridgeFrom, needsBridge: bridgeFrom !== bg };
+  });
 
   return (
     <>
@@ -147,20 +151,14 @@ export default async function HomePage() {
       <HeroSection />
       <TrustStrip badges={trustBadges} />
 
-      {visible.map((section) => {
-        const bg = SECTION_BG[section.key];
-        const bridgeFrom = prevBg;
-        const bridgeTo = bg;
-        const needsBridge = bridgeFrom !== bridgeTo;
-        prevBg = bg;
-
+      {zoned.map(({ section, bg, bridgeFrom, needsBridge }) => {
         return (
           <div key={section.key}>
             {needsBridge && (
               <div
                 className="h-12 pointer-events-none"
                 style={{
-                  background: `linear-gradient(to bottom, ${bridgeFrom}, ${bridgeTo})`,
+                  background: `linear-gradient(to bottom, ${bridgeFrom}, ${bg})`,
                 }}
                 aria-hidden="true"
               />

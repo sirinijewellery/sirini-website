@@ -363,7 +363,10 @@ export function ProductReviews({ productId }: Props) {
   }, [productId]);
 
   useEffect(() => {
-    fetchReviews();
+    // Invoked from a resolved-promise callback so no setState can ever run
+    // synchronously inside the effect body; also used directly as the
+    // refresh handler after a review is submitted.
+    void Promise.resolve().then(fetchReviews);
   }, [fetchReviews]);
 
   return (

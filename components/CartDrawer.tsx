@@ -75,10 +75,9 @@ export function CartDrawer() {
   const [suggestions, setSuggestions] = useState<SuggestionProduct[]>([]);
 
   useEffect(() => {
-    if (items.length === 0) {
-      setSuggestions([]);
-      return;
-    }
+    // No sync clear needed — the suggestions strip only renders when the cart
+    // has items, and the next non-empty cart refetches anyway.
+    if (items.length === 0) return;
 
     // Find the most expensive item's category
     const topItem = [...items].sort((a, b) => b.price - a.price)[0];

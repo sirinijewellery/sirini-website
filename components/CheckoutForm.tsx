@@ -120,10 +120,14 @@ function StateCombobox({ value, onChange, error }: StateComboboxProps) {
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
   // Keep inputValue in sync when an external value change arrives
-  // (e.g. selectSavedAddress sets the RHF value, which flows in as `value`)
-  useEffect(() => {
+  // (e.g. selectSavedAddress sets the RHF value, which flows in as `value`).
+  // Adjusted during render (React's documented "previous render" pattern) —
+  // avoids the extra stale-frame an effect-based sync would paint.
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     setInputValue(value);
-  }, [value]);
+  }
 
   const filtered =
     inputValue.trim() === ""

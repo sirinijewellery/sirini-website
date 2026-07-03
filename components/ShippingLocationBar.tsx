@@ -1,34 +1,33 @@
 "use client";
 
 import { useEffect, useState } from "react";
+import { useHydrated } from "@/lib/useHydrated";
 
 const SESSION_KEY = "sirini_shipping_city";
 const SESSION_DISMISSED = "sirini_shipping_city_dismissed";
 
+/** Safe sessionStorage read — returns null in private mode / blocked storage. */
+function readSession(key: string): string | null {
+  try {
+    return sessionStorage.getItem(key);
+  } catch {
+    return null;
+  }
+}
+
 export function ShippingLocationBar() {
-  const [city, setCity] = useState<string | null>(null);
-  const [dismissed, setDismissed] = useState(false);
-  const [mounted, setMounted] = useState(false);
+  const mounted = useHydrated();
+  // Lazy initializers read storage once on the first client render; on the
+  // server the read safely returns null. Rendering is gated by `mounted`, so
+  // the differing initial state can't cause a hydration mismatch.
+  const [city, setCity] = useState<string | null>(() => readSession(SESSION_KEY));
+  const [dismissed, setDismissed] = useState(
+    () => readSession(SESSION_DISMISSED) === "1"
+  );
 
   useEffect(() => {
-    setMounted(true);
-
-    // Check if dismissed this session
-    try {
-      if (sessionStorage.getItem(SESSION_DISMISSED) === "1") {
-        setDismissed(true);
-        return;
-      }
-    } catch { /* ignore */ }
-
-    // Try cached city first
-    try {
-      const cached = sessionStorage.getItem(SESSION_KEY);
-      if (cached) {
-        setCity(cached);
-        return;
-      }
-    } catch { /* ignore */ }
+    // Already dismissed or already know the city → nothing to detect.
+    if (dismissed || city) return;
 
     // Request geolocation
     if (!navigator.geolocation) return;
@@ -57,7 +56,7 @@ export function ShippingLocationBar() {
       () => { /* permission denied or error — silently skip */ },
       { timeout: 8000 }
     );
-  }, []);
+  }, [city, dismissed]);
 
   function handleDismiss() {
     setDismissed(true);

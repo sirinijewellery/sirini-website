@@ -196,7 +196,7 @@ function EditForm({ initial, onSave, onCancel, saving }: EditFormProps) {
             <img
               src={coverImage}
               alt="Cover preview"
-              // eslint-disable-next-line @next/next/no-img-element
+               
               className="h-24 w-24 rounded-lg object-cover border border-gray-200 bg-gray-50 shrink-0"
               style={{ objectPosition: FOCAL_POSITION[coverFocal] ?? "50% 50%" }}
             />

@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
+import { useEffect, useCallback, useSyncExternalStore } from "react";
 
 // One-click EN ⇄ हिंदी toggle for the announcement ribbon.
 // Drives the Google Website Translate widget via the `googtrans` cookie:
@@ -42,12 +42,19 @@ function writeGoogtrans(toHindi: boolean) {
   }
 }
 
+const noopSubscribe = () => () => {};
+
 export function LanguageToggle() {
-  const [hindi, setHindi] = useState(false);
+  // Cookie-backed value read via useSyncExternalStore: SSR renders the
+  // English default, the client snapshot supplies the real cookie state —
+  // no hydration mismatch and no setState-in-effect.
+  const hindi = useSyncExternalStore(
+    noopSubscribe,
+    () => readCookie(GT_COOKIE).endsWith("/hi"),
+    () => false
+  );
 
   useEffect(() => {
-    setHindi(readCookie(GT_COOKIE).endsWith("/hi"));
-
     // Inject the Google Translate widget once (it reads the cookie on load).
     if (document.getElementById("google-translate-script")) return;
     window.googleTranslateElementInit = () => {

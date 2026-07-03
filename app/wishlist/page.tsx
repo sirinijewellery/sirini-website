@@ -77,7 +77,7 @@ export default async function WishlistPage() {
                   Looking for something else?
                 </p>
                 <p className="font-sans text-sm text-muted-foreground mt-0.5">
-                  Browse our full collection for more pieces you'll love.
+                  Browse our full collection for more pieces you&apos;ll love.
                 </p>
               </div>
               <Link

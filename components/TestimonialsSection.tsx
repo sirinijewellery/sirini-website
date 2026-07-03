@@ -152,7 +152,7 @@ export function TestimonialsSection({ items }: { items: FeaturedTestimonial[] })
   useEffect(() => {
     currentIndexRef.current = currentIndex;
     updateCarousel(currentIndex);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
+     
   }, [currentIndex]);
 
   // The server page always passes a non-empty list (real reviews or the

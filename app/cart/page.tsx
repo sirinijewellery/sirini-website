@@ -1,7 +1,7 @@
 "use client";
 
-import { useEffect, useState } from "react";
 import { useCartStore } from "@/lib/store/cart";
+import { useHydrated } from "@/lib/useHydrated";
 import { CartItemRow } from "@/components/CartItem";
 import { CouponField } from "@/components/CouponField";
 import { Button } from "@/components/ui/button";
@@ -47,8 +47,7 @@ function GiftProgressBar({ subtotal }: { subtotal: number }) {
 
 export default function CartPage() {
   // Zustand `persist` hydrates after the first render — guard against flash of empty cart
-  const [hydrated, setHydrated] = useState(false);
-  useEffect(() => setHydrated(true), []);
+  const hydrated = useHydrated();
 
   const { items, getTotal, appliedCoupon, setCoupon } = useCartStore();
 

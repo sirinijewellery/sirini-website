@@ -21,8 +21,11 @@ export function AbandonedCartNudge() {
   const openDrawer = useCartStore((s) => s.openDrawer);
 
   // Keep a stable ref to current cart so the timer callback reads fresh values.
+  // Written in an effect (not during render) per the React ref rules.
   const itemCountRef = useRef(items.length);
-  itemCountRef.current = items.length;
+  useEffect(() => {
+    itemCountRef.current = items.length;
+  }, [items.length]);
 
   const isExcludedPage =
     pathname?.startsWith("/cart") || pathname?.startsWith("/checkout");

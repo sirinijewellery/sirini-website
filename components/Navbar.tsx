@@ -16,7 +16,7 @@ import { OccasionMenu } from "@/components/OccasionMenu";
 import { CollectionMenu } from "@/components/CollectionMenu";
 import { useCartStore } from "@/lib/store/cart";
 import { categoryLabel, type TaxonomyGroupData } from "@/lib/taxonomy";
-import type { NavbarConfig, NavLink } from "@/lib/queries/navbar";
+import type { NavbarConfig } from "@/lib/queries/navbar";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -140,7 +140,7 @@ export function Navbar({
     }
     document.addEventListener("mousedown", handleClickOutside);
     return () => document.removeEventListener("mousedown", handleClickOutside);
-  }, [searchOpen]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [searchOpen]);  
 
   // ─── Helpers ────────────────────────────────────────────────────────────────
 

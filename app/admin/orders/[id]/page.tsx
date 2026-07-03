@@ -44,23 +44,6 @@ function formatDateLong(date: Date) {
   }).format(new Date(date));
 }
 
-function OrderStatusBadge({ status }: { status: string }) {
-  const map: Record<string, string> = {
-    processing: "bg-amber-100 text-amber-700",
-    shipped: "bg-blue-100 text-blue-700",
-    delivered: "bg-green-100 text-green-700",
-    cancelled: "bg-red-100 text-red-600",
-  };
-  const cls = map[status] ?? "bg-gray-100 text-gray-600";
-  return (
-    <span
-      className={`inline-flex items-center px-3 py-1 rounded-full text-sm font-semibold capitalize ${cls}`}
-    >
-      {status}
-    </span>
-  );
-}
-
 function PaymentStatusBadge({ status }: { status: string }) {
   const map: Record<string, string> = {
     paid: "bg-green-100 text-green-700",

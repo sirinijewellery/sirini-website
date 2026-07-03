@@ -36,24 +36,38 @@ interface QuickViewModalProps {
 
 export function QuickViewModal({ slug, isOpen, onClose }: QuickViewModalProps) {
   const [product, setProduct] = useState<ProductData | null>(null);
-  const [loading, setLoading] = useState(false);
   const [error, setError] = useState(false);
+
+  // Reset when the modal opens (or switches product) — adjusted during render
+  // (React's documented "previous render" pattern) instead of synchronous
+  // setState inside the fetch effect.
+  const requestKey = isOpen ? slug : null;
+  const [prevKey, setPrevKey] = useState<string | null>(null);
+  if (requestKey !== prevKey) {
+    setPrevKey(requestKey);
+    setProduct(null);
+    setError(false);
+  }
+  // Derived: open with nothing loaded and no error yet = still loading.
+  const loading = isOpen && !product && !error;
 
   useEffect(() => {
     if (!isOpen || !slug) return;
-    setLoading(true);
-    setError(false);
-    setProduct(null);
+    let stale = false;
     fetch(`/api/products/${slug}`)
       .then((r) => {
         if (!r.ok) throw new Error("Not found");
         return r.json();
       })
       .then((data: ProductData) => {
-        setProduct(data);
+        if (!stale) setProduct(data);
       })
-      .catch(() => setError(true))
-      .finally(() => setLoading(false));
+      .catch(() => {
+        if (!stale) setError(true);
+      });
+    return () => {
+      stale = true;
+    };
   }, [isOpen, slug]);
 
   return (

@@ -1,6 +1,6 @@
 "use client";
 
-import { useState, useEffect, useRef } from "react";
+import { useState, useRef } from "react";
 import { useForm } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
 import { z } from "zod";
@@ -63,9 +63,13 @@ function StateCombobox({ value, onChange, error, inputClass }: StateComboboxProp
   const [isOpen, setIsOpen] = useState(false);
   const blurTimerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
-  useEffect(() => {
+  // Sync from an external value change during render (React's documented
+  // "previous render" pattern) — no extra stale frame, no effect cascade.
+  const [prevValue, setPrevValue] = useState(value);
+  if (value !== prevValue) {
+    setPrevValue(value);
     setInputValue(value);
-  }, [value]);
+  }
 
   const filtered =
     inputValue.trim() === ""
