@@ -76,6 +76,33 @@ export interface ComputedTotals {
  *   - GST is rounded to the nearest rupee, then summed.
  *   - The grand total (already an integer rupee sum) is multiplied by 100.
  */
+export interface AppliedCouponLike {
+  discountType: string;
+  discountValue: number;
+  /** Coupon's minimum order amount, when known (null/undefined = no minimum). */
+  minOrderAmount?: number | null;
+}
+
+/**
+ * Recomputes a coupon's discount against the CURRENT subtotal with exactly the
+ * math the checkout API routes use (unrounded percentage, capped at subtotal,
+ * zero when below the coupon's minimum). The client must use this instead of a
+ * discount amount frozen at apply-time — the cart can change after a coupon is
+ * applied, and any divergence trips the exact-paise order-amount check.
+ */
+export function computeCouponDiscount(
+  coupon: AppliedCouponLike | null | undefined,
+  subtotal: number
+): number {
+  if (!coupon || subtotal <= 0) return 0;
+  if (coupon.minOrderAmount != null && subtotal < coupon.minOrderAmount) return 0;
+  const raw =
+    coupon.discountType.toLowerCase() === "percentage"
+      ? (subtotal * coupon.discountValue) / 100
+      : coupon.discountValue;
+  return Math.min(raw, subtotal);
+}
+
 export function computeTotals({
   subtotal,
   discount,

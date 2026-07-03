@@ -195,6 +195,21 @@ export const HELP_TOPICS: HelpTopic[] = [
     href: "/admin/orders",
   },
 
+  // ── Messages ──────────────────────────────────────────────────────────────
+  {
+    id: "read-messages",
+    group: "Orders",
+    title: "How to read and reply to customer contact messages",
+    keywords: "messages contact form enquiry inbox mail reply customer question",
+    steps: [
+      "Click Messages in the sidebar — unread messages show a badge.",
+      "Every message a customer sends from the Contact page is saved here.",
+      "Click the customer's email address to reply from your email app.",
+      "Use 'Mark read' to clear the unread badge, or Delete to remove a message.",
+    ],
+    href: "/admin/messages",
+  },
+
   // ── Home page ─────────────────────────────────────────────────────────────
   {
     id: "change-hero",

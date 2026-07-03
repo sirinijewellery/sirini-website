@@ -5,26 +5,9 @@ import {
   blogSchema,
   generateSlug,
   ensureUniqueSlug,
-} from "../route";
-
-// Normalise sections — drop empty paragraphs and fully empty sections.
-function cleanSections(
-  sections: { heading?: string; paragraphs: string[] }[],
-) {
-  return sections
-    .map((s) => ({
-      heading: s.heading?.trim() ? s.heading.trim() : undefined,
-      paragraphs: s.paragraphs.map((p) => p.trim()).filter(Boolean),
-    }))
-    .filter((s) => s.heading || s.paragraphs.length > 0)
-    .map((s) => (s.heading ? { heading: s.heading, paragraphs: s.paragraphs } : { paragraphs: s.paragraphs }));
-}
-
-function cleanLinks(links: { label: string; href: string }[]) {
-  return links
-    .map((l) => ({ label: l.label.trim(), href: l.href.trim() }))
-    .filter((l) => l.label && l.href);
-}
+  cleanSections,
+  cleanLinks,
+} from "@/lib/blogAdmin";
 
 // PUT /api/admin/blog/:id — update
 export async function PUT(

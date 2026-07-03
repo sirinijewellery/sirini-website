@@ -5,12 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Button } from "@/components/ui/button";
 import { Tag, X } from "lucide-react";
 
-interface CouponResult {
-  code: string;
-  discountType: "percentage" | "flat";
-  discountValue: number;
-  discountAmount: number;
-}
+import type { CouponResult } from "@/lib/store/cart";
 
 interface CouponFieldProps {
   subtotal: number;
@@ -64,6 +59,9 @@ export function CouponField({ subtotal, onApply, appliedCoupon }: CouponFieldPro
           </span>
         </div>
         <button
+          // Explicit type — a bare <button> inside the checkout <form>
+          // defaults to submit, so removing a coupon would submit the order.
+          type="button"
           onClick={() => onApply(null)}
           className="text-emerald-600 hover:text-emerald-800 transition-colors"
           aria-label="Remove coupon"
@@ -82,7 +80,14 @@ export function CouponField({ subtotal, onApply, appliedCoupon }: CouponFieldPro
           onChange={(e) => setCode(e.target.value.toUpperCase())}
           placeholder="Enter coupon code"
           className="font-sans text-sm uppercase tracking-wider"
-          onKeyDown={(e) => e.key === "Enter" && handleApply()}
+          onKeyDown={(e) => {
+            if (e.key === "Enter") {
+              // Block the implicit form submission (checkout) — Enter here
+              // must only apply the coupon.
+              e.preventDefault();
+              handleApply();
+            }
+          }}
         />
         <Button
           variant="outline"

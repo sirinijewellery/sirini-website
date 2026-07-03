@@ -106,7 +106,9 @@ model Order {
   couponCode      String?
   paymentStatus   String   @default("pending")
   paymentMethod   String   @default("online")
-  paymentId       String?
+  // Unique so the same Razorpay payment can never create two orders — the
+  // verify route's idempotency guard is also enforced at the DB level.
+  paymentId       String?  @unique
   orderStatus     String   @default("processing")
   createdAt       DateTime @default(now())
 
@@ -203,6 +205,20 @@ model NewsletterSubscriber {
   id        String   @id @default(cuid())
   email     String   @unique
   createdAt DateTime @default(now())
+}
+
+// Customer contact-form submissions. ALWAYS persisted (source of truth — the
+// owner reads them at /admin/messages); the notification email is best-effort
+// on top, so no message is ever lost while email is unconfigured or down.
+model ContactMessage {
+  id        String   @id @default(cuid())
+  name      String
+  email     String
+  message   String
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
+
+  @@index([isRead, createdAt])
 }
 
 // Owner-managed home hero. Multiple active slides rotate as a crossfade

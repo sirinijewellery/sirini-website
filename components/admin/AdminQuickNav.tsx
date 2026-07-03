@@ -8,6 +8,7 @@ import { Search } from "lucide-react";
 const DESTINATIONS: { label: string; href: string; keywords: string }[] = [
   { label: "Dashboard", href: "/admin", keywords: "home overview" },
   { label: "Orders", href: "/admin/orders", keywords: "sales purchases" },
+  { label: "Messages (contact form)", href: "/admin/messages", keywords: "messages contact enquiries inbox mail customer questions" },
   { label: "Products", href: "/admin/products", keywords: "catalog items list" },
   { label: "Add a product", href: "/admin/products/new", keywords: "new create add product" },
   { label: "Categories", href: "/admin/categories", keywords: "category image" },

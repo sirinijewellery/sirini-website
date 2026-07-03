@@ -21,6 +21,7 @@ import {
   Menu,
   X,
   Palette,
+  Inbox,
 } from "lucide-react";
 import { AdminQuickNav } from "./AdminQuickNav";
 
@@ -58,7 +59,13 @@ function NavLink({ href, label, icon: Icon, exact, badge, onNavigate }: NavLinkP
   );
 }
 
-export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
+export function AdminSidebar({
+  pendingCount = 0,
+  messageCount = 0,
+}: {
+  pendingCount?: number;
+  messageCount?: number;
+}) {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   return (
@@ -128,6 +135,7 @@ export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
             <NavLink href="/admin/pending" label="Pending" icon={ClipboardList} badge={pendingCount} />
           )}
           <NavLink href="/admin/orders" label="Orders" icon={ShoppingBag} />
+          <NavLink href="/admin/messages" label="Messages" icon={Inbox} badge={messageCount} />
           <NavLink href="/admin/products" label="Products" icon={Package} />
           <NavLink href="/admin/categories" label="Categories" icon={Tag} />
           <NavLink href="/admin/shop" label="Shop" icon={Store} />
@@ -147,13 +155,13 @@ export function AdminSidebar({ pendingCount = 0 }: { pendingCount?: number }) {
 
         {/* Footer */}
         <div className="px-6 py-4 border-t border-slate-700">
-          <a
+          <Link
             href="/"
             className="font-sans text-xs text-slate-400 hover:text-white transition-colors duration-150 flex items-center gap-1.5"
           >
             <span aria-hidden="true">←</span>
             Back to Store
-          </a>
+          </Link>
         </div>
       </aside>
     </>

@@ -6,16 +6,62 @@ interface ContactEmailData {
   message: string;
 }
 
-export async function sendContactEmail(data: ContactEmailData): Promise<void> {
-  // TODO: Wire up email provider (Resend or Nodemailer) when decided
-  // For now, logs to console in development
-  console.log("[Contact Form Submission]", {
-    to: process.env.CONTACT_EMAIL,
-    from: data.email,
-    name: data.name,
-    message: data.message,
-    timestamp: new Date().toISOString(),
-  });
+/**
+ * Emails a contact-form submission to the owner. Best-effort on top of the DB
+ * record the API route always writes first (see /api/contact): no
+ * RESEND_API_KEY → warn and return false; errors are logged, never thrown.
+ * Returns whether the email was actually handed to Resend, so callers can
+ * log/telemeter — the customer-facing result never depends on it.
+ */
+export async function sendContactEmail(data: ContactEmailData): Promise<boolean> {
+  try {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn(
+        "[email] RESEND_API_KEY not set — contact message saved to DB only (visible at /admin/messages)."
+      );
+      return false;
+    }
+
+    const resend = new Resend(apiKey);
+    const to = process.env.CONTACT_EMAIL ?? "sirinijewellery@gmail.com";
+    const from =
+      process.env.ORDER_FROM_EMAIL ?? "Sirini Jewellery <onboarding@resend.dev>";
+
+    const html = `
+      <div style="font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">
+        <h2 style="color:#5C1A24;margin-bottom:4px;">New contact message</h2>
+        <p style="margin-top:0;color:#666;">Someone wrote to you via the sirinijewellery.com contact form.</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+          <tr>
+            <td style="padding:4px 0;color:#666;width:80px;">From</td>
+            <td style="padding:4px 0;">${escapeHtml(data.name)}</td>
+          </tr>
+          <tr>
+            <td style="padding:4px 0;color:#666;">Email</td>
+            <td style="padding:4px 0;">${escapeHtml(data.email)}</td>
+          </tr>
+        </table>
+        <h3 style="color:#5C1A24;margin-bottom:8px;">Message</h3>
+        <p style="margin-top:0;color:#444;white-space:pre-wrap;">${escapeHtml(data.message)}</p>
+        <p style="color:#999;font-size:12px;margin-top:24px;">Reply to this email to answer ${escapeHtml(
+          data.name
+        )} directly. All messages are also kept at sirinijewellery.com/admin/messages.</p>
+      </div>
+    `;
+
+    await resend.emails.send({
+      from,
+      to,
+      replyTo: data.email,
+      subject: `Contact form — ${data.name}`,
+      html,
+    });
+    return true;
+  } catch (err) {
+    console.error("[email] Failed to send contact-form notification:", err);
+    return false;
+  }
 }
 
 /* ── New-order admin notification ───────────────────────────────────────── */

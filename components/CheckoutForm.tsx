@@ -20,7 +20,11 @@ import { ShoppingBag, MapPin, Lock, ChevronRight, CreditCard, Banknote } from "l
 import { getMrp, formatPrice } from "@/components/PriceDisplay";
 import { CouponField } from "@/components/CouponField";
 import { CityCombobox } from "@/components/CityCombobox";
-import { computeTotals, type CommerceSettings } from "@/lib/commerce/pricing";
+import {
+  computeTotals,
+  computeCouponDiscount,
+  type CommerceSettings,
+} from "@/lib/commerce/pricing";
 
 /* ── Razorpay Checkout (loaded on demand) ───────────────────────────── */
 declare global {
@@ -311,7 +315,13 @@ export function CheckoutForm({ savedAddresses, commerce }: CheckoutFormProps) {
   const [giftWrap, setGiftWrap] = useState(false);
 
   const subtotal = getTotal();
-  const discount = appliedCoupon?.discountAmount ?? 0;
+  // Recompute the discount against the CURRENT subtotal — the amount frozen at
+  // apply-time goes stale when the cart changes and would trip the server's
+  // exact-paise amount check ("Order amount mismatch").
+  const discount = computeCouponDiscount(appliedCoupon, subtotal);
+  // A coupon can be applied yet contribute nothing (cart fell below its
+  // minimum). Surface that instead of leaving the customer puzzled.
+  const couponBelowMin = !!appliedCoupon && discount === 0 && subtotal > 0;
   // Totals come from the shared single source of truth so the client matches
   // both checkout API routes exactly (defaults = 3% GST, ₹49 wrap, free ship).
   const { gst, shipping, giftWrapFee, total } = computeTotals({
@@ -365,6 +375,23 @@ export function CheckoutForm({ savedAddresses, commerce }: CheckoutFormProps) {
       }));
     }
   }, [session?.user?.id, reset]); // eslint-disable-line react-hooks/exhaustive-deps
+
+  // Populate the form with the pre-selected saved address on mount. Without
+  // this, a returning customer who never clicks their (already-selected)
+  // address submits an empty address — validation fails on fields that are
+  // hidden, so the button appears to silently do nothing.
+  useEffect(() => {
+    const addr = savedAddresses.find((a) => a.id === selectedSavedId);
+    if (addr) {
+      setValue("line1", addr.line1);
+      setValue("city", addr.city);
+      setValue("state", addr.state);
+      setValue("pincode", addr.pincode);
+      setValue("label", addr.label ?? "");
+    }
+    // Run once — subsequent picks go through selectSavedAddress.
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, []);
 
   // When user picks a saved address, populate the hidden form fields
   function selectSavedAddress(addr: Address) {
@@ -973,6 +1000,13 @@ export function CheckoutForm({ savedAddresses, commerce }: CheckoutFormProps) {
                 appliedCoupon={appliedCoupon}
                 onApply={setCoupon}
               />
+              {couponBelowMin && (
+                <p className="text-xs text-amber-600 font-sans">
+                  {appliedCoupon!.code} needs a minimum order of{" "}
+                  {formatINR(appliedCoupon!.minOrderAmount ?? 0)} — the discount
+                  isn&apos;t applied to this order.
+                </p>
+              )}
 
               <Separator />
 

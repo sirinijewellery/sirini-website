@@ -2,6 +2,7 @@ import type { Metadata } from "next";
 import { notFound } from "next/navigation";
 import Link from "next/link";
 import Image from "next/image";
+import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -42,6 +43,16 @@ export default async function OrderConfirmationPage({ searchParams }: Props) {
   });
 
   if (!order) notFound();
+
+  // Orders placed by a signed-in account are only visible to that account
+  // (or an admin). Guest orders (userId null) remain reachable by their
+  // unguessable cuid link — the confirmation page must work without login.
+  if (order.userId) {
+    const session = await auth();
+    if (session?.user?.id !== order.userId && !session?.user?.isAdmin) {
+      notFound();
+    }
+  }
 
   const address = order.shippingAddress as {
     line1: string;

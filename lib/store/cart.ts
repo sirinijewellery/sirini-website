@@ -19,7 +19,11 @@ export interface CouponResult {
   code: string;
   discountType: "percentage" | "flat";
   discountValue: number;
+  /** Discount at apply-time — display only. Live totals recompute via
+   *  computeCouponDiscount() because the cart can change afterwards. */
   discountAmount: number;
+  /** Coupon minimum order; absent on coupons applied before this field existed. */
+  minOrderAmount?: number | null;
 }
 
 interface CartStore {

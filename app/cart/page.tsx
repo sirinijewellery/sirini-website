@@ -9,6 +9,7 @@ import { Separator } from "@/components/ui/separator";
 import Link from "next/link";
 import { ShoppingBag } from "lucide-react";
 import { getMrp, formatPrice } from "@/components/PriceDisplay";
+import { computeCouponDiscount } from "@/lib/commerce/pricing";
 
 const GIFT_THRESHOLD = 4000;
 
@@ -52,7 +53,9 @@ export default function CartPage() {
   const { items, getTotal, appliedCoupon, setCoupon } = useCartStore();
 
   const subtotal = getTotal();
-  const discount = appliedCoupon?.discountAmount ?? 0;
+  // Live recompute — the apply-time discountAmount goes stale when the cart
+  // changes (same source-of-truth math as checkout).
+  const discount = computeCouponDiscount(appliedCoupon, subtotal);
   const total = Math.max(0, subtotal - discount);
   const compareTotal = items.reduce(
     (s, i) => s + (i.compareAtPrice ?? getMrp(i.price)) * i.quantity,

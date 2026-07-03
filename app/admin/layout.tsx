@@ -3,6 +3,7 @@ import { auth } from "@/lib/auth";
 import { redirect } from "next/navigation";
 import { AdminSidebar } from "@/components/admin/AdminSidebar";
 import { getPendingCount } from "@/lib/queries/pending";
+import { getUnreadMessageCount } from "@/lib/queries/messages";
 
 export const metadata: Metadata = {
   title: {
@@ -20,11 +21,14 @@ export default async function AdminLayout({
   const session = await auth();
   if (!session?.user?.isAdmin) redirect("/login?callbackUrl=/admin");
 
-  const pendingCount = await getPendingCount();
+  const [pendingCount, messageCount] = await Promise.all([
+    getPendingCount(),
+    getUnreadMessageCount(),
+  ]);
 
   return (
     <div className="flex h-dvh bg-gray-50 overflow-hidden">
-      <AdminSidebar pendingCount={pendingCount} />
+      <AdminSidebar pendingCount={pendingCount} messageCount={messageCount} />
       <main className="flex-1 overflow-y-auto pt-14 md:pt-0">{children}</main>
     </div>
   );

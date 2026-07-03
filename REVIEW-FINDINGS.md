@@ -127,3 +127,49 @@ All 20 admin API route files check `auth()` + `isAdmin` on **every** exported me
 9. Housekeeping: uppercase coupon codes in `validate`, move blog helpers out of the route file, validate `relatedLinks.href` format, plan a shared order-creation helper to de-duplicate the three checkout routes.
 
 *This review modified no code. All findings verified against source at commit `13c9c2f`; `npx tsc --noEmit` clean; `npm audit` run 2026-07-02.*
+
+---
+
+# Round 2 — Deep review & fixes (2026-07-03)
+
+Second full pass covering everything round 1 didn't read line-by-line: the client
+checkout flow (CheckoutForm, CouponField, cart store, cart page), every remaining
+admin API route, the queries layer, XML feeds, sitemap, auth pages, blog lib,
+image utilities, and shop pages. **All bugs found were fixed in this round.**
+
+## Fixed — new findings
+
+| # | Severity | Bug | Fix |
+|---|---|---|---|
+| R2-1 | **High** | **Saved-address checkout silently broken** — with a pre-selected saved address, form fields were only populated on *click*; a returning customer who didn't re-click their already-selected address submitted an empty address, validation failed on hidden fields, and the Pay button appeared to do nothing ([CheckoutForm.tsx](components/CheckoutForm.tsx)). | Populate the form for the pre-selected address on mount. |
+| R2-2 | **High** | **Stale coupon discount blocks checkout** — the discount was frozen at apply-time (and persisted in localStorage); changing the cart afterwards made client and server totals diverge → "Order amount mismatch" with no way for the customer to understand why. Percentage coupons also used *rounded* math client-side vs *unrounded* server-side (odd subtotals → paise mismatch). | New shared `computeCouponDiscount()` in [lib/commerce/pricing.ts](lib/commerce/pricing.ts) recomputes the discount live with exactly the server's math; used by checkout + cart page. `coupon/validate` now returns `minOrderAmount` so the client mirrors the server's minimum-order rule, with a visible note when the cart falls below it. |
+| R2-3 | **High** | **Coupon controls submitted the checkout form** — the remove-coupon `✕` was a bare `<button>` (default `type=submit`), and Enter in the coupon input triggered implicit form submission; either could fire the payment flow ([CouponField.tsx](components/CouponField.tsx)). | `type="button"` + `preventDefault()` on Enter. |
+| R2-4 | **High** | **Admin order-status changes leaked inventory** — cancelling an order via the admin dropdown never restored stock (the customer cancel route does); reactivating a cancelled order didn't re-reserve it ([status route](app/api/admin/orders/[id]/status/route.ts)). | Transactional stock restore/re-reserve when a status change crosses the cancelled boundary, race-safe via conditional update. |
+| R2-5 | **Medium** | **Open redirect on login** — `/login?callbackUrl=https://evil.com` bounced a freshly signed-in user to any external site (phishing vector) ([login/page.tsx](app/(auth)/login/page.tsx)). | Only same-site relative paths (`/…`, not `//…` or `/\…`) are honoured. |
+| R2-6 | Low | `getUnreadMessageCount` could throw into the admin layout render (violating the never-throw convention of sidebar queries). | try/catch → 0. |
+
+## Fixed — carried over from round 1
+
+- **M-5:** `sendContactEmail` was a console.log stub — contact messages were silently discarded. Now: every submission is **persisted to a new `ContactMessage` table first**, then emailed to the owner via Resend (best-effort, reply-to = customer). New owner surface: **/admin/messages** (list, unread badge in sidebar, mark read/unread, delete), registered in the admin quick-nav and help guide. Works today even without `RESEND_API_KEY`; email starts flowing the moment Resend is configured.
+- **L-5:** `Order.paymentId` is now `@unique` in the DB (verified zero duplicate/existing rows before applying).
+- **L-6:** `coupon/validate` now uppercases the code like the checkout routes (codes are always stored uppercase).
+- **Blog route hygiene:** non-handler exports moved to [lib/blogAdmin.ts](lib/blogAdmin.ts); `relatedLinks.href` now validated (`/…` or `http(s)://…` only).
+- **L-1:** order-confirmation now requires the owning session (or admin) for account-placed orders; guest orders remain reachable via their unguessable link.
+
+## Verified clean in round 2 (no action needed)
+
+- XML feeds (`product-feed.xml`, `image-sitemap.xml`, `blog/rss.xml`): all output properly XML-escaped.
+- `sitemap.ts`: deterministic lastmod, deduped; shop page: all URL params parsed defensively (no NaN reaches Prisma).
+- Cart store: quantities clamped (1–99), coupon/drawer state partitioned correctly.
+- Taxonomy admin routes: hierarchy rules enforced (1-level nesting, same-group parent, slug uniqueness).
+- Admin products/categories/hero/coupons routes: zod-validated, consistent auth.
+- `lib/blog.ts`: resilient DB→seed fallback on every path.
+- Login/register: NextAuth CSRF + timing-equalized compare (register enumeration noted in round 1, accepted).
+
+## Known remaining (accepted / owner decisions)
+
+- Admin-login rate limiting & password policy — **owner declined 2026-07-02**.
+- Review moderation queue + public-form rate limiting — pending owner decision.
+- 5 moderate `npm audit` advisories inside `next`/`prisma` dev tooling — fix requires major-version downgrades; not applicable at runtime.
+- Pre-existing `react-hooks/set-state-in-effect` lint errors in cart hydration guard and StateCombobox sync (benign, intentional patterns; production build passes).
+- If a Razorpay payment captures but order creation then fails (e.g. stock sold out mid-payment), the payment is orphaned in the Razorpay dashboard — needs the "refund owed" flag feature (owner pending decision #3).

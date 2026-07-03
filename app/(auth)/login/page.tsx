@@ -12,7 +12,11 @@ import { Label } from "@/components/ui/label";
 function LoginForm() {
   const router = useRouter();
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/";
+  // Same-site relative paths only — pushing a raw query-string value would be
+  // an open redirect (a crafted login link could bounce a freshly signed-in
+  // user to a phishing site). "/" but not "//host" or "/\host".
+  const rawCallback = searchParams.get("callbackUrl") || "/";
+  const callbackUrl = /^\/(?![/\\])/.test(rawCallback) ? rawCallback : "/";
 
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");

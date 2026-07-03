@@ -17,7 +17,12 @@ export async function POST(request: Request) {
 
     const { code, orderAmount } = parsed.data;
 
-    const coupon = await prisma.coupon.findUnique({ where: { code } });
+    // Uppercase to match how checkout routes look coupons up — otherwise a
+    // customer typing "test1" is told the coupon doesn't exist even though
+    // checkout would accept it.
+    const coupon = await prisma.coupon.findUnique({
+      where: { code: code.toUpperCase() },
+    });
 
     if (!coupon || !coupon.isActive) {
       return NextResponse.json({ error: "Coupon code not found or inactive" }, { status: 404 });
@@ -48,6 +53,9 @@ export async function POST(request: Request) {
       discountType: coupon.discountType,
       discountValue: coupon.discountValue,
       discountAmount,
+      // Sent so the client can drop the discount if the cart later falls
+      // below the coupon's minimum (mirrors the checkout routes' meetsMin).
+      minOrderAmount: coupon.minOrderAmount,
     });
   } catch (error) {
     console.error("[Coupon validate error]", error);
