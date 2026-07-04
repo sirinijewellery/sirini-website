@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/parseImages";
+import { botImageUrl } from "@/lib/cdnImage";
 import { SITE_URL } from "@/lib/seo";
 import { getAllArticles } from "@/lib/blog";
 
@@ -29,7 +30,7 @@ export async function GET() {
 
       const imageBlocks = images
         .map((imgUrl) => {
-          const escapedUrl = imgUrl
+          const escapedUrl = botImageUrl(imgUrl)
             .replace(/&/g, "&amp;")
             .replace(/</g, "&lt;")
             .replace(/>/g, "&gt;");
@@ -74,7 +75,7 @@ ${imageBlocks}
       (a) => `  <url>
     <loc>${BASE_URL}/blog/${esc(a.slug)}</loc>
     <image:image>
-      <image:loc>${esc(a.coverImage)}</image:loc>
+      <image:loc>${esc(botImageUrl(a.coverImage))}</image:loc>
       <image:title>${esc(a.title)} — Sirini Jewellery Journal</image:title>
       <image:caption>${esc(a.excerpt)}</image:caption>
     </image:image>

@@ -34,6 +34,13 @@ export async function uploadToCloudinary(
           folder,
           overwrite: true,
           resource_type: "image",
+          // Incoming transformation: shrink BEFORE storing. Camera originals
+          // are 8–10 MB / 4000+ px; storing them raw burns storage credits and
+          // lets any raw-URL consumer pull multi-MB files. 2400px covers every
+          // rendered size (max srcset width is 1920) with zoom headroom.
+          transformation: [
+            { width: 2400, height: 2400, crop: "limit", quality: "auto:good" },
+          ],
         },
         (error, result) => {
           if (error || !result) {

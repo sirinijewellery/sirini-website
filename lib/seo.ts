@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import { botImageUrl } from "@/lib/cdnImage";
 
 // ── Canonical site URL ────────────────────────────────────────────────────
 // Single source of truth for the production origin. We deliberately IGNORE any
@@ -172,7 +173,9 @@ export function productMetadata(product: {
     (rawDescription.length > 145 ? "… " : " ") +
     "Free shipping across India.";
 
-  const image = product.images[0] ?? siteConfig.defaultOgImage;
+  const image = product.images[0]
+    ? botImageUrl(product.images[0])
+    : siteConfig.defaultOgImage;
   const canonical = product.slug
     ? `${siteConfig.url}/shop/${product.slug}`
     : undefined;

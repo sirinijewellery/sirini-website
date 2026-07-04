@@ -1,6 +1,7 @@
 import { ImageResponse } from "next/og";
 import { getProductBySlug } from "@/lib/queries/products";
 import { parseImages, selectCardImages } from "@/lib/parseImages";
+import { botImageUrl } from "@/lib/cdnImage";
 import { formatPrice } from "@/components/PriceDisplay";
 
 // Image metadata
@@ -182,7 +183,8 @@ export default async function Image({
     return GenericCard();
   }
 
-  const imageUrl = selectCardImages(parseImages(product.images)).primary;
+  const primary = selectCardImages(parseImages(product.images)).primary;
+  const imageUrl = primary ? botImageUrl(primary) : primary;
   const compareAt = product.compareAtPrice ?? null;
 
   // No image → cream panel full-width with name + price

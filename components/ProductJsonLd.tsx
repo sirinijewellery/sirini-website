@@ -1,4 +1,5 @@
 import { SITE_URL } from "@/lib/seo";
+import { botImageUrl } from "@/lib/cdnImage";
 
 interface ProductJsonLdProps {
   product: {
@@ -54,7 +55,7 @@ export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLd
     description: product.description,
     sku: product.sku,
     mpn: product.sku,
-    image: product.images,
+    image: product.images.map(botImageUrl),
     brand: {
       "@type": "Brand",
       name: "Sirini Jewellery",

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseImages, sortAllImages } from "@/lib/parseImages";
+import { botImageUrl } from "@/lib/cdnImage";
 import { SITE_URL } from "@/lib/seo";
 
 /**
@@ -41,7 +42,7 @@ export async function GET() {
 
   const items = products
     .map((p) => {
-      const images = sortAllImages(parseImages(p.images));
+      const images = sortAllImages(parseImages(p.images)).map(botImageUrl);
       if (images.length === 0) return null;
 
       const link = `${BASE_URL}/shop/${p.slug}`;
