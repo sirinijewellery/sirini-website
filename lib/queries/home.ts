@@ -195,6 +195,7 @@ export type HomeSectionKey =
   | "testimonials"
   | "instagram"
   | "newsletter"
+  | "worldPortal"
   | "askAI";
 
 export interface HomeSection {
@@ -217,6 +218,7 @@ export const DEFAULT_SECTIONS: HomeSection[] = [
   { key: "brandStory", enabled: true },
   { key: "instagram", enabled: true },
   { key: "newsletter", enabled: true },
+  { key: "worldPortal", enabled: true },
   { key: "askAI", enabled: true },
 ];
 

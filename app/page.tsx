@@ -10,6 +10,7 @@ import { TestimonialsSection } from "@/components/TestimonialsSection";
 import { InstagramStrip } from "@/components/InstagramStrip";
 import { NewsletterSignup } from "@/components/NewsletterSignup";
 import { AskAISection } from "@/components/AskAISection";
+import { WorldPortal } from "@/components/WorldPortal";
 import { TrustStrip } from "@/components/TrustStrip";
 import { PromoBanner } from "@/components/PromoBanner";
 import { OrganizationJsonLd } from "@/components/OrganizationJsonLd";
@@ -58,6 +59,7 @@ const SECTION_BG: Record<HomeSectionKey, string> = {
   brandStory: BLUSH,        // Brand Story now sits below testimonials — warm blush
   instagram: BLUSH,         // warm blush (component also paints its own blush)
   newsletter: CREAM,        // cream
+  worldPortal: CREAM,       // component paints its own velvet band edge-to-edge
   askAI: CREAM,             // cream (last word before footer)
 };
 
@@ -124,6 +126,7 @@ export default async function HomePage() {
       </Suspense>
     ),
     newsletter: <NewsletterSignup />,
+    worldPortal: <WorldPortal />,
     askAI: <AskAISection />,
   };
 

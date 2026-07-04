@@ -57,6 +57,7 @@ const SECTION_META: Record<HomeSectionKey, { label: string; desc: string }> = {
   testimonials: { label: "Testimonials", desc: "Voices of Sirini carousel" },
   instagram: { label: "Instagram Strip", desc: "Instagram highlight grid" },
   newsletter: { label: "Newsletter Signup", desc: "Email capture" },
+  worldPortal: { label: "3D World Portal", desc: "Enter-the-world banner (/world)" },
   askAI: { label: "Ask AI About Us", desc: "AI concierge prompt" },
 };
 

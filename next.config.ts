@@ -1,6 +1,16 @@
 import type { NextConfig } from "next";
 
 const nextConfig: NextConfig = {
+  async rewrites() {
+    return [
+      {
+        // The immersive 3D world is a self-contained static file in public/.
+        // Serve it at the clean /world URL.
+        source: "/world",
+        destination: "/world.html",
+      },
+    ];
+  },
   images: {
     // All product/brand imagery lives on Cloudinary — let THEIR CDN do the
     // resizing + AVIF/WebP conversion instead of proxying full-size originals
