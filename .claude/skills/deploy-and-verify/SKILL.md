@@ -67,6 +67,11 @@ Symptom: you "updated" an image but users still see the old one.
   so keep `next.config.ts` `deviceSizes`/`imageSizes` lean and image `quality` modest.
 - If usage is over, check the dashboard breakdown first (transforms vs storage vs bandwidth) before
   recommending an upgrade — most overages are fixable in code.
+- **Never expose a raw stored URL to crawlers.** Bot-facing surfaces (JSON-LD, image sitemap,
+  OG/Twitter meta, Merchant feed) must wrap URLs in `botImageUrl()` from `lib/cdnImage.ts` —
+  raw originals are up to 10 MB and bots downloading them burned 9+ bandwidth credits in
+  one cycle (fixed 2026-07-04). Admin uploads are capped at 2400px via incoming
+  transformation in `lib/cloudinary.ts`.
 
 ## After shipping
 
