@@ -557,6 +557,28 @@ body::after {
   margin: 6px 0 0;
 }
 
+.again {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  margin-top: 18px;
+  padding: 6px 4px;
+  background: none;
+  border: none;
+  border-bottom: 1px solid transparent;
+  font-family: var(--sans);
+  font-weight: 300;
+  font-size: 10px;
+  letter-spacing: 0.3em;
+  text-transform: uppercase;
+  color: var(--gold-dim);
+  cursor: pointer;
+  transition: color 0.25s ease, border-color 0.25s ease;
+}
+.again:hover { color: var(--gold-bright); border-bottom-color: var(--gold-dim); }
+.again:focus-visible { outline: 1px solid var(--gold); outline-offset: 3px; }
+body.no3d .again { display: none; }
+
 .fallback-list { display: none; }
 
 /* ————— Tooltip (gallery hover) ————— */
@@ -792,7 +814,7 @@ body.no3d #fallbackExtras { display: block; max-width: 720px; margin: 0 auto; pa
     <img class="veil-logo" id="veilLogo" alt="" aria-hidden="true">
     <p class="veil-word">SIRINI</p>
     <span class="veil-line"></span>
-    <p class="veil-sub">The Promise</p>
+    <p class="veil-sub" id="veilSub">The Promise</p>
   </div>
 </div>
 
@@ -934,6 +956,10 @@ body.no3d #fallbackExtras { display: block; max-width: 720px; margin: 0 auto; pa
       <a class="cta" href="https://www.instagram.com/sirinijewellerymanufacturerss" target="_blank" rel="noopener" title="@sirinijewellerymanufacturerss on Instagram"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.4"/><circle cx="16.7" cy="7.3" r="0.9" fill="currentColor" stroke="none"/></svg><span>Instagram</span></a>
     </div>
     <p class="fineprint">+91 93222 22216 &nbsp;·&nbsp; sirinijewellery@gmail.com &nbsp;·&nbsp; sirinijewellery.com</p>
+    <button class="again" id="againBtn" type="button" title="Return to the beginning of the journey">
+      <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      <span>Walk the thread again</span>
+    </button>
   </section>
 
 </main>
@@ -1155,7 +1181,23 @@ renderer.toneMapping = THREE.ACESFilmicToneMapping;
 renderer.toneMappingExposure = 1.16;
 renderer.setPixelRatio(Math.min(devicePixelRatio || 1, coarse ? 1.35 : 1.8));
 
-canvas.addEventListener('webglcontextlost', (e) => { e.preventDefault(); running = false; enterFallback('graphics context lost'); });
+/* GPU context loss: pause and give the driver a chance to hand the context
+   back (tab switches, phones under memory pressure) before abandoning the 3D
+   world for the editorial fallback. preventDefault() is what makes a restore
+   possible at all. */
+let restoreTimer = null;
+canvas.addEventListener('webglcontextlost', (e) => {
+  e.preventDefault();
+  running = false;
+  restoreTimer = setTimeout(() => enterFallback('graphics context lost'), 4000);
+});
+canvas.addEventListener('webglcontextrestored', () => {
+  if (restoreTimer) { clearTimeout(restoreTimer); restoreTimer = null; }
+  if (document.body.classList.contains('no3d')) return; // already fell back
+  running = true;
+  lastTime = performance.now();
+  requestAnimationFrame(loop);
+});
 
 /* ————— 5 · Palette, scene, camera ————— */
 
@@ -2332,6 +2374,7 @@ function openLightbox(i) {
   fillLightbox();
   lightbox.hidden = false;
   requestAnimationFrame(() => lightbox.classList.add('show'));
+  setTimeout(() => lightbox.classList.add('show'), 120); // rAF can be throttled (low-power mode, background)
   lightboxOpen = true;
   lbReturnFocus = document.activeElement;
   document.documentElement.style.overflow = 'hidden';
@@ -2436,7 +2479,13 @@ function buildAudio() {
 function chime() { if (audio && audio.on) audio.pluck(); }
 
 $('#soundToggle').addEventListener('click', function () {
-  if (!audio) audio = buildAudio();
+  if (!audio) {
+    try { audio = buildAudio(); } catch (err) {
+      console.warn('[SIRINI] audio unavailable:', err && err.message);
+      this.disabled = true;
+      return;
+    }
+  }
   const on = this.getAttribute('aria-pressed') !== 'true';
   this.setAttribute('aria-pressed', String(on));
   audio.setOn(on);
@@ -2445,18 +2494,22 @@ $('#soundToggle').addEventListener('click', function () {
 /* ————— 17 · Boot ————— */
 
 const textures = {};
+const veilSub = $('#veilSub');
 function loadTextures() {
   const loader = new THREE.TextureLoader();
+  let done = 0;
   const jobs = PIECES.map((g) => new Promise((res, rej) => {
     loader.load(window.SIRINI_ASSETS[g.slug], (tex) => {
       tex.encoding = THREE.sRGBEncoding;
       tex.anisotropy = Math.min(8, maxAniso);
       if (!isWebGL2) { tex.generateMipmaps = false; tex.minFilter = THREE.LinearFilter; }
       textures[g.slug] = tex;
+      done++;
+      if (veilSub) veilSub.textContent = `The Promise · ${Math.round((done / PIECES.length) * 100)}%`;
       res();
     }, undefined, rej);
   }));
-  return Promise.all(jobs);
+  return Promise.all(jobs).then(() => { if (veilSub) veilSub.textContent = 'The Promise'; });
 }
 
 function loadFonts() {
@@ -2477,6 +2530,7 @@ function loadFonts() {
 function resize() {
   compact = compactQuery.matches;
   const w = innerWidth, h = innerHeight;
+  applyPixelRatio(); // devicePixelRatio changes with browser zoom / monitor moves
   renderer.setSize(w, h, false);
   camera.aspect = w / h;
   camera.fov = camera.aspect < 0.85 ? 68 : 55;
@@ -2502,6 +2556,28 @@ let bank = 0;
 let lastTime = performance.now();
 const progressGem = document.querySelector('#progress b');
 
+/* Adaptive resolution: keep the journey smooth on weaker GPUs by trading
+   pixels for frame rate — and give the pixels back when there is headroom.
+   Hysteresis (down below ~33 fps, up only above ~54 fps) prevents flapping. */
+const RATIO_CAP = coarse ? 1.35 : 1.8;
+let ratioScale = 1, emaDt = 1 / 60, lastQualityCheck = 0;
+function applyPixelRatio() {
+  renderer.setPixelRatio(Math.min(devicePixelRatio || 1, RATIO_CAP) * ratioScale);
+}
+function adaptQuality(dt, now) {
+  if (document.hidden) return; // hidden-tab heartbeat ticks are not real frames
+  emaDt = emaDt * 0.95 + dt * 0.05;
+  if (now - lastQualityCheck < 2000) return;
+  lastQualityCheck = now;
+  if (emaDt > 0.030 && ratioScale > 0.6) {
+    ratioScale = Math.max(0.6, ratioScale - 0.15);
+    applyPixelRatio();
+  } else if (emaDt < 0.0185 && ratioScale < 1) {
+    ratioScale = Math.min(1, ratioScale + 0.1);
+    applyPixelRatio();
+  }
+}
+
 function loop(now) {
   if (!running) return;
   requestAnimationFrame(loop);
@@ -2515,6 +2591,8 @@ function tick(now) {
   const dt = Math.min(0.05, (now - lastTime) / 1000);
   lastTime = now;
   const time = now / 1000;
+
+  adaptQuality(dt, now);
 
   // tweened navigation
   if (tweening) {
@@ -2625,6 +2703,12 @@ async function boot() {
   try {
     fillLists();
     buildDots();
+    if (coarse) {
+      const ht = document.querySelector('#hint .hint-text');
+      if (ht) ht.textContent = 'Swipe to follow the promise';
+    }
+    const again = $('#againBtn');
+    if (again) again.addEventListener('click', () => { interacted(); setScrollFromT(0, false); });
     scroller.style.height = (compact || coarse ? 820 : 1000) + 'vh';
     await Promise.all([loadTextures(), loadFonts()]);
     buildThreshold();
