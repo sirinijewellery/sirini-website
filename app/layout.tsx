@@ -18,6 +18,7 @@ import { FooterWrapper } from "@/components/FooterWrapper";
 import { WhatsAppWrapper } from "@/components/WhatsAppWrapper";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { baseMetadata } from "@/lib/seo";
 import { getRibbonMessages, getBusinessDetails } from "@/lib/queries/site";
 import { getThemeSettings, buildThemeOverrideCss } from "@/lib/queries/theme";
@@ -189,6 +190,7 @@ export default async function RootLayout({
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID} />
         )}
         <Analytics />
+        <SpeedInsights />
       </body>
     </html>
   );
