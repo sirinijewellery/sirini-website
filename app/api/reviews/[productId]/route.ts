@@ -3,6 +3,7 @@ import { z } from "zod";
 import { prisma } from "@/lib/prisma";
 import { auth } from "@/lib/auth";
 import { parseImages } from "@/lib/parseImages";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 const reviewSchema = z.object({
   authorName: z.string().min(1, "Name is required").max(100),
@@ -45,6 +46,11 @@ export async function GET(_req: Request, { params }: RouteContext) {
 }
 
 export async function POST(req: Request, { params }: RouteContext) {
+  // Reviews publish instantly and feed the Bestsellers ranking, so throttle
+  // per-IP to blunt automated review spam.
+  const limited = enforceRateLimit(req, "review", 5, 10 * 60_000);
+  if (limited) return limited;
+
   try {
     const { productId } = await params;
 

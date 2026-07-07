@@ -2,6 +2,12 @@ import { NextRequest, NextResponse } from "next/server";
 import crypto from "crypto";
 import { prisma } from "@/lib/prisma";
 import { sendNewOrderEmails } from "@/lib/email";
+import { recordOrphanedPayment } from "@/lib/orphanedPayment";
+
+// A captured payment younger than this may still have an in-flight verify call
+// about to create its order — defer the orphan decision (return non-2xx so
+// Razorpay retries) rather than flag a false positive.
+const ORPHAN_GRACE_MS = 120_000;
 
 // Public route — called by Razorpay's servers, no auth/session.
 // We must read the RAW body to verify the signature, so this route relies on
@@ -39,7 +45,16 @@ export async function POST(req: NextRequest) {
   let payload: {
     event?: string;
     payload?: {
-      payment?: { entity?: { id?: string; order_id?: string } };
+      payment?: {
+        entity?: {
+          id?: string;
+          order_id?: string;
+          amount?: number;
+          email?: string;
+          contact?: string;
+          created_at?: number;
+        };
+      };
       order?: { entity?: { id?: string } };
     };
   };
@@ -52,7 +67,8 @@ export async function POST(req: NextRequest) {
   const event = payload.event;
 
   if (event === "payment.captured" || event === "order.paid") {
-    const paymentId = payload.payload?.payment?.entity?.id;
+    const entity = payload.payload?.payment?.entity;
+    const paymentId = entity?.id;
 
     if (paymentId) {
       // Find the matching order by the stored Razorpay payment id.
@@ -110,6 +126,30 @@ export async function POST(req: NextRequest) {
         } catch {
           // never let email block the webhook ack
         }
+      }
+
+      if (!order) {
+        // Money was captured but no order exists. This is either a still-in-
+        // flight verify (fresh) or a genuine orphan (client dropped / never
+        // verified). Defer the fresh case: return non-2xx so Razorpay retries
+        // later, by which point either the order exists or enough time has
+        // passed to call it a true orphan — avoids false positives.
+        const createdMs = entity?.created_at ? entity.created_at * 1000 : 0;
+        const ageMs = createdMs ? Date.now() - createdMs : Infinity;
+        if (ageMs < ORPHAN_GRACE_MS) {
+          return NextResponse.json(
+            { received: false, retry: true },
+            { status: 503 }
+          );
+        }
+        await recordOrphanedPayment({
+          paymentId,
+          razorpayOrderId: entity?.order_id ?? null,
+          amountPaise: entity?.amount ?? null,
+          reason: "Payment captured but no matching order (client never completed verification)",
+          customerEmail: entity?.email ?? null,
+          customerPhone: entity?.contact ?? null,
+        });
       }
     }
   }

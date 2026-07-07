@@ -34,6 +34,48 @@ const SETTINGS_REGISTRY: Record<string, z.ZodTypeAny> = {
   "business.details": businessDetailsSchema,
 };
 
+// Revalidate only the surfaces a setting actually affects. A blanket
+// revalidatePath("/", "layout") re-renders EVERY page (all product pages
+// included) and burns the Vercel ISR-write quota, so it's reserved for global
+// chrome (footer/ribbon/theme/navbar) which spans every page and changes
+// rarely. Page-scoped settings map to just their page(s).
+function revalidateForKey(key: string) {
+  if (
+    key === "business.details" ||
+    key.startsWith("theme.") ||
+    key.startsWith("navbar.")
+  ) {
+    revalidatePath("/", "layout"); // footer / navbar / theme — genuinely global
+    return;
+  }
+  if (key.startsWith("home.")) {
+    revalidatePath("/");
+    return;
+  }
+  if (key.startsWith("commerce.")) {
+    revalidatePath("/cart");
+    revalidatePath("/checkout");
+    return;
+  }
+  const CONTENT_PATHS: Record<string, string[]> = {
+    "content.about": ["/about"],
+    "content.shipping": ["/shipping"],
+    "content.privacy": ["/privacy"],
+    "content.terms": ["/terms"],
+    "content.faq": ["/faq"],
+    // The delivery/refund windows are interpolated into all three of these.
+    "content.shippingTime": ["/shipping", "/terms", "/faq"],
+  };
+  const paths = CONTENT_PATHS[key];
+  if (paths) {
+    for (const p of paths) revalidatePath(p);
+    return;
+  }
+  // Unknown / rarely-edited keys (catalog.*, product.*, seo.*): fall back to a
+  // full flush so a change is never invisible — correctness over efficiency.
+  revalidatePath("/", "layout");
+}
+
 export async function GET() {
   const session = await auth();
   if (!session?.user?.isAdmin) return NextResponse.json({ error: "Forbidden" }, { status: 403 });
@@ -83,7 +125,7 @@ export async function PATCH(req: NextRequest) {
       create: { key, value: data },
       update: { value: data },
     });
-    revalidatePath("/", "layout");
+    revalidateForKey(key);
     return NextResponse.json({ message: "Saved" });
   }
 
@@ -109,6 +151,9 @@ export async function PATCH(req: NextRequest) {
   }
   if (ops.length) await Promise.all(ops);
 
-  revalidatePath("/", "layout");
+  // Ribbon is the site-wide announcement bar (layout); hero duration only
+  // affects the home hero. Revalidate the minimal surface for each.
+  if (ribbonMessages !== undefined) revalidatePath("/", "layout");
+  else if (heroDurationMs !== undefined) revalidatePath("/");
   return NextResponse.json({ message: "Saved" });
 }

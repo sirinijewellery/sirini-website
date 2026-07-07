@@ -171,5 +171,19 @@ image utilities, and shop pages. **All bugs found were fixed in this round.**
 - Admin-login rate limiting & password policy — **owner declined 2026-07-02**.
 - Review moderation queue + public-form rate limiting — pending owner decision.
 - 5 moderate `npm audit` advisories inside `next`/`prisma` dev tooling — fix requires major-version downgrades; not applicable at runtime.
-- Pre-existing `react-hooks/set-state-in-effect` lint errors in cart hydration guard and StateCombobox sync (benign, intentional patterns; production build passes).
 - If a Razorpay payment captures but order creation then fails (e.g. stock sold out mid-payment), the payment is orphaned in the Razorpay dashboard — needs the "refund owed" flag feature (owner pending decision #3).
+
+**Update (commit `eb734e4`, same day):** the `react-hooks/set-state-in-effect` lint errors noted above (cart hydration guard, City/StateCombobox sync, ShippingLocationBar, LanguageToggle, QuickViewModal, ProductReviews) were all fixed in a follow-up sweep — 12 errors → 0. See that commit message for the per-file breakdown.
+
+---
+
+## Round 3 — 2026-07-07 (full re-review + fixes)
+
+Re-reviewed the whole codebase again, payment flow line-by-line. No new vulnerabilities; payment core re-confirmed sound (server-side prices/stock, timing-safe signature, Razorpay amount cross-check, Serializable idempotency now also backed by a `paymentId @unique` DB constraint). Fixes shipped this round:
+
+1. **Orphaned-payment capture (closes pending decision #3).** New `OrphanedPayment` table + `lib/orphanedPayment.ts`. The **verify route** now records an orphan (and emails the owner) whenever a payment is captured but order creation then throws (stock sold out mid-payment / unexpected error) — deterministic, no webhook dependency. The **Razorpay webhook** is the secondary net for payments where the browser never called verify at all: it records an orphan for a captured payment with no matching order, **age-gated** (payments < 120 s old return 503 so Razorpay retries later, avoiding a false positive while an in-flight verify is still creating the order). Owner gets an email with the payment id to refund from the Razorpay dashboard. **Depends on `RAZORPAY_WEBHOOK_SECRET` being set in Vercel for the secondary net; the verify-route net works regardless.**
+2. **ISR-write blast radius fixed.** `admin/settings` and both `admin/hero` routes were calling `revalidatePath("/", "layout")` on every save — nuking the whole site's cache (all product pages) and burning the Vercel ISR-write quota. Now key-scoped: global chrome (business/theme/navbar/ribbon) still flushes the layout (rare, genuinely global); `home.*`→`/`, `content.*`→their page(s), `commerce.*`→cart/checkout, hero slides→`/`.
+3. **Rate limiting on public forms.** New `lib/rateLimit.ts` (in-memory fixed-window, zero-dependency) applied to `contact`, `newsletter`, and `reviews` POST — 5 req / 10 min per IP, 429 + `Retry-After`. Best-effort per serverless instance; blunts single-source flood without new infra.
+4. `marketing-metrics` key compare was already timing-safe (commit `8167794`) — no change needed.
+
+Still open / accepted: admin-login rate limiting & password policy (**owner declined**); review moderation queue (reviews still publish instantly); the 5 dev-tooling `npm audit` advisories (not runtime-exploitable). An admin UI to browse/resolve `OrphanedPayment` rows would be a nice follow-up — for now the owner acts on the email.

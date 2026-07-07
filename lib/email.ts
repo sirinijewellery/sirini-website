@@ -64,6 +64,80 @@ export async function sendContactEmail(data: ContactEmailData): Promise<boolean>
   }
 }
 
+/* ── Orphaned-payment alert (money captured, no order created) ──────────── */
+
+export interface OrphanedPaymentAlert {
+  paymentId: string;
+  amountPaise: number | null;
+  reason: string;
+  customerEmail: string | null;
+  customerPhone: string | null;
+}
+
+/**
+ * Alerts the owner that Razorpay captured a payment but no order could be
+ * created for it, so it can be refunded (or the order fulfilled manually) from
+ * the Razorpay dashboard. Best-effort — never throws; the durable record is the
+ * OrphanedPayment row written before this is called.
+ */
+export async function sendOrphanedPaymentAlert(
+  data: OrphanedPaymentAlert
+): Promise<boolean> {
+  try {
+    const apiKey = process.env.RESEND_API_KEY;
+    if (!apiKey) {
+      console.warn(
+        "[email] RESEND_API_KEY not set — orphaned payment recorded to DB only (review OrphanedPayment table)."
+      );
+      return false;
+    }
+
+    const resend = new Resend(apiKey);
+    const to = process.env.CONTACT_EMAIL ?? "sirinijewellery@gmail.com";
+    const from =
+      process.env.ORDER_FROM_EMAIL ?? "Sirini Jewellery <onboarding@resend.dev>";
+
+    const amount =
+      data.amountPaise != null ? `₹${(data.amountPaise / 100).toFixed(2)}` : "unknown amount";
+
+    const html = `
+      <div style="font-family:Arial,Helvetica,sans-serif;color:#1a1a1a;max-width:560px;margin:0 auto;">
+        <h2 style="color:#b00020;margin-bottom:4px;">⚠️ Payment captured — no order created</h2>
+        <p style="margin-top:0;color:#666;">A customer was charged, but the order could not be recorded. Refund or fulfil this manually from the Razorpay dashboard.</p>
+        <table style="width:100%;border-collapse:collapse;margin:16px 0;">
+          <tr><td style="padding:4px 0;color:#666;width:120px;">Payment ID</td><td style="padding:4px 0;font-family:monospace;">${escapeHtml(
+            data.paymentId
+          )}</td></tr>
+          <tr><td style="padding:4px 0;color:#666;">Amount</td><td style="padding:4px 0;">${escapeHtml(
+            amount
+          )}</td></tr>
+          <tr><td style="padding:4px 0;color:#666;">Reason</td><td style="padding:4px 0;">${escapeHtml(
+            data.reason
+          )}</td></tr>
+          <tr><td style="padding:4px 0;color:#666;">Customer email</td><td style="padding:4px 0;">${escapeHtml(
+            data.customerEmail ?? "—"
+          )}</td></tr>
+          <tr><td style="padding:4px 0;color:#666;">Customer phone</td><td style="padding:4px 0;">${escapeHtml(
+            data.customerPhone ?? "—"
+          )}</td></tr>
+        </table>
+        <p style="color:#999;font-size:12px;margin-top:24px;">Look this payment up in the Razorpay dashboard to refund it, then reach out to the customer. This alert is also saved in the OrphanedPayment table.</p>
+      </div>
+    `;
+
+    await resend.emails.send({
+      from,
+      to,
+      subject: `⚠️ Orphaned payment ${data.paymentId} — action needed`,
+      html,
+    });
+    return true;
+  } catch (err) {
+    console.error("[email] Failed to send orphaned-payment alert:", err);
+    return false;
+  }
+}
+
 /* ── New-order admin notification ───────────────────────────────────────── */
 
 export interface NewOrderEmailPayload {

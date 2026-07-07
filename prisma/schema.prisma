@@ -221,6 +221,25 @@ model ContactMessage {
   @@index([isRead, createdAt])
 }
 
+// A Razorpay payment that was CAPTURED but for which no Order could be created
+// (the customer's confirmation request dropped, or the last unit sold out
+// mid-payment). Written by the verify route and the webhook so real money is
+// never silently lost — the owner is emailed to refund/fulfil from the
+// Razorpay dashboard. paymentId is unique so both writers stay idempotent.
+model OrphanedPayment {
+  id              String   @id @default(cuid())
+  paymentId       String   @unique
+  razorpayOrderId String?
+  amountPaise     Int?
+  reason          String
+  customerEmail   String?
+  customerPhone   String?
+  resolved        Boolean  @default(false)
+  createdAt       DateTime @default(now())
+
+  @@index([resolved, createdAt])
+}
+
 // Owner-managed home hero. Multiple active slides rotate as a crossfade
 // slideshow. focal* = CSS object-position so the owner can "crop" which part
 // of the image shows on each device when it's cover-cropped.

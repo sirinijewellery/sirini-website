@@ -6,6 +6,7 @@ import { auth } from "@/lib/auth";
 import { sendNewOrderEmails } from "@/lib/email";
 import { getCommerceSettings } from "@/lib/queries/commerce";
 import { computeTotals } from "@/lib/commerce/pricing";
+import { recordOrphanedPayment } from "@/lib/orphanedPayment";
 
 const bodySchema = z.object({
   razorpayOrderId: z.string().min(1),
@@ -240,17 +241,37 @@ export async function POST(req: NextRequest) {
   // create idempotency guard above is only race-safe at this isolation level.
   } catch (err) {
     if ((err as { code?: string }).code === "P2034") {
-      // Serialization conflict — a concurrent request for the same payment won
+      // Serialization conflict — a concurrent request for the SAME payment is
+      // handling it; not an orphan (that request will create the order).
       return NextResponse.json(
         { error: "This payment is already being processed. Please check your orders." },
         { status: 409 }
       );
     }
     const msg = err instanceof Error ? err.message : "Order creation failed";
+    // The payment was captured (signature + amount verified above) but the
+    // order could not be created — flag it so the money is never silently lost
+    // and the owner can refund/fulfil it. Best-effort; never masks the error.
+    await recordOrphanedPayment({
+      paymentId: razorpayPaymentId,
+      razorpayOrderId,
+      amountPaise: razorpayAmountPaise,
+      reason: msg.includes("Insufficient stock")
+        ? "Item sold out mid-payment — order not created"
+        : `Order creation failed after payment: ${msg}`,
+      customerEmail,
+      customerPhone,
+    });
     if (msg.includes("Insufficient stock")) {
-      return NextResponse.json({ error: "Sorry, an item went out of stock. Please update your cart." }, { status: 409 });
+      return NextResponse.json(
+        {
+          error:
+            "Sorry, an item went out of stock right as you paid. We've flagged your payment for a refund — please contact us and we'll sort it out.",
+        },
+        { status: 409 }
+      );
     }
-    throw err; // re-throw unexpected errors
+    throw err; // re-throw unexpected errors (already recorded above)
   }
 
   // Fire-and-forget admin notification — only for a freshly-created order.

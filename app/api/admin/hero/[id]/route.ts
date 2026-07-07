@@ -30,7 +30,7 @@ export async function PATCH(req: NextRequest, { params }: { params: Promise<{ id
 
   try {
     const slide = await prisma.heroSlide.update({ where: { id }, data: parsed.data });
-    revalidatePath("/", "layout");
+    revalidatePath("/"); // hero renders on the home page only
     return NextResponse.json(slide);
   } catch {
     return NextResponse.json({ error: "Slide not found" }, { status: 404 });
@@ -44,7 +44,7 @@ export async function DELETE(_req: NextRequest, { params }: { params: Promise<{ 
 
   try {
     await prisma.heroSlide.delete({ where: { id } });
-    revalidatePath("/", "layout");
+    revalidatePath("/"); // hero renders on the home page only
     return NextResponse.json({ message: "Deleted" });
   } catch {
     return NextResponse.json({ error: "Slide not found" }, { status: 404 });

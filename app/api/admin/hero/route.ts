@@ -53,6 +53,6 @@ export async function POST(req: NextRequest) {
       isActive: d.isActive ?? true,
     },
   });
-  revalidatePath("/", "layout");
+  revalidatePath("/"); // hero renders on the home page only
   return NextResponse.json(slide, { status: 201 });
 }

@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { sendContactEmail } from "@/lib/email";
+import { enforceRateLimit } from "@/lib/rateLimit";
 import { z } from "zod";
 
 const schema = z.object({
@@ -10,6 +11,11 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  // Throttle abuse — each submission writes a DB row and (best-effort) sends an
+  // email, so an unbounded flood would spam the inbox and burn email quota.
+  const limited = enforceRateLimit(request, "contact", 5, 10 * 60_000);
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const parsed = schema.safeParse(body);

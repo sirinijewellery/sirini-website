@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rateLimit";
 import { z } from "zod";
 
 const schema = z.object({ email: z.string().email().max(254) });
 
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "newsletter", 5, 10 * 60_000);
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const parsed = schema.safeParse(body);
