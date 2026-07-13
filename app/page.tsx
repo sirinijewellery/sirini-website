@@ -29,11 +29,20 @@ import {
   getHomeCollections,
 } from "@/lib/queries/home";
 
-export const metadata = pageMetadata(
-  "Sirini Jewellery — Handcrafted Fashion Jewellery",
-  "Shop handcrafted Kundan, Meenakari, and gold-plated jewellery — necklace sets, earrings, bangles, finger rings and anklets. Pan India free shipping.",
-  { canonical: siteConfig.url },
-);
+// EXCEPTION to the brand-free-title rule used on other pages: Next.js only
+// applies the root layout's title.template ("%s | Sirini Jewellery") to CHILD
+// segments, and app/page.tsx lives in the same root segment as the layout —
+// so the home title must carry the brand itself or it renders brandless.
+// pageMetadata still receives the brand-free form for og:/twitter: titles
+// (it appends the brand there itself).
+export const metadata = {
+  ...pageMetadata(
+    "Handcrafted Fashion Jewellery Online",
+    "Shop handcrafted Kundan, Meenakari, and gold-plated jewellery — necklace sets, earrings, bangles, finger rings and anklets. Pan India free shipping.",
+    { canonical: siteConfig.url },
+  ),
+  title: "Sirini Jewellery — Handcrafted Fashion Jewellery Online",
+};
 
 // ISR — the home page (featured/bestseller queries) is served from cache and
 // refreshed at most every 10 minutes.

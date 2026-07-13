@@ -4,6 +4,7 @@ import { parseImages } from "@/lib/parseImages";
 import { botImageUrl } from "@/lib/cdnImage";
 import { SITE_URL } from "@/lib/seo";
 import { getAllArticles } from "@/lib/blog";
+import { categoryLabel } from "@/lib/taxonomy";
 
 const BASE_URL = SITE_URL;
 
@@ -30,19 +31,11 @@ export async function GET() {
 
       const imageBlocks = images
         .map((imgUrl) => {
-          const escapedUrl = botImageUrl(imgUrl)
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-          const title = `${product.name} - Sirini Jewellery`
-            .replace(/&/g, "&amp;")
-            .replace(/</g, "&lt;")
-            .replace(/>/g, "&gt;");
-          const caption =
-            `Handcrafted ${product.category} by Sirini Jewellery, Mumbai`
-              .replace(/&/g, "&amp;")
-              .replace(/</g, "&lt;")
-              .replace(/>/g, "&gt;");
+          const escapedUrl = esc(botImageUrl(imgUrl));
+          const title = esc(`${product.name} - Sirini Jewellery`);
+          const caption = esc(
+            `Handcrafted ${categoryLabel(product.category)} by Sirini Jewellery, Mumbai`,
+          );
 
           return `    <image:image>
       <image:loc>${escapedUrl}</image:loc>
@@ -52,10 +45,7 @@ export async function GET() {
         })
         .join("\n");
 
-      const escapedSlug = product.slug
-        .replace(/&/g, "&amp;")
-        .replace(/</g, "&lt;")
-        .replace(/>/g, "&gt;");
+      const escapedSlug = esc(product.slug);
 
       return `  <url>
     <loc>${BASE_URL}/shop/${escapedSlug}</loc>

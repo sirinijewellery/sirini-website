@@ -3,8 +3,9 @@ import { pageMetadata, siteConfig } from "@/lib/seo";
 import { getShipping, getShippingTime } from "@/lib/queries/content";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata: Metadata = pageMetadata(
-  "Shipping & Returns — Sirini Jewellery",
+  "Shipping & Returns",
   "Free shipping across India. Easy returns within 7 days. Learn about our shipping and return policy.",
   { canonical: "/shipping" },
 );

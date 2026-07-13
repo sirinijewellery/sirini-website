@@ -180,13 +180,19 @@ export function productMetadata(product: {
     ? `${siteConfig.url}/shop/${product.slug}`
     : undefined;
 
-  // Build title: prefer rich form if it fits under 65 chars
+  // Build title: prefer rich form if it fits under ~60 chars.
+  // IMPORTANT: do NOT append siteConfig.name here — the root layout's
+  // `title.template` ("%s | Sirini Jewellery") already appends the brand to
+  // every plain-string page title, so embedding it here would double it up
+  // in the rendered <title> tag (e.g. "... | Sirini Jewellery | Sirini
+  // Jewellery"). Budget the template's suffix length into the fit check.
+  const templatedSuffixLength = ` | ${siteConfig.name}`.length;
   let title: string;
   if (product.category) {
-    const rich = `${product.name} | Buy ${product.category} Online India — ${siteConfig.name}`;
-    title = rich.length <= 65 ? rich : `${product.name} | ${siteConfig.name}`;
+    const rich = `${product.name} | Buy ${product.category} Online India`;
+    title = rich.length + templatedSuffixLength <= 60 ? rich : product.name;
   } else {
-    title = `${product.name} | ${siteConfig.name}`;
+    title = product.name;
   }
 
   return {
@@ -202,7 +208,11 @@ export function productMetadata(product: {
       description: ogDescription,
       type: "article",
       locale: "en_IN",
-      images: [{ url: image, width: 800, height: 800, alt: product.name }],
+      // No width/height: botImageUrl()'s Cloudinary transform (c_limit)
+      // preserves each photo's native aspect ratio, so any hardcoded
+      // dimensions would be wrong for most products and distort link-preview
+      // cards. Crawlers read the real dimensions from the fetched image.
+      images: [{ url: image, alt: product.name }],
     },
     twitter: {
       card: "summary_large_image",

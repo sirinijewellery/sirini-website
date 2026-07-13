@@ -13,8 +13,9 @@ const inr = new Intl.NumberFormat("en-IN", {
   minimumFractionDigits: 0,
 });
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata: Metadata = {
-  title: "My Account | Sirini Jewellery",
+  title: "My Account",
   robots: { index: false },
 };
 

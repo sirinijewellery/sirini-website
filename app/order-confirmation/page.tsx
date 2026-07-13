@@ -8,8 +8,9 @@ import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
 import { CheckCircle } from "lucide-react";
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata: Metadata = {
-  title: "Order Confirmed — Sirini Jewellery",
+  title: "Order Confirmed",
   description: "Your order has been placed successfully.",
   robots: { index: false, follow: false },
 };

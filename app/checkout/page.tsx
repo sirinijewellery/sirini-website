@@ -5,8 +5,9 @@ import { prisma } from "@/lib/prisma";
 import { CheckoutForm } from "@/components/CheckoutForm";
 import { getCommerceSettings } from "@/lib/queries/commerce";
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata: Metadata = {
-  title: "Checkout — Sirini Jewellery",
+  title: "Checkout",
   description: "Complete your purchase securely.",
   robots: { index: false, follow: false },
 };

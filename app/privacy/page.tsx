@@ -2,8 +2,9 @@ import type { Metadata } from "next";
 import { pageMetadata } from "@/lib/seo";
 import { getPrivacy } from "@/lib/queries/content";
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata: Metadata = pageMetadata(
-  "Privacy Policy — Sirini Jewellery",
+  "Privacy Policy",
   "How Sirini Jewellery collects, uses, and protects your personal information.",
   { canonical: "/privacy" },
 );

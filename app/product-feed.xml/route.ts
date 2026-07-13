@@ -3,6 +3,7 @@ import { prisma } from "@/lib/prisma";
 import { parseImages, sortAllImages } from "@/lib/parseImages";
 import { botImageUrl } from "@/lib/cdnImage";
 import { SITE_URL } from "@/lib/seo";
+import { categoryLabel } from "@/lib/taxonomy";
 
 /**
  * Google Merchant Center product feed (RSS 2.0 + g: namespace).
@@ -65,7 +66,7 @@ ${additionalImages ? additionalImages + "\n" : ""}      <g:price>${p.price.toFix
       <g:condition>new</g:condition>
       <g:brand>Sirini Jewellery</g:brand>
       <g:identifier_exists>no</g:identifier_exists>
-      <g:product_type>${esc(`Jewellery > ${p.category}`)}</g:product_type>
+      <g:product_type>${esc(`Jewellery > ${categoryLabel(p.category)}`)}</g:product_type>
       <g:google_product_category>188</g:google_product_category>
       <g:material>${esc(p.material)}</g:material>
       <g:shipping>

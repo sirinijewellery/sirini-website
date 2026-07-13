@@ -259,9 +259,9 @@ export default function ProductDetailClient({
 
       {/* Description */}
       <div className="space-y-2">
-        <h3 className="font-sans text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+        <h2 className="font-sans text-sm font-semibold uppercase tracking-widest text-muted-foreground">
           Description
-        </h3>
+        </h2>
         <p className="font-sans text-sm leading-relaxed text-foreground">
           {product.description}
         </p>
@@ -269,9 +269,9 @@ export default function ProductDetailClient({
 
       {/* Details */}
       <div className="space-y-1.5">
-        <h3 className="font-sans text-sm font-semibold uppercase tracking-widest text-muted-foreground">
+        <h2 className="font-sans text-sm font-semibold uppercase tracking-widest text-muted-foreground">
           Details
-        </h3>
+        </h2>
         <div className="grid grid-cols-2 gap-x-4 gap-y-1 text-sm font-sans">
           <span className="text-muted-foreground">Material</span>
           <span className="text-foreground">{product.material}</span>

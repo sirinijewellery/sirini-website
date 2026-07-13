@@ -40,12 +40,17 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
   if (!product) return { title: "Product Not Found" };
 
   const images = sortAllImages(parseImages(product.images));
+  // product.category is a URL slug (e.g. "necklace-sets", "finger-rings") —
+  // prettify it before it lands in visible/crawlable text (title, meta
+  // description, keywords). Passing the raw slug rendered titles like
+  // "Buy necklace-sets Online India" for every multi-word category.
+  const categoryDisplay = categoryLabel(product.category);
   const base = productMetadata({
     name: product.name,
     description: product.description,
     images,
     price: product.price,
-    category: product.category,
+    category: categoryDisplay,
     slug: product.slug,
   });
 
@@ -70,7 +75,7 @@ export async function generateMetadata({ params }: Props): Promise<Metadata> {
     },
     keywords: [
       product.name,
-      ...(product.category ? [product.category, `buy ${product.category} online`] : []),
+      ...(product.category ? [categoryDisplay, `buy ${categoryDisplay} online`] : []),
       ...(product.material ? [product.material, `${product.material} jewellery`] : []),
       "Sirini Jewellery",
       "handcrafted jewellery",
@@ -124,6 +129,11 @@ export default async function ProductPage({ params }: Props) {
 
   const siteUrl = siteConfig.url;
 
+  // product.category is a URL slug ("necklace-sets") — prettify once and reuse
+  // everywhere it's shown (breadcrumb nav, JSON-LD, breadcrumb structured
+  // data) so the three can't drift apart.
+  const categoryDisplay = categoryLabel(product.category);
+
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-12">
       {/* Breadcrumb — visible nav */}
@@ -140,7 +150,7 @@ export default async function ProductPage({ params }: Props) {
           href={`/shop?category=${encodeURIComponent(product.category)}`}
           className="hover:text-primary transition-colors"
         >
-          {categoryLabel(product.category)}
+          {categoryDisplay}
         </Link>
         <span>/</span>
         <span className="text-foreground truncate max-w-[160px]">{product.name}</span>
@@ -202,7 +212,7 @@ export default async function ProductPage({ params }: Props) {
           sku: product.sku,
           slug: product.slug,
           material: product.material,
-          category: product.category,
+          category: categoryDisplay,
           stock: product.stock,
         }}
         reviewSummary={
@@ -217,7 +227,7 @@ export default async function ProductPage({ params }: Props) {
         items={[
           { name: "Home", url: siteUrl },
           { name: "Shop", url: `${siteUrl}/shop` },
-          { name: product.category, url: `${siteUrl}/shop?category=${encodeURIComponent(product.category)}` },
+          { name: categoryDisplay, url: `${siteUrl}/shop?category=${encodeURIComponent(product.category)}` },
           { name: product.name, url: `${siteUrl}/shop/${product.slug}` },
         ]}
       />

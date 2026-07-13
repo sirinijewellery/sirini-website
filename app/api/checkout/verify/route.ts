@@ -7,6 +7,7 @@ import { sendNewOrderEmails } from "@/lib/email";
 import { getCommerceSettings } from "@/lib/queries/commerce";
 import { computeTotals } from "@/lib/commerce/pricing";
 import { recordOrphanedPayment } from "@/lib/orphanedPayment";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 const bodySchema = z.object({
   razorpayOrderId: z.string().min(1),
@@ -39,6 +40,17 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Throttle abuse — public, unauthenticated-callable route (same directory as
+  // cod/create-order, which already carry this). Invalid signatures are cheap
+  // to reject, but each invocation still costs a serverless execution, and a
+  // valid-signature flood would hit the Razorpay order-fetch API and write DB
+  // rows, so cap it like its siblings.
+  // Ceiling is per-IP and Indian mobile traffic is heavily CGNAT'd (many
+  // unrelated shoppers share one IP), so keep it high enough that a promo
+  // spike of legitimate orders doesn't 429 real customers.
+  const limited = enforceRateLimit(req, "checkout-verify", 30, 10 * 60_000);
+  if (limited) return limited;
+
   // Use server-side session for userId — never trust client-supplied value
   const session = await auth();
 

@@ -1,7 +1,8 @@
 import Link from "next/link";
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata = {
-  title: "Page Not Found — Sirini Jewellery",
+  title: "Page Not Found",
   robots: { index: false, follow: true },
 };
 

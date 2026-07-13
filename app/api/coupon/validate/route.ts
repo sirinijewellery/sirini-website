@@ -1,5 +1,6 @@
 import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rateLimit";
 import { z } from "zod";
 
 const schema = z.object({
@@ -8,6 +9,11 @@ const schema = z.object({
 });
 
 export async function POST(request: Request) {
+  // Throttle abuse — unauthenticated, DB-backed lookup that could otherwise be
+  // used to brute-force/enumerate coupon codes.
+  const limited = enforceRateLimit(request, "coupon-validate", 20, 10 * 60_000);
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const parsed = schema.safeParse(body);

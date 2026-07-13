@@ -3,8 +3,9 @@ import Link from "next/link";
 import { pageMetadata } from "@/lib/seo";
 import { getTerms, getShippingTime } from "@/lib/queries/content";
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata: Metadata = pageMetadata(
-  "Terms of Service — Sirini Jewellery",
+  "Terms of Service",
   "Terms and conditions for shopping with Sirini Jewellery.",
   { canonical: "/terms" },
 );

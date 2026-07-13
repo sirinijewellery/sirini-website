@@ -6,8 +6,9 @@ import type { Metadata } from "next";
 import { getWishlistItems } from "@/lib/queries/wishlist";
 import { WishlistItemCard } from "@/components/WishlistItemCard";
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata: Metadata = {
-  title: "My Wishlist | Sirini Jewellery",
+  title: "My Wishlist",
   robots: { index: false },
 };
 

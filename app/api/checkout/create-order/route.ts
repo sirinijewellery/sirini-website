@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { createRazorpayOrder } from "@/lib/payment";
 import { getCommerceSettings } from "@/lib/queries/commerce";
 import { computeTotals } from "@/lib/commerce/pricing";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 const addressSchema = z.object({
   line1: z.string().min(1, "Address is required"),
@@ -35,6 +36,15 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Throttle abuse — each call creates a real order on the Razorpay side
+  // (an external API with its own cost/limits), so an unbounded flood is
+  // both a cost and availability risk.
+  // Ceiling is per-IP and Indian mobile traffic is heavily CGNAT'd (many
+  // unrelated shoppers share one IP), so keep it high enough that a promo
+  // spike of legitimate orders doesn't 429 real customers.
+  const limited = enforceRateLimit(req, "checkout-create-order", 30, 10 * 60_000);
+  if (limited) return limited;
+
   let body: unknown;
   try {
     body = await req.json();

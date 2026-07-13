@@ -15,18 +15,10 @@ import { getTaxonomyTree } from "@/lib/queries/taxonomy";
 import type { TaxonomyGroupData, TaxonomyTermData } from "@/lib/taxonomy";
 import Link from "next/link";
 import { siteConfig } from "@/lib/seo";
-import { NAV_CATEGORIES } from "@/lib/taxonomy";
+import { categoryLabel } from "@/lib/taxonomy";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 import { SubcategoryGrid } from "@/components/SubcategoryGrid";
 import type { Metadata } from "next";
-
-/** Pretty label for a category slug ("necklace-sets" → "Necklace Sets"). */
-function categoryLabel(slug: string): string {
-  return (
-    NAV_CATEGORIES.find((c) => c.slug === slug)?.label ??
-    slug.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase())
-  );
-}
 
 interface ShopPageProps {
   searchParams: Promise<{

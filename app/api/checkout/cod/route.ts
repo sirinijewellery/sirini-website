@@ -5,6 +5,7 @@ import { auth } from "@/lib/auth";
 import { sendNewOrderEmails } from "@/lib/email";
 import { getCommerceSettings } from "@/lib/queries/commerce";
 import { computeTotals } from "@/lib/commerce/pricing";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 const bodySchema = z.object({
   items: z
@@ -35,6 +36,15 @@ const bodySchema = z.object({
 });
 
 export async function POST(req: NextRequest) {
+  // Throttle abuse — this route creates a real DB order and decrements stock
+  // WITHOUT taking payment, so an unbounded flood could spam fake orders / the
+  // owner's order-notification inbox and exhaust inventory.
+  // Ceiling is per-IP and Indian mobile traffic is heavily CGNAT'd (many
+  // unrelated shoppers share one IP), so keep it high enough that a promo
+  // spike of legitimate orders doesn't 429 real customers.
+  const limited = enforceRateLimit(req, "checkout-cod", 30, 10 * 60_000);
+  if (limited) return limited;
+
   // Use server-side session for userId — never trust client-supplied value
   const session = await auth();
 

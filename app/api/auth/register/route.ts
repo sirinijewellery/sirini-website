@@ -1,6 +1,7 @@
 import { NextResponse } from "next/server";
 import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rateLimit";
 import { z } from "zod";
 
 const registerSchema = z.object({
@@ -15,6 +16,11 @@ const registerSchema = z.object({
 });
 
 export async function POST(request: Request) {
+  // Throttle abuse — each attempt runs a cost-12 bcrypt hash (expensive) and
+  // can be used to enumerate registered emails via the 409 response.
+  const limited = enforceRateLimit(request, "register", 5, 10 * 60_000);
+  if (limited) return limited;
+
   try {
     const body = await request.json();
     const parsed = registerSchema.safeParse(body);

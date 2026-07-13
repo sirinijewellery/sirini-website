@@ -1,7 +1,8 @@
 import type { Metadata } from "next";
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata: Metadata = {
-  title: "Your Cart | Sirini Jewellery",
+  title: "Your Cart",
   robots: { index: false, follow: false },
 };
 

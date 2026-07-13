@@ -4,8 +4,9 @@ import { pageMetadata, siteConfig } from "@/lib/seo";
 import { getFaq } from "@/lib/queries/content";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
+// Title is brand-free — the root layout's title.template appends the brand.
 export const metadata = pageMetadata(
-  "FAQ — Sirini Jewellery",
+  "FAQ",
   "Answers to common questions about Sirini Jewellery — gold plating, care, shipping, returns, sizing and how to reach us.",
   { canonical: "/faq" },
 );

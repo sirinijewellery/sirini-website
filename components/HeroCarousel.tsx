@@ -73,6 +73,10 @@ export function HeroCarousel({
           const active = i === idx;
           const mobileSrc = s.mobileImageUrl || s.imageUrl;
           const cssFilter = `brightness(${s.brightness ?? 1}) contrast(${s.contrast ?? 1})`;
+          const alt =
+            slides.length > 1
+              ? `Sirini Jewellery — handcrafted necklace set, slide ${i + 1} of ${slides.length}`
+              : "Sirini Jewellery — handcrafted necklace set";
           return (
             <div
               key={s.id}
@@ -81,7 +85,7 @@ export function HeroCarousel({
             >
               <Image
                 src={mobileSrc}
-                alt="Sirini Jewellery — handcrafted necklace set"
+                alt={alt}
                 fill
                 preload={i === 0}
                 quality={75}
@@ -91,7 +95,7 @@ export function HeroCarousel({
               />
               <Image
                 src={s.imageUrl}
-                alt="Sirini Jewellery — handcrafted necklace set"
+                alt={alt}
                 fill
                 preload={i === 0}
                 quality={75}

@@ -40,10 +40,13 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     { url: `${BASE_URL}/shop`, lastModified: safeCatalog, changeFrequency: "daily", priority: 0.9 },
     { url: `${BASE_URL}/occasions`, lastModified: safeCatalog, changeFrequency: "weekly", priority: 0.8 },
     { url: `${BASE_URL}/blog`, lastModified: blogUpdated, changeFrequency: "weekly", priority: 0.7 },
+    { url: `${BASE_URL}/world`, lastModified: STATIC_UPDATED, changeFrequency: "monthly", priority: 0.6 },
     { url: `${BASE_URL}/about`, lastModified: STATIC_UPDATED, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/contact`, lastModified: STATIC_UPDATED, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/faq`, lastModified: STATIC_UPDATED, changeFrequency: "monthly", priority: 0.5 },
     { url: `${BASE_URL}/shipping`, lastModified: STATIC_UPDATED, changeFrequency: "monthly", priority: 0.4 },
+    { url: `${BASE_URL}/privacy`, lastModified: STATIC_UPDATED, changeFrequency: "yearly", priority: 0.3 },
+    { url: `${BASE_URL}/terms`, lastModified: STATIC_UPDATED, changeFrequency: "yearly", priority: 0.3 },
   ];
 
   // ── Blog articles ────────────────────────────────────────────────

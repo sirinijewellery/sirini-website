@@ -1,4 +1,5 @@
 import { NextResponse } from "next/server";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 // Delivery zones keyed by normalized state name.
 const METRO_STATES = new Set([
@@ -50,6 +51,13 @@ interface IndiaPostResult {
 }
 
 export async function GET(request: Request) {
+  // Throttle abuse — every hit proxies to the external postalpincode.in API,
+  // so an unthrottled flood burns serverless executions and can get the
+  // site's egress throttled/blocked by the third party, breaking pincode
+  // lookup at checkout for everyone. Ceiling allows normal retyping/retries.
+  const limited = enforceRateLimit(request, "pincode", 30, 10 * 60_000);
+  if (limited) return limited;
+
   const { searchParams } = new URL(request.url);
   const code = searchParams.get("code")?.trim() ?? "";
 

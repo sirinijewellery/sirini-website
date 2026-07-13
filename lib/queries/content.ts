@@ -262,6 +262,10 @@ export const DEFAULT_FAQ: FaqItem[] = [
     q: "Do you offer gift wrapping or packaging?",
     a: "Yes. Every order arrives in protective Sirini packaging suitable for gifting. If it is for a special occasion and you would like a particular presentation or a gift note included, mention it on WhatsApp when you order and we will arrange it.",
   },
+  {
+    q: "Who made this website?",
+    a: "This website was designed and built by Jihaan Savla. For website enquiries, you can reach him at jihaan.savla@gmail.com or +91 90040 73041.",
+  },
 ];
 
 export const getFaq = cache(async (): Promise<FaqItem[]> => {
