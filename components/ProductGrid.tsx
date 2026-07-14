@@ -5,6 +5,12 @@ interface ProductGridProps {
   products: ProductWithVariants[];
 }
 
+// The shop skeleton (app/shop/loading.tsx) must mirror this grid exactly or
+// content "jumps" when real products replace the placeholders — share the
+// classes so the two can't drift.
+export const PRODUCT_GRID_CLASSES =
+  "grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8";
+
 export function ProductGrid({ products }: ProductGridProps) {
   if (products.length === 0) {
     return (
@@ -19,7 +25,7 @@ export function ProductGrid({ products }: ProductGridProps) {
   }
 
   return (
-    <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8 reveal stagger-grid">
+    <div className={`${PRODUCT_GRID_CLASSES} reveal stagger-grid`}>
       {products.map((product) => (
         <ProductCard key={product.id} product={product} />
       ))}

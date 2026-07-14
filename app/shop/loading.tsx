@@ -1,6 +1,8 @@
+import { PRODUCT_GRID_CLASSES } from "@/components/ProductGrid";
+
 // Route-level skeleton for /shop — mirrors the real listing layout (header,
 // desktop sidebar column, sort bar, product grid) so there's no layout jump
-// once data arrives. Grid columns/gaps match components/ProductGrid.tsx.
+// once data arrives. The grid classes are imported from ProductGrid itself.
 export default function Loading() {
   return (
     <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
@@ -32,7 +34,7 @@ export default function Loading() {
           </div>
 
           {/* Product grid — matches ProductGrid's column/gap classes */}
-          <div className="grid grid-cols-2 sm:grid-cols-2 md:grid-cols-3 lg:grid-cols-3 xl:grid-cols-4 gap-x-4 gap-y-8">
+          <div className={PRODUCT_GRID_CLASSES}>
             {[...Array(12)].map((_, i) => (
               <div key={i} className="space-y-2">
                 <div className="aspect-[4/5] skeleton-shimmer" />

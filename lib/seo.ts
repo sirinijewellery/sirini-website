@@ -18,6 +18,10 @@ const siteConfig = {
   description:
     "Mumbai's premier handcrafted jewellery brand — Kundan necklace sets, Meenakari earrings, gold-plated bangles, rings & anklets. Free pan-India shipping since 2017.",
   url: SITE_URL,
+  // Canonical brand logo (trimmed, transparent) — the ONLY place this URL
+  // should live. Navbar, Footer, and the loading states all import it, so a
+  // logo swap (new public_id per the Cloudinary cache-bust rule) is one edit.
+  logo: "https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,e_make_transparent:20,f_png,w_400/sirini-jewellery/logo-real.png",
   // Cloudinary brand hero used as the site-wide social sharing card
   defaultOgImage:
     "https://res.cloudinary.com/dp8a2lvxg/image/upload/w_1200,h_630,c_fill,g_auto/v1779795103/sirini-jewellery/10ns787/10NS787-11225-Model.jpg",

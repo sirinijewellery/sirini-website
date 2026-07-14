@@ -6,6 +6,7 @@ import Image from "next/image";
 import Link from "next/link";
 import { NAV_CATEGORIES, OCCASIONS, STYLES } from "@/lib/taxonomy";
 import type { BusinessDetails } from "@/lib/settings";
+import { siteConfig } from "@/lib/seo";
 
 const COMPANY_LINKS = [
   { href: "/about", label: "Our Story" },
@@ -41,7 +42,7 @@ export function Footer({ business }: { business: BusinessDetails }) {
           {/* Brand column — 1/3 on desktop */}
           <div className="md:col-span-1 flex flex-col gap-6">
             <Image
-              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,e_make_transparent:20,f_png,w_400/sirini-jewellery/logo-real.png"
+              src={siteConfig.logo}
               alt="Sirini Jewellery"
               width={500}
               height={500}

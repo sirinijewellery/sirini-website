@@ -27,6 +27,7 @@ import { AbandonedCartNudge } from "@/components/AbandonedCartNudge";
 import NextTopLoader from "nextjs-toploader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
+import { BrandedLoader } from "@/components/BrandedLoader";
 import { ScrollProgressBar } from "@/components/ScrollProgressBar";
 import { LocalBusinessJsonLd } from "@/components/LocalBusinessJsonLd";
 import type { Viewport } from "next";
@@ -144,6 +145,15 @@ export const viewport: Viewport = {
   themeColor: "#5C1A24",
 };
 
+// First-load splash dismissal. Runs inline right after the splash div so it
+// works before hydration/React load. Hides the splash the moment the document
+// is parsed (DOMContentLoaded ≈ HTML + render-blocking CSS done — the window
+// where the page would otherwise look blank/unstyled), with a 6s failsafe.
+// `.splash-done` fades it out; the node is removed after the fade.
+// NOTE: if a CSP is ever added (see next.config.ts), this inline script needs
+// a nonce or hash.
+const SPLASH_SCRIPT = `(function(){var s=document.getElementById("sirini-splash");if(!s)return;var done=false;var hide=function(){if(done)return;done=true;s.classList.add("splash-done");setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s)},450)};if(document.readyState!=="loading"){hide()}else{document.addEventListener("DOMContentLoaded",hide);setTimeout(hide,6000)}})();`;
+
 export default async function RootLayout({
   children,
 }: Readonly<{
@@ -177,6 +187,22 @@ export default async function RootLayout({
       <body
         className={`${fontVariables} antialiased min-h-screen flex flex-col bg-background text-foreground`}
       >
+        {/* First-load splash — branded loading moment for slow INITIAL loads
+            (loading.tsx only covers route transitions, not the first visit).
+            Server-rendered so it paints straight from the HTML before any JS.
+            Invisible for the first 800ms (`.splash-fade-in`), so fast loads
+            never see it; slow connections get the logo instead of a
+            half-styled page. Dismissed by the inline script on
+            DOMContentLoaded. aria-hidden: decorative — AT users get the page
+            content as it streams, with no phantom "loading" announcements. */}
+        <div
+          id="sirini-splash"
+          aria-hidden="true"
+          className="splash-fade-in fixed inset-0 z-[9990] flex flex-col items-center justify-center gap-6 bg-background"
+        >
+          <BrandedLoader />
+        </div>
+        <script dangerouslySetInnerHTML={{ __html: SPLASH_SCRIPT }} />
         {/* Resource hints — warm up the image CDN connection for a faster LCP.
             No crossOrigin: <img> requests to Cloudinary aren't CORS, so a plain
             preconnect is what gets reused. */}

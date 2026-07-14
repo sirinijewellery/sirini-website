@@ -17,6 +17,7 @@ import { CollectionMenu } from "@/components/CollectionMenu";
 import { useCartStore } from "@/lib/store/cart";
 import { categoryLabel, type TaxonomyGroupData } from "@/lib/taxonomy";
 import type { NavbarConfig } from "@/lib/queries/navbar";
+import { siteConfig } from "@/lib/seo";
 
 // ─── Types ──────────────────────────────────────────────────────────────────
 
@@ -257,7 +258,7 @@ export function Navbar({
             }}
           >
             <Image
-              src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,e_make_transparent:20,f_png,w_400/sirini-jewellery/logo-real.png"
+              src={siteConfig.logo}
               alt="Sirini Jewellery"
               width={500}
               height={500}
@@ -516,7 +517,7 @@ export function Navbar({
                         }}
                       >
                         <Image
-                          src="https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,e_make_transparent:20,f_png,w_400/sirini-jewellery/logo-real.png"
+                          src={siteConfig.logo}
                           alt="Sirini Jewellery"
                           width={500}
                           height={500}

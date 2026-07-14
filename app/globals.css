@@ -323,13 +323,34 @@
    breathing mark + thin gold sweep line. Route transitions to cached pages
    resolve in ~100ms, so the loader stays invisible for the first 300ms
    (avoiding a flash) then fades in over the following 400ms. ── */
+/* visibility (not just opacity) does the hiding: it also removes the node
+   from the accessibility tree, so screen readers don't get a "Loading…"
+   announcement on fast navigations where sighted users see nothing. The
+   keyframes flip visibility back on when the animation starts. */
 @keyframes loaderFadeIn {
-  from { opacity: 0; }
-  to   { opacity: 1; }
+  from { opacity: 0; visibility: visible; }
+  to   { opacity: 1; visibility: visible; }
 }
 .loader-fade-in {
   opacity: 0;
+  visibility: hidden;
   animation: loaderFadeIn 400ms ease-out 300ms forwards;
+}
+
+/* First-load splash (app/layout.tsx) — same reveal, longer 800ms grace so
+   ordinary broadband loads finish before it ever appears; only genuinely
+   slow connections get the branded wait. Dismissed via .splash-done. */
+.splash-fade-in {
+  opacity: 0;
+  visibility: hidden;
+  animation: loaderFadeIn 400ms ease-out 800ms forwards;
+}
+.splash-done {
+  animation: none !important;
+  opacity: 0 !important;
+  visibility: visible;
+  pointer-events: none;
+  transition: opacity 400ms ease;
 }
 
 @keyframes loaderBreathe {
@@ -844,8 +865,20 @@ textarea:not([data-slot]):focus {
   .loader-breathe {
     opacity: 1 !important;
   }
+  /* .loader-fade-in hides via visibility until its animation reveals it;
+     with the animation disabled it must be forced visible or route loading
+     states would never appear for reduced-motion users. */
+  .loader-fade-in {
+    visibility: visible !important;
+  }
   .loader-breathe {
     transform: none !important;
+  }
+  /* Reduced-motion users skip the first-load splash entirely: with its
+     reveal animation disabled it would otherwise either never show or
+     flash statically on every visit. */
+  #sirini-splash {
+    display: none !important;
   }
   .hero-unveil {
     animation: none !important;
