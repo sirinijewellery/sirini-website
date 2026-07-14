@@ -145,14 +145,21 @@ export const viewport: Viewport = {
   themeColor: "#5C1A24",
 };
 
-// First-load splash dismissal. Runs inline right after the splash div so it
-// works before hydration/React load. Hides the splash the moment the document
-// is parsed (DOMContentLoaded ≈ HTML + render-blocking CSS done — the window
-// where the page would otherwise look blank/unstyled), with a 6s failsafe.
-// `.splash-done` fades it out; the node is removed after the fade.
+// First-load splash dismissal. Runs inline so it works before hydration.
+// Hides the splash the moment the document is parsed (DOMContentLoaded ≈
+// HTML + render-blocking CSS done — the window where the page would
+// otherwise look blank/unstyled), with a 6s failsafe.
+//
+// HYDRATION-SAFETY (learned the hard way): this script must NOT touch any
+// React-managed DOM — removing/mutating the splash div before hydration
+// causes a silent client re-render in production that re-inserts the splash
+// WITHOUT re-running this script, leaving it permanently covering the page.
+// Instead it only toggles a class on <html> (same pattern next-themes uses;
+// React never reconciles documentElement classes) and CSS does the hiding:
+// see `html.sirini-splash-done #sirini-splash` in globals.css.
 // NOTE: if a CSP is ever added (see next.config.ts), this inline script needs
 // a nonce or hash.
-const SPLASH_SCRIPT = `(function(){var s=document.getElementById("sirini-splash");if(!s)return;var done=false;var hide=function(){if(done)return;done=true;s.classList.add("splash-done");setTimeout(function(){if(s.parentNode)s.parentNode.removeChild(s)},450)};if(document.readyState!=="loading"){hide()}else{document.addEventListener("DOMContentLoaded",hide);setTimeout(hide,6000)}})();`;
+const SPLASH_SCRIPT = `(function(){var done=false;var hide=function(){if(done)return;done=true;document.documentElement.classList.add("sirini-splash-done")};if(document.readyState!=="loading"){hide()}else{document.addEventListener("DOMContentLoaded",hide);setTimeout(hide,6000)}})();`;
 
 export default async function RootLayout({
   children,
@@ -167,8 +174,11 @@ export default async function RootLayout({
   // Owner theme overrides. Empty string when nothing is customized → no style
   // content emitted → the site renders byte-for-byte identical to its defaults.
   const themeOverrideCss = buildThemeOverrideCss(themeSettings);
+  // suppressHydrationWarning on <html>: the splash-dismissal inline script
+  // adds a class to <html> before hydration (hydration-safe by design) —
+  // this stops React dev-mode from flagging that expected difference.
   return (
-    <html lang="en">
+    <html lang="en" suppressHydrationWarning>
       {/* Owner theme overrides — colours + font pairing. Rendered only when the
           owner has customized something; otherwise this is empty and the site
           uses the defaults from globals.css. Values are sanitized in

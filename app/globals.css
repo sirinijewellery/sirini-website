@@ -345,12 +345,18 @@
   visibility: hidden;
   animation: loaderFadeIn 400ms ease-out 800ms forwards;
 }
-.splash-done {
+/* Dismissal is a class on <html>, toggled by the inline script in
+   app/layout.tsx BEFORE hydration. The splash node itself is never touched
+   by JS (removing a React-managed node pre-hydration triggers a client
+   re-render that resurrects it without its script). */
+html.sirini-splash-done #sirini-splash {
   animation: none !important;
   opacity: 0 !important;
-  visibility: visible;
-  pointer-events: none;
-  transition: opacity 400ms ease;
+  visibility: hidden !important;
+  pointer-events: none !important;
+  transition:
+    opacity 400ms ease,
+    visibility 0s linear 400ms;
 }
 
 @keyframes loaderBreathe {
