@@ -319,6 +319,42 @@
   animation: skeletonShimmer 1.6s ease-in-out infinite;
 }
 
+/* ── Branded route loader (app/loading.tsx) — anti-flash fade-in + gentle
+   breathing mark + thin gold sweep line. Route transitions to cached pages
+   resolve in ~100ms, so the loader stays invisible for the first 300ms
+   (avoiding a flash) then fades in over the following 400ms. ── */
+@keyframes loaderFadeIn {
+  from { opacity: 0; }
+  to   { opacity: 1; }
+}
+.loader-fade-in {
+  opacity: 0;
+  animation: loaderFadeIn 400ms ease-out 300ms forwards;
+}
+
+@keyframes loaderBreathe {
+  0%, 100% { opacity: 0.85; transform: scale(1); }
+  50%      { opacity: 1;    transform: scale(1.03); }
+}
+.loader-breathe {
+  animation: loaderBreathe 2.8s ease-in-out infinite;
+}
+
+@keyframes loaderLineSweep {
+  0%   { background-position: -200% 0; }
+  100% { background-position:  200% 0; }
+}
+.loader-line {
+  background-image: linear-gradient(
+    90deg,
+    transparent 0%,
+    #C9A96E 50%,
+    transparent 100%
+  );
+  background-size: 200% 100%;
+  animation: loaderLineSweep 2.4s ease-in-out infinite;
+}
+
 /* ════════════════════════════════════════════════════════════════
    Motion vocabulary — editorial micro-interactions.
    Rules: ease-out curves only (no bounce on luxury), 150–700ms,
@@ -796,12 +832,20 @@ textarea:not([data-slot]):focus {
   .animate-slide-up-fade,
   .animate-shimmer-btn,
   .animate-bounce-entrance,
-  .skeleton-shimmer {
+  .skeleton-shimmer,
+  .loader-fade-in,
+  .loader-breathe,
+  .loader-line {
     animation: none !important;
   }
   .animate-slide-up-fade,
-  .animate-bounce-entrance {
+  .animate-bounce-entrance,
+  .loader-fade-in,
+  .loader-breathe {
     opacity: 1 !important;
+  }
+  .loader-breathe {
+    transform: none !important;
   }
   .hero-unveil {
     animation: none !important;

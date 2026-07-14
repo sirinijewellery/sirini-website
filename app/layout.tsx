@@ -53,48 +53,62 @@ const dmSans = DM_Sans({
 // :root override remapping --font-eb-garamond / --font-dm-sans to the chosen
 // pairing's variables. The default pairing emits no override → identical look.
 // Keys/variable names here MUST match THEME_FONT_PAIRINGS in lib/queries/theme.ts.
+// preload: false on every non-default pairing below — next/font defaults to
+// preload:true, which would <link rel="preload"> ALL 10 font families on
+// every page load even though only one pairing renders at a time (owner
+// picks it in Theme settings). Only the shipped default (EB Garamond + DM
+// Sans, just above) needs eager preload; the rest still work identically
+// when selected, just fetched on-demand instead of upfront.
 const playfair = Playfair_Display({
   variable: "--font-playfair",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 const inter = Inter({
   variable: "--font-inter",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 const cormorant = Cormorant_Garamond({
   variable: "--font-cormorant",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
+  preload: false,
 });
 const jost = Jost({
   variable: "--font-jost",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 const fraunces = Fraunces({
   variable: "--font-fraunces",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 const nunito = Nunito_Sans({
   variable: "--font-nunito",
   subsets: ["latin"],
   display: "swap",
+  preload: false,
 });
 const marcellus = Marcellus({
   variable: "--font-marcellus",
   subsets: ["latin"],
   weight: "400",
   display: "swap",
+  preload: false,
 });
 const poppins = Poppins({
   variable: "--font-poppins",
   subsets: ["latin"],
   weight: ["300", "400", "500", "600", "700"],
   display: "swap",
+  preload: false,
 });
 
 const fontVariables = [
