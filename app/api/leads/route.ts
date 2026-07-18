@@ -67,5 +67,33 @@ export async function GET(request: Request) {
     select: { email: true, source: true, createdAt: true },
   });
 
-  return NextResponse.json({ leads });
+  // Flag which leads have placed a *real* order (the daily automation gives
+  // these a discount coupon). "Real" = payment actually settled (online "paid"
+  // or genuine "cod") AND not cancelled — this deliberately excludes
+  // "payment_link"/"pending" orders whose payment never completed. Orphaned
+  // payments are a separate model (never an Order), so they can't leak in here.
+  // Lead emails are stored lowercase; Order.customerEmail is stored as the
+  // customer typed it, so match case-insensitively. One query for all leads.
+  const emails = leads.map((lead) => lead.email);
+  const purchasedRows = emails.length
+    ? await prisma.order.findMany({
+        where: {
+          customerEmail: { in: emails, mode: "insensitive" },
+          paymentStatus: { in: ["paid", "cod"] },
+          orderStatus: { not: "cancelled" },
+        },
+        select: { customerEmail: true },
+        distinct: ["customerEmail"],
+      })
+    : [];
+  const purchasedEmails = new Set(
+    purchasedRows.map((row) => row.customerEmail.toLowerCase())
+  );
+
+  const leadsWithPurchase = leads.map((lead) => ({
+    ...lead,
+    purchased: purchasedEmails.has(lead.email),
+  }));
+
+  return NextResponse.json({ leads: leadsWithPurchase });
 }
