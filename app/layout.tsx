@@ -24,6 +24,7 @@ import { getThemeSettings, buildThemeOverrideCss } from "@/lib/queries/theme";
 import { WebSiteJsonLd } from "@/components/WebSiteJsonLd";
 import { CartDrawer } from "@/components/CartDrawer";
 import { AbandonedCartNudge } from "@/components/AbandonedCartNudge";
+import { LeadCapturePopup } from "@/components/LeadCapturePopup";
 import NextTopLoader from "nextjs-toploader";
 import { MobileBottomNav } from "@/components/MobileBottomNav";
 import { ScrollReveal } from "@/components/ScrollReveal";
@@ -233,6 +234,7 @@ export default async function RootLayout({
           <Toaster />
           <CartDrawer />
           <AbandonedCartNudge />
+          <LeadCapturePopup />
           <MobileBottomNav />
         </AuthProvider>
         {process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID && (
