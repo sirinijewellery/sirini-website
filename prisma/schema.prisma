@@ -207,6 +207,13 @@ model NewsletterSubscriber {
   createdAt DateTime @default(now())
 }
 
+model Lead {
+  id        String   @id @default(cuid())
+  email     String   @unique
+  source    String   @default("popup")
+  createdAt DateTime @default(now())
+}
+
 // Customer contact-form submissions. ALWAYS persisted (source of truth — the
 // owner reads them at /admin/messages); the notification email is best-effort
 // on top, so no message is ever lost while email is unconfigured or down.
