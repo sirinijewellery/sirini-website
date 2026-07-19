@@ -27,14 +27,21 @@ const couponSchema = z
     }
   );
 
-export async function GET() {
+export async function GET(req: NextRequest) {
   const session = await auth();
   if (!session?.user?.isAdmin) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
+  // ?minted=1 returns the machine-minted lead coupons (issuedToEmail != null);
+  // default returns admin-created ones (issuedToEmail == null). Both capped at
+  // 200 most-recent so the (potentially huge) minted set can't blow up the UI.
+  const minted = req.nextUrl.searchParams.get("minted") === "1";
+
   const coupons = await prisma.coupon.findMany({
+    where: minted ? { issuedToEmail: { not: null } } : { issuedToEmail: null },
     orderBy: { createdAt: "desc" },
+    take: 200,
   });
 
   return NextResponse.json(coupons);

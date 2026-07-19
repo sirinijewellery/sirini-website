@@ -90,6 +90,38 @@ export function CouponsClient({ initialCoupons }: Props) {
   const [editingId, setEditingId] = useState<string | null>(null);
   const [deletingId, setDeletingId] = useState<string | null>(null);
   const [togglingId, setTogglingId] = useState<string | null>(null);
+  // "mine" = admin-created coupons (the server-rendered default);
+  // "minted" = machine-minted lead coupons, fetched on demand.
+  const [view, setView] = useState<"mine" | "minted">("mine");
+  const [loadingList, setLoadingList] = useState(false);
+
+  // Fetch the coupon list for a given view (server caps each at 200 most-recent).
+  async function loadCoupons(next: "mine" | "minted") {
+    setLoadingList(true);
+    try {
+      const res = await fetch(
+        next === "minted" ? "/api/admin/coupons?minted=1" : "/api/admin/coupons"
+      );
+      if (res.ok) {
+        const data = await res.json();
+        setCoupons(data as Coupon[]);
+      } else {
+        toast.error("Failed to load coupons");
+      }
+    } catch {
+      toast.error("Network error — please try again");
+    } finally {
+      setLoadingList(false);
+    }
+  }
+
+  function switchView(next: "mine" | "minted") {
+    if (next === view) return;
+    setIsAdding(false);
+    setEditingId(null);
+    setView(next);
+    loadCoupons(next);
+  }
 
   // ---- Toggle active -------------------------------------------------------
   async function handleToggle(id: string, next: boolean) {
@@ -100,21 +132,13 @@ export function CouponsClient({ initialCoupons }: Props) {
     );
 
     try {
-      const coupon = coupons.find((c) => c.id === id)!;
+      // Send ONLY the field being changed. Rewriting expiresAt here would
+      // truncate its time-of-day to UTC midnight; the PUT handler now treats
+      // every field as optional and updates just what's provided.
       const res = await fetch(`/api/admin/coupons/${id}`, {
         method: "PUT",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({
-          code: coupon.code,
-          discountType: coupon.discountType,
-          discountValue: coupon.discountValue,
-          minOrderAmount: coupon.minOrderAmount,
-          maxUses: coupon.maxUses,
-          expiresAt: coupon.expiresAt
-            ? new Date(coupon.expiresAt as string).toISOString().split("T")[0]
-            : null,
-          isActive: next,
-        }),
+        body: JSON.stringify({ isActive: next }),
       });
       if (!res.ok) {
         // Revert on failure
@@ -166,25 +190,33 @@ export function CouponsClient({ initialCoupons }: Props) {
 
   // ---- Form success --------------------------------------------------------
   async function handleFormSuccess() {
-    // Re-fetch fresh list from server
-    try {
-      const res = await fetch("/api/admin/coupons");
-      if (res.ok) {
-        const data = await res.json();
-        setCoupons(data as Coupon[]);
-      }
-    } catch {
-      // ignore — toasts already handled in form
-    }
+    // Re-fetch fresh list from server (respecting the active view)
+    await loadCoupons(view);
     setIsAdding(false);
     setEditingId(null);
   }
 
   return (
     <div className="space-y-6">
-      {/* Add button */}
-      {!isAdding && !editingId && (
-        <div className="flex justify-end">
+      {/* View filter + Add button */}
+      <div className="flex items-center justify-between gap-3">
+        <div className="inline-flex rounded-lg border border-gray-200 p-0.5 bg-gray-50">
+          {(["mine", "minted"] as const).map((v) => (
+            <button
+              key={v}
+              onClick={() => switchView(v)}
+              disabled={loadingList}
+              className={`px-3 h-8 rounded-md text-xs font-medium transition-colors cursor-pointer disabled:opacity-60 ${
+                view === v
+                  ? "bg-white text-slate-800 shadow-sm"
+                  : "text-slate-500 hover:text-slate-700"
+              }`}
+            >
+              {v === "mine" ? "Created" : "Lead coupons"}
+            </button>
+          ))}
+        </div>
+        {!isAdding && !editingId && view === "mine" && (
           <button
             onClick={() => setIsAdding(true)}
             className="inline-flex items-center gap-2 px-4 h-9 rounded-lg bg-primary text-primary-foreground text-sm font-medium hover:bg-primary/90 transition-colors cursor-pointer"
@@ -192,8 +224,8 @@ export function CouponsClient({ initialCoupons }: Props) {
             <Plus className="h-4 w-4" />
             Add Coupon
           </button>
-        </div>
-      )}
+        )}
+      </div>
 
       {/* Add form */}
       {isAdding && (
@@ -225,7 +257,11 @@ export function CouponsClient({ initialCoupons }: Props) {
         {coupons.length === 0 ? (
           <div className="flex flex-col items-center justify-center py-16 text-slate-400 gap-3">
             <Ticket className="h-8 w-8 opacity-40" />
-            <p className="font-sans text-sm">No coupons yet. Create one above.</p>
+            <p className="font-sans text-sm">
+              {view === "minted"
+                ? "No lead coupons minted yet."
+                : "No coupons yet. Create one above."}
+            </p>
           </div>
         ) : (
           <div className="overflow-x-auto">
