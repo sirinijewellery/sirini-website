@@ -253,10 +253,36 @@ export async function POST(req: NextRequest) {
   // create idempotency guard above is only race-safe at this isolation level.
   } catch (err) {
     if ((err as { code?: string }).code === "P2034") {
-      // Serialization conflict — a concurrent request for the SAME payment is
-      // handling it; not an orphan (that request will create the order).
+      // Serialization conflict. This does NOT necessarily mean a concurrent
+      // request for the SAME payment is handling it — Serializable isolation
+      // aborts on ANY overlapping read/write (e.g. two different customers'
+      // orders touching the same product's stock row, or the same coupon
+      // row). Re-check for real before assuming this is a harmless duplicate,
+      // otherwise a genuinely orphaned captured payment goes unflagged.
+      const existing = await prisma.order.findFirst({
+        where: { paymentId: razorpayPaymentId },
+        select: { id: true },
+      });
+      if (existing) {
+        // Confirmed: the concurrent winner already created this exact order.
+        return NextResponse.json({ orderId: existing.id });
+      }
+      // Genuine orphan — payment was captured but this order lost the
+      // serialization race and was never created. Flag it like any other
+      // failed-after-payment case so the owner can refund/fulfil it.
+      await recordOrphanedPayment({
+        paymentId: razorpayPaymentId,
+        razorpayOrderId,
+        amountPaise: razorpayAmountPaise,
+        reason: "Serialization conflict during order creation — payment captured but order not created",
+        customerEmail,
+        customerPhone,
+      });
       return NextResponse.json(
-        { error: "This payment is already being processed. Please check your orders." },
+        {
+          error:
+            "We couldn't confirm your order due to a temporary conflict. We've flagged your payment for review — please contact us and we'll sort it out.",
+        },
         { status: 409 }
       );
     }
