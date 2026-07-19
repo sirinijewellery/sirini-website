@@ -96,6 +96,9 @@ export function ProductJsonLd({ product, reviewSummary, reviews, deliveryDays, r
         : "https://schema.org/OutOfStock",
       seller: {
         "@type": "Organization",
+        // Same graph id as the site-wide Organization/JewelryStore nodes, so the
+        // seller resolves to the one Sirini Jewellery brand entity.
+        "@id": `${siteUrl}/#organization`,
         name: "Sirini Jewellery",
         url: siteUrl,
       },

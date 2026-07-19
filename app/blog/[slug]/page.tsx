@@ -71,17 +71,23 @@ export default async function ArticlePage({ params }: Props) {
     dateModified: article.date,
     inLanguage: "en-IN",
     wordCount,
+    // Connect the article into the site entity graph: the WebSite (#website)
+    // and Organization/JewelryStore (#organization) nodes are rendered site-wide
+    // by the root layout, so these @id references resolve on every blog page.
+    isPartOf: { "@id": `${siteConfig.url}/#website` },
     mainEntityOfPage: {
       "@type": "WebPage",
       "@id": articleUrl,
     },
     author: {
       "@type": "Organization",
+      "@id": `${siteConfig.url}/#organization`,
       name: "Sirini Jewellery",
       url: siteConfig.url,
     },
     publisher: {
       "@type": "Organization",
+      "@id": `${siteConfig.url}/#organization`,
       name: "Sirini Jewellery",
       url: siteConfig.url,
       logo: {

@@ -7,6 +7,11 @@ export async function LocalBusinessJsonLd() {
   const localBusinessSchema = {
     "@context": "https://schema.org",
     "@type": "JewelryStore",
+    // Same graph id as OrganizationJsonLd — a JewelryStore IS an Organization,
+    // so sharing the id lets consumers merge this store (geo, priceRange,
+    // opening hours) with the Organization node (foundingDate, contactPoint)
+    // into a single, richer Sirini Jewellery entity rather than two rival ones.
+    "@id": `${siteConfig.url}/#organization`,
     name: "Sirini Jewellery",
     url: siteConfig.url,
     logo: "https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,q_auto,f_png,w_600/sirini-jewellery/logo-real.png",

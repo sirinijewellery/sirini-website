@@ -10,10 +10,15 @@ export function WebSiteJsonLd() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
+    "@id": `${siteUrl}/#website`,
     name: "Sirini Jewellery",
     alternateName: "Sirini",
     url: siteUrl,
     description: "Handcrafted Kundan, Meenakari and gold-plated fashion jewellery from Mumbai. Shop necklace sets, earrings, bangles, rings and anklets.",
+    inLanguage: "en-IN",
+    // Ties the site to the shared Organization entity (same id used by the
+    // Organization + JewelryStore nodes) so the whole graph resolves to one brand.
+    publisher: { "@id": `${siteUrl}/#organization` },
     potentialAction: {
       "@type": "SearchAction",
       target: {

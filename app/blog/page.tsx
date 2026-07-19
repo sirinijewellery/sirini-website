@@ -115,6 +115,8 @@ export default async function BlogPage() {
             description:
               "Styling guides, jewellery care tips and traditional craft explainers from Sirini Jewellery.",
             url: `${siteConfig.url}/blog`,
+            // Ties the Journal index into the shared site entity graph.
+            isPartOf: { "@id": `${siteConfig.url}/#website` },
             mainEntity: {
               "@type": "ItemList",
               numberOfItems: articles.length,
