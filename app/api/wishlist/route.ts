@@ -1,8 +1,12 @@
 import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "wishlist", 30, 10 * 60_000);
+  if (limited) return limited;
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });
@@ -36,6 +40,9 @@ export async function POST(request: Request) {
 }
 
 export async function DELETE(request: Request) {
+  const limited = enforceRateLimit(request, "wishlist", 30, 10 * 60_000);
+  if (limited) return limited;
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

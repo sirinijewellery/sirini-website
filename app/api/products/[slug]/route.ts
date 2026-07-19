@@ -1,10 +1,14 @@
 import { NextResponse } from "next/server";
 import { getProductBySlug, parseImages } from "@/lib/queries/products";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 export async function GET(
-  _req: Request,
+  req: Request,
   { params }: { params: Promise<{ slug: string }> }
 ) {
+  const limited = enforceRateLimit(req, "product-detail", 60, 10 * 60_000);
+  if (limited) return limited;
+
   const { slug } = await params;
   const product = await getProductBySlug(slug);
   if (!product)

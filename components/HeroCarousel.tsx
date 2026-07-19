@@ -87,7 +87,13 @@ export function HeroCarousel({
                 src={mobileSrc}
                 alt={alt}
                 fill
-                preload={i === 0}
+                // Art-direction pair (mobile vs desktop crop): using `preload`
+                // here would force-fetch BOTH images on every load regardless
+                // of viewport, per Next's own image docs — doubling hero
+                // bandwidth (and Cloudinary transform cost). Default lazy
+                // loading only fetches the one that's actually visible;
+                // fetchPriority still gives it LCP priority once it does load.
+                fetchPriority={i === 0 ? "high" : undefined}
                 quality={75}
                 sizes="100vw"
                 style={{ objectPosition: s.focalMobile, filter: cssFilter }}
@@ -97,7 +103,7 @@ export function HeroCarousel({
                 src={s.imageUrl}
                 alt={alt}
                 fill
-                preload={i === 0}
+                fetchPriority={i === 0 ? "high" : undefined}
                 quality={75}
                 sizes="100vw"
                 style={{ objectPosition: s.focalDesktop, filter: cssFilter }}

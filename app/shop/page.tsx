@@ -420,7 +420,7 @@ async function ShopContent({ searchParams }: ShopPageProps) {
 const SEO_COPY: Record<string, string> = {
   // categories
   "necklace-sets":
-    "Sirini's handcrafted necklace sets span Kundan chokers, Polki rani haars and Meenakari layered sets — each piece crafted in Mumbai with 22kt gold plating and ethically sourced stones. Free pan-India shipping on all orders.",
+    "Sirini's handcrafted necklace sets span Kundan chokers, Polki rani haars and Meenakari layered sets — each piece crafted in Mumbai with 18–22K gold plating and ethically sourced stones. Free pan-India shipping on all orders.",
   earrings:
     "From delicate Kundan jhumkas to statement Chandbali earrings, our collection is lightweight yet luxurious — perfect for daily wear or festive occasions.",
   bangles:

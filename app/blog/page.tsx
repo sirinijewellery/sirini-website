@@ -6,7 +6,7 @@ import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 export const metadata = pageMetadata(
   "Journal — Styling Guides & Jewellery Care",
-  "Styling guides, jewellery care tips and traditional craft explainers from Sirini Jewellery — how to wear Kundan, the difference between Meenakari, Kundan & Polki, festive edits and more.",
+  "Styling guides, jewellery care tips and traditional craft explainers from Sirini Jewellery — Kundan, Meenakari, Polki, festive edits and more.",
   { canonical: "/blog" },
 );
 

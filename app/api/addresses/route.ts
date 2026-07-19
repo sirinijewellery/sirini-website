@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 const addressSchema = z.object({
   line1: z.string().min(1, "Address line 1 is required").max(300),
@@ -29,6 +30,9 @@ export async function GET() {
 }
 
 export async function POST(request: Request) {
+  const limited = enforceRateLimit(request, "addresses", 20, 10 * 60_000);
+  if (limited) return limited;
+
   const session = await auth();
   if (!session?.user?.id) {
     return NextResponse.json({ error: "Unauthorized" }, { status: 401 });

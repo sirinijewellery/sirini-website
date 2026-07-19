@@ -2,8 +2,13 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { parseImages } from "@/lib/queries/products";
 import { matchCategorySlugs } from "@/lib/taxonomy";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 export async function GET(request: Request) {
+  // Public, unauthenticated, unbounded — each hit runs up to 3 DB queries.
+  const limited = enforceRateLimit(request, "search", 60, 10 * 60_000);
+  if (limited) return limited;
+
   const { searchParams } = new URL(request.url);
   const q = searchParams.get("q")?.trim();
 

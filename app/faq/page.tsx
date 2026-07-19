@@ -5,8 +5,10 @@ import { getFaq } from "@/lib/queries/content";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 // Title is brand-free — the root layout's title.template appends the brand.
+// Spelled out (not just "FAQ") to match the page's own <h1> and give the
+// title tag more unique, searchable keyword content.
 export const metadata = pageMetadata(
-  "FAQ",
+  "Frequently Asked Questions",
   "Answers to common questions about Sirini Jewellery — gold plating, care, shipping, returns, sizing and how to reach us.",
   { canonical: "/faq" },
 );

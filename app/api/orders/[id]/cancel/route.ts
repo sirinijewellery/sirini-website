@@ -1,11 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 export async function POST(
-  _req: NextRequest,
+  req: NextRequest,
   { params }: { params: Promise<{ id: string }> }
 ) {
+  const limited = enforceRateLimit(req, "order-cancel", 20, 10 * 60_000);
+  if (limited) return limited;
+
   // Require authentication
   const session = await auth();
   if (!session?.user?.id) {

@@ -2,6 +2,7 @@ import { NextResponse } from "next/server";
 import { randomBytes, timingSafeEqual } from "crypto";
 import { z } from "zod";
 import { prisma } from "@/lib/prisma";
+import { enforceRateLimit } from "@/lib/rateLimit";
 
 // Machine-to-machine single-use coupon minting for the lead-nurture flow (a
 // welcome discount emailed to captured leads). Same fail-closed, timing-safe
@@ -34,6 +35,12 @@ function generateCode(): string {
 }
 
 export async function POST(request: Request) {
+  // Mutates (creates real coupon rows), so throttle like leads/route.ts POST
+  // even though the key-auth already makes this non-public — defense in
+  // depth if the shared key is ever leaked.
+  const limited = enforceRateLimit(request, "leads-coupon", 10, 10 * 60_000);
+  if (limited) return limited;
+
   if (!isAuthorized(request)) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
