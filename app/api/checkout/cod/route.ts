@@ -26,7 +26,8 @@ const bodySchema = z.object({
     label: z.string().optional(),
   }),
   customerName: z.string().min(1),
-  customerEmail: z.string().email(),
+  // Lowercase so Order.customerEmail matches lead emails on a plain `in` lookup.
+  customerEmail: z.string().email().toLowerCase(),
   customerPhone: z.string().regex(/^\d{10}$/),
   couponCode: z.string().optional(),
   totalAmount: z.number().nonnegative(),

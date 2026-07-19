@@ -29,7 +29,9 @@ const bodySchema = z.object({
     label: z.string().optional(),
   }),
   customerName: z.string().min(1),
-  customerEmail: z.string().email(),
+  // Normalize to lowercase so Order.customerEmail matches lead emails (also
+  // lowercase) on a plain, index-using `in` lookup in the leads GET.
+  customerEmail: z.string().email().toLowerCase(),
   customerPhone: z.string().regex(/^\d{10}$/),
   couponCode: z.string().optional(),
   // totalAmount / discountAmount from client are used only for cross-check, not stored
@@ -169,6 +171,18 @@ export async function POST(req: NextRequest) {
   // total — otherwise a cheap payment could be replayed against a pricier cart.
   const clientPaise = Math.round(totalAmount * 100);
   if (recalculatedPaise !== clientPaise || razorpayAmountPaise !== recalculatedPaise) {
+    // The payment was already captured (signature + Razorpay fetch above), but
+    // the recalculated total no longer matches what was charged — e.g. a coupon
+    // was consumed/changed between create-order and here. No Order is written on
+    // this path, so flag the captured money as orphaned or it is silently lost.
+    await recordOrphanedPayment({
+      paymentId: razorpayPaymentId,
+      razorpayOrderId,
+      amountPaise: razorpayAmountPaise,
+      reason: "amount mismatch after capture (coupon race?)",
+      customerEmail,
+      customerPhone,
+    });
     return NextResponse.json(
       { error: "Order amount mismatch. Please restart checkout." },
       { status: 400 }
