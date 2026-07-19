@@ -117,6 +117,9 @@ model Order {
 
   @@index([userId])
   @@index([orderStatus])
+  // customerEmail is stored lowercase at every write site, so the leads GET
+  // "have they purchased?" lookup can do a plain (index-using) `in` match.
+  @@index([customerEmail])
 }
 
 model OrderItem {
@@ -198,6 +201,11 @@ model Coupon {
   usedCount      Int       @default(0)
   expiresAt      DateTime?
   isActive       Boolean   @default(true)
+  // Set when a coupon is machine-minted for a specific captured lead (the
+  // welcome-discount flow). Unique so a second mint for the same email is
+  // idempotent (returns the existing code). Nullable ⇒ admin-created coupons
+  // and all existing rows are unaffected (Postgres allows many NULLs here).
+  issuedToEmail  String?   @unique
   createdAt      DateTime  @default(now())
 }
 

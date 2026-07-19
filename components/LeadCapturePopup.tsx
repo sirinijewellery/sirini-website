@@ -21,6 +21,11 @@ import {
 const DONE_FLAG = "sirini_lead_popup_done";
 const OPEN_DELAY_MS = 8_000;
 
+// Module-level (survives client-side navigations, resets on full reload). Guards
+// against a re-show within the same SPA session when the localStorage write
+// failed — e.g. private mode / blocked storage — so we don't nag repeatedly.
+let shownThisSession = false;
+
 export function LeadCapturePopup() {
   const pathname = usePathname();
   const [open, setOpen] = useState(false);
@@ -32,7 +37,16 @@ export function LeadCapturePopup() {
 
   useEffect(() => {
     if (typeof window === "undefined") return;
-    if (isExcludedPage) return;
+    // On navigating INTO an excluded page, close an already-open dialog too —
+    // not just suppress opening a new one.
+    if (isExcludedPage) {
+      setOpen(false);
+      return;
+    }
+
+    // Already shown this SPA session — don't re-arm even if the storage write
+    // failed (private mode). Belt-and-braces with the localStorage flag below.
+    if (shownThisSession) return;
 
     // Only ever show once per browser. Storage access can throw
     // (private mode / blocked storage) — never crash, just bail.
@@ -43,13 +57,15 @@ export function LeadCapturePopup() {
     }
 
     const timer = window.setTimeout(() => {
-      // Re-check the guard at fire time — a submit elsewhere or a second
+      // Re-check the guards at fire time — a submit elsewhere or a second
       // mount may have set the flag since the timer was armed.
+      if (shownThisSession) return;
       try {
         if (localStorage.getItem(DONE_FLAG)) return;
       } catch {
-        // Storage unreadable (private mode) — still show once for this view.
+        // Storage unreadable (private mode) — still show once for this session.
       }
+      shownThisSession = true;
       setOpen(true);
     }, OPEN_DELAY_MS);
 
