@@ -83,7 +83,15 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
 
   // Count "indexable" facets. A page is canonical-worthy only when it has at
   // most ONE of these primary facets and no secondary refinements / pagination.
-  const primaryFacets = [params.category, params.occasion, params.style, params.collection].filter(Boolean);
+  const primaryFacets = [
+    params.category,
+    params.occasion,
+    params.style,
+    params.collection,
+    params.look,
+    params.stone,
+    params.colour,
+  ].filter(Boolean);
   const hasRefinement = Boolean(
     params.material ||
       params.priceMin ||
@@ -108,7 +116,13 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
                 ? `/shop?category=${encodeURIComponent(params.category)}`
                 : params.collection
                   ? `/shop?collection=${encodeURIComponent(params.collection)}`
-                  : "/shop",
+                  : params.look
+                    ? `/shop?look=${encodeURIComponent(params.look)}`
+                    : params.stone
+                      ? `/shop?stone=${encodeURIComponent(params.stone)}`
+                      : params.colour
+                        ? `/shop?colour=${encodeURIComponent(params.colour)}`
+                        : "/shop",
         },
         robots: { index: true, follow: true },
       }
@@ -126,7 +140,13 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
         ? `/shop?category=${encodeURIComponent(params.category)}`
         : params.collection
           ? `/shop?collection=${encodeURIComponent(params.collection)}`
-          : "/shop";
+          : params.look
+            ? `/shop?look=${encodeURIComponent(params.look)}`
+            : params.stone
+              ? `/shop?stone=${encodeURIComponent(params.stone)}`
+              : params.colour
+                ? `/shop?colour=${encodeURIComponent(params.colour)}`
+                : "/shop";
   // `title` is brand-free; the root layout's title template appends
   // "| Sirini Jewellery" to the <title>. Social cards aren't templated, so we
   // add the brand to the OG/Twitter titles explicitly (single brand, no dupes).
@@ -183,6 +203,27 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
     return build(
       `${label} Collection — Handcrafted Jewellery`,
       `Explore the ${label} collection by Sirini Jewellery — a curated edit of handcrafted Kundan, Meenakari & gold-plated pieces. Free shipping across India, COD available.`,
+    );
+  }
+  if (params.look) {
+    const label = params.look.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+    return build(
+      `${label} Jewellery — Shop the Look`,
+      `Shop handcrafted ${label.toLowerCase()} jewellery by Sirini Jewellery — necklace sets, earrings, bangles & more. Free shipping across India, COD available.`,
+    );
+  }
+  if (params.stone) {
+    const label = params.stone.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+    return build(
+      `${label} Jewellery — Handcrafted Online`,
+      `Shop handcrafted ${label.toLowerCase()} jewellery by Sirini Jewellery — Kundan, Meenakari & gold-plated designs, Mumbai. Free shipping across India, COD available.`,
+    );
+  }
+  if (params.colour) {
+    const label = params.colour.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+    return build(
+      `${label} Jewellery — Shop by Colour`,
+      `Shop handcrafted ${label.toLowerCase()} jewellery by Sirini Jewellery — necklace sets, earrings, bangles & more. Free shipping across India, COD available.`,
     );
   }
   return build(

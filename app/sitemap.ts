@@ -18,6 +18,12 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
   const taxonomyTree = await getTaxonomyTree().catch(() => []);
   const collectionTerms =
     taxonomyTree.find((g) => g.slug === "collection")?.terms ?? [];
+  // look/stone/colour facet URLs are indexable single-facet shop pages too
+  // (see app/shop/page.tsx generateMetadata) — belong in the sitemap for the
+  // same reason collection does.
+  const lookTerms = taxonomyTree.find((g) => g.slug === "look")?.terms ?? [];
+  const stoneTerms = taxonomyTree.find((g) => g.slug === "stone")?.terms ?? [];
+  const colourTerms = taxonomyTree.find((g) => g.slug === "colour")?.terms ?? [];
 
   // Real, stable lastmod dates. Google ignores lastmod that changes on every
   // crawl, so catalog pages track the newest product, the blog index tracks the
@@ -89,6 +95,26 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     priority: 0.7,
   }));
 
+  // ── Look/Stone/Colour facet URLs ─────────────────────────────────
+  const lookRoutes: MetadataRoute.Sitemap = lookTerms.map((t) => ({
+    url: `${BASE_URL}/shop?look=${encodeURIComponent(t.slug)}`,
+    lastModified: safeCatalog,
+    changeFrequency: "weekly" as const,
+    priority: 0.6,
+  }));
+  const stoneRoutes: MetadataRoute.Sitemap = stoneTerms.map((t) => ({
+    url: `${BASE_URL}/shop?stone=${encodeURIComponent(t.slug)}`,
+    lastModified: safeCatalog,
+    changeFrequency: "weekly" as const,
+    priority: 0.6,
+  }));
+  const colourRoutes: MetadataRoute.Sitemap = colourTerms.map((t) => ({
+    url: `${BASE_URL}/shop?colour=${encodeURIComponent(t.slug)}`,
+    lastModified: safeCatalog,
+    changeFrequency: "weekly" as const,
+    priority: 0.6,
+  }));
+
   // ── Product detail pages ─────────────────────────────────────────
   const productRoutes: MetadataRoute.Sitemap = products.map((p) => ({
     url: `${BASE_URL}/shop/${p.slug}`,
@@ -104,6 +130,9 @@ export default async function sitemap(): Promise<MetadataRoute.Sitemap> {
     ...styleRoutes,
     ...categoryRoutes,
     ...collectionRoutes,
+    ...lookRoutes,
+    ...stoneRoutes,
+    ...colourRoutes,
     ...blogRoutes,
     ...productRoutes,
   ];
