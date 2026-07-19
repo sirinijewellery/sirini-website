@@ -31,6 +31,10 @@ export default async function ContactPage() {
         <h1 className="font-display text-5xl md:text-6xl font-light text-foreground">Get in Touch</h1>
         <p className="font-sans text-base text-muted-foreground mt-4 max-w-md mx-auto">
           Questions about an order, styling advice, or bulk enquiries? We&apos;re happy to help.
+          Meanwhile, feel free to{" "}
+          <Link href="/shop" className="text-primary underline underline-offset-2 hover:no-underline">
+            browse our jewellery
+          </Link>.
         </p>
       </div>
 
@@ -95,7 +99,7 @@ export default async function ContactPage() {
             {[
               { q: "Do you offer gift wrapping?", a: "Yes! Add a note at checkout and we'll wrap it beautifully." },
               { q: "Can I customise an order?", a: "Reach out on WhatsApp for customisation requests." },
-              { q: "What are your shipping timelines?", a: "3–7 business days across India." },
+              { q: "What are your shipping timelines?", a: "5–7 business days across India." },
             ].map((faq) => (
               <div key={faq.q} className="space-y-1">
                 <p className="font-sans text-sm font-medium text-foreground">{faq.q}</p>
@@ -135,7 +139,7 @@ export default async function ContactPage() {
                 name: "What are your shipping timelines?",
                 acceptedAnswer: {
                   "@type": "Answer",
-                  text: "3–7 business days across India.",
+                  text: "5–7 business days across India.",
                 },
               },
             ],

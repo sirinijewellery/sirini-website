@@ -104,7 +104,7 @@ export const SEED_ARTICLES: Article[] = [
     slug: "meenakari-kundan-polki-guide",
     title: "Meenakari vs Kundan vs Polki: A Guide to Traditional Indian Jewellery",
     excerpt:
-      "Three legendary jewellery techniques, often confused. Learn what sets Meenakari, Kundan and Polki apart — how each is made, how to spot them, and which suits you.",
+      "Three legendary techniques, often confused. Learn what sets Meenakari, Kundan and Polki apart — how each is made and which suits you.",
     coverImage: ARTISAN_CRAFT,
     date: "2026-02-05",
     readMins: 7,

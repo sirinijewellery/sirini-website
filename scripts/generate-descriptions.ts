@@ -67,7 +67,7 @@ const CRAFT: Record<string, string[]> = {
     "The antique-gold finish lends a heritage, well-worn warmth.",
   ],
   plated: [
-    "It is finished in long-lasting 22kt-look gold plating over a skin-friendly base metal.",
+    "It is finished in long-lasting 18–22K-look gold plating over a skin-friendly base metal.",
     "A durable gold-tone plating keeps the shine bright with everyday care.",
   ],
 };

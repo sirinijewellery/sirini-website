@@ -5,6 +5,7 @@ import Link from "next/link";
 import { ImageGallery } from "@/components/ImageGallery";
 import { RelatedProducts } from "@/components/RelatedProducts";
 import { getProductBySlug, getPairingProducts, parseImages } from "@/lib/queries/products";
+import { getShippingTime } from "@/lib/queries/content";
 import { CompleteTheSet } from "@/components/CompleteTheSet";
 import { sortAllImages, selectCardImages } from "@/lib/parseImages";
 import { productMetadata, siteConfig } from "@/lib/seo";
@@ -110,9 +111,10 @@ export default async function ProductPage({ params }: Props) {
   const images = sortAllImages(parseImages(product.images));
 
   // Owner-editable catalog settings (badges + low-stock threshold) for the PDP.
-  const [badges, lowStockThreshold] = await Promise.all([
+  const [badges, lowStockThreshold, shippingTime] = await Promise.all([
     getBadges(),
     getLowStockThreshold(),
+    getShippingTime(),
   ]);
 
   // "Complete the Look" bundle — first 2 complementary pieces from other categories
@@ -214,6 +216,8 @@ export default async function ProductPage({ params }: Props) {
           category: categoryDisplay,
           stock: product.stock,
         }}
+        deliveryDays={shippingTime.deliveryDays}
+        returnDays={shippingTime.returnDays}
         reviewSummary={
           reviewStats._count.id > 0
             ? { ratingValue: reviewStats._avg.rating ?? 0, reviewCount: reviewStats._count.id }

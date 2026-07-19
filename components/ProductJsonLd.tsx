@@ -16,6 +16,10 @@ interface ProductJsonLdProps {
     /** Explicit availability flag; takes precedence when set */
     inStock?: boolean;
   };
+  /** Standard delivery window from getShippingTime(), e.g. "5–7". Falls back to "5–7" (the site default) when omitted so callers can't silently regress to a stale hardcoded value. */
+  deliveryDays?: string;
+  /** Exchange/return window in days from getShippingTime(), e.g. "7". Falls back to "7" (the site default) when omitted. */
+  returnDays?: string;
   /** Pass aggregate review data when available */
   reviewSummary?: {
     ratingValue: number;
@@ -30,9 +34,23 @@ interface ProductJsonLdProps {
   }[];
 }
 
-export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLdProps) {
+// Parses an admin-editable free-text range like "5–7" or "5-7" into numeric
+// bounds for JSON-LD (which requires numbers, not display strings). Falls
+// back to the single number if only one is found, or the site default if the
+// text can't be parsed at all — never lets malformed owner input break the
+// schema.
+function parseDeliveryRange(deliveryDays: string | undefined): { min: number; max: number } {
+  const nums = deliveryDays?.match(/\d+/g);
+  if (nums && nums.length >= 2) return { min: Number(nums[0]), max: Number(nums[1]) };
+  if (nums && nums.length === 1) return { min: Number(nums[0]), max: Number(nums[0]) };
+  return { min: 5, max: 7 };
+}
+
+export function ProductJsonLd({ product, reviewSummary, reviews, deliveryDays, returnDays }: ProductJsonLdProps) {
   const siteUrl = SITE_URL;
   const productUrl = `${siteUrl}/shop/${product.slug}`;
+  const transitTime = parseDeliveryRange(deliveryDays);
+  const parsedReturnDays = Number(returnDays?.match(/\d+/)?.[0]) || 7;
 
   // Resolve availability: explicit inStock flag wins, else derive from stock, else assume in stock
   const isInStock =
@@ -88,7 +106,7 @@ export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLd
         applicableCountry: "IN",
         returnPolicyCategory:
           "https://schema.org/MerchantReturnFiniteReturnWindow",
-        merchantReturnDays: 7,
+        merchantReturnDays: parsedReturnDays,
         returnMethod: "https://schema.org/ReturnByMail",
         returnFees: "https://schema.org/FreeReturn",
       },
@@ -113,8 +131,8 @@ export function ProductJsonLd({ product, reviewSummary, reviews }: ProductJsonLd
           },
           transitTime: {
             "@type": "QuantitativeValue",
-            minValue: 3,
-            maxValue: 7,
+            minValue: transitTime.min,
+            maxValue: transitTime.max,
             unitCode: "DAY",
           },
         },

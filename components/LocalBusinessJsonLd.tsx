@@ -16,7 +16,8 @@ export async function LocalBusinessJsonLd() {
       "Mumbai-based handcrafted fashion jewellery manufacturer specialising in Kundan, Meenakari, Polki and gold-plated necklace sets, earrings, bangles and rings.",
     address: {
       "@type": "PostalAddress",
-      streetAddress: b.city,
+      // No street-address field exists in BusinessDetails — omit rather than
+      // duplicate addressLocality into it (schema.org doesn't require it).
       addressLocality: b.city,
       addressRegion: b.region,
       postalCode: b.postalCode,

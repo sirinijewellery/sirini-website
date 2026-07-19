@@ -64,7 +64,7 @@ export const DEFAULT_ABOUT: PageContent = {
   sections: [
     {
       heading: "Crafted to Last",
-      body: "Every Sirini piece is crafted in brass with the same rigorous craftsmanship as fine gold jewellery — from gleaming 22kt gold plating and intricate Kundan stonework to hand-painted Meenakari enamel. The same intricate designs. The same weight of tradition.",
+      body: "Every Sirini piece is crafted in brass with the same rigorous craftsmanship as fine gold jewellery — from gleaming 18–22K gold plating and intricate Kundan stonework to hand-painted Meenakari enamel. The same intricate designs. The same weight of tradition.",
     },
     {
       heading: "Built for Brides",
@@ -216,7 +216,7 @@ export const DEFAULT_FAQ: FaqItem[] = [
   },
   {
     q: "How long does delivery take?",
-    a: "Delivery typically takes 3–7 business days depending on your location. Metro cities usually receive orders within 3–4 days; smaller towns and remote pin codes may take up to 7 days. A tracking link is shared via WhatsApp once your order is dispatched.",
+    a: "Delivery typically takes 5–7 business days after order confirmation, depending on your location. A tracking link is shared via WhatsApp once your order is dispatched.",
   },
   {
     q: "What is the return and exchange policy?",

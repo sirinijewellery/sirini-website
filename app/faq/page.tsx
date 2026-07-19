@@ -41,7 +41,10 @@ export default async function FAQPage() {
           </div>
           <p className="font-body-lg text-body-lg text-on-surface-variant leading-relaxed">
             Everything you need to know about Sirini Jewellery — our materials, care, shipping
-            and how to get in touch.
+            and how to get in touch. Ready to browse? Explore the{" "}
+            <Link href="/shop" className="text-primary underline underline-offset-2 hover:no-underline">
+              full jewellery collection
+            </Link>.
           </p>
         </div>
       </section>

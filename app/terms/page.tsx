@@ -6,7 +6,7 @@ import { getTerms, getShippingTime } from "@/lib/queries/content";
 // Title is brand-free — the root layout's title.template appends the brand.
 export const metadata: Metadata = pageMetadata(
   "Terms of Service",
-  "Terms and conditions for shopping with Sirini Jewellery.",
+  "Terms and conditions for shopping with Sirini Jewellery — orders, pricing, payments, shipping, exchanges and account use on sirinijewellery.com.",
   { canonical: "/terms" },
 );
 
