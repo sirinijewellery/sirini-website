@@ -3,11 +3,13 @@ import bcrypt from "bcryptjs";
 import { prisma } from "@/lib/prisma";
 import { enforceRateLimit } from "@/lib/rateLimit";
 import { z } from "zod";
+import { emailSchema } from "@/lib/validation";
 
 const registerSchema = z.object({
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100, "Name is too long"),
-  // Normalize so the same address can't register twice with different casing
-  email: z.string().trim().toLowerCase().email("Invalid email address"),
+  // Normalized (trimmed + lowercased) so the same address can't register twice
+  // with different casing.
+  email: emailSchema,
   password: z
     .string()
     .min(8, "Password must be at least 8 characters")

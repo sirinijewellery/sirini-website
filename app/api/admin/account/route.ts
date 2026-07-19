@@ -3,6 +3,7 @@ import bcrypt from "bcryptjs";
 import { auth } from "@/lib/auth";
 import { prisma } from "@/lib/prisma";
 import { z } from "zod";
+import { emailSchema } from "@/lib/validation";
 
 // Admin "My Account": view email/name, edit username (name + login email) and
 // password. The current password is required to authorise ANY change. The
@@ -23,7 +24,7 @@ const schema = z.object({
     ])
     .optional(),
   name: z.string().trim().min(2, "Name must be at least 2 characters").max(100),
-  email: z.string().trim().toLowerCase().email("Invalid email address"),
+  email: emailSchema,
   currentPassword: z.string().min(1, "Enter your current password to save changes"),
   // Empty string = "don't change the password"
   newPassword: z

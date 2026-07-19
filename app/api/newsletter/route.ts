@@ -2,8 +2,11 @@ import { NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
 import { enforceRateLimit } from "@/lib/rateLimit";
 import { z } from "zod";
+import { emailSchema } from "@/lib/validation";
 
-const schema = z.object({ email: z.string().email().max(254) });
+// emailSchema normalizes to lowercase (previously this route did NOT), so the
+// same address can't create case-duplicate subscriber rows.
+const schema = z.object({ email: emailSchema });
 
 export async function POST(request: Request) {
   const limited = enforceRateLimit(request, "newsletter", 5, 10 * 60_000);

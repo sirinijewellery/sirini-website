@@ -1,25 +1,14 @@
 import { NextResponse } from "next/server";
-import { timingSafeEqual } from "crypto";
 import { prisma } from "@/lib/prisma";
+import { isAuthorizedByApiKey } from "@/lib/apiKeyAuth";
 
 // Read-only aggregate metrics for the local Sirini Marketing Studio dashboard.
 // Machine-to-machine (no browser session), so auth is a shared secret header
 // rather than the admin cookie session — never returns customer PII, only
 // aggregates and order totals.
 
-function isAuthorized(req: Request): boolean {
-  const expectedSecret = process.env.MARKETING_METRICS_API_KEY;
-  if (!expectedSecret) return false; // fail closed if the env var is unset
-
-  const provided = Buffer.from(req.headers.get("x-api-key") ?? "");
-  const expected = Buffer.from(expectedSecret);
-  // Timing-safe comparison — a plain !== leaks how many leading characters
-  // match via response timing (same pattern as the cron route's guard).
-  return provided.length === expected.length && timingSafeEqual(provided, expected);
-}
-
 export async function GET(req: Request) {
-  if (!isAuthorized(req)) {
+  if (!isAuthorizedByApiKey(req, "MARKETING_METRICS_API_KEY")) {
     return NextResponse.json({ error: "Forbidden" }, { status: 403 });
   }
 
