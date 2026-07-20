@@ -216,11 +216,11 @@ export const DEFAULT_FAQ: FaqItem[] = [
   },
   {
     q: "How long does delivery take?",
-    a: "Delivery typically takes 5–7 business days after order confirmation, depending on your location. A tracking link is shared via WhatsApp once your order is dispatched.",
+    a: `Delivery typically takes ${DEFAULT_SHIPPING_TIME.deliveryDays} business days after order confirmation, depending on your location. A tracking link is shared via WhatsApp once your order is dispatched.`,
   },
   {
     q: "What is the return and exchange policy?",
-    a: "We accept exchanges within 7 days of delivery for manufacturing defects or wrong items received. Please contact us via WhatsApp with photos of the issue within 7 days of receiving your order. We do not accept returns for change of mind or incorrect size selection.",
+    a: `We accept exchanges within ${DEFAULT_SHIPPING_TIME.returnDays} days of delivery for manufacturing defects or wrong items received. Please contact us via WhatsApp with photos of the issue within ${DEFAULT_SHIPPING_TIME.returnDays} days of receiving your order. We do not accept returns for change of mind or incorrect size selection.`,
   },
   {
     q: "Can I place bulk or wholesale orders?",

@@ -76,9 +76,26 @@ export async function PUT(
     result.data;
 
   // Verify coupon exists (prevent unhandled P2025 → 500)
-  const couponExists = await prisma.coupon.findUnique({ where: { id }, select: { id: true } });
+  const couponExists = await prisma.coupon.findUnique({
+    where: { id },
+    select: { id: true, discountType: true },
+  });
   if (!couponExists) {
     return NextResponse.json({ error: "Coupon not found" }, { status: 404 });
+  }
+
+  // The schema's percentage-range refine only fires when discountType is sent
+  // in the SAME request. A partial update that touches only discountValue
+  // (discountType omitted) would otherwise bypass it — re-check against the
+  // effective type (new value if sent, else the coupon's existing type).
+  if (discountValue !== undefined) {
+    const effectiveType = discountType ?? couponExists.discountType;
+    if (effectiveType === "percentage" && (discountValue < 1 || discountValue > 100)) {
+      return NextResponse.json(
+        { error: "Percentage discount must be between 1 and 100" },
+        { status: 400 }
+      );
+    }
   }
 
   // Build a partial update — only touch fields that were actually sent. This is
