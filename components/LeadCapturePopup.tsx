@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
 import { usePathname } from "next/navigation";
 import { toast } from "sonner";
 import {
@@ -35,14 +35,22 @@ export function LeadCapturePopup() {
   const isExcludedPage =
     pathname?.startsWith("/admin") || pathname?.startsWith("/checkout");
 
+  // Close an already-open dialog the moment navigation lands on an excluded
+  // page. Adjusted during render (React's recommended pattern for state that
+  // must react to a prop change) rather than in the effect below, so this
+  // doesn't trigger an extra cascading render via a synchronous setState
+  // inside a useEffect body.
+  const prevExcludedRef = useRef(isExcludedPage);
+  if (prevExcludedRef.current !== isExcludedPage) {
+    prevExcludedRef.current = isExcludedPage;
+    if (isExcludedPage && open) {
+      setOpen(false);
+    }
+  }
+
   useEffect(() => {
     if (typeof window === "undefined") return;
-    // On navigating INTO an excluded page, close an already-open dialog too —
-    // not just suppress opening a new one.
-    if (isExcludedPage) {
-      setOpen(false);
-      return;
-    }
+    if (isExcludedPage) return;
 
     // Already shown this SPA session — don't re-arm even if the storage write
     // failed (private mode). Belt-and-braces with the localStorage flag below.
