@@ -1,0 +1,228 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sirini Jewellery — Daily Audit Report — 2026-07-09</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #f4f1ec;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #2b2620;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 20px 16px 48px; }
+  header {
+    background: linear-gradient(135deg, #7a1f2b 0%, #a13345 100%);
+    color: #fdf6ec;
+    padding: 28px 20px;
+    border-radius: 0 0 14px 14px;
+    margin-bottom: 24px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; letter-spacing: 0.02em; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+
+  .alert-banner {
+    background: #fbdada;
+    border: 1px solid #f3b4b4;
+    color: #7a1414;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    font-size: 0.88rem;
+  }
+  .alert-banner b { display: block; margin-bottom: 4px; font-size: 0.95rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-left: 5px solid #a13345;
+  }
+  .summary-card h3 { margin: 0 0 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; color: #7a1f2b; }
+  .summary-card .stat-row { display: flex; justify-content: space-between; font-size: 0.88rem; padding: 2px 0; }
+  .summary-card .stat-row b { font-weight: 600; }
+
+  section { margin-bottom: 32px; }
+  section h2 {
+    font-size: 1.15rem;
+    border-bottom: 2px solid #d8cdbb;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    color: #4a2a1c;
+  }
+  .section-note { font-size: 0.85rem; color: #6b6156; margin: -6px 0 14px; }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.85rem; min-width: 560px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee6da; vertical-align: top; }
+  th { background: #efe6d8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: #5c4a35; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td.file { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.78rem; color: #5c4a35; white-space: nowrap; }
+
+  .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+  .pill-fixed { background: #dff3e3; color: #1e7a3a; }
+  .pill-ok { background: #dff3e3; color: #1e7a3a; }
+  .pill-attn { background: #fdf1cf; color: #8a6710; }
+  .pill-critical { background: #fbdada; color: #9b1c1c; }
+  .pill-high { background: #fbe4d6; color: #a1461a; }
+  .pill-medium { background: #fdf1cf; color: #8a6710; }
+  .pill-low { background: #e9edf5; color: #385380; }
+
+  .list-clean { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-size: 0.85rem; }
+  .list-clean li { margin-bottom: 6px; }
+
+  footer { text-align: center; font-size: 0.78rem; color: #8a8074; margin-top: 32px; }
+
+  @media (max-width: 480px) {
+    header h1 { font-size: 1.2rem; }
+    table { font-size: 0.78rem; }
+    th, td { padding: 8px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Sirini Jewellery — Daily Audit Report</h1>
+    <p>2026-07-09 · SEO &amp; Security review</p>
+  </header>
+
+  <div class="alert-banner">
+    <b>⚠ Uncommitted fixes are now 3+ days old (since ~2026-07-06/07)</b>
+    20 tracked files carrying SEO title/heading/alt-text fixes and public-form rate limiting have sat
+    modified-but-uncommitted in the working tree across the last several daily runs, plus 1 more file added
+    today (<code>next.config.ts</code>). None have been lost or conflicted so far, but the longer this sits the
+    higher the risk of drift, accidental discard, or a merge conflict with new work. Recommend running
+    <code>/deploy-and-verify</code> to review and push soon.
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h3>SEO</h3>
+      <div class="stat-row"><span>New findings today</span><b>0</b></div>
+      <div class="stat-row"><span>Re-verified clean</span><b style="color:#1e7a3a">6</b></div>
+      <div class="stat-row"><span>Needs owner call</span><b style="color:#8a6710">1</b></div>
+      <div class="stat-row"><span>Critical/High</span><b>0</b></div>
+    </div>
+    <div class="summary-card" style="border-left-color:#385380;">
+      <h3>Security</h3>
+      <div class="stat-row"><span>New findings today</span><b>1</b></div>
+      <div class="stat-row"><span>Fixed today</span><b style="color:#1e7a3a">1</b></div>
+      <div class="stat-row"><span>Re-verified clean</span><b style="color:#1e7a3a">5</b></div>
+      <div class="stat-row"><span>Awaiting owner decision</span><b style="color:#8a6710">2</b></div>
+    </div>
+  </div>
+
+  <section>
+    <h2>1. SEO</h2>
+    <p class="section-note">
+      <code>npx tsc --noEmit</code> is clean. No new SEO issues found today — this was a full re-verification
+      pass against the fixes already staged from prior runs (title de-duplication, heading hierarchy, hero alt
+      text, sitemap, OG image dimensions), which all remain correct and unchanged.
+    </p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">components/FAQJsonLd.tsx</td>
+        <td>Site-wide FAQPage JSON-LD is injected on product pages without matching visible Q&amp;A content on that page — violates Google's "structured data must match visible content" guideline. Google has restricted FAQ rich results mostly to authoritative sites since Aug 2023, so likely no rich-result upside today, though it may still help AI-answer-engine visibility.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-attn">Needs owner call</span> — keep for AI-answer-engine visibility, or remove from product pages? (unchanged from prior reports)</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Re-verified today, still correct (all still uncommitted from prior runs):</b>
+      <ul>
+        <li><code>lib/seo.ts</code> — no page still double-appends the brand suffix; product OG image correctly declared 960×1200.</li>
+        <li><code>app/shop/[slug]/ProductDetailClient.tsx</code> — "Description"/"Details" remain &lt;h2&gt; under the product &lt;h1&gt; (correct hierarchy).</li>
+        <li><code>components/HeroCarousel.tsx</code> — multi-slide hero alt text still includes "slide N of M".</li>
+        <li><code>app/sitemap.ts</code> — includes <code>/privacy</code> and <code>/terms</code>; still deduped and deterministic (no per-render timestamps).</li>
+        <li><code>app/robots.ts</code> — correct disallow rules (admin/api/cart/checkout/account/wishlist/order-confirmation); references both <code>sitemap.xml</code> and <code>image-sitemap.xml</code>.</li>
+        <li>H1 present on every user-facing page (homepage/PDP render it inside <code>HeroCarousel</code>/<code>ProductDetailClient</code> rather than the page file directly — confirmed present, not missing).</li>
+        <li>Product card and gallery alt text remain descriptive and unique (product name + category + view/slide index); image sitemap emits properly XML-escaped title/caption per image.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Security</h2>
+    <p class="section-note">Full re-review: every <code>/api/admin/*</code> route, all public POST endpoints, payment verify + webhook, address ownership checks, JSON-LD escaping, and dependency/header posture.</p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">next.config.ts</td>
+        <td>No site-wide security response headers were set — missing <code>X-Content-Type-Options</code>, <code>X-Frame-Options</code>, <code>Referrer-Policy</code>, <code>Permissions-Policy</code>, and <code>Strict-Transport-Security</code>. A full CSP was intentionally <b>not</b> added: Razorpay's <code>checkout.js</code> is loaded dynamically at runtime and JSON-LD relies on inline <code>&lt;script&gt;</code> tags, so a strict CSP needs careful allowlisting/testing before it can go in safely.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — added a <code>headers()</code> block applying the five headers above to every route. Type-checked clean; no visual/behavioural change (response headers aren't rendered), so no browser verification was needed. Uncommitted, staged with the rest of today's changes.</td>
+      </tr>
+      <tr>
+        <td class="file">app/api/auth/register, checkout/cod, checkout/create-order, coupon/validate (from a prior, still-uncommitted session)</td>
+        <td>These four public POST endpoints had no rate limiting.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-ok">Re-verified fixed</span> — all four still correctly call <code>enforceRateLimit()</code> (register 5/10min, COD 10/10min, create-order 10/10min, coupon-validate 20/10min). No regression since the last report. Still uncommitted.</td>
+      </tr>
+      <tr>
+        <td class="file">app/api/checkout/verify, app/api/webhooks/razorpay, lib/orphanedPayment.ts</td>
+        <td>Money-handling core (signature verification, price/stock/coupon re-validation, orphaned-payment capture) — re-reviewed for correctness.</td>
+        <td><span class="pill pill-low">Info</span></td>
+        <td><span class="pill pill-ok">Verified OK</span> — webhook signature check uses <code>timingSafeEqual</code> on equal-length buffers; verify route re-derives price/coupon/total server-side with exact-paise comparison (no tolerance), writes order+stock+coupon in one <code>Serializable</code> transaction with a payment-id idempotency guard, and records an <code>OrphanedPayment</code> row on any post-payment failure. No issues.</td>
+      </tr>
+      <tr>
+        <td class="file">app/api/addresses, app/api/addresses/[id]</td>
+        <td>IDOR risk check — does the by-id route verify the address belongs to the requesting user before update/delete?</td>
+        <td><span class="pill pill-low">Info</span></td>
+        <td><span class="pill pill-ok">Verified OK</span> — both PUT and DELETE fetch the existing row first and return 403 if <code>existing.userId !== session.user.id</code>. No IDOR.</td>
+      </tr>
+      <tr>
+        <td class="file">npm audit</td>
+        <td>Dependency vulnerabilities.</td>
+        <td><span class="pill pill-low">Info</span></td>
+        <td><span class="pill pill-ok">Unchanged</span> — 0 critical / 0 high / 5 moderate, all transitive inside Next's and Prisma's own bundled dev tooling (<code>@hono/node-server</code>, <code>postcss</code>). Fixing requires <code>npm audit fix --force</code> → a major downgrade (Next 9 / Prisma 6); not worth the breakage for dev-only, non-runtime-exploitable findings.</td>
+      </tr>
+      <tr>
+        <td class="file">lib/auth.ts — admin &amp; customer login</td>
+        <td>No rate limiting/lockout on login attempts; admin passwords can be as short as 4 characters.</td>
+        <td><span class="pill pill-high">High</span></td>
+        <td><span class="pill pill-attn">Awaiting owner</span> — admin-login hardening was explicitly declined by the owner on 2026-07-02. Listed for visibility only, not re-flagged as new.</td>
+      </tr>
+      <tr>
+        <td class="file">app/api/reviews/[productId]/route.ts</td>
+        <td>Reviews still publish instantly with no moderation step and directly feed the homepage "Bestsellers" ranking.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-attn">Pending owner decision</span> — spam-flood risk is mitigated by the existing rate limit; no admin-approval workflow exists. Unchanged open question from HANDOFF.md.</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Re-verified clean today, no action needed:</b>
+      <ul>
+        <li>All 20 <code>/api/admin/*</code> route files check <code>auth()</code> + <code>isAdmin</code> on every handler.</li>
+        <li><code>app/api/admin/products/upload</code> allowlists raster image types only (no SVG — prevents script-in-SVG stored XSS), 5MB cap.</li>
+        <li>All JSON-LD components (Product, Breadcrumb, Organization, LocalBusiness, WebSite, FAQ, Blog) escape <code>&lt;</code> before injecting via <code>dangerouslySetInnerHTML</code> — no CMS-editable field can break out of its <code>&lt;script&gt;</code> tag.</li>
+        <li><code>app/api/cron/daily-digest</code> and <code>app/api/marketing-metrics</code> both use <code>timingSafeEqual</code> shared-secret auth and fail closed when the secret env var is unset in production.</li>
+        <li>No <code>.env</code>/<code>.env.local</code> tracked in git; <code>credentials.md</code> remains gitignored and was never committed.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    Generated automatically by the daily audit routine · Code fixes are staged locally, not committed or pushed · Report not committed to git.
+  </footer>
+
+</div>
+</body>
+</html>

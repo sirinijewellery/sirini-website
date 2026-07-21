@@ -1,0 +1,197 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report (Midday) — 2026-07-04</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f1ee;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#2b241f;">
+<div style="max-width:760px;margin:0 auto;padding:16px;">
+
+  <div style="background:linear-gradient(135deg,#3a2e26,#5c4735);border-radius:12px;padding:24px 20px;margin-bottom:20px;color:#fff;">
+    <h1 style="margin:0 0 6px 0;font-size:22px;letter-spacing:0.3px;">Sirini Jewellery — Daily Audit Report (Midday)</h1>
+    <p style="margin:0;font-size:14px;opacity:0.85;">2026-07-04 · 12:30 PM automated run · sirinijewellery.com</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 12px 0;font-size:16px;color:#5c4735;">Summary</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="text-align:left;color:#8a7f74;">
+        <th style="padding:4px 6px;">Section</th>
+        <th style="padding:4px 6px;">Findings</th>
+        <th style="padding:4px 6px;">Auto-fixed</th>
+        <th style="padding:4px 6px;">Needs owner action</th>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">SEO</td>
+        <td style="padding:6px;">4</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">1</span></td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">3</span> (2 informational/no-action, 1 low-severity judgment call)</td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Security</td>
+        <td style="padding:6px;">3</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span></td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">3</span> (all previously known/tracked, no new vulnerabilities in today's new commits)</td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Gmail (24h)</td>
+        <td style="padding:6px;">18 threads scanned</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">3</span> worth a look</td>
+      </tr>
+    </table>
+    <p style="margin:14px 0 0 0;font-size:12.5px;color:#8a7f74;">
+      One code change was made and left <b>staged but not committed</b>: missing Open Graph / Twitter / canonical
+      tags were added to <code>public/world.html</code> (the new <code>/world</code> 3D-experience page shipped
+      earlier this morning). <code>npx tsc --noEmit</code> was run after the change and is clean. No other files
+      were edited. Four commits landed since the 5:15 AM report
+      (<code>2849c12</code>, <code>2b5795a</code>, <code>653e277</code>, <code>b853b59</code>) — the Cloudinary
+      bandwidth fix, the new <code>/world</code> route + homepage portal, a deploy-skill doc update, and a
+      Cloudinary-compression script. All four were reviewed for security/SEO impact; findings below.
+    </p>
+  </div>
+
+  <!-- SEO -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">1. SEO Audit</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Focused on what changed since the 5:15 AM pass — the new <code>/world</code> page and the crawler-facing
+      image pipeline — plus a re-check of the standing items (<code>lib/seo.ts</code>, <code>app/sitemap.ts</code>,
+      <code>app/robots.ts</code>, JSON-LD determinism, alt text, heading hierarchy).
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Finding</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>public/world.html</code></td>
+        <td style="padding:6px;">The new <code>/world</code> page (shipped this morning in <code>2b5795a</code>) is a standalone static HTML file outside Next's metadata system. It had a <code>&lt;title&gt;</code>, description, and bare <code>og:title</code>/<code>og:description</code>, but no <code>og:type</code>, <code>og:url</code>, <code>og:image</code>, any <code>twitter:*</code> tags, or a <code>&lt;link rel="canonical"&gt;</code> — so shares to WhatsApp/iMessage/Twitter would render with no preview image.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Fixed</span> — added <code>og:type</code>, <code>og:url</code>, <code>og:image</code> (reused the portal's Royal Heritage photo), full <code>twitter:*</code> card, and a self-referencing canonical link. Staged, not committed.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>app/sitemap.ts</code> vs. <code>/world</code></td>
+        <td style="padding:6px;">The new <code>/world</code> route isn't listed in <code>sitemap.ts</code> and isn't disallowed in <code>robots.ts</code> either — so it's crawlable but not proactively surfaced to Google. This may be intentional (it's a heavy ~2 MB interactive experience, not a commerce page), but it's a judgment call rather than an oversight either way.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Low</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner decision</span> — add one entry to <code>sitemap.ts</code> if you want it indexed/discoverable; leave as-is if it's meant to stay a homepage-only "hidden" experience.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>lib/cdnImage.ts</code>, <code>ProductJsonLd.tsx</code>, feeds/OG (commit <code>2849c12</code>)</td>
+        <td style="padding:6px;">Verified the new <code>botImageUrl()</code> wrapper: image sitemap, product feed, product JSON-LD, and product OG images now serve a <code>w_1200,h_1200,c_limit,q_auto:good</code> derivative instead of the raw 8–10 MB stored original. Confirmed the JSON-LD output is still fully deterministic (transform string is a fixed constant, no per-render values) and still <code>&lt;</code>-escaped.</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Verified clean</span> — good Core Web Vitals / crawl-budget side effect, no regression.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">Search Console alert — "Excluded by 'noindex' tag"</td>
+        <td style="padding:6px;">Carried over from the 5:15 AM report (received 2026-07-03 18:13 IST): traced to <code>app/shop/page.tsx</code>'s deliberate <code>noindex</code> on multi-filter/paginated shop URLs. Still correct, intentional SEO practice — no product or category page affected.</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Informational</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">No action — working as intended</span></td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Re-checked, no change from this morning:</b> homepage/shop/product meta titles &amp; descriptions;
+          <code>HeroCarousel.tsx</code> hardcoded alt text on the single hero slide (still low-severity, still
+          needs a schema migration to fix properly — not re-flagged as a new item); one <code>&lt;h1&gt;</code>
+          per page; <code>app/robots.ts</code> disallow list and sitemap references; canonical URLs on home/shop/
+          product; font <code>display:swap</code> across all registered families.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- SECURITY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">2. Security Review</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Reviewed the four commits that landed since the last audit for auth gaps, injection risk, and secret
+      exposure; re-ran <code>npm audit</code>; spot-checked that no new <code>/api/*</code> routes were added
+      without an <code>isAdmin</code> guard.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Issue</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>components/WorldPortal.tsx</code>, <code>next.config.ts</code>, <code>public/world.html</code></td>
+        <td style="padding:6px;">New homepage section and <code>/world</code> rewrite reviewed for XSS/SSRF/open-redirect. <code>WorldPortal.tsx</code> is a static server component with no user input; the <code>/world</code> rewrite points to a static file under <code>public/</code>, not a proxied external URL; <code>world.html</code> is a self-contained, hand-built file with no dynamic script injection or external form posts found.</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Verified clean</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>lib/cdnImage.ts</code>, <code>lib/cloudinary.ts</code>, <code>scripts/compress-existing-originals.ts</code></td>
+        <td style="padding:6px;"><code>botImageUrl()</code> only rewrites URLs already produced by trusted server code (product images, brand assets) — no request-controlled input reaches it, so no SSRF/injection surface. The new compression script uses standard env-based Cloudinary admin credentials and is a manual one-off tool, not a runtime code path.</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Verified clean</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>package-lock.json</code> (<code>npm audit</code>)</td>
+        <td style="padding:6px;">Unchanged from this morning: 5 moderate findings, all in dev tooling (<code>@prisma/dev</code>, <code>@hono/node-server</code>, Next's bundled <code>postcss</code>) — 0 high/critical. Fixing requires <code>npm audit fix --force</code>, which would downgrade Next/Prisma below the versions this project intentionally runs (per <code>AGENTS.md</code>).</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner decision</span> — unchanged carry-over, not a new risk.</td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Also re-verified, no new issues:</b> every <code>/api/admin/*</code> route still gates on
+          <code>isAdmin</code> (no new admin routes added today); no new client-exposed secrets; <code>checkout/verify</code>
+          and <code>payment-link</code> still use the shared <code>computeTotals()</code> (H-1/H-2 fix holds); cron
+          digest route still fails closed (401) when <code>CRON_SECRET</code> is unset. Standing, owner-deferred
+          items unchanged: no rate limiting on public POST endpoints (contact, reviews, coupon/validate, COD
+          checkout — HANDOFF.md pending decision #2), reviews still publish instantly with no moderation queue
+          (pending decision #1), admin-login rate limiting/password policy (owner declined 2026-07-02, see
+          <code>REVIEW-FINDINGS.md</code>).
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- GMAIL -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">3. Gmail Check (last 24h)</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Scanned <code>sirinijewellery@gmail.com</code> inbox, 2026-07-03 07:41 → 2026-07-04 06:46 IST.
+      18 threads total; newsletters/promotions (Shopify, Tripo3D ×3, Neon changelog, Pinterest recommendations,
+      duplicate HDFC lounge-voucher promo) skipped below.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">Subject</th><th style="padding:6px;">Sender</th><th style="padding:6px;">Date</th><th style="padding:6px;">Recommended action</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">(no subject) — 7 photo attachments, "Sent from my iPhone"</td>
+        <td style="padding:6px;"><code>sirinijewellery123@gmail.com</code></td>
+        <td style="padding:6px;">Jul 3, 9:22 AM</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Review</span> — looks like new product photos self-forwarded from a personal phone/account for upload. If these are new stock, upload via <code>/admin/products</code>.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">Submission of form for filing clarification… GST REG-04</td>
+        <td style="padding:6px;"><code>donotreply@gst.gov.in</code></td>
+        <td style="padding:6px;">Jul 3, 1:01 PM</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Informational</span> — follows an OTP + draft-saved email in the same window (12:56–1:01 PM), consistent with a completed GST amendment submission. Worth a quick confirmation on the GST portal that it went through cleanly.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">Account update — cheque cleared, ₹1,12,500.00</td>
+        <td style="padding:6px;"><code>alerts@hdfcbank.bank.in</code></td>
+        <td style="padding:6px;">Jul 3, 10:18 AM</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Review</span> — largest single debit in the window; flagged for bookkeeping awareness only, no indication of a problem.</td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Already resolved / no action:</b> Kushals ledger-statement request — owner already replied same
+          morning ("no entries taken place in this duration"); Search Console noindex notice — reviewed above
+          under SEO, working as intended; routine HDFC UPI/credit-card debit alerts (₹2,032 / ₹140 / ₹70 /
+          ₹1,000 / ₹1,750) — normal small transactions, no anomalies; HDFC lounge-voucher congratulations ×2 —
+          promotional, duplicate.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div style="text-align:center;font-size:11px;color:#a89b8c;padding:8px 0 20px;">
+    Generated automatically · scheduled task <code>midday-sirini-audit</code> · no commits or pushes made this run
+  </div>
+
+</div>
+</body>
+</html>

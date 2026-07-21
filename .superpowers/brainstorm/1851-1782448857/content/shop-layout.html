@@ -1,0 +1,124 @@
+<h2>Shop Page: Where should the filters live?</h2>
+<p class="subtitle">Currently all filter pills stack horizontally above the product grid, pushing products down. Here are 3 layout approaches.</p>
+
+<div class="cards">
+  <!-- Option A: Persistent left sidebar -->
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafaf8;">
+      <div style="display: flex; gap: 12px; height: 320px; font-family: system-ui; font-size: 11px; color: #666;">
+        <!-- Sidebar -->
+        <div style="width: 200px; shrink: 0; border: 1px solid #e5e2dc; border-radius: 8px; padding: 14px; background: #fff; overflow: hidden;">
+          <div style="font-weight: 700; font-size: 12px; color: #222; margin-bottom: 10px;">Filters</div>
+          <div style="font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-bottom: 6px;">Category</div>
+          <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 14px; height: 14px; border: 2px solid #C9A96E; border-radius: 3px; background: #C9A96E;"></div> Necklace Sets</div>
+            <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 14px; height: 14px; border: 2px solid #ddd; border-radius: 3px;"></div> Earrings</div>
+            <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 14px; height: 14px; border: 2px solid #ddd; border-radius: 3px;"></div> Bangles</div>
+          </div>
+          <div style="font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-bottom: 6px;">Occasion</div>
+          <div style="display: flex; flex-direction: column; gap: 4px; margin-bottom: 12px;">
+            <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 14px; height: 14px; border: 2px solid #ddd; border-radius: 3px;"></div> Bridal</div>
+            <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 14px; height: 14px; border: 2px solid #ddd; border-radius: 3px;"></div> Festive</div>
+          </div>
+          <div style="font-weight: 600; font-size: 10px; text-transform: uppercase; letter-spacing: 0.1em; color: #999; margin-bottom: 6px;">Style</div>
+          <div style="display: flex; flex-direction: column; gap: 4px;">
+            <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 14px; height: 14px; border: 2px solid #ddd; border-radius: 3px;"></div> Kundan</div>
+            <div style="display: flex; align-items: center; gap: 6px;"><div style="width: 14px; height: 14px; border: 2px solid #ddd; border-radius: 3px;"></div> Meenakari</div>
+          </div>
+        </div>
+        <!-- Product grid -->
+        <div style="flex: 1; display: grid; grid-template-columns: repeat(3, 1fr); gap: 8px; align-content: start;">
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f0ebe4, #e8ddd3); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #ede5db, #e3d9ce); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f2ece5, #e9e0d6); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f0ebe4, #e8ddd3); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #ede5db, #e3d9ce); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f2ece5, #e9e0d6); border-radius: 6px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A. Persistent Left Sidebar</h3>
+      <p>Filters always visible in a fixed-width sidebar. Products in a 3-column grid beside it. Desktop only — collapses to current horizontal layout on mobile.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Products + filters visible simultaneously</li><li>Common e-commerce pattern (Amazon, Myntra)</li><li>Checkbox multi-select feels natural</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Sidebar takes ~220px, products get fewer columns on medium screens</li><li>Lots of filter groups = long scrolling sidebar</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option B: Collapsible sidebar -->
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafaf8;">
+      <div style="display: flex; gap: 12px; height: 320px; font-family: system-ui; font-size: 11px; color: #666;">
+        <!-- Collapsed sidebar -->
+        <div style="width: 44px; shrink: 0; border: 1px solid #e5e2dc; border-radius: 8px; padding: 10px 0; background: #fff; display: flex; flex-direction: column; align-items: center; gap: 14px;">
+          <div style="width: 20px; height: 20px; border-radius: 4px; background: #C9A96E; opacity: 0.3;"></div>
+          <div style="width: 20px; height: 2px; background: #eee;"></div>
+          <div style="width: 16px; height: 16px; border: 1.5px solid #bbb; border-radius: 3px;"></div>
+          <div style="width: 16px; height: 16px; border: 1.5px solid #bbb; border-radius: 3px;"></div>
+          <div style="width: 16px; height: 16px; border: 1.5px solid #bbb; border-radius: 3px;"></div>
+          <div style="width: 16px; height: 16px; border: 1.5px solid #bbb; border-radius: 3px;"></div>
+        </div>
+        <!-- Product grid (wider) -->
+        <div style="flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-content: start;">
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f0ebe4, #e8ddd3); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #ede5db, #e3d9ce); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f2ece5, #e9e0d6); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f0ebe4, #e8ddd3); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #ede5db, #e3d9ce); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f2ece5, #e9e0d6); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f0ebe4, #e8ddd3); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #ede5db, #e3d9ce); border-radius: 6px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B. Collapsible Icon Sidebar</h3>
+      <p>Thin icon strip on the left that expands into full sidebar on hover/click. Products get the full 4-column grid by default. Best of both worlds.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Products get max space when not filtering</li><li>Feels clean and modern</li><li>Sidebar available on demand</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>More complex interaction — users may not discover it</li><li>Icons alone can be unclear</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <!-- Option C: Horizontal + sidebar hybrid -->
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="padding: 16px; background: #fafaf8;">
+      <div style="height: 320px; font-family: system-ui; font-size: 11px; color: #666; display: flex; flex-direction: column; gap: 10px;">
+        <!-- Top pills row -->
+        <div style="display: flex; gap: 6px; align-items: center;">
+          <div style="padding: 5px 12px; border-radius: 20px; background: #C9A96E; color: white; font-size: 10px; font-weight: 600;">All</div>
+          <div style="padding: 5px 12px; border-radius: 20px; border: 1px solid #ddd; font-size: 10px;">Necklace Sets</div>
+          <div style="padding: 5px 12px; border-radius: 20px; border: 1px solid #ddd; font-size: 10px;">Earrings</div>
+          <div style="padding: 5px 12px; border-radius: 20px; border: 1px solid #ddd; font-size: 10px;">Bangles</div>
+          <div style="margin-left: auto; padding: 5px 12px; border-radius: 20px; border: 1px solid #ddd; font-size: 10px; display: flex; align-items: center; gap: 4px;">
+            <span style="font-size: 12px;">☰</span> Filters
+          </div>
+        </div>
+        <!-- Product grid (full width) -->
+        <div style="flex: 1; display: grid; grid-template-columns: repeat(4, 1fr); gap: 8px; align-content: start;">
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f0ebe4, #e8ddd3); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #ede5db, #e3d9ce); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f2ece5, #e9e0d6); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f0ebe4, #e8ddd3); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #ede5db, #e3d9ce); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f2ece5, #e9e0d6); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #f0ebe4, #e8ddd3); border-radius: 6px;"></div>
+          <div style="aspect-ratio: 1; background: linear-gradient(135deg, #ede5db, #e3d9ce); border-radius: 6px;"></div>
+        </div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C. Keep Horizontal Pills + Slide-Over Drawer (Current, Refined)</h3>
+      <p>Keep the top category pills as quick-access, but slim them to ONE row (categories only). All other filters move into the "Filters" slide-over drawer. Products get full width.</p>
+      <div class="pros-cons">
+        <div class="pros"><h4>Pros</h4><ul><li>Products always get maximum space (4 columns)</li><li>Already built — minimal change needed</li><li>Mobile-first (works same on all devices)</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Filters hidden behind a button (extra click)</li><li>Can't see filters + products at same time</li></ul></div>
+      </div>
+    </div>
+  </div>
+</div>
+</div>
+</content>

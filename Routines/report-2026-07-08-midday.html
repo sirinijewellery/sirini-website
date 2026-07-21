@@ -1,0 +1,244 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sirini Jewellery — Daily Audit Report (Midday) — 2026-07-08</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #f4f1ec;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #2b2620;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 20px 16px 48px; }
+  header {
+    background: linear-gradient(135deg, #7a1f2b 0%, #a13345 100%);
+    color: #fdf6ec;
+    padding: 28px 20px;
+    border-radius: 0 0 14px 14px;
+    margin-bottom: 24px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; letter-spacing: 0.02em; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+
+  .alert-banner {
+    background: #fdf1cf;
+    border: 1px solid #ecd48f;
+    color: #6b4e08;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    font-size: 0.88rem;
+  }
+  .alert-banner b { display: block; margin-bottom: 4px; font-size: 0.95rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-left: 5px solid #a13345;
+  }
+  .summary-card h3 { margin: 0 0 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; color: #7a1f2b; }
+  .summary-card .stat-row { display: flex; justify-content: space-between; font-size: 0.88rem; padding: 2px 0; }
+  .summary-card .stat-row b { font-weight: 600; }
+
+  section { margin-bottom: 32px; }
+  section h2 {
+    font-size: 1.15rem;
+    border-bottom: 2px solid #d8cdbb;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    color: #4a2a1c;
+  }
+  .section-note { font-size: 0.85rem; color: #6b6156; margin: -6px 0 14px; }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.85rem; min-width: 560px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee6da; vertical-align: top; }
+  th { background: #efe6d8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: #5c4a35; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td.file { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.78rem; color: #5c4a35; white-space: nowrap; }
+
+  .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+  .pill-fixed { background: #dff3e3; color: #1e7a3a; }
+  .pill-ok { background: #dff3e3; color: #1e7a3a; }
+  .pill-attn { background: #fdf1cf; color: #8a6710; }
+  .pill-critical { background: #fbdada; color: #9b1c1c; }
+  .pill-high { background: #fbe4d6; color: #a1461a; }
+  .pill-medium { background: #fdf1cf; color: #8a6710; }
+  .pill-low { background: #e9edf5; color: #385380; }
+
+  .list-clean { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-size: 0.85rem; }
+  .list-clean li { margin-bottom: 6px; }
+
+  footer { text-align: center; font-size: 0.78rem; color: #8a8074; margin-top: 32px; }
+
+  @media (max-width: 480px) {
+    header h1 { font-size: 1.2rem; }
+    table { font-size: 0.78rem; }
+    th, td { padding: 8px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Sirini Jewellery — Daily Audit Report (Midday)</h1>
+    <p>2026-07-08 · 12:30 PM automated run · SEO, Security &amp; Inbox review</p>
+  </header>
+
+  <div class="alert-banner">
+    <b>⚠ Uncommitted fixes are now 3+ days old</b>
+    The SEO/security fixes below (rate limiting on 4 public endpoints, OG image dims, hero alt text,
+    heading hierarchy, brand-title dedupe) are still sitting <b>uncommitted</b> in the working tree —
+    unchanged since this morning's 2026-07-08 report, and first flagged 2026-07-06/07. <code>npx tsc --noEmit</code>
+    is clean. Nothing new broke, but recommend reviewing and pushing via <code>/deploy-and-verify</code>
+    before more work stacks on top.
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h3>SEO</h3>
+      <div class="stat-row"><span>Findings</span><b>1</b></div>
+      <div class="stat-row"><span>New since this morning</span><b style="color:#1e7a3a">0</b></div>
+      <div class="stat-row"><span>Needs owner call</span><b style="color:#8a6710">1</b></div>
+      <div class="stat-row"><span>Critical/High</span><b>0</b></div>
+    </div>
+    <div class="summary-card" style="border-left-color:#385380;">
+      <h3>Security</h3>
+      <div class="stat-row"><span>Findings</span><b>3</b></div>
+      <div class="stat-row"><span>New since this morning</span><b style="color:#1e7a3a">0</b></div>
+      <div class="stat-row"><span>npm audit</span><b style="color:#1e7a3a">5 moderate (unchanged)</b></div>
+      <div class="stat-row"><span>Awaiting owner decision</span><b style="color:#8a6710">2</b></div>
+    </div>
+    <div class="summary-card" style="border-left-color:#8a6710;">
+      <h3>Gmail (24h)</h3>
+      <div class="stat-row"><span>Threads scanned</span><b>33</b></div>
+      <div class="stat-row"><span>Actionable</span><b style="color:#1e7a3a">0 new</b></div>
+      <div class="stat-row"><span>Skipped (promo/bank/personal)</span><b>32</b></div>
+    </div>
+  </div>
+
+  <section>
+    <h2>1. SEO</h2>
+    <p class="section-note">
+      Delta check against this morning's 2026-07-08 report — no code touched SEO-relevant files since then.
+      <code>npx tsc --noEmit</code> re-run clean. No new issues found; nothing to fix this cycle.
+    </p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">app/shop/[slug]/page.tsx:215 (FAQJsonLd)</td>
+        <td>Site-wide FAQPage JSON-LD is injected identically on all ~191 product pages, but none of that Q&amp;A content is visibly rendered on the product page — violates Google's "structured data must match visible content" guideline. Likely earns no rich-result benefit today (Google restricted FAQ rich results mostly to authoritative sites since Aug 2023), though it may still help AI-answer-engine visibility.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-attn">Needs owner call</span> — keep for AI-answer-engine visibility, or remove from product pages? (unchanged, carried from 07-07/07-08 reports)</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Verified clean today, no action needed:</b>
+      <ul>
+        <li>All JSON-LD (Product, Breadcrumb, Organization, LocalBusiness, WebSite, FAQ) remains fully deterministic — no <code>Date.now()</code>/<code>Math.random()</code> in ISR-rendered output.</li>
+        <li>Meta titles/descriptions, OG/Twitter cards, canonical URLs, heading hierarchy, and alt-text coverage all match this morning's clean state — no regressions.</li>
+        <li><code>app/sitemap.ts</code> and <code>app/robots.ts</code> unchanged and correct.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Security</h2>
+    <p class="section-note">Delta review since the 2026-07-08 morning report. Re-ran <code>npx tsc --noEmit</code> and <code>npm audit --omit=dev</code>; re-confirmed admin route auth gating.</p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">app/api/auth/register, checkout/cod, checkout/create-order, coupon/validate</td>
+        <td>Rate limiting added this morning (commit not yet made) on these four public POST endpoints.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-fixed">Fixed, still uncommitted</span> — code unchanged since this morning, verified still present in working tree (register 5/10min, COD 10/10min, create-order 10/10min, coupon-validate 20/10min).</td>
+      </tr>
+      <tr>
+        <td class="file">npm audit --omit=dev</td>
+        <td>Dependency vulnerabilities.</td>
+        <td><span class="pill pill-low">Info</span></td>
+        <td><span class="pill pill-ok">OK — unchanged</span> — 0 critical / 0 high / 5 moderate, same two transitive advisories (<code>@hono/node-server</code> via <code>@prisma/dev</code>, <code>postcss</code> via Next's bundled dev tooling). Fix requires a major downgrade (Prisma 6 / Next 9) — not worth it for dev-only, non-runtime-exploitable findings. No change since this morning.</td>
+      </tr>
+      <tr>
+        <td class="file">lib/auth.ts — admin login</td>
+        <td>No rate limiting/lockout on admin login; admin passwords can be as short as 4 characters.</td>
+        <td><span class="pill pill-high">High</span></td>
+        <td><span class="pill pill-attn">Awaiting owner</span> — explicitly declined by the owner on 2026-07-02; listed for visibility only.</td>
+      </tr>
+      <tr>
+        <td class="file">app/api/reviews/[productId]/route.ts</td>
+        <td>Reviews still publish instantly with no moderation step and directly drive the homepage "Bestsellers" ranking.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-attn">Pending owner decision</span> — spam-flood risk mitigated by the rate limit added 2026-07-08, no approval workflow exists. Unchanged.</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Verified clean today, no action needed:</b>
+      <ul>
+        <li>All 21 <code>/api/admin/*</code> route files still check <code>auth()</code> + <code>isAdmin</code> — re-confirmed, no new admin routes added since this morning.</li>
+        <li>No <code>.env</code>/<code>.env.local</code> tracked in git; no server secrets reachable from client bundles.</li>
+        <li><code>dangerouslySetInnerHTML</code> usage still confined to JSON-LD <code>&lt;script&gt;</code> tags with <code>&lt;</code> escaped.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Gmail — sirinijewellery@gmail.com</h2>
+    <p class="section-note">Searched all threads from the last 24 hours (33 total). Nothing new required attention beyond what the morning report already flagged (Vercel 75% usage warning, sent Jul 7 — no follow-up email since).</p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>Subject</th><th>Sender</th><th>Date</th><th>Recommended action</th></tr>
+      <tr>
+        <td>Sirini Jewellery Manufacturers, your performance report for June 2026</td>
+        <td class="file">businessprofile-noreply@google.com</td>
+        <td>Jul 8, 05:58</td>
+        <td>None urgent — Google Business Profile monthly stats (127 profile views in June). Informational only, worth a glance.</td>
+      </tr>
+      <tr>
+        <td>Myntra Sale Details / Sales details of Meesho</td>
+        <td class="file">sirinijewellery@gmail.com → office@navinca.in</td>
+        <td>Jul 8, 06:01–07:04</td>
+        <td>None — owner's own outgoing reports to accountant/office, not inbound.</td>
+      </tr>
+      <tr>
+        <td>Self-sent photo email + HDFC UPI/credit-card debit alerts (multiple)</td>
+        <td class="file">sirinijewellery123@gmail.com, alerts@hdfcbank.bank.in</td>
+        <td>Jul 8, 06:07–06:58</td>
+        <td>None — personal banking/photo-forwarding pattern, consistent with prior reports.</td>
+      </tr>
+      <tr>
+        <td>Where are people near you going in July? (trivago)</td>
+        <td class="file">newsletter@email.trivago.com</td>
+        <td>Jul 8, 00:25</td>
+        <td>None — promotional.</td>
+      </tr>
+    </table>
+    </div>
+    <p class="section-note" style="margin-top:10px;">No customer inquiries, order issues, new Vercel/Neon/Cloudinary alerts, or payment-gateway notifications in this window. The Vercel Active-CPU warning from the morning report is still the one open item — check <code>vercel.com/sirini-s-projects-jewellery/~/usage</code> if not already done today.</p>
+  </section>
+
+  <footer>
+    Generated automatically by the daily audit routine · Code fixes are staged locally, not committed or pushed · Report not committed to git.
+  </footer>
+
+</div>
+</body>
+</html>

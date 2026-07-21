@@ -1,0 +1,203 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Sirini Jewellery — The Promise</title>
+<meta name="description" content="Enter the world of Sirini Jewellery — handcrafted bridal fashion jewellery from Mumbai, since 2017. Kundan, Meenakari and 22kt gold plating. One continuous interactive world: the story, the craft, the trousseau, the invitation.">
+<meta property="og:title" content="Sirini Jewellery — The Promise">
+<meta property="og:description" content="An immersive journey through the world of Sirini Jewellery. Mumbai · Since 2017 · We don't just make jewellery, we make memories.">
+<!--INLINE:FONTS-->
+<!--INLINE:CSS-->
+</head>
+<body>
+
+<!-- Intro veil -->
+<div id="veil" aria-hidden="true">
+  <div class="veil-inner">
+    <img class="veil-logo" id="veilLogo" alt="" aria-hidden="true">
+    <p class="veil-word">SIRINI</p>
+    <span class="veil-line"></span>
+    <p class="veil-sub" id="veilSub">The Promise</p>
+  </div>
+</div>
+
+<!-- 3D stage -->
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<!-- Scroll length of the journey -->
+<div id="scroller" aria-hidden="true"></div>
+
+<!-- HUD -->
+<header id="hud">
+  <a class="hud-brand" href="#threshold" data-seek="threshold" aria-label="Sirini Jewellery — back to the beginning">
+    <span class="hud-brand-name">SIRINI</span>
+    <span class="hud-brand-sub">Fine Fashion Jewellery</span>
+  </a>
+  <div class="hud-right">
+    <a class="hud-shop" href="https://sirinijewellery.com/shop" target="_blank" rel="noopener" title="Shop the collection at sirinijewellery.com">
+      <svg viewBox="0 0 24 24" width="15" height="15" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1.2 11.2a1.6 1.6 0 0 1-1.6 1.4H8.8a1.6 1.6 0 0 1-1.6-1.4L6 8z"/><path d="M9 10V6.8a3 3 0 0 1 6 0V10"/></svg>
+      <span class="hud-label">Shop</span>
+    </a>
+    <button id="soundToggle" type="button" aria-pressed="false" title="Ambient sound">
+      <svg class="ic ic-on" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <svg class="ic ic-off" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M17 9l5 6M22 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <span class="hud-label">Sound</span>
+    </button>
+  </div>
+</header>
+
+<!-- Chapter dots (built by JS) -->
+<nav id="dots" aria-label="Chapters"></nav>
+
+<!-- Progress hairline -->
+<div id="progress" aria-hidden="true"><i></i><b></b></div>
+
+<!-- Scroll hint -->
+<div id="hint" aria-hidden="true">
+  <span class="hint-line"></span>
+  <span class="hint-text">Scroll to follow the promise</span>
+</div>
+
+<!-- ————— Story overlay ————— -->
+<main id="copy">
+
+  <section class="copy pos-center is-title" data-zone="threshold" id="threshold">
+    <p class="kicker">Sirini Jewellery · Mumbai</p>
+    <h1 class="brand">SIRINI</h1>
+    <p class="brandsub">— Fine Fashion Jewellery —</p>
+    <div class="rule"></div>
+    <p class="lead">We don't just make jewellery. We make memories.<br>Handcrafted for India's celebrations since 2017.</p>
+  </section>
+
+  <section class="copy pos-center" data-zone="prologue" id="prologue">
+    <p class="lead serif-it">“Every celebration begins with a promise.”</p>
+    <p class="body">Ours was made in Mumbai in 2017 — that every bride deserves to feel extraordinary, without compromise.</p>
+  </section>
+
+  <section class="copy pos-left" data-zone="house" id="house">
+    <p class="kicker">I · Our Story</p>
+    <h2>The House of Sirini</h2>
+    <div class="rule"></div>
+    <p class="body">Sirini Jewellery was born in Mumbai in 2017, rooted in one simple belief — that every bride deserves to feel extraordinary. Founded by Nishit Savla, Sirini grew from years of hands-on manufacturing experience into a brand built for the women at the heart of India's most cherished celebrations.</p>
+    <p class="body">With gold prices soaring beyond reach, we saw a gap that needed filling — not with cheaper jewellery, but with equally stunning alternatives. The same intricate designs. The same weight of tradition. A price that lets you say yes without hesitation.</p>
+  </section>
+
+  <section class="copy pos-right" data-zone="glance" id="glance">
+    <p class="kicker">II · At a Glance</p>
+    <h2>One Belief, Every Piece</h2>
+    <div class="rule"></div>
+    <dl class="stats">
+      <div><dt>Since 2017</dt><dd>Mumbai · family-founded</dd></div>
+      <div><dt>300+</dt><dd>Designs · live catalogue</dd></div>
+      <div><dt>22KT</dt><dd>Gold plating · fine brass</dd></div>
+      <div><dt>Pan-India</dt><dd>Free shipping · COD</dd></div>
+    </dl>
+  </section>
+
+  <section class="copy pos-left" data-zone="atelier" id="atelier">
+    <p class="kicker">III · The Craft</p>
+    <h2>The Atelier</h2>
+    <div class="rule"></div>
+    <p class="body">Every Sirini piece is crafted in fine brass with the same rigorous craftsmanship as gold jewellery — gleaming 22kt plating, hand-set Kundan stonework, hand-painted Meenakari enamel.</p>
+    <p class="body">We understand the craft from the inside out — the precision, the detailing, the hours that go into every piece. Each one passes rigorous quality checks before it ships.</p>
+  </section>
+
+  <section class="copy pos-right" data-zone="catalogue" id="catalogue">
+    <p class="kicker">IV · The Collections</p>
+    <h2>The Catalogue</h2>
+    <div class="rule"></div>
+    <p class="body">From the maang tikka to the payal — jewellery for every moment of the celebration, and every day after.</p>
+    <p class="note">Twelve collections surround you — necklace sets to groom accessories.</p>
+    <ul class="fallback-list" id="catalogueList" aria-label="Collections"></ul>
+  </section>
+
+  <section class="copy pos-left" data-zone="gallery" id="gallery">
+    <p class="kicker">V · The Trousseau</p>
+    <h2>The Trousseau</h2>
+    <div class="rule"></div>
+    <p class="body">Twelve pieces from the living catalogue — the bride dressed head to toe, and the groom beside her.</p>
+    <p class="note">Select any piece to view it closer.</p>
+  </section>
+
+  <section class="copy pos-right" data-zone="journey" id="journey">
+    <p class="kicker">VI · To Your Door</p>
+    <h2>The Journey Home</h2>
+    <div class="rule"></div>
+    <h3>Free Pan-India Shipping</h3>
+    <p class="body">Every order travels free from our Mumbai atelier to any serviceable pin code in India — tracked on WhatsApp, delivered in 3–7 days. Cash on delivery available.</p>
+    <h3>Weddings &amp; Bulk Orders</h3>
+    <p class="body">Planning a wedding or gifting at scale? We welcome bulk and wholesale enquiries — message us for a custom quote.</p>
+  </section>
+
+  <section class="copy pos-left" data-zone="vows" id="vows">
+    <p class="kicker">VII · Why Sirini</p>
+    <h2>Six Promises</h2>
+    <div class="rule"></div>
+    <p class="body">The promises we keep to every bride — engraved around you.</p>
+    <blockquote class="quote">
+      <p>“I wore this to my cousin's sangeet and couldn't stop receiving compliments — every aunty asked where I got it from.”</p>
+      <cite>— Priya M., Mumbai</cite>
+    </blockquote>
+    <ul class="fallback-list" id="vowsList" aria-label="Our promises"></ul>
+  </section>
+
+  <section class="copy pos-center" data-zone="ascent" id="ascent">
+    <p class="lead serif-it">For a bride, this isn't just a day. It's <em>the</em> day — and the jewellery she wears will live in photographs, in memory, and in her heart for a lifetime.</p>
+    <p class="note">The promise continues.</p>
+  </section>
+
+  <section class="copy pos-center is-contact" data-zone="ring" id="ring">
+    <p class="kicker">The Invitation</p>
+    <h2>Say Yes</h2>
+    <div class="rule"></div>
+    <p class="body">The freedom to celebrate fully, beautifully, and without compromise — find your piece of heritage.</p>
+    <p class="addr">Mumbai, Maharashtra, India &nbsp;·&nbsp; Mon–Sat, 10 am – 7 pm IST</p>
+    <div class="cta-row">
+      <a class="cta cta-primary" href="https://sirinijewellery.com/shop" target="_blank" rel="noopener" title="Shop the collection at sirinijewellery.com"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M6 8h12l-1.2 11.2a1.6 1.6 0 0 1-1.6 1.4H8.8a1.6 1.6 0 0 1-1.6-1.4L6 8z"/><path d="M9 10V6.8a3 3 0 0 1 6 0V10"/></svg><span>Shop the Collection</span></a>
+      <a class="cta" href="https://wa.me/919322222216" target="_blank" rel="noopener" title="Chat on WhatsApp: +91 93222 22216"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 0 0-7.8 13.4L3 21l4.7-1.2A9 9 0 1 0 12 3z"/></svg><span>WhatsApp</span></a>
+      <a class="cta" href="mailto:sirinijewellery@gmail.com" title="Write to sirinijewellery@gmail.com"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg><span>Email</span></a>
+      <a class="cta" href="https://www.instagram.com/sirinijewellerymanufacturerss" target="_blank" rel="noopener" title="@sirinijewellerymanufacturerss on Instagram"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.4"/><circle cx="16.7" cy="7.3" r="0.9" fill="currentColor" stroke="none"/></svg><span>Instagram</span></a>
+    </div>
+    <p class="fineprint">+91 93222 22216 &nbsp;·&nbsp; sirinijewellery@gmail.com &nbsp;·&nbsp; sirinijewellery.com</p>
+    <button class="again" id="againBtn" type="button" title="Return to the beginning of the journey">
+      <svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M3 12a9 9 0 1 0 3-6.7"/><path d="M3 4v5h5"/></svg>
+      <span>Walk the thread again</span>
+    </button>
+  </section>
+
+</main>
+
+<!-- Fallback-only editorial extras -->
+<div id="fallbackExtras" hidden>
+  <div class="fb-logo-card"><img id="fbLogo" alt="Sirini Jewellery logo"></div>
+  <section class="fb-gallery" aria-label="The Trousseau — gallery">
+    <h2>The Trousseau</h2>
+    <div class="fb-grid" id="fbGrid"></div>
+  </section>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Jewellery piece" hidden>
+  <button class="lb-close" type="button" aria-label="Close">&#215;</button>
+  <button class="lb-prev" type="button" aria-label="Previous piece"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption>
+      <p class="lb-caption" id="lbCaption"></p>
+      <p class="lb-sub" id="lbSub"></p>
+      <a class="lb-link" id="lbLink" href="#" target="_blank" rel="noopener" hidden><span>View this piece</span><svg viewBox="0 0 24 24" width="12" height="12" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.6" stroke-linecap="round" stroke-linejoin="round"><path d="M7 17L17 7M9 7h8v8"/></svg></a>
+    </figcaption>
+  </figure>
+  <button class="lb-next" type="button" aria-label="Next piece"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+
+<div id="tooltip" aria-hidden="true"></div>
+
+<noscript><div class="noscript-note">This experience needs JavaScript. Please enable it to enter the world of Sirini Jewellery.</div></noscript>
+
+<!--INLINE:THREE-->
+<!--INLINE:ASSETS-->
+<!--INLINE:MAIN-->
+</body>
+</html>

@@ -1,0 +1,372 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report (Early Morning)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 16px;
+    background: #FAF7F4;
+    color: #2A2320;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #7A1F3D, #9C2A4E);
+    color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid #ECE3DC;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat .n { font-size: 1.5rem; font-weight: 700; display: block; }
+  .stat .l { font-size: 0.75rem; color: #6b5f57; text-transform: uppercase; letter-spacing: 0.03em; }
+  .stat.fixed .n { color: #1a7f3c; }
+  .stat.manual .n { color: #a8710a; }
+  .stat.crit .n { color: #b32020; }
+
+  section { margin-bottom: 32px; }
+  h2 {
+    font-size: 1.15rem;
+    border-bottom: 2px solid #7A1F3D;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    color: #7A1F3D;
+  }
+  .table-scroll { overflow-x: auto; border: 1px solid #ECE3DC; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.82rem; min-width: 560px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #F0E9E3; vertical-align: top; }
+  th { background: #F7F1EC; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: #6b5f57; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  code { background: #F3ECE6; padding: 1px 5px; border-radius: 4px; font-size: 0.78em; word-break: break-all; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge.ok { background: #E4F5E8; color: #1a7f3c; }
+  .badge.fixed { background: #E4F5E8; color: #1a7f3c; }
+  .badge.manual { background: #FFF3D6; color: #8a5a00; }
+  .badge.critical { background: #FBE2E2; color: #b32020; }
+  .badge.high { background: #FDE8D6; color: #b0530a; }
+  .badge.medium { background: #FFF3D6; color: #8a5a00; }
+  .badge.low { background: #EFF3EA; color: #4b6b3d; }
+
+  .note {
+    background: #F7F1EC;
+    border-left: 3px solid #7A1F3D;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-top: 14px;
+  }
+  .note.warn { border-left-color: #a8710a; background: #FFF7E8; }
+  footer { text-align: center; color: #9a8d84; font-size: 0.75rem; margin-top: 20px; }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #17130f; color: #EDE6DF; }
+    .stat, table { background: #221c17; }
+    .stat, .table-scroll { border-color: #362c24; }
+    th { background: #2a231d; color: #b8a99c; }
+    td { border-bottom-color: #2a231d; }
+    code { background: #2a231d; }
+    .note { background: #2a231d; }
+    .note.warn { background: #2a2115; }
+    h2 { color: #e7a9bd; border-bottom-color: #9C2A4E; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Sirini Jewellery — Daily Audit Report (Early Morning)</h1>
+    <p>2026-07-18, 05:15 AM · SEO/AEO/GEO + Code Bug audit</p>
+  </header>
+
+  <div class="summary-grid">
+    <div class="stat"><span class="n">17</span><span class="l">Areas checked</span></div>
+    <div class="stat fixed"><span class="n">9</span><span class="l">New fixes today</span></div>
+    <div class="stat manual"><span class="n">5</span><span class="l">Needs owner action</span></div>
+    <div class="stat"><span class="n">10</span><span class="l">Verified OK</span></div>
+  </div>
+
+  <div class="note warn">
+    <strong>Read this first — a lot of fixes are still sitting uncommitted.</strong>
+    Yesterday's midnight report already flagged that several days' worth of rate-limit and SEO
+    fixes were staged but never committed to <code>main</code>. Today's run added <strong>9 more</strong>
+    files on top of that pile (3 new rate-limit gaps, 3 GEO fact-consistency corrections, 2 internal-link
+    additions, 1 meta-description length fix). Nothing here is live on <code>sirinijewellery.com</code>
+    until the owner reviews <code>git diff</code> / <code>git status</code> and commits + pushes.
+    None of it was committed or pushed by this run, per instructions.
+  </div>
+
+  <section>
+    <h2>SEO, AEO &amp; GEO</h2>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Finding</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td><code>lib/queries/content.ts</code> (FAQ), <code>app/contact/page.tsx</code></td>
+        <td><strong>GEO fact conflict (delivery window):</strong> the FAQ answer and the Contact
+          page's FAQ snippet + inline FAQPage JSON-LD all hardcoded "3–7 business days," while
+          <code>/shipping</code> and <code>/terms</code> correctly interpolate the live setting,
+          which is "5–7 business days." A code comment in <code>content.ts</code> had flagged this
+          exact drift as unresolved. Fixed all three hardcoded strings to match the single source
+          of truth. This is also inside the FAQPage structured data an AI engine could cite.</td>
+        <td><span class="badge high">High</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>lib/queries/content.ts</code> (About page)</td>
+        <td><strong>GEO fact conflict (gold plating karat):</strong> About page said "22kt gold
+          plating," FAQ said "18–22K gold plating" — two different material claims for the same
+          product line. Aligned About's copy to the FAQ's range ("18–22K") since the FAQ is the
+          more specific, dedicated material-authenticity answer.</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>lib/queries/content.ts</code> (FAQ) vs. <code>app/shipping/page.tsx</code></td>
+        <td><strong>GEO inconsistency (return vs. exchange framing):</strong> the FAQ describes a
+          7-day "exchange" limited to defects/wrong items, explicitly excluding change-of-mind and
+          size issues. The Shipping page describes a "return" policy with a different eligibility
+          list (no exclusion callout) and no reference to the 7-day exchange framing. Two different
+          policy shapes for what should be one rule — needs a business-language decision (return
+          vs. exchange terminology, which exclusions apply), not a mechanical text fix.</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge manual">Needs owner decision</span></td>
+      </tr>
+      <tr>
+        <td><code>app/terms/page.tsx</code></td>
+        <td>Meta description was 56 characters ("Terms and conditions for shopping with Sirini
+          Jewellery.") — well under the ~70 char floor, wasting SERP space. Expanded to 148 chars
+          covering orders/pricing/payments/shipping/exchanges.</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>lib/blog.ts</code> (<code>meenakari-kundan-polki-guide</code> excerpt)</td>
+        <td>Blog excerpt (used as the article's meta description fallback) was 162 characters,
+          past the ~160 char truncation point in SERPs. Trimmed to 133 chars, same meaning.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>app/faq/page.tsx</code>, <code>app/contact/page.tsx</code></td>
+        <td>Internal linking dead ends: neither page had a single link to <code>/shop</code> or any
+          product/category page — a missed opportunity for both crawl equity and conversion. Added
+          one contextual text link to <code>/shop</code> on each page, inside the existing intro
+          paragraph — no layout change.</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>lib/queries/content.ts</code> (FAQ, "Who made this website?")</td>
+        <td>A developer-credit Q&amp;A sits inside the customer-facing FAQPage schema — off-topic
+          content diluting the FAQ's topical focus for AI answer engines. Left as-is; removing
+          content is a judgment call for the owner, not something to auto-delete unattended.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge manual">Needs owner decision</span></td>
+      </tr>
+      <tr>
+        <td><code>prisma/schema.prisma</code> (<code>HeroSlide</code>)</td>
+        <td>Repeat finding, unchanged: no per-slide alt/caption field, so hero alt text stays a
+          hardcoded generic string. Needs a schema migration + admin-form field — out of scope for
+          an unattended fix since it touches the live Neon schema.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge manual">Needs action</span></td>
+      </tr>
+      <tr>
+        <td>Canonical URLs, JSON-LD determinism, heading hierarchy, OG image dimensions,
+          llms.txt link validity, sitemap.ts, robots.ts, font-loading strategy</td>
+        <td>Re-verified across all indexable pages (home, about, shop, shop/[slug], blog,
+          blog/[slug], faq, occasions, contact, shipping, terms, privacy). Every page has exactly
+          one <code>&lt;h1&gt;</code> with no level-skipping; every canonical resolves correctly;
+          <code>ProductJsonLd</code> stays fully deterministic (no <code>Date.now()</code>); OG
+          images generate at 1200×630; non-indexable routes (cart, checkout, account, wishlist,
+          login, register) correctly carry <code>noindex</code> via their layouts.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Code Bugs &amp; Security</h2>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File / Area</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td><code>app/api/products/[slug]/route.ts</code></td>
+        <td>Public, unauthenticated GET endpoint (one DB query per hit) had no rate limit, unlike
+          every comparable public read endpoint (<code>/api/search</code>, <code>/api/pincode</code>).
+          Added <code>enforceRateLimit</code> (60 req / 10 min per IP), same pattern as the rest of
+          the codebase.</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/addresses/[id]/route.ts</code> (PUT, DELETE)</td>
+        <td>The address-list <code>POST</code> route got a rate limit in an earlier session, but
+          the per-address <code>PUT</code>/<code>DELETE</code> routes (same auth pattern, same
+          abuse surface) were missed. Added the same <code>addresses</code>-scoped limit to both.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/wishlist/check/route.ts</code></td>
+        <td>Same gap pattern: wishlist add/remove are rate-limited, the check-status GET wasn't.
+          Added the same <code>wishlist</code>-scoped limit for consistency.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/admin/**/route.ts</code> (all 20 route files)</td>
+        <td>Full re-audit: every exported handler (GET/POST/PUT/PATCH/DELETE) in every admin route
+          checks <code>session?.user?.isAdmin</code> as the first statement, before any DB or file
+          operation. No unguarded handler found.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/admin/products/upload/route.ts</code></td>
+        <td>File upload security check: auth gate first, MIME allowlist (jpeg/png/webp/gif/avif —
+          <code>image/svg+xml</code> explicitly excluded to block embedded-script SVG XSS), 5MB
+          size cap enforced before buffering. No issues.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/marketing-metrics/route.ts</code></td>
+        <td>Not under <code>/admin</code>, so it was outside the standard isAdmin sweep — checked
+          separately. Uses a timing-safe shared-secret header check (fails closed if the env var is
+          unset), and its one raw SQL query (<code>$queryRaw</code>) is a properly parameterized
+          tagged template. No issue.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>dangerouslySetInnerHTML</code> — 15 usages repo-wide (JSON-LD scripts, theme CSS
+          override, splash script)</td>
+        <td>All either JSON-LD with <code>&lt;</code> escaped to prevent script-tag breakout, or
+          fed from a regex-allowlisted theme setting, or a hardcoded static string. No usage renders
+          raw admin-editable free text (blog body, product description) as HTML. Blog body confirmed
+          to render via plain JSX (React-escaped).</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>Raw SQL audit (<code>$queryRaw</code>/<code>$executeRaw</code>)</td>
+        <td>Only two usages repo-wide: <code>marketing-metrics</code> (parameterized, see above) and
+          a standalone maintenance script (<code>scripts/delete-test-order.ts</code>) whose one
+          interpolated value comes from Postgres's own <code>pg_get_serial_sequence()</code> catalog
+          function, not user input. Not exposed via any HTTP route. No injection risk.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>lib/auth.ts</code>, NextAuth config</td>
+        <td>JWT session strategy (correct for Credentials provider), timing-attack mitigation on
+          login (dummy-hash compare when user doesn't exist), no custom cookie overrides (so
+          NextAuth v5's default <code>SameSite=Lax</code> session cookie applies — a solid default
+          CSRF mitigation for the mutation routes audited above). No brute-force throttle on login
+          — unchanged since 2026-07-02, owner previously declined this hardening; re-noted for the
+          record only, not re-flagged as new.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge manual">Noted only (declined)</span></td>
+      </tr>
+      <tr>
+        <td><code>npx tsc --noEmit</code></td>
+        <td>Clean before and after every change in this run, including all prior sessions'
+          uncommitted fixes.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>npm audit</code></td>
+        <td>5 moderate advisories, unchanged from prior runs — all transitive through Next's
+          bundled <code>postcss</code> (XSS in CSS stringify output, CWE-79) and Prisma's dev
+          tooling (<code>@prisma/dev</code> → <code>@hono/node-server</code>, path-bypass CWE-22).
+          Both are build-time-only dependencies, not shipped to the browser or production server.
+          Fixing requires a semver-major downgrade of Next or Prisma — not safe to apply unattended.</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge manual">Needs action</span></td>
+      </tr>
+      <tr>
+        <td>Env var / secret exposure</td>
+        <td>Swept every <code>NEXT_PUBLIC_*</code> usage repo-wide: Razorpay publishable key ID,
+          Cloudinary cloud name, WhatsApp number, GTM/GA4 IDs, Google Search Console verification
+          token, site URL — all intentionally public values. No secret keys, tokens, or credentials
+          found hardcoded anywhere in the codebase.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+    </table>
+    </div>
+    <div class="note">
+      <strong>No new critical/high code findings.</strong> The 3 rate-limit gaps found today are
+      the same low/medium-severity pattern as prior sessions' fixes (endpoints that mirror an
+      already-protected sibling route) — closing them for consistency, not because active abuse was
+      observed.
+    </div>
+  </section>
+
+  <div class="note warn">
+    <strong>Full list of files changed this run (staged, not committed):</strong><br>
+    <code>app/api/products/[slug]/route.ts</code> · <code>app/api/addresses/[id]/route.ts</code> ·
+    <code>app/api/wishlist/check/route.ts</code> · <code>lib/queries/content.ts</code> ·
+    <code>app/contact/page.tsx</code> · <code>app/faq/page.tsx</code> · <code>app/terms/page.tsx</code> ·
+    <code>lib/blog.ts</code><br><br>
+    <strong>Also still sitting uncommitted from earlier sessions</strong> (re-verified today, still
+    correct, still not shipped): <code>app/api/addresses/route.ts</code>,
+    <code>app/api/checkout/failed/route.ts</code>, <code>app/api/orders/[id]/cancel/route.ts</code>,
+    <code>app/api/search/route.ts</code>, <code>app/api/wishlist/route.ts</code>,
+    <code>app/blog/page.tsx</code>, <code>app/shop/[slug]/page.tsx</code>,
+    <code>components/HeroCarousel.tsx</code>, <code>app/robots.ts</code>,
+    <code>public/world.html</code>. (<code>.claude/launch.json</code> and
+    <code>.claude/skills/deploy-and-verify/SKILL.md</code> are unrelated dev-tooling edits from other
+    sessions — left untouched.)<br><br>
+    <strong>This is now several consecutive daily runs where fixes accumulate without shipping.</strong>
+    Worth a few minutes to review <code>git diff</code> and commit/push — the rate-limit and GEO
+    fact-consistency fixes are doing nothing for the live site until they go out.
+  </div>
+
+  <div class="note">
+    <strong>Verification performed:</strong> <code>npx tsc --noEmit</code> run clean before and
+    after all changes. <code>npm audit</code> run and reviewed. Live browser verification of the
+    two visual text/link additions (FAQ, Contact pages) was skipped this run — port 3000 was
+    occupied by an unrelated running app ("Sirini Wholesale"), and stopping someone else's process
+    unattended wasn't judged safe. Both changes are minimal JSX text/link additions inside existing
+    paragraphs (no layout changes) and passed type-checking; recommend a quick visual glance next
+    time the dev server is available.
+  </div>
+
+  <footer>Generated automatically by the daily Sirini Jewellery audit routine (early-morning run) · sirinijewellery.com</footer>
+</div>
+</body>
+</html>

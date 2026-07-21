@@ -1,0 +1,333 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sirini Jewellery — Daily Audit Report — 2026-07-11 (Early Morning)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #f4f1ec;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #2b2620;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 20px 16px 48px; }
+  header {
+    background: linear-gradient(135deg, #7a1f2b 0%, #a13345 100%);
+    color: #fdf6ec;
+    padding: 28px 20px;
+    border-radius: 0 0 14px 14px;
+    margin-bottom: 24px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; letter-spacing: 0.02em; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+
+  .alert-banner {
+    background: #fbdada;
+    border: 1px solid #f3b4b4;
+    color: #7a1414;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    font-size: 0.88rem;
+  }
+  .alert-banner b { display: block; margin-bottom: 4px; font-size: 0.95rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-left: 5px solid #a13345;
+  }
+  .summary-card h3 { margin: 0 0 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; color: #7a1f2b; }
+  .summary-card .stat-row { display: flex; justify-content: space-between; font-size: 0.88rem; padding: 2px 0; }
+  .summary-card .stat-row b { font-weight: 600; }
+
+  section { margin-bottom: 32px; }
+  section h2 {
+    font-size: 1.15rem;
+    border-bottom: 2px solid #d8cdbb;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    color: #4a2a1c;
+  }
+  .section-note { font-size: 0.85rem; color: #6b6156; margin: -6px 0 14px; }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.85rem; min-width: 560px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee6da; vertical-align: top; }
+  th { background: #efe6d8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: #5c4a35; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td.file { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.78rem; color: #5c4a35; white-space: nowrap; }
+
+  .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+  .pill-fixed { background: #dff3e3; color: #1e7a3a; }
+  .pill-ok { background: #dff3e3; color: #1e7a3a; }
+  .pill-attn { background: #fdf1cf; color: #8a6710; }
+  .pill-critical { background: #fbdada; color: #9b1c1c; }
+  .pill-high { background: #fbe4d6; color: #a1461a; }
+  .pill-medium { background: #fdf1cf; color: #8a6710; }
+  .pill-low { background: #e9edf5; color: #385380; }
+
+  .list-clean { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-size: 0.85rem; }
+  .list-clean li { margin-bottom: 6px; }
+
+  footer { text-align: center; font-size: 0.78rem; color: #8a8074; margin-top: 32px; }
+
+  @media (max-width: 480px) {
+    header h1 { font-size: 1.2rem; }
+    table { font-size: 0.78rem; }
+    th, td { padding: 8px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Sirini Jewellery — Daily Audit Report (Early Morning)</h1>
+    <p>2026-07-11, 5:15 AM · SEO &amp; Security review</p>
+  </header>
+
+  <div class="alert-banner">
+    <b>⚠ Staged fix bundle keeps growing while it sits unshipped — please ship it</b>
+    The uncommitted fix bundle has grown from 21 files to <b>25 files</b> (98 → 123 insertions) —
+    today's run found and fixed a real bug (product category names leaking as raw URL slugs into
+    titles, meta descriptions, JSON-LD, the Merchant Center feed, and the image sitemap) plus one
+    missing rate limit, on top of everything from prior runs. The last real commit to the repo is
+    still <b>9cdbf49</b>, dated <b>2026-07-07 07:24 IST</b> — <b>4 days ago now</b>. None of these
+    fixes are live on the site while they sit uncommitted, including a genuinely visible SEO defect
+    (wrong-looking product titles like "Buy necklace-sets Online India" for every multi-word
+    category). This automated routine is intentionally never allowed to commit or push on its own —
+    recommend running <code>/deploy-and-verify</code> (or asking Claude in an interactive session) to
+    ship it soon.
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h3>SEO</h3>
+      <div class="stat-row"><span>New findings today</span><b style="color:#a1461a">4 (fixed)</b></div>
+      <div class="stat-row"><span>Re-verified clean</span><b style="color:#1e7a3a">7</b></div>
+      <div class="stat-row"><span>Needs owner call</span><b style="color:#8a6710">0</b></div>
+      <div class="stat-row"><span>Auto-fixed</span><b style="color:#1e7a3a">4 / 4</b></div>
+    </div>
+    <div class="summary-card" style="border-left-color:#385380;">
+      <h3>Security</h3>
+      <div class="stat-row"><span>New findings today</span><b style="color:#385380">3</b></div>
+      <div class="stat-row"><span>Re-verified clean</span><b style="color:#1e7a3a">9</b></div>
+      <div class="stat-row"><span>Auto-fixed</span><b style="color:#1e7a3a">1</b></div>
+      <div class="stat-row"><span>Needs manual action</span><b style="color:#8a6710">2 low</b></div>
+    </div>
+  </div>
+
+  <section>
+    <h2>1. SEO</h2>
+    <p class="section-note">
+      Fresh audit, not a copy of prior reports — re-read every file directly from disk. Found a
+      genuine, previously-missed bug: <code>product.category</code> is a raw URL slug (e.g.
+      <code>necklace-sets</code>, <code>groom-mala</code>) and single-word categories like "Earrings"
+      or "Bangles" happened to look fine either way, which is likely why this had gone unnoticed —
+      multi-word categories were rendering unprettified. All four fixes below share the same root
+      cause and the same fix (<code>categoryLabel()</code> from <code>lib/taxonomy.ts</code>, already
+      used correctly elsewhere on the same pages). <code>npx tsc --noEmit</code> clean after every
+      change; behavior spot-checked against a running dev server.
+    </p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">app/shop/[slug]/page.tsx</td>
+        <td>Raw category slug passed unprettified into <code>productMetadata()</code>, producing
+          real page <code>&lt;title&gt;</code>/meta-description text like <i>"Buy necklace-sets Online
+          India"</i> and <i>"handcrafted necklace-sets"</i> for every multi-word category, and leaking
+          into the <code>keywords</code> array too.</td>
+        <td><span class="pill pill-high">High</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — added
+          <code>categoryLabel(product.category)</code> and used it in <code>productMetadata()</code>
+          and <code>keywords</code>. Verified live: description now reads "...handcrafted
+          <b>Necklace Sets</b> by Sirini Jewellery..."</td>
+      </tr>
+      <tr>
+        <td class="file">app/shop/[slug]/page.tsx</td>
+        <td>Same raw-slug bug in the <code>ProductJsonLd</code> schema.org <code>category</code>
+          field and the <code>BreadcrumbJsonLd</code> third crumb's <code>name</code> — while the
+          <i>visible</i> breadcrumb two lines above already used the prettified label. A
+          structured-data/visible-content mismatch is something Google explicitly flags.</td>
+        <td><span class="pill pill-high">Medium-High</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — both now use
+          <code>categoryLabel(product.category)</code>; the filter-query URL correctly keeps the raw
+          slug. Verified live JSON-LD: <code>"category": "Necklace Sets"</code>.</td>
+      </tr>
+      <tr>
+        <td class="file">app/product-feed.xml/route.ts</td>
+        <td>Google Merchant Center feed's <code>&lt;g:product_type&gt;</code> built as
+          <code>`Jewellery &gt; ${p.category}`</code> — raw slug would show up in Google Shopping
+          listings.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — wrapped with <code>categoryLabel()</code>.
+          Verified live output: <code>Jewellery &gt; Necklace Sets</code>,
+          <code>Jewellery &gt; Finger Rings</code>, <code>Jewellery &gt; Groom Mala</code>.</td>
+      </tr>
+      <tr>
+        <td class="file">app/image-sitemap.xml/route.ts</td>
+        <td><code>&lt;image:caption&gt;</code> built with the raw category slug, affecting Google
+          Image Search snippet text.</td>
+        <td><span class="pill pill-medium">Low-Medium</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — same <code>categoryLabel()</code> wrap.
+          Verified live: "Handcrafted Necklace Sets by Sirini Jewellery, Mumbai".</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Re-verified today by reading current source directly, still correct:</b>
+      <ul>
+        <li><code>lib/seo.ts</code> / all static pages — titles rely on the root layout's
+          <code>title.template</code> ("%s | Sirini Jewellery") for brand suffixing; confirmed against
+          <code>node_modules/next/dist/docs/</code> that this fork's metadata API matches stock
+          Next.js here (child titles are auto-suffixed). No double-branding anywhere.</li>
+        <li><code>lib/seo.ts</code> <code>productMetadata()</code> — 60-char title budget correctly
+          accounts for the appended <code>" | Sirini Jewellery"</code> before falling back to bare
+          <code>product.name</code>.</li>
+        <li><code>app/shop/[slug]/ProductDetailClient.tsx</code> — "Description"/"Details" confirmed
+          H2 under the single product H1, no level skipped.</li>
+        <li><code>components/HeroCarousel.tsx</code> — "slide N of M" alt text only added when
+          multiple slides exist; single-slide case stays clean.</li>
+        <li><code>app/sitemap.ts</code> — <code>/privacy</code> and <code>/terms</code> present,
+          deduped, no per-render timestamps.</li>
+        <li><code>components/ProductJsonLd.tsx</code> — <code>priceValidUntil</code> still
+          <code>`${new Date().getFullYear() + 1}-12-31`</code>, deterministic; no
+          <code>Date.now()</code>/<code>Math.random()</code> anywhere in JSON-LD components,
+          <code>app/sitemap.ts</code>, or <code>app/robots.ts</code> — the ISR-cost-incident fix
+          remains intact.</li>
+        <li><code>app/robots.ts</code> — disallow list matches the real private routes exactly;
+          references both <code>sitemap.xml</code> and <code>image-sitemap.xml</code>, both resolve.</li>
+        <li>Core Web Vitals (note-only) — trimmed Cloudinary <code>deviceSizes</code>/<code>imageSizes</code>
+          and <code>f_auto,q_auto,c_limit</code> still in place; product images set correct
+          <code>sizes</code> attrs; all fonts load via <code>next/font</code> with
+          <code>display: "swap"</code>.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Security</h2>
+    <p class="section-note">
+      Fresh audit, not a copy of prior reports. Re-globbed every <code>app/api/admin/**/route.ts</code>
+      (21 files) against <code>isAdmin</code> occurrences — exact 1:1, and per-file handler count vs
+      <code>isAdmin</code>-check count also matches (no handler slipped through in multi-export
+      files). Found one missed rate limit and flagged two low-severity gaps outside the originally
+      scoped POST/PATCH/DELETE set.
+    </p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">app/api/checkout/verify/route.ts</td>
+        <td>Missing rate limiting. Public, session-optional POST that verifies a Razorpay signature
+          and writes an order. Sibling routes in the same directory (<code>cod</code>,
+          <code>create-order</code>) already got <code>enforceRateLimit()</code> in the staged diff;
+          <code>verify</code> was missed.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — added
+          <code>enforceRateLimit(req, "checkout-verify", 10, 10*60_000)</code> before the signature
+          check, mirroring the existing pattern. <code>tsc --noEmit</code> clean.</td>
+      </tr>
+      <tr>
+        <td class="file">app/api/search/route.ts</td>
+        <td>No rate limit on public GET. Runs 2–3 unindexed <code>contains</code> (ILIKE) Prisma
+          queries per request.</td>
+        <td><span class="pill pill-low">Low</span></td>
+        <td><span class="pill pill-attn">Needs manual action</span> — at 191 products the cost is
+          trivial today. Not fixed: task scope was POST/PATCH/DELETE and <code>lib/rateLimit.ts</code>
+          is documented for public POST endpoints; flagging for awareness rather than expanding the
+          pattern unprompted.</td>
+      </tr>
+      <tr>
+        <td class="file">app/api/pincode/route.ts</td>
+        <td>No rate limit on public GET that proxies an external API (postalpincode.in).</td>
+        <td><span class="pill pill-low">Low</span></td>
+        <td><span class="pill pill-attn">Needs manual action</span> — same reasoning: GET, out of
+          stated scope, low current exploitability.</td>
+      </tr>
+      <tr>
+        <td class="file">npm audit</td>
+        <td>Dependency vulnerabilities.</td>
+        <td><span class="pill pill-low">Info</span></td>
+        <td><span class="pill pill-ok">Unchanged</span> — 0 critical / 0 high / 5 moderate, all
+          transitive inside Next's and Prisma's own bundled dev tooling
+          (<code>@hono/node-server</code>, <code>postcss</code>). Fix requires
+          <code>npm audit fix --force</code> → Next downgrade to 9.x / Prisma to 6.x; not worth it for
+          dev-only, non-runtime findings.</td>
+      </tr>
+      <tr>
+        <td class="file">lib/auth.ts — admin &amp; customer login</td>
+        <td>No rate limiting/lockout on login attempts; admin passwords can be as short as 4
+          characters.</td>
+        <td><span class="pill pill-high">High</span></td>
+        <td><span class="pill pill-attn">Owner-declined accepted risk</span> — explicitly declined by
+          the owner on 2026-07-02. Listed for visibility only, not re-fixed.</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Re-verified today by reading current source directly, still correct:</b>
+      <ul>
+        <li>Admin route auth coverage — 21 route files under <code>app/api/admin/**</code>, 21 contain
+          <code>isAdmin</code>; exact 1:1, and multi-export files' handler counts also match.</li>
+        <li>SQL injection — only <code>$queryRaw</code> usage is
+          <code>app/api/marketing-metrics/route.ts</code>, a tagged template with
+          <code>${since30d}</code> parameterized (Prisma-safe). No <code>$executeRaw</code> anywhere.</li>
+        <li>XSS / <code>dangerouslySetInnerHTML</code> — all 11 JSON-LD emitters escape
+          <code>&lt;</code> via <code>.replace(/&lt;/g, "<")</code>, including the one embedding
+          user-submitted review bodies (<code>ProductJsonLd.tsx</code>). The one non-JSON-LD usage
+          (<code>app/layout.tsx</code> theme-override CSS) is built only from regex-allowlisted
+          hex/rgb/hsl colour values and a whitelisted font key — not user-controllable text.</li>
+        <li><code>lib/auth.ts</code> — JWT sessions; <code>isAdmin</code> sourced from DB via
+          <code>authorize()</code> → <code>jwt</code> → <code>session</code> callbacks, not
+          client-trusted; constant-time dummy-hash <code>bcrypt.compare</code> prevents user
+          enumeration via timing.</li>
+        <li><code>app/api/admin/products/upload/route.ts</code> — <code>isAdmin</code> gated,
+          allowlist excludes <code>image/svg+xml</code> (stored-XSS vector), 5MB cap enforced before
+          upload.</li>
+        <li><code>app/api/webhooks/razorpay/route.ts</code> — raw body read via <code>req.text()</code>
+          (not <code>.json()</code>) so HMAC-SHA256 verification is against the exact signed bytes;
+          <code>crypto.timingSafeEqual</code> with a length check first.</li>
+        <li>IDOR — <code>addresses</code>, <code>addresses/[id]</code>, <code>orders/[id]/cancel</code>,
+          <code>wishlist</code> all scope to <code>session.user.id</code>; ownership explicitly
+          checked (403) before mutation on <code>[id]</code> routes.</li>
+        <li>Rate limiting on public state-changing routes — <code>register</code>,
+          <code>checkout/cod</code>, <code>checkout/create-order</code>, <code>coupon/validate</code>,
+          <code>checkout/verify</code> (new today), plus pre-existing <code>contact</code>,
+          <code>newsletter</code>, <code>reviews/[productId]</code> all carry
+          <code>enforceRateLimit()</code>. <code>checkout/failed</code> (log-only) and
+          <code>webhooks/razorpay</code> (must accept Razorpay's retry cadence) intentionally have
+          none.</li>
+        <li>Secrets exposure — <code>git ls-files | grep -i "\.env\|credentials"</code> returns empty;
+          <code>.gitignore</code> excludes <code>credentials.md</code>. No hardcoded keys found. All
+          <code>NEXT_PUBLIC_*</code> vars in use are legitimately public values.</li>
+        <li>CSRF — all mutating routes require <code>application/json</code> bodies, blocking simple
+          cross-origin form submission; combined with NextAuth v5's default <code>SameSite=Lax</code>
+          session cookie, adequate without a separate CSRF token.</li>
+        <li><code>app/api/cron/daily-digest</code> — timing-safe <code>Authorization: Bearer</code>
+          check against <code>CRON_SECRET</code>; fails closed (401) in production if unset.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    Generated automatically by the daily audit routine · Code fixes are staged locally, not committed or pushed · Report not committed to git.
+  </footer>
+
+</div>
+</body>
+</html>

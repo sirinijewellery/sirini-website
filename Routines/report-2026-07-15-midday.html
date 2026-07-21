@@ -1,0 +1,248 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sirini Jewellery — Daily Audit Report (Midday) — 2026-07-15</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #f4f1ec;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #2b2620;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 20px 16px 48px; }
+  header {
+    background: linear-gradient(135deg, #7a1f2b 0%, #a13345 100%);
+    color: #fdf6ec;
+    padding: 28px 20px;
+    border-radius: 0 0 14px 14px;
+    margin-bottom: 24px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; letter-spacing: 0.02em; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+
+  .alert-banner {
+    background: #eaf1fb;
+    border: 1px solid #c7d9ef;
+    color: #234876;
+    border-radius: 10px;
+    padding: 14px 16px;
+    margin-bottom: 24px;
+    font-size: 0.88rem;
+  }
+  .alert-banner b { display: block; margin-bottom: 4px; font-size: 0.95rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-left: 5px solid #a13345;
+  }
+  .summary-card h3 { margin: 0 0 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; color: #7a1f2b; }
+  .summary-card .stat-row { display: flex; justify-content: space-between; font-size: 0.88rem; padding: 2px 0; }
+  .summary-card .stat-row b { font-weight: 600; }
+
+  section { margin-bottom: 32px; }
+  section h2 {
+    font-size: 1.15rem;
+    border-bottom: 2px solid #d8cdbb;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    color: #4a2a1c;
+  }
+  .section-note { font-size: 0.85rem; color: #6b6156; margin: -6px 0 14px; }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.85rem; min-width: 560px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee6da; vertical-align: top; }
+  th { background: #efe6d8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: #5c4a35; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td.file { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.78rem; color: #5c4a35; white-space: nowrap; }
+
+  .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+  .pill-fixed { background: #dff3e3; color: #1e7a3a; }
+  .pill-ok { background: #dff3e3; color: #1e7a3a; }
+  .pill-attn { background: #fdf1cf; color: #8a6710; }
+  .pill-critical { background: #fbdada; color: #9b1c1c; }
+  .pill-high { background: #fbe4d6; color: #a1461a; }
+  .pill-medium { background: #fdf1cf; color: #8a6710; }
+  .pill-low { background: #e9edf5; color: #385380; }
+
+  .list-clean { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-size: 0.85rem; }
+  .list-clean li { margin-bottom: 6px; }
+
+  footer { text-align: center; font-size: 0.78rem; color: #8a8074; margin-top: 32px; }
+
+  @media (max-width: 480px) {
+    header h1 { font-size: 1.2rem; }
+    table { font-size: 0.78rem; }
+    th, td { padding: 8px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Sirini Jewellery — Daily Audit Report (Midday)</h1>
+    <p>2026-07-15, 12:33 PM IST · SEO &amp; Security review</p>
+  </header>
+
+  <div class="alert-banner">
+    <b>Still no code changes since this morning's report</b>
+    <code>HEAD</code> is still <code>4a93222</code> (2026-07-14 21:37 IST) — the exact commit both the
+    midnight (<code>report-2026-07-15.html</code>) and 5:15 AM (<code>report-2026-07-15-early.html</code>)
+    reports audited. No commits landed in the ~7 hours since. The uncommitted working-tree diff is byte-for-byte
+    the same three files as this morning: the staged <code>app/robots.ts</code> SEO fix, plus unrelated
+    <code>.claude/launch.json</code> and <code>.claude/skills/deploy-and-verify/SKILL.md</code> edits outside
+    this audit's scope. Rather than re-running a full from-scratch audit against an unchanged tree, this run
+    re-verified the load-bearing facts (type-check, dependency audit, live admin-route auth count, the staged
+    fix, the spot-checked open items) and confirms nothing has drifted. Full detailed findings/reasoning remain
+    in the midnight report; this one is the delta.
+  </div>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h3>SEO</h3>
+      <div class="stat-row"><span>New findings today</span><b>0</b></div>
+      <div class="stat-row"><span>Re-verified unchanged</span><b style="color:#1e7a3a">2</b></div>
+      <div class="stat-row"><span>Needs owner call</span><b style="color:#8a6710">2</b></div>
+      <div class="stat-row"><span>Critical/High</span><b>0</b></div>
+    </div>
+    <div class="summary-card" style="border-left-color:#385380;">
+      <h3>Security</h3>
+      <div class="stat-row"><span>New findings today</span><b>0</b></div>
+      <div class="stat-row"><span>Re-verified unchanged</span><b style="color:#1e7a3a">4</b></div>
+      <div class="stat-row"><span>Awaiting owner decision</span><b style="color:#8a6710">1</b></div>
+    </div>
+  </div>
+
+  <section>
+    <h2>1. SEO</h2>
+    <p class="section-note">
+      Tree is identical to the one the midnight report audited in full and the 5:15 AM report re-verified.
+      Re-checked the staged fix is still present and untouched.
+    </p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">app/robots.ts</td>
+        <td><code>/login</code> and <code>/register</code> were crawlable despite having no unique content
+          and already being omitted from the sitemap — inconsistent signal to Google. Fix adds both to
+          <code>disallow</code>.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — confirmed still present in the working tree
+          (<code>git diff --stat</code>: <code>app/robots.ts | 12 +</code>), not yet committed, not
+          overwritten. <code>npx tsc --noEmit</code> re-run clean just now (no errors).</td>
+      </tr>
+      <tr>
+        <td class="file">app/(auth)/login, app/(auth)/register</td>
+        <td>Client components, no <code>metadata</code> export — inherit the generic root title. Cosmetic
+          only; both routes are correctly <code>disallow</code>'d in robots.ts as of the fix above, so this
+          no longer risks indexing a generic-titled page.</td>
+        <td><span class="pill pill-low">Low</span></td>
+        <td><span class="pill pill-attn">Needs owner call</span> — unchanged, informational only.</td>
+      </tr>
+      <tr>
+        <td class="file">components/FAQJsonLd.tsx → app/shop/[slug]/page.tsx</td>
+        <td>FAQPage JSON-LD is injected on product pages without matching visible Q&amp;A content on the
+          product page itself.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-attn">Needs owner call</span> — keep for AI-answer-engine visibility, or
+          remove from product pages? Unchanged open question, carried forward from prior reports.</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Re-verified, still correct — no re-audit needed (unchanged tree):</b>
+      <ul>
+        <li>Metadata, JSON-LD determinism, sitemap/robots (aside from the staged fix above), alt text, and
+          heading hierarchy were audited file-by-file in the midnight report against this exact same commit;
+          nothing since has touched <code>lib/seo.ts</code>, <code>app/sitemap.ts</code>,
+          <code>components/ProductJsonLd.tsx</code>, or any page metadata export.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Security</h2>
+    <p class="section-note">
+      Re-ran the checks that can silently drift even without a commit (type-check, dependency tree, live
+      admin-route count) plus spot-checked the two carried-forward "manual/awaiting owner" items are still
+      described accurately.
+    </p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">lib/auth.ts — admin &amp; customer login</td>
+        <td>No rate limiting/lockout on login attempts; admin passwords can be as short as 4 characters.</td>
+        <td><span class="pill pill-high">High</span></td>
+        <td><span class="pill pill-attn">Awaiting owner</span> — explicitly declined by the owner on
+          2026-07-02. Listed for visibility only.</td>
+      </tr>
+      <tr>
+        <td class="file">api/admin/products/upload/route.ts</td>
+        <td>Admin-gated, 5MB limit, SVG excluded from allowlist — but the type check trusts the
+          client-supplied <code>file.type</code> header (line 26, re-confirmed by direct grep just now), no
+          magic-byte validation.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-attn">Manual</span> — carried forward, unchanged. Not auto-fixed since it
+          touches a working upload path and needs testing.</td>
+      </tr>
+      <tr>
+        <td class="file">app/api/reviews/[productId]/route.ts</td>
+        <td>Reviews publish instantly with no moderation step and feed the homepage "Bestsellers" ranking.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-attn">Pending owner decision</span> — <code>enforceRateLimit(req,
+          "review", 5, 10 * 60_000)</code> remains the only mitigation in place; no approval workflow exists
+          yet.</td>
+      </tr>
+      <tr>
+        <td class="file">npm audit</td>
+        <td>Dependency vulnerabilities.</td>
+        <td><span class="pill pill-low">Info</span></td>
+        <td><span class="pill pill-ok">Unchanged</span> — fresh run just now: 0 critical / 0 high / 5
+          moderate / 0 low (identical counts to every prior run today). All 5 remain transitive dev-tooling
+          (Prisma CLI's <code>@hono/node-server</code>, Next's bundled <code>postcss</code>); fixing needs
+          <code>npm audit fix --force</code> → a breaking Prisma/Next downgrade, not worth it.</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Re-verified clean today, no action needed:</b>
+      <ul>
+        <li><code>app/api/admin/*</code> — re-counted from disk just now: 21 route files under
+          <code>app/api/admin</code>, all 21 still reference <code>isAdmin</code>
+          (<code>grep -rL "isAdmin" app/api/admin --include=route.ts</code> returned zero files). No gap
+          opened.</li>
+        <li>No files changed in the working tree since the 5:15 AM report except what was already staged
+          there (<code>app/robots.ts</code> SEO fix, plus unrelated owner-side edits to
+          <code>.claude/launch.json</code> and <code>.claude/skills/deploy-and-verify/SKILL.md</code> that
+          are outside this audit's scope). No new API routes, no new client-exposed env vars, no new
+          <code>dangerouslySetInnerHTML</code> usage introduced.</li>
+        <li><code>npx tsc --noEmit</code> passes clean against the current working tree.</li>
+      </ul>
+    </div>
+  </section>
+
+  <footer>
+    Generated automatically by the daily audit routine · <code>app/robots.ts</code> fix is still staged
+    locally, not committed or pushed · Report not committed to git.
+  </footer>
+
+</div>
+</body>
+</html>

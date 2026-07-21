@@ -1,0 +1,178 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report — 2026-07-06</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f1ee;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#2b241f;">
+<div style="max-width:760px;margin:0 auto;padding:16px;">
+
+  <div style="background:linear-gradient(135deg,#3a2e26,#5c4735);border-radius:12px;padding:24px 20px;margin-bottom:20px;color:#fff;">
+    <h1 style="margin:0 0 6px 0;font-size:22px;letter-spacing:0.3px;">Sirini Jewellery — Daily Audit Report</h1>
+    <p style="margin:0;font-size:14px;opacity:0.85;">2026-07-06 · automated run · sirinijewellery.com</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 12px 0;font-size:16px;color:#5c4735;">Summary</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="text-align:left;color:#8a7f74;">
+        <th style="padding:4px 6px;">Section</th>
+        <th style="padding:4px 6px;">Findings</th>
+        <th style="padding:4px 6px;">Auto-fixed</th>
+        <th style="padding:4px 6px;">Needs owner action</th>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">SEO</td>
+        <td style="padding:6px;">1 (informational — pre-existing WIP)</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span> — nothing broken to fix</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span></td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Security</td>
+        <td style="padding:6px;">2 (both standing carry-overs)</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span></td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">0 new</span></td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Gmail (24h)</td>
+        <td style="padding:6px;">2 threads scanned</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">1</span> low-priority glance</td>
+      </tr>
+    </table>
+    <p style="margin:14px 0 0 0;font-size:12.5px;color:#8a7f74;">
+      <b>No code changes were made this run.</b> Both SEO and security surfaces were re-audited in full
+      (sitemap, robots.txt, metadata helpers, JSON-LD determinism, image alt text, heading hierarchy,
+      admin auth gates, input validation, XSS/CSRF, secrets exposure, file upload, rate limiting,
+      <code>npm audit</code>) and found consistent with the deep reviews on 2026-07-02/03 and every
+      audit since — nothing new to fix. <code>npx tsc --noEmit</code> ran clean.
+    </p>
+    <p style="margin:10px 0 0 0;font-size:12.5px;color:#8a7f74;">
+      The working tree still has the same unrelated in-progress edits from another session first noticed
+      on 2026-07-05: heading-level fix in <code>ProductDetailClient.tsx</code> (h3→h2, verified correct —
+      product name is the page's only <code>&lt;h1&gt;</code>), hero alt-text improvements in
+      <code>HeroCarousel.tsx</code>, OG-image dimensions in <code>lib/seo.ts</code>, and Open Graph/Twitter/
+      canonical tags added to <code>/world</code>'s <code>public/world.html</code>. These are all sound,
+      safe SEO improvements — reviewed again this run and left untouched (not committed or staged by this
+      audit), awaiting the owner's review before committing.
+    </p>
+  </div>
+
+  <!-- SEO -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">1. SEO Audit</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Full pass across <code>lib/seo.ts</code>, <code>app/sitemap.ts</code>, <code>app/robots.ts</code>,
+      <code>app/layout.tsx</code>, <code>components/ProductJsonLd.tsx</code>, every page's metadata
+      helper, image <code>alt</code> text on hero/product/category components, heading hierarchy on
+      every public page, and internal linking / breadcrumbs. Also checked the two commits landed since
+      the last audit (<code>2849c12</code> raw-original-to-crawlers fix, <code>2b5795a</code> <code>/world</code>
+      portal) for any SEO regression.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Finding</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>lib/seo.ts</code>, <code>components/ProductJsonLd.tsx</code> (committed <code>2849c12</code>)</td>
+        <td style="padding:6px;">Product OG images and JSON-LD <code>image</code> now route through <code>botImageUrl()</code> (<code>lib/cdnImage.ts</code>) instead of serving raw multi-MB Cloudinary originals to crawlers/social scrapers — verified the derivative URLs are deterministic (fixed transform string, no per-render randomness), so ISR write-cost discipline holds.</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Verified good, already shipped</span></td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Verified clean, no action needed:</b> <code>app/sitemap.ts</code> covers home/shop/blog/static +
+          every product slug + faceted taxonomy URLs with deterministic <code>lastModified</code>;
+          <code>app/robots.ts</code> disallows <code>/admin/</code>, <code>/api/</code>, <code>/cart</code>,
+          <code>/checkout</code>, <code>/account</code>, <code>/wishlist</code>, <code>/order-confirmation</code>
+          and references both XML feeds; <code>ProductJsonLd.tsx</code>'s <code>priceValidUntil</code> stays
+          the deterministic <code>${'{'}year+1{'}'}-12-31</code> string (no <code>Date.now()</code> regression);
+          every public page carries exactly one <code>&lt;h1&gt;</code>; hero/category/product-card/gallery
+          images all have descriptive alt text; canonical URLs set on home, shop, every product page, and now
+          <code>/world</code> too.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- SECURITY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">2. Security Review</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Verified all <code>/api/admin/*</code> route files still gate on <code>isAdmin</code>; confirmed none
+      of the 5 commits since the last audit (<code>eb734e4</code>…<code>b853b59</code>) touch an API route,
+      auth file, or upload handler — the diff is confined to image/SEO/CDN plumbing and the new
+      <code>/world</code> static page. Re-read the new <code>scripts/compress-existing-originals.ts</code>
+      (Cloudinary bulk-recompress tool): reads asset metadata from Cloudinary's own API (not user input),
+      gated behind an <code>EXECUTE=1</code> env var, no path/command construction from untrusted input —
+      no injection surface. Re-ran <code>npm audit</code>.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Issue</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">No rate limiting on public POST routes (<code>/api/contact</code>, <code>/api/newsletter</code>, <code>/api/auth/register</code>, <code>/api/reviews/[productId]</code>, <code>/api/checkout/cod</code>)</td>
+        <td style="padding:6px;">Unchanged carry-over from HANDOFF.md's pending decision #2 (Upstash free-tier rate limiting). No new exposure this run.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Owner decision pending</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>package-lock.json</code> (<code>npm audit</code>)</td>
+        <td style="padding:6px;">5 moderate, 0 high/critical — <code>@hono/node-server</code> (path bypass, via <code>@prisma/dev</code>) and <code>postcss</code> (CSS-stringify XSS, bundled inside <code>next</code>), both dev-only/transitive, not reachable at runtime. Fix requires major-version downgrades of Prisma/Next, which <code>AGENTS.md</code> says not to do casually.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium (dev-only)</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">No action recommended</span></td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Verified clean, no action needed:</b> every admin API route checks
+          <code>session?.user?.isAdmin</code> before any Prisma call; no raw SQL string-interpolation
+          anywhere; all <code>dangerouslySetInnerHTML</code> sites are <code>&lt;</code>-escaped JSON-LD or
+          the whitelist-sanitized theme <code>&lt;style&gt;</code>; <code>lib/auth.ts</code> uses JWT
+          sessions, bcrypt (cost 12), constant-time dummy-hash compare; upload route enforces MIME allowlist
+          (SVG excluded), 5&nbsp;MB cap, server-generated filenames; no secret env var reachable from any
+          client component or <code>NEXT_PUBLIC_*</code> var; cron digest route still fails closed (401)
+          when <code>CRON_SECRET</code> is unset. Standing owner-deferred items unchanged: admin-login rate
+          limiting/password policy (owner declined 2026-07-02), review moderation queue (pending decision #1).
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- GMAIL -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">3. Gmail Check (last 24h)</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Scanned <code>sirinijewellery@gmail.com</code> inbox, 2026-07-05 03:20 → 2026-07-06 IST. Quiet day —
+      only 2 threads, no customer inquiries, order issues, or infra alerts (Vercel/Neon/Cloudinary/Razorpay)
+      landed in the window. Also widened the search 48h back for infra/order/domain keywords specifically —
+      the only hit (Neon changelog newsletter, Jul 3) was outside the window and non-actionable.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">Subject</th><th style="padding:6px;">Sender</th><th style="padding:6px;">Date</th><th style="padding:6px;">Recommended action</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">Sirini Jewellery Manufacturers, make sure your Business Profile is up to date</td>
+        <td style="padding:6px;"><code>businessprofile-noreply@google.com</code></td>
+        <td style="padding:6px;">Jul 5, 2:08 PM</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Low-priority glance</span> — routine Google Business Profile nudge to confirm listing details (hours, address, phone). Not urgent, but a quick check costs nothing and Google Business Profile visibility feeds local-search SEO.</td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Skipped (newsletter/promo):</b> Tripo3D "Level Up Your 3D Printing Workflow" marketing email
+          (Jul 5, 3:20 AM) — no action.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div style="text-align:center;font-size:11px;color:#a89b8c;padding:8px 0 20px;">
+    Generated automatically · scheduled task <code>daily-sirini-audit</code> · no commits or pushes made this run
+  </div>
+
+</div>
+</body>
+</html>

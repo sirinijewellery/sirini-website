@@ -1,0 +1,283 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8" />
+<meta name="viewport" content="width=device-width, initial-scale=1.0" />
+<title>Sirini Jewellery — Daily Audit Report — 2026-07-07</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 0;
+    background: #f4f1ec;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    color: #2b2620;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; padding: 20px 16px 48px; }
+  header {
+    background: linear-gradient(135deg, #7a1f2b 0%, #a13345 100%);
+    color: #fdf6ec;
+    padding: 28px 20px;
+    border-radius: 0 0 14px 14px;
+    margin-bottom: 24px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; letter-spacing: 0.02em; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.95rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(220px, 1fr));
+    gap: 12px;
+    margin-bottom: 28px;
+  }
+  .summary-card {
+    background: #fff;
+    border-radius: 10px;
+    padding: 14px 16px;
+    box-shadow: 0 1px 3px rgba(0,0,0,0.08);
+    border-left: 5px solid #a13345;
+  }
+  .summary-card h3 { margin: 0 0 8px; font-size: 0.95rem; text-transform: uppercase; letter-spacing: 0.04em; color: #7a1f2b; }
+  .summary-card .stat-row { display: flex; justify-content: space-between; font-size: 0.88rem; padding: 2px 0; }
+  .summary-card .stat-row b { font-weight: 600; }
+
+  section { margin-bottom: 32px; }
+  section h2 {
+    font-size: 1.15rem;
+    border-bottom: 2px solid #d8cdbb;
+    padding-bottom: 8px;
+    margin-bottom: 14px;
+    color: #4a2a1c;
+  }
+  .section-note { font-size: 0.85rem; color: #6b6156; margin: -6px 0 14px; }
+
+  .table-scroll { overflow-x: auto; -webkit-overflow-scrolling: touch; border-radius: 10px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.85rem; min-width: 560px; }
+  th, td { text-align: left; padding: 10px 12px; border-bottom: 1px solid #eee6da; vertical-align: top; }
+  th { background: #efe6d8; font-size: 0.75rem; text-transform: uppercase; letter-spacing: 0.03em; color: #5c4a35; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  td.file { font-family: "SFMono-Regular", Consolas, monospace; font-size: 0.78rem; color: #5c4a35; white-space: nowrap; }
+
+  .pill { display: inline-block; padding: 3px 9px; border-radius: 999px; font-size: 0.72rem; font-weight: 600; white-space: nowrap; }
+  .pill-fixed { background: #dff3e3; color: #1e7a3a; }
+  .pill-ok { background: #dff3e3; color: #1e7a3a; }
+  .pill-attn { background: #fdf1cf; color: #8a6710; }
+  .pill-critical { background: #fbdada; color: #9b1c1c; }
+  .pill-high { background: #fbe4d6; color: #a1461a; }
+  .pill-medium { background: #fdf1cf; color: #8a6710; }
+  .pill-low { background: #e9edf5; color: #385380; }
+
+  .list-clean { background: #fff; border-radius: 10px; padding: 14px 18px; box-shadow: 0 1px 3px rgba(0,0,0,0.08); font-size: 0.85rem; }
+  .list-clean li { margin-bottom: 6px; }
+
+  footer { text-align: center; font-size: 0.78rem; color: #8a8074; margin-top: 32px; }
+
+  @media (max-width: 480px) {
+    header h1 { font-size: 1.2rem; }
+    table { font-size: 0.78rem; }
+    th, td { padding: 8px 8px; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Sirini Jewellery — Daily Audit Report</h1>
+    <p>2026-07-07 · SEO, Security &amp; Inbox review</p>
+  </header>
+
+  <div class="summary-grid">
+    <div class="summary-card">
+      <h3>SEO</h3>
+      <div class="stat-row"><span>Findings</span><b>5</b></div>
+      <div class="stat-row"><span>Auto-fixed</span><b style="color:#1e7a3a">3</b></div>
+      <div class="stat-row"><span>Needs owner call</span><b style="color:#8a6710">2</b></div>
+      <div class="stat-row"><span>Critical/High</span><b>0</b></div>
+    </div>
+    <div class="summary-card" style="border-left-color:#385380;">
+      <h3>Security</h3>
+      <div class="stat-row"><span>Findings</span><b>4</b></div>
+      <div class="stat-row"><span>Auto-fixed</span><b style="color:#1e7a3a">1</b></div>
+      <div class="stat-row"><span>Verified OK</span><b style="color:#1e7a3a">1</b></div>
+      <div class="stat-row"><span>Awaiting owner decision</span><b style="color:#8a6710">2</b></div>
+    </div>
+    <div class="summary-card" style="border-left-color:#8a6710;">
+      <h3>Gmail (24h)</h3>
+      <div class="stat-row"><span>Threads scanned</span><b>9</b></div>
+      <div class="stat-row"><span>Actionable</span><b style="color:#1e7a3a">0</b></div>
+      <div class="stat-row"><span>Skipped (promo/bank/personal)</span><b>9</b></div>
+    </div>
+  </div>
+
+  <section>
+    <h2>1. SEO</h2>
+    <p class="section-note">Code changes are staged in the working tree, not committed — review and push via <code>/deploy-and-verify</code> when ready. <code>npx tsc --noEmit</code> is clean.</p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">lib/seo.ts:205</td>
+        <td>Product page OG image was declared 800×800 but the actual Cloudinary crop is portrait (960×1200) — mismatched dimensions can make social platforms crop/letterbox the share image.</td>
+        <td><span class="pill pill-low">Low</span></td>
+        <td><span class="pill pill-fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td class="file">components/HeroCarousel.tsx:84-101</td>
+        <td>Hero slide images all shared identical alt text with no way to distinguish slides for screen-reader users when multiple slides exist.</td>
+        <td><span class="pill pill-low">Low</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — now appends "slide N of M" when &gt;1 slide (no-op today; site currently runs 1 hero slide).</td>
+      </tr>
+      <tr>
+        <td class="file">app/shop/[slug]/ProductDetailClient.tsx:262,272</td>
+        <td>"Description" and "Details" section labels used &lt;h3&gt; directly under the &lt;h1&gt; product name with no &lt;h2&gt; in between, breaking heading hierarchy.</td>
+        <td><span class="pill pill-low">Low</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — promoted to &lt;h2&gt;.</td>
+      </tr>
+      <tr>
+        <td class="file">app/shop/[slug]/page.tsx:215 (FAQJsonLd)</td>
+        <td>Site-wide FAQPage JSON-LD is injected identically on all ~191 product pages, but none of that Q&amp;A content is visibly rendered on the product page — violates Google's "structured data must match visible content" guideline, and Google has restricted FAQ rich results mostly to authoritative sites since Aug 2023, so it likely earns no rich-result benefit today.</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-attn">Needs owner call</span> — keep for AI-answer-engine visibility, or remove from product pages?</td>
+      </tr>
+      <tr>
+        <td class="file">app/page.tsx:32-36 / lib/seo.ts:108</td>
+        <td>Homepage's Open Graph title renders as "Sirini Jewellery — Handcrafted Fashion Jewellery | Sirini Jewellery" — redundant double-brand string on the homepage's social share card.</td>
+        <td><span class="pill pill-low">Low</span></td>
+        <td><span class="pill pill-attn">Needs owner call</span> — cosmetic; fix requires a homepage-specific override in <code>pageMetadata()</code>.</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Verified clean, no action needed:</b>
+      <ul>
+        <li>All JSON-LD (Product, Breadcrumb, Organization, LocalBusiness, WebSite, FAQ) is fully deterministic — no <code>Date.now()</code>/<code>Math.random()</code> anywhere in ISR-rendered output (the earlier ISR-write-cost incident is not reproduced).</li>
+        <li><code>app/sitemap.ts</code>, <code>app/robots.ts</code>, <code>image-sitemap.xml</code>, <code>product-feed.xml</code> all correct — proper disallow rules for admin/api/cart/checkout, deterministic lastmod, deduped URLs.</li>
+        <li>Canonical URLs correct site-wide, including facet/filter pages (self-canonicalized or noindex,follow to avoid thin content).</li>
+        <li>Exactly one &lt;h1&gt; on every public template; no skipped heading levels.</li>
+        <li>All public-facing images have descriptive alt text (only empty alts are in noindexed admin-only editor previews).</li>
+        <li>Internal linking (breadcrumbs, related products, category cross-links) present throughout.</li>
+        <li>Core Web Vitals: <code>preload</code> correctly limited to first/active images, <code>sizes</code> present on all <code>fill</code> images, fonts use <code>next/font</code> with <code>display: swap</code>, Cloudinary preconnect in place.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>2. Security</h2>
+    <p class="section-note">Scope: delta review since the 2026-07-02/03 full review documented in <code>REVIEW-FINDINGS.md</code> — re-verifying rather than repeating that pass. One fix staged, not committed.</p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Issue</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td class="file">app/api/marketing-metrics/route.ts:9-12</td>
+        <td>New key-authed marketing API compared the API key with plain <code>===</code> instead of a constant-time comparison, inconsistent with the codebase's own pattern in the cron route — theoretically leaks key match-length via response timing.</td>
+        <td><span class="pill pill-low">Low</span></td>
+        <td><span class="pill pill-fixed">Fixed</span> — now uses <code>timingSafeEqual</code> + fails closed if the env var is unset.</td>
+      </tr>
+      <tr>
+        <td class="file">npm audit</td>
+        <td>Baseline from the last review was 0 critical / 2 high / 6 moderate / 1 low (transitive <code>form-data</code> + <code>hono</code> advisories).</td>
+        <td><span class="pill pill-low">Info</span></td>
+        <td><span class="pill pill-ok">OK</span> — now 0 critical / 0 high / 5 moderate / 0 low. Confirmed <code>npm audit fix</code> was already applied (commit <code>ef4a853</code>); remaining 5 moderate are inside Next/Prisma's own bundled dev tooling, not fixable without a major downgrade, not exploitable at runtime.</td>
+      </tr>
+      <tr>
+        <td class="file">lib/auth.ts, admin password policy</td>
+        <td>No rate limiting or lockout on admin login; admin passwords can be as short as 4 characters.</td>
+        <td><span class="pill pill-high">High</span></td>
+        <td><span class="pill pill-attn">Awaiting owner</span> — explicitly declined by the owner on 2026-07-02; not re-flagged as new, listed for visibility only.</td>
+      </tr>
+      <tr>
+        <td class="file">app/api/reviews/[productId]/route.ts</td>
+        <td>Reviews publish instantly with no moderation and directly drive the homepage "Bestsellers" ranking; no rate limiting on public forms (reviews, contact, newsletter, coupon-validate, COD checkout).</td>
+        <td><span class="pill pill-medium">Medium</span></td>
+        <td><span class="pill pill-attn">Pending owner decision</span> — unchanged since last review.</td>
+      </tr>
+    </table>
+    </div>
+    <div class="list-clean" style="margin-top:14px;">
+      <b>Verified clean, no action needed:</b>
+      <ul>
+        <li>All 21 <code>/api/admin/*</code> route files (including the newest, <code>admin/messages/[id]</code>) check <code>auth()</code> + <code>isAdmin</code> on every handler.</li>
+        <li><code>CRON_SECRET</code> guard still fails closed (401) in production when unset, uses <code>timingSafeEqual</code>, and no longer leaks revenue data — matches HANDOFF.md.</li>
+        <li>New <code>marketing-metrics</code> endpoint returns only aggregates (no PII), key is gitignored and not referenced client-side, uses Prisma's parameterized <code>$queryRaw</code> tagged template (no SQL injection).</li>
+        <li>New <code>sirini-world/</code> and <code>sfj-world/</code> static 3D-experience projects: local-only preview servers include a path-traversal guard, are not wired into the deployed Next.js app or Vercel build.</li>
+        <li><code>/world</code> route (WorldPortal + public/world.html) is static client-side WebGL/animation code — no forms, no embedded secrets.</li>
+        <li>No <code>.env</code> / <code>.env.local</code> tracked in git; no server secrets reachable from client bundles.</li>
+        <li>Rate limiting remains absent across all public endpoints (login, register, reviews, contact, newsletter, coupon-validate, COD checkout) — confirmed unchanged, correctly not "fixed" since it's the owner's deferred decision, not a bug.</li>
+      </ul>
+    </div>
+  </section>
+
+  <section>
+    <h2>3. Gmail — sirinijewellery@gmail.com</h2>
+    <p class="section-note">Searched all threads from the last 24 hours (9 total). None required action.</p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>Subject</th><th>Sender</th><th>Date</th><th>Recommended action</th></tr>
+      <tr>
+        <td>Get started with your new Analytics account</td>
+        <td class="file">analytics-noreply@google.com</td>
+        <td>Jul 6, 17:29</td>
+        <td>None — GA4 onboarding email, optional to review at leisure.</td>
+      </tr>
+      <tr>
+        <td>❗ You have done a UPI txn. Check details!</td>
+        <td class="file">alerts@hdfcbank.bank.in</td>
+        <td>Jul 6, 17:04</td>
+        <td>None — personal bank alert (₹332 UPI debit), not business-related.</td>
+      </tr>
+      <tr>
+        <td>(no subject — 6 photo attachments)</td>
+        <td class="file">sirinijewellery123@gmail.com</td>
+        <td>Jul 6, 12:55</td>
+        <td>None — appears to be the owner's own second account emailing product photos to self ("Sent from my iPhone"). Confirm if unexpected.</td>
+      </tr>
+      <tr>
+        <td>(no subject — 1 photo attachment)</td>
+        <td class="file">sirinijewellery123@gmail.com</td>
+        <td>Jul 6, 12:41</td>
+        <td>None — same as above, self-sent product photo.</td>
+      </tr>
+      <tr>
+        <td>Your category is in the top 10% on Justdial</td>
+        <td class="file">noreply@justdial.com</td>
+        <td>Jul 6, 11:05</td>
+        <td>None — marketing/engagement notification.</td>
+      </tr>
+      <tr>
+        <td>Credit card debit alerts (5 messages, ₹70–₹499 each)</td>
+        <td class="file">alerts@hdfcbank.bank.in</td>
+        <td>Jul 6, 11:05–13:23</td>
+        <td>None — personal HDFC credit card charges (food/local merchants), not store-related. Worth a quick glance only if unrecognized.</td>
+      </tr>
+      <tr>
+        <td>Pre-Approved for Debit Card &amp; Cardless EMI</td>
+        <td class="file">no-reply@rmp.flipkart.com</td>
+        <td>Jul 6, 10:45</td>
+        <td>None — promotional.</td>
+      </tr>
+      <tr>
+        <td>Shiprocket SHIVIR 2026 event invite</td>
+        <td class="file">update@shiprocket.in</td>
+        <td>Jul 6, 10:34</td>
+        <td>None — promotional/event invite.</td>
+      </tr>
+      <tr>
+        <td>Clean Low-Poly Mesh in 2 Seconds</td>
+        <td class="file">news@email.tripo3d.ai</td>
+        <td>Jul 6, 03:54</td>
+        <td>None — newsletter (relevant only if doing more 3D-world asset work).</td>
+      </tr>
+    </table>
+    </div>
+    <p class="section-note" style="margin-top:10px;">No customer inquiries, order issues, or Vercel/Neon/Cloudinary/Razorpay/domain alerts in this window.</p>
+  </section>
+
+  <footer>
+    Generated automatically by the daily audit routine · Code fixes are staged locally, not committed or pushed · Report not committed to git.
+  </footer>
+
+</div>
+</body>
+</html>

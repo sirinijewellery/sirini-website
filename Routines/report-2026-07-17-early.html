@@ -1,0 +1,290 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report (Early Morning)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 16px;
+    background: #FAF7F4;
+    color: #2A2320;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #7A1F3D, #9C2A4E);
+    color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid #ECE3DC;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat .n { font-size: 1.5rem; font-weight: 700; display: block; }
+  .stat .l { font-size: 0.75rem; color: #6b5f57; text-transform: uppercase; letter-spacing: 0.03em; }
+  .stat.fixed .n { color: #1a7f3c; }
+  .stat.manual .n { color: #a8710a; }
+  .stat.crit .n { color: #b32020; }
+
+  section { margin-bottom: 32px; }
+  h2 {
+    font-size: 1.15rem;
+    border-bottom: 2px solid #7A1F3D;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    color: #7A1F3D;
+  }
+  .table-scroll { overflow-x: auto; border: 1px solid #ECE3DC; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.82rem; min-width: 560px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #F0E9E3; vertical-align: top; }
+  th { background: #F7F1EC; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: #6b5f57; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  code { background: #F3ECE6; padding: 1px 5px; border-radius: 4px; font-size: 0.78em; word-break: break-all; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge.ok { background: #E4F5E8; color: #1a7f3c; }
+  .badge.fixed { background: #E4F5E8; color: #1a7f3c; }
+  .badge.manual { background: #FFF3D6; color: #8a5a00; }
+  .badge.critical { background: #FBE2E2; color: #b32020; }
+  .badge.high { background: #FDE8D6; color: #b0530a; }
+  .badge.medium { background: #FFF3D6; color: #8a5a00; }
+  .badge.low { background: #EFF3EA; color: #4b6b3d; }
+
+  .note {
+    background: #F7F1EC;
+    border-left: 3px solid #7A1F3D;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-top: 14px;
+  }
+  .note.warn { border-left-color: #a8710a; background: #FFF3D6; }
+  footer { text-align: center; color: #9a8d84; font-size: 0.75rem; margin-top: 20px; }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #17130f; color: #EDE6DF; }
+    .stat, table { background: #221c17; }
+    .stat, .table-scroll { border-color: #362c24; }
+    th { background: #2a231d; color: #b8a99c; }
+    td { border-bottom-color: #2a231d; }
+    code { background: #2a231d; }
+    .note { background: #2a231d; }
+    .note.warn { background: #33270f; }
+    h2 { color: #e7a9bd; border-bottom-color: #9C2A4E; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Sirini Jewellery — Daily Audit Report (Early Morning)</h1>
+    <p>2026-07-17 · SEO/AEO/GEO + Code Bug audit</p>
+  </header>
+
+  <div class="summary-grid">
+    <div class="stat"><span class="n">17</span><span class="l">Areas checked</span></div>
+    <div class="stat fixed"><span class="n">3</span><span class="l">New fixes today</span></div>
+    <div class="stat manual"><span class="n">3</span><span class="l">Needs owner action</span></div>
+    <div class="stat"><span class="n">11</span><span class="l">Verified OK</span></div>
+  </div>
+
+  <div class="note warn">
+    <strong>Heads up:</strong> the 8 files fixed across earlier sessions this week
+    (rate limits on <code>checkout/failed</code> + <code>search</code>, hero image
+    loading fix, stray FAQ schema removal, meta-description/title trims, robots.txt
+    additions) are <strong>still sitting staged and uncommitted</strong> — this is now
+    the <strong>fourth</strong> consecutive daily audit run to find them unchanged in the
+    working tree. Today's 3 new rate-limit fixes (below) have been added to that same
+    staged pile. Nothing in this batch has shipped to the live site yet. Worth a few
+    minutes to <code>git diff --cached</code>, review, and commit + push.
+  </div>
+
+  <section>
+    <h2>SEO, AEO &amp; GEO</h2>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>File</th><th>Item</th><th>Severity</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>app/llms.txt/route.ts</code></td>
+          <td>Re-checked the AI-crawler map (llmstxt.org convention): brand, city, founding year,
+              materials, audience, and category links are all still present, plainly stated, and
+              deterministic (no per-request randomness) — exactly what GEO engines (ChatGPT,
+              Perplexity, Google AI Overviews) need to extract and cite without guessing.</td>
+          <td><span class="badge low">Low</span></td>
+          <td><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><code>app/robots.ts</code></td>
+          <td>Confirmed the <code>/login</code> + <code>/register</code> disallow entries added
+              earlier this week are still present in the working tree, still matching those pages'
+              own <code>noindex</code> metadata — no disallow/noindex contradiction anywhere on site.</td>
+          <td>—</td>
+          <td><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><code>components/FAQJsonLd.tsx</code></td>
+          <td>Verified the stray duplicate FAQ schema removed from the product-detail page earlier
+              this week is genuinely dead there (grepped the whole tree) — the component is still
+              correctly imported and rendered on its one real home, <code>app/faq/page.tsx</code>.
+              No orphaned import, no duplicate schema competing for the same rich-result slot.</td>
+          <td>—</td>
+          <td><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><code>lib/seo.ts</code></td>
+          <td>Reviewed <code>baseMetadata()</code>, <code>pageMetadata()</code> and
+              <code>productMetadata()</code> end to end: Open Graph + Twitter Card fields fully
+              populated on every path, canonical URL logic deliberately ignores misconfigured
+              <code>*.vercel.app</code> env values in favour of the real domain, and product meta
+              descriptions are built unique-per-product (name + category + price lead) rather than
+              from the ~5 repeating template variants — avoids duplicate-content meta descriptions
+              across similar products, a real SEO trap at 191 SKUs.</td>
+          <td>—</td>
+          <td><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><code>prisma/schema.prisma</code> (<code>HeroSlide</code>) +
+              <code>components/HeroCarousel.tsx</code></td>
+          <td>Repeat finding, unchanged: <code>HeroSlide</code> has no <code>alt</code>/caption
+              column, so the hero image's alt text is a hardcoded generic string rather than
+              something the owner can tailor per slide from <code>/admin/hero</code>. Needs a
+              schema migration (<code>npx prisma db push</code>) against the live Neon database
+              plus an admin-form field — deliberately out of scope for an unattended fix since it
+              touches production data.</td>
+          <td><span class="badge low">Low</span></td>
+          <td><span class="badge manual">Needs action</span></td>
+        </tr>
+        <tr>
+          <td>Sitewide</td>
+          <td>No new SEO/AEO/GEO regressions found. Sitemap coverage, JSON-LD escaping,
+              image alt-text completeness, and heading hierarchy were swept exhaustively in the
+              last two runs and nothing in the codebase touched those areas since — re-confirmed
+              spot-checks (FAQ schema location, llms.txt, robots.ts, lib/seo.ts above) all matched
+              the prior findings with no drift.</td>
+          <td>—</td>
+          <td><span class="badge ok">OK</span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Code Bugs &amp; Security</h2>
+    <div class="table-scroll">
+    <table>
+      <thead><tr><th>File / Area</th><th>Issue</th><th>Severity</th><th>Status</th></tr></thead>
+      <tbody>
+        <tr>
+          <td><code>app/api/addresses/route.ts</code>,<br><code>app/api/wishlist/route.ts</code>,<br>
+              <code>app/api/orders/[id]/cancel/route.ts</code></td>
+          <td>These 3 authenticated mutation routes had no <code>enforceRateLimit</code> call,
+              flagged as a low-severity gap by the previous run. Added the same fixed-window
+              limiter used on <code>search</code>/<code>checkout/failed</code>: 20 req/10min on
+              addresses and order-cancel, 30 req/10min on wishlist add/remove (higher, since
+              browsing quickly toggles wishlist state). Re-ran <code>npx tsc --noEmit</code> after
+              the change — clean.</td>
+          <td><span class="badge low">Low</span></td>
+          <td><span class="badge fixed">Fixed</span></td>
+        </tr>
+        <tr>
+          <td><code>npx tsc --noEmit</code></td>
+          <td>Ran clean against the full working tree, including today's 3 new fixes. No type
+              errors.</td>
+          <td>—</td>
+          <td><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td>All 21 routes under <code>app/api/admin/**/route.ts</code></td>
+          <td>Scripted re-check: every admin route file still contains an <code>isAdmin</code>
+              guard. No unguarded admin route found.</td>
+          <td>—</td>
+          <td><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td><code>npm audit</code> — <code>postcss</code> (bundled transitively via
+              <code>next/node_modules/postcss</code>) and <code>@hono/node-server</code>
+              (via <code>@prisma/dev</code>)</td>
+          <td>Same 2 moderate advisories as every prior run this week (PostCSS stringify XSS,
+              CVSS 6.1). Both are build-time/dev tooling only — not shipped to the browser or the
+              production server. <code>npm audit fix --force</code> would downgrade Next 16→9 and
+              Prisma 7→6, both major breaking changes. Not safe to apply unattended; needs an
+              owner-scheduled major-version upgrade instead.</td>
+          <td><span class="badge medium">Medium</span></td>
+          <td><span class="badge manual">Needs action</span></td>
+        </tr>
+        <tr>
+          <td><code>app/api/auth/[...nextauth]/route.ts</code></td>
+          <td>No brute-force throttle on login attempts. Unchanged since 2026-07-02 — the owner
+              explicitly declined this hardening at the time. Re-noted for the record only.</td>
+          <td><span class="badge low">Low</span></td>
+          <td><span class="badge manual">Declined</span></td>
+        </tr>
+        <tr>
+          <td>Raw SQL audit</td>
+          <td>Grepped for <code>$queryRaw</code> / <code>$executeRaw</code> across
+              <code>lib/</code> and <code>app/api/</code> — none found. All data access goes
+              through Prisma's parameterized query builder.</td>
+          <td>—</td>
+          <td><span class="badge ok">OK</span></td>
+        </tr>
+        <tr>
+          <td>Uncommitted working-tree diff</td>
+          <td>10 files now staged (7 carried over from earlier sessions this week + today's 3
+              rate-limit fixes): <code>app/api/checkout/failed/route.ts</code>,
+              <code>app/api/search/route.ts</code>, <code>app/api/addresses/route.ts</code>,
+              <code>app/api/wishlist/route.ts</code>, <code>app/api/orders/[id]/cancel/route.ts</code>,
+              <code>app/blog/page.tsx</code>, <code>app/faq/page.tsx</code>,
+              <code>app/shop/[slug]/page.tsx</code>, <code>components/HeroCarousel.tsx</code>,
+              <code>public/world.html</code>. All verified today to still type-check and be
+              correct. <code>app/robots.ts</code>, <code>.claude/launch.json</code> and
+              <code>.claude/skills/deploy-and-verify/SKILL.md</code> remain unstaged
+              (unrelated dev-tooling / earlier edits from other sessions) — left untouched as
+              instructed.</td>
+          <td>—</td>
+          <td><span class="badge manual">Awaiting commit</span></td>
+        </tr>
+      </tbody>
+    </table>
+    </div>
+  </section>
+
+  <div class="note">
+    No critical or high-severity findings this run. Everything flagged above is either a
+    low/medium-severity item genuinely requiring the owner's judgment (DB migration, major
+    dependency upgrade, a previously declined hardening) or the standing reminder that real,
+    already-verified fixes are sitting uncommitted. Code changes made this run were staged, not
+    committed or pushed, per standing instructions.
+  </div>
+
+  <footer>Generated automatically by the daily Sirini Jewellery audit routine · sirinijewellery.com</footer>
+</div>
+</body>
+</html>

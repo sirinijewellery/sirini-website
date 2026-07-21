@@ -1,0 +1,194 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Saloni Fashion Jewellery — The Golden Thread</title>
+<meta name="description" content="Enter the world of Saloni Fashion Jewellery — Mumbai-based manufacturer and wholesale supplier of fashion and imitation jewellery, specialists in antique jewellery since 2010. One continuous interactive world: the atelier, the collections, the gallery, the invitation.">
+<meta property="og:title" content="Saloni Fashion Jewellery — The Golden Thread">
+<meta property="og:description" content="An immersive journey through the world of Saloni Fashion Jewellery. Mumbai · Est. 2010 · 10,000+ SKUs.">
+<!--INLINE:FONTS-->
+<!--INLINE:CSS-->
+</head>
+<body>
+
+<!-- Intro veil -->
+<div id="veil" aria-hidden="true">
+  <div class="veil-inner">
+    <svg class="veil-ring" viewBox="0 0 120 120" width="96" height="96" aria-hidden="true">
+      <circle cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="1" opacity="0.35"/>
+      <circle class="veil-arc" cx="60" cy="60" r="52" fill="none" stroke="currentColor" stroke-width="1.5"
+              stroke-linecap="round" stroke-dasharray="326.7" stroke-dashoffset="326.7"/>
+      <text x="60" y="74" text-anchor="middle" class="veil-s">S</text>
+    </svg>
+    <p class="veil-word">SALONI</p>
+    <p class="veil-sub">The Golden Thread</p>
+  </div>
+</div>
+
+<!-- 3D stage -->
+<canvas id="scene" aria-hidden="true"></canvas>
+
+<!-- Scroll length of the journey -->
+<div id="scroller" aria-hidden="true"></div>
+
+<!-- HUD -->
+<header id="hud">
+  <a class="hud-brand" href="#threshold" data-seek="threshold" aria-label="Saloni Fashion Jewellery — back to the beginning">
+    <span class="hud-brand-name">SALONI</span>
+    <span class="hud-brand-sub">Fashion Jewellery</span>
+  </a>
+  <div class="hud-right">
+    <button id="soundToggle" type="button" aria-pressed="false" title="Ambient sound">
+      <svg class="ic ic-on" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M16.5 8.5a5 5 0 0 1 0 7M19 6a8.5 8.5 0 0 1 0 12" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <svg class="ic ic-off" viewBox="0 0 24 24" width="18" height="18" aria-hidden="true"><path d="M4 9v6h4l5 4V5L8 9H4z" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linejoin="round"/><path d="M17 9l5 6M22 9l-5 6" fill="none" stroke="currentColor" stroke-width="1.4" stroke-linecap="round"/></svg>
+      <span class="hud-label">Sound</span>
+    </button>
+  </div>
+</header>
+
+<!-- Chapter dots (built by JS) -->
+<nav id="dots" aria-label="Chapters"></nav>
+
+<!-- Progress hairline -->
+<div id="progress" aria-hidden="true"><i></i><b></b></div>
+
+<!-- Scroll hint -->
+<div id="hint" aria-hidden="true">
+  <span class="hint-line"></span>
+  <span class="hint-text">Scroll to follow the thread</span>
+</div>
+
+<!-- ————— Story overlay ————— -->
+<main id="copy">
+
+  <section class="copy pos-center is-title" data-zone="threshold" id="threshold">
+    <p class="kicker">Saloni Fashion Jewellery · Mumbai</p>
+    <h1 class="brand">SALONI</h1>
+    <p class="brandsub">— Fashion Jewellery —</p>
+    <div class="rule"></div>
+    <p class="lead">Manufacturer &amp; wholesale supplier of fashion and imitation jewellery.<br>Specialists in antique jewellery since 2010.</p>
+  </section>
+
+  <section class="copy pos-center" data-zone="prologue" id="prologue">
+    <p class="lead serif-it">“Every piece of jewellery begins as a thread of metal.”</p>
+    <p class="body">Ours began in 2010, in Santacruz West, Mumbai — and it runs unbroken through everything we make.</p>
+  </section>
+
+  <section class="copy pos-left" data-zone="house" id="house">
+    <p class="kicker">I · About Us</p>
+    <h2>The House</h2>
+    <div class="rule"></div>
+    <p class="body">Saloni Fashion Jewellery is a Mumbai-based manufacturer and wholesale supplier of fashion and imitation jewellery, with a specialisation in antique jewellery. Established in 2010, the company has built a trusted reputation among retailers and distributors across India and international markets through consistent quality, diverse collections, and competitive wholesale pricing.</p>
+    <p class="body">Every piece is designed and crafted in-house at our Santacruz (West) facility, ensuring design integrity and quality control at every stage — from raw material selection to final finishing.</p>
+  </section>
+
+  <section class="copy pos-right" data-zone="glance" id="glance">
+    <p class="kicker">II · At a Glance</p>
+    <h2>Fifteen Years, One Thread</h2>
+    <div class="rule"></div>
+    <dl class="stats">
+      <div><dt>Est. 2010</dt><dd>15+ years in business</dd></div>
+      <div><dt>Mumbai</dt><dd>Manufacturing base</dd></div>
+      <div><dt>10,000+ SKUs</dt><dd>Active catalogue</dd></div>
+      <div><dt>Pan-India</dt><dd>Wholesale reach</dd></div>
+    </dl>
+  </section>
+
+  <section class="copy pos-left" data-zone="atelier" id="atelier">
+    <p class="kicker">III · Manufacturing</p>
+    <h2>The Atelier</h2>
+    <div class="rule"></div>
+    <p class="body">Every piece is designed and made at our Santacruz (West) facility — no middlemen, full quality control.</p>
+    <p class="body">Rigorous in-house QC at every stage, from raw material selection to final finishing. Our collections span everyday fashion jewellery through to elaborate bridal and festive sets.</p>
+  </section>
+
+  <section class="copy pos-right" data-zone="catalogue" id="catalogue">
+    <p class="kicker">IV · Product Categories</p>
+    <h2>The Catalogue</h2>
+    <div class="rule"></div>
+    <p class="body">Our catalogue covers traditional and contemporary fashion jewellery for every occasion — bridal, festive, daily wear, and more.</p>
+    <p class="note">Twelve categories surround you — bridal sets to hair accessories.</p>
+    <ul class="fallback-list" id="catalogueList" aria-label="Product categories"></ul>
+  </section>
+
+  <section class="copy pos-left" data-zone="gallery" id="gallery">
+    <p class="kicker">V · Specialisations &amp; Finishes</p>
+    <h2>The Gallery</h2>
+    <div class="rule"></div>
+    <p class="body">Twelve specialisations — antique, kundan, and polki finishes the market trusts.</p>
+    <p class="note">Select any piece to view it closer.</p>
+  </section>
+
+  <section class="copy pos-right" data-zone="reach" id="reach">
+    <p class="kicker">VI · Business &amp; Distribution</p>
+    <h2>The Reach</h2>
+    <div class="rule"></div>
+    <h3>B2B Wholesale</h3>
+    <p class="body">Primary channel. Direct supply to retailers, boutiques, and distributors across India. Bulk pricing and minimum order quantities available on request.</p>
+    <h3>Export</h3>
+    <p class="body">Export-ready with IEC registration. We supply to international buyers across global markets. Inquiries welcome for overseas wholesale and distribution partnerships.</p>
+  </section>
+
+  <section class="copy pos-left" data-zone="pillars" id="pillars">
+    <p class="kicker">VII · Why Saloni</p>
+    <h2>Six Pillars</h2>
+    <div class="rule"></div>
+    <p class="body">The reasons retailers and distributors stay with us — engraved around you.</p>
+    <ul class="fallback-list" id="pillarsList" aria-label="Our strengths"></ul>
+  </section>
+
+  <section class="copy pos-center" data-zone="ascent" id="ascent">
+    <p class="lead serif-it">From one atelier in Santacruz West — to retailers across India, and buyers around the world.</p>
+    <p class="note">The thread continues.</p>
+  </section>
+
+  <section class="copy pos-center is-contact" data-zone="ring" id="ring">
+    <p class="kicker">Contact Us</p>
+    <h2>The Invitation</h2>
+    <div class="rule"></div>
+    <p class="body">For wholesale enquiries, bulk pricing, and catalogue access — contact us directly.</p>
+    <p class="addr">F 80, 81 &amp; 82, Hi Life, Phirozshah Mehta Road,<br>Santacruz (West), Mumbai 400054, Maharashtra</p>
+    <div class="cta-row">
+      <a class="cta" href="https://wa.me/919870589560" target="_blank" rel="noopener" title="Chat on WhatsApp: +91 98705 89560"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 3a9 9 0 0 0-7.8 13.4L3 21l4.7-1.2A9 9 0 1 0 12 3z"/></svg><span>WhatsApp</span></a>
+      <a class="cta" href="mailto:salonifashionjewellery@gmail.com" title="Write to salonifashionjewellery@gmail.com"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="5" width="18" height="14" rx="1.5"/><path d="M3.5 6.5 12 13l8.5-6.5"/></svg><span>Email</span></a>
+      <a class="cta" href="https://instagram.com/saloni_fashion_jewellery" target="_blank" rel="noopener" title="@saloni_fashion_jewellery on Instagram"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><rect x="4" y="4" width="16" height="16" rx="4.5"/><circle cx="12" cy="12" r="3.4"/><circle cx="16.7" cy="7.3" r="0.9" fill="currentColor" stroke="none"/></svg><span>Instagram</span></a>
+      <a class="cta" href="https://www.google.com/maps/search/?api=1&amp;query=Hi%20Life%2C%20Phirozshah%20Mehta%20Road%2C%20Santacruz%20West%2C%20Mumbai%20400054" target="_blank" rel="noopener" title="Hi Life, Phirozshah Mehta Road, Santacruz West, Mumbai"><svg viewBox="0 0 24 24" width="14" height="14" aria-hidden="true" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"><path d="M12 21s-6.5-5.6-6.5-10.2a6.5 6.5 0 0 1 13 0C18.5 15.4 12 21 12 21z"/><circle cx="12" cy="10.6" r="2.2"/></svg><span>Find Us</span></a>
+    </div>
+    <p class="fineprint">+91 98705 89560 &nbsp;·&nbsp; salonifashionjewellery@gmail.com &nbsp;·&nbsp; @saloni_fashion_jewellery</p>
+  </section>
+
+</main>
+
+<!-- Fallback-only editorial extras -->
+<div id="fallbackExtras" hidden>
+  <div class="fb-logo-card"><img id="fbLogo" alt="Saloni Fashion Jewellery logo"></div>
+  <section class="fb-gallery" aria-label="Specialisations gallery">
+    <h2>Specialisations &amp; Finishes</h2>
+    <div class="fb-grid" id="fbGrid"></div>
+  </section>
+</div>
+
+<!-- Lightbox -->
+<div id="lightbox" role="dialog" aria-modal="true" aria-label="Jewellery piece" hidden>
+  <button class="lb-close" type="button" aria-label="Close">&#215;</button>
+  <button class="lb-prev" type="button" aria-label="Previous piece"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M15 5l-7 7 7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+  <figure>
+    <img id="lbImg" alt="">
+    <figcaption>
+      <p class="lb-caption" id="lbCaption"></p>
+      <p class="lb-sub">Specialisation · Saloni Fashion Jewellery</p>
+    </figcaption>
+  </figure>
+  <button class="lb-next" type="button" aria-label="Next piece"><svg viewBox="0 0 24 24" width="26" height="26" aria-hidden="true"><path d="M9 5l7 7-7 7" fill="none" stroke="currentColor" stroke-width="1.5" stroke-linecap="round" stroke-linejoin="round"/></svg></button>
+</div>
+
+<div id="tooltip" aria-hidden="true"></div>
+
+<noscript><div class="noscript-note">This experience needs JavaScript. Please enable it to enter the world of Saloni Fashion Jewellery.</div></noscript>
+
+<!--INLINE:THREE-->
+<!--INLINE:ASSETS-->
+<!--INLINE:MAIN-->
+</body>
+</html>

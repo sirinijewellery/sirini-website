@@ -1,0 +1,393 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 16px;
+    background: #FAF7F4;
+    color: #2A2320;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #7A1F3D, #9C2A4E);
+    color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid #ECE3DC;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat .n { font-size: 1.5rem; font-weight: 700; display: block; }
+  .stat .l { font-size: 0.75rem; color: #6b5f57; text-transform: uppercase; letter-spacing: 0.03em; }
+  .stat.fixed .n { color: #1a7f3c; }
+  .stat.manual .n { color: #a8710a; }
+  .stat.crit .n { color: #b32020; }
+
+  section { margin-bottom: 32px; }
+  h2 {
+    font-size: 1.15rem;
+    border-bottom: 2px solid #7A1F3D;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    color: #7A1F3D;
+  }
+  .table-scroll { overflow-x: auto; border: 1px solid #ECE3DC; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.82rem; min-width: 560px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #F0E9E3; vertical-align: top; }
+  th { background: #F7F1EC; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: #6b5f57; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  code { background: #F3ECE6; padding: 1px 5px; border-radius: 4px; font-size: 0.78em; word-break: break-all; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge.ok { background: #E4F5E8; color: #1a7f3c; }
+  .badge.fixed { background: #E4F5E8; color: #1a7f3c; }
+  .badge.manual { background: #FFF3D6; color: #8a5a00; }
+  .badge.critical { background: #FBE2E2; color: #b32020; }
+  .badge.high { background: #FDE8D6; color: #b0530a; }
+  .badge.medium { background: #FFF3D6; color: #8a5a00; }
+  .badge.low { background: #EFF3EA; color: #4b6b3d; }
+
+  .note {
+    background: #F7F1EC;
+    border-left: 3px solid #7A1F3D;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-top: 14px;
+  }
+  footer { text-align: center; color: #9a8d84; font-size: 0.75rem; margin-top: 20px; }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #17130f; color: #EDE6DF; }
+    .stat, table { background: #221c17; }
+    .stat, .table-scroll { border-color: #362c24; }
+    th { background: #2a231d; color: #b8a99c; }
+    td { border-bottom-color: #2a231d; }
+    code { background: #2a231d; }
+    .note { background: #2a231d; }
+    h2 { color: #e7a9bd; border-bottom-color: #9C2A4E; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Sirini Jewellery — Daily Audit Report</h1>
+    <p>2026-07-16 · SEO &amp; Security review, automated</p>
+  </header>
+
+  <div class="summary-grid">
+    <div class="stat"><span class="n">40</span><span class="l">Total findings</span></div>
+    <div class="stat fixed"><span class="n">6</span><span class="l">Auto-fixed</span></div>
+    <div class="stat manual"><span class="n">9</span><span class="l">Needs owner action</span></div>
+    <div class="stat"><span class="n">28</span><span class="l">Verified OK</span></div>
+  </div>
+
+  <section>
+    <h2>SEO — 18 findings (5 fixed · 2 manual · 11 OK)</h2>
+    <p style="font-size:0.85rem;color:#6b5f57;margin-top:-4px;">
+      Checked: meta titles/descriptions, Open Graph/Twitter tags, JSON-LD structured data,
+      image alt text, heading hierarchy, internal linking, sitemap.xml, robots.txt, canonical URLs,
+      and Core Web Vitals (image sizing, font preloading). No visual/layout changes were made.
+    </p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Finding</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td><code>app/shop/[slug]/page.tsx</code></td>
+        <td>Generic site-wide FAQ JSON-LD was rendered on all 191 product pages with no matching visible FAQ content — violates Google's rule that structured data must reflect visible page content.</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>components/HeroCarousel.tsx</code></td>
+        <td>Mobile + desktop hero images (art-direction pair) both used <code>preload</code>, forcing both to eagerly fetch regardless of viewport — doubled hero bandwidth/Cloudinary cost and diluted LCP priority. Switched to <code>fetchPriority="high"</code> on the visible slide only, per this Next.js version's documented pattern.</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>public/world.html</code></td>
+        <td>Static <code>/world</code> page (listed in sitemap.ts) had a title/description but no canonical link, <code>og:type</code>, <code>og:url</code>, <code>og:image</code>, or Twitter card tags.</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>app/blog/page.tsx</code></td>
+        <td>Meta description was 186 characters — past the ~160 char point where Google truncates it in search results.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>app/faq/page.tsx</code></td>
+        <td>Page title was a bare "FAQ" while the visible &lt;h1&gt; reads "Frequently Asked Questions" — title didn't match content or carry useful keywords.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge fixed">Fixed</span></td>
+      </tr>
+      <tr>
+        <td><code>prisma/schema.prisma</code> (HeroSlide) + <code>HeroCarousel.tsx</code></td>
+        <td>HeroSlide has no alt/caption field, so hero image alt text is a hardcoded generic string regardless of which slide is active. Needs a schema + admin UI change to fix properly.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge manual">Needs action</span></td>
+      </tr>
+      <tr>
+        <td><code>app/robots.ts</code> + cart/checkout/account/wishlist/order-confirmation/login/register pages</td>
+        <td>robots.ts disallows these paths, but none of the pages export <code>noindex</code> metadata — Google can't read a page's noindex tag if robots.txt already blocks the crawl. This is a strategy decision (disallow-only vs. allow+noindex), not a code bug.</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge manual">Needs action</span></td>
+      </tr>
+      <tr>
+        <td><code>components/ProductJsonLd.tsx</code></td>
+        <td>Verified: <code>priceValidUntil</code> stays anchored to a deterministic year-end date, no <code>Date.now()</code>/<code>Math.random()</code> anywhere in output (protects against the earlier ISR-write cost incident).</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>Organization/WebSite/LocalBusiness/Breadcrumb JSON-LD components</td>
+        <td>All deterministic, all escape <code>&lt;</code> against stored XSS, schema.org types correct.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>app/shop/page.tsx</code></td>
+        <td>Canonical/robots logic for filtered &amp; paginated views already correct: clean single-facet pages self-canonicalize, multi-filter/page&gt;1 combinations are <code>noindex,follow</code> to avoid duplicate content.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>app/sitemap.ts</code></td>
+        <td>Real lastmod anchors (newest product/article, not per-render timestamps), proper URL dedupe, includes /world.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>next.config.ts</code></td>
+        <td>Trimmed image deviceSizes/imageSizes and font-preload cost fixes from prior sessions are still intact — not accidentally undone.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>Repo-wide <code>next/image</code> usage</td>
+        <td>No leftover deprecated <code>priority</code> prop anywhere — fully migrated to this Next.js version's <code>preload</code>/<code>fetchPriority</code> API.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>Product/hero/category image components</td>
+        <td>Alt-text audit across ProductCard, CategoryGrid, ImageGallery, ShopByOccasion/Collection, InstagramStrip — all derive descriptive alt text from product/category names already in scope; no generic alt text found.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>app/page.tsx</code>, <code>shop/page.tsx</code>, <code>shop/[slug]/page.tsx</code></td>
+        <td>Exactly one &lt;h1&gt; per page, logical h2→h3 nesting in section components.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>components/Footer.tsx</code></td>
+        <td>Internal linking already strong — dedicated SEO link grid to category/occasion/style facets and company pages.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>opengraph-image.tsx routes + image-sitemap.xml route</td>
+        <td>Verified deterministic (no Date.now/Math.random) and properly XML-escaped.</td>
+        <td>—</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Security — 22 findings (1 fixed · 4 manual · 17 OK)</h2>
+    <p style="font-size:0.85rem;color:#6b5f57;margin-top:-4px;">
+      Checked: admin API auth coverage (every HTTP method on every <code>/api/admin/**</code> route), input
+      validation, SQL injection surface, XSS, CSRF/cookie config, secret exposure, <code>npm audit</code>,
+      auth config, file upload handling, and rate-limit coverage. No <code>npm install</code> or dependency
+      changes were made.
+    </p>
+    <div class="table-scroll">
+    <table>
+      <tr><th>Area</th><th>Vulnerability type</th><th>Severity</th><th>Status</th></tr>
+      <tr>
+        <td>All 21 <code>app/api/admin/**/route.ts</code> files, every HTTP method</td>
+        <td>Missing admin-auth check</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge ok">OK — every handler verified</span></td>
+      </tr>
+      <tr>
+        <td><code>app/admin/layout.tsx</code></td>
+        <td>Missing page-level auth guard</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>lib/auth.ts</code></td>
+        <td>Session/JWT forgery — can a normal user set their own <code>isAdmin</code>?</td>
+        <td><span class="badge high">High</span></td>
+        <td><span class="badge ok">OK — server-derived only</span></td>
+      </tr>
+      <tr>
+        <td><code>lib/auth.ts</code></td>
+        <td>Timing-safe login / no user-enumeration leak</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>products, coupons, taxonomy, settings API routes</td>
+        <td>Missing input validation on request bodies</td>
+        <td><span class="badge high">High</span></td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>Repo-wide <code>$queryRaw</code>/<code>$executeRaw</code> usage</td>
+        <td>SQL injection via raw queries</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge ok">OK — parameterized; one Unsafe use is a dev-only script</span></td>
+      </tr>
+      <tr>
+        <td>6 JSON-LD components (Product, Organization, WebSite, LocalBusiness, Breadcrumb, FAQ)</td>
+        <td>XSS via <code>dangerouslySetInnerHTML</code></td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge ok">OK — all escape <code>&lt;</code></span></td>
+      </tr>
+      <tr>
+        <td><code>app/layout.tsx</code> (theme override CSS)</td>
+        <td>CSS injection via admin theme settings</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>app/layout.tsx</code> (splash inline script)</td>
+        <td>XSS via inline script</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge ok">OK — static, no user input</span></td>
+      </tr>
+      <tr>
+        <td>Blog + About/Privacy/Terms/FAQ/Shipping CMS content</td>
+        <td>Stored XSS via admin-editable content fields</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge ok">OK — rendered as plain text</span></td>
+      </tr>
+      <tr>
+        <td><code>lib/auth.ts</code> (cookie config)</td>
+        <td>CSRF via weakened <code>sameSite</code> cookie setting</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td>All "use client" components + client bundle</td>
+        <td>Server secrets (Razorpay/DB/Resend/CRON) leaking into the browser bundle</td>
+        <td><span class="badge critical">Critical</span></td>
+        <td><span class="badge ok">OK — none found</span></td>
+      </tr>
+      <tr>
+        <td><code>credentials.md</code>, <code>.env.local</code></td>
+        <td>Secret file committed to git / bundled into app</td>
+        <td><span class="badge critical">Critical</span></td>
+        <td><span class="badge ok">OK — gitignored, not imported</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/cron/daily-digest/route.ts</code></td>
+        <td>Fails open if <code>CRON_SECRET</code> is missing in production</td>
+        <td><span class="badge high">High</span></td>
+        <td><span class="badge ok">OK — fails closed (401)</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/webhooks/razorpay/route.ts</code></td>
+        <td>Webhook signature verification</td>
+        <td><span class="badge high">High</span></td>
+        <td><span class="badge ok">OK — timing-safe HMAC check</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/admin/products/upload/route.ts</code></td>
+        <td>File upload type/size validation</td>
+        <td><span class="badge high">High</span></td>
+        <td><span class="badge ok">OK — MIME allowlist excludes SVG, Cloudinary-only, admin-gated</span></td>
+      </tr>
+      <tr>
+        <td>contact, newsletter, reviews, register, coupon-validate, checkout (create-order/cod/verify), pincode routes</td>
+        <td>Rate limiting on public POST endpoints</td>
+        <td><span class="badge medium">Medium</span></td>
+        <td><span class="badge ok">OK — already wired via <code>lib/rateLimit.ts</code></span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/checkout/failed/route.ts</code></td>
+        <td>Public logging endpoint had no rate limit</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge fixed">Fixed — added same 30/10min limit as sibling checkout routes</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/search/route.ts</code></td>
+        <td>Public unauthenticated GET endpoint (3 DB queries/request) has no rate limit</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge manual">Needs action</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/auth/[...nextauth]/route.ts</code></td>
+        <td>No brute-force throttle on login (incl. admin login)</td>
+        <td><span class="badge low">Low</span></td>
+        <td><span class="badge manual">Noted only — owner declined admin-login hardening on 2026-07-02</span></td>
+      </tr>
+      <tr>
+        <td><code>npm audit</code>: next's bundled <code>postcss</code> &lt;8.5.10</td>
+        <td>GHSA-qx2v-qp2m-jg93 — XSS in CSS stringify output (build-time tool, not runtime-exposed)</td>
+        <td><span class="badge medium">Moderate</span></td>
+        <td><span class="badge manual">Needs action — no fix without downgrading Next 16→9</span></td>
+      </tr>
+      <tr>
+        <td><code>npm audit</code>: <code>@prisma/dev</code> / <code>@hono/node-server</code></td>
+        <td>GHSA-92pp-h63x-v22m — middleware bypass (Prisma dev tooling only, not in production runtime)</td>
+        <td><span class="badge medium">Moderate</span></td>
+        <td><span class="badge manual">Needs action — no fix without downgrading Prisma 7→6</span></td>
+      </tr>
+    </table>
+    </div>
+    <div class="note">
+      <strong>0 critical or high findings require action.</strong> The 2 critical and 3 high items above
+      are all "OK" (verified already handled) — nothing currently open is above Low/Moderate severity.
+    </div>
+  </section>
+
+  <div class="note">
+    <strong>Changes made this run (uncommitted, staged for your review):</strong>
+    <code>app/shop/[slug]/page.tsx</code>, <code>components/HeroCarousel.tsx</code>,
+    <code>public/world.html</code>, <code>app/blog/page.tsx</code>, <code>app/faq/page.tsx</code>,
+    <code>app/api/checkout/failed/route.ts</code>. <code>npx tsc --noEmit</code> ran clean after every
+    edit. Nothing was committed or pushed — review with <code>git diff</code> and commit when ready.
+  </div>
+
+  <footer>Generated automatically by the daily Sirini Jewellery audit routine · sirinijewellery.com</footer>
+</div>
+</body>
+</html>

@@ -1,0 +1,189 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report — 2026-07-02</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f1ee;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#2b241f;">
+<div style="max-width:760px;margin:0 auto;padding:16px;">
+
+  <div style="background:linear-gradient(135deg,#3a2e26,#5c4735);border-radius:12px;padding:24px 20px;margin-bottom:20px;color:#fff;">
+    <h1 style="margin:0 0 6px 0;font-size:22px;letter-spacing:0.3px;">Sirini Jewellery — Daily Audit Report</h1>
+    <p style="margin:0;font-size:14px;opacity:0.85;">2026-07-02 · automated daily audit · sirinijewellery.com</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 12px 0;font-size:16px;color:#5c4735;">Summary</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="text-align:left;color:#8a7f74;">
+        <th style="padding:4px 6px;">Section</th>
+        <th style="padding:4px 6px;">Findings</th>
+        <th style="padding:4px 6px;">Auto-fixed</th>
+        <th style="padding:4px 6px;">Needs owner action</th>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">SEO</td>
+        <td style="padding:6px;">2</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">2</span></td>
+        <td style="padding:6px;">0</td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Security</td>
+        <td style="padding:6px;">7</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">4</span></td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">3</span></td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Gmail</td>
+        <td style="padding:6px;">3 actionable threads</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">3</span></td>
+      </tr>
+    </table>
+    <p style="margin:14px 0 0 0;font-size:12.5px;color:#8a7f74;">
+      Code fixes are staged in the working tree (not committed, not pushed) — review with
+      <code style="background:#f4f1ee;padding:1px 5px;border-radius:4px;">git diff</code> and commit when ready.
+      Both <code style="background:#f4f1ee;padding:1px 5px;border-radius:4px;">npx tsc --noEmit</code> runs passed with zero errors after all edits.
+    </p>
+  </div>
+
+  <!-- SEO -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">1. SEO Audit</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      The site's SEO implementation was already mature: Organization/WebSite/Product/Breadcrumb/FAQ JSON-LD,
+      single-H1 hierarchy, descriptive alt text, correct noindex on private pages, cost-optimized image config,
+      deterministic sitemap and ISR output. Only 2 real gaps found — both fixed.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Issue</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>app/terms/page.tsx</code></td>
+        <td style="padding:6px;">Missing <code>canonical</code> in <code>pageMetadata()</code> — canonical resolved to site root, duplicate-content risk</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Fixed</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>app/privacy/page.tsx</code></td>
+        <td style="padding:6px;">Same missing-canonical issue</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Fixed</span></td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Checked, no issues found:</b> homepage/shop/product metadata &amp; canonicals, JSON-LD (Organization, WebSite, Product, Breadcrumb, FAQ — all deterministic, no <code>Date.now()</code>/<code>Math.random()</code>), alt text, H1/H2/H3 hierarchy, internal linking (breadcrumbs + related products already present), <code>app/sitemap.ts</code> (deterministic <code>lastModified</code>), <code>app/robots.ts</code> (correctly disallows /admin, /api, /checkout, /account etc.), font loading (<code>display:"swap"</code> everywhere), LCP images using this codebase's <code>preload</code> API correctly.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- SECURITY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">2. Security Review</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      All 20 <code>/api/admin/*</code> route files correctly gate every handler on <code>isAdmin</code>. Zod validation confirmed
+      across API routes. Found and fixed 4 low-severity stored-XSS hardening issues in JSON-LD rendering. 3 items need owner action
+      (2 already tracked in HANDOFF.md). <code>npm audit</code>: 0 critical, 2 high (dev-only deps, needs major version bump — not applied).
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Vulnerability</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>components/OrganizationJsonLd.tsx</code></td>
+        <td style="padding:6px;">Unescaped <code>&lt;</code> in JSON-LD <code>dangerouslySetInnerHTML</code> — admin-edited business details (email/phone/social) could break out of the <code>&lt;script&gt;</code> tag</td>
+        <td style="padding:6px;"><span style="background:#e3f2fd;color:#1565c0;padding:2px 8px;border-radius:10px;">Low</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Fixed</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>components/FAQJsonLd.tsx</code></td>
+        <td style="padding:6px;">Same unescaped-JSON-LD issue, admin-edited FAQ content</td>
+        <td style="padding:6px;"><span style="background:#e3f2fd;color:#1565c0;padding:2px 8px;border-radius:10px;">Low</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Fixed</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>components/LocalBusinessJsonLd.tsx</code></td>
+        <td style="padding:6px;">Same unescaped-JSON-LD issue, admin-edited business details</td>
+        <td style="padding:6px;"><span style="background:#e3f2fd;color:#1565c0;padding:2px 8px;border-radius:10px;">Low</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Fixed</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>components/WebSiteJsonLd.tsx</code></td>
+        <td style="padding:6px;">Same pattern, hardened for consistency/future-proofing (no DB content today)</td>
+        <td style="padding:6px;"><span style="background:#e3f2fd;color:#1565c0;padding:2px 8px;border-radius:10px;">Low</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Fixed</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>app/api/cron/daily-digest/route.ts</code></td>
+        <td style="padding:6px;">Endpoint falls open (unauthenticated) if <code>CRON_SECRET</code> env var isn't set in Vercel yet</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner action</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>app/api/contact</code>, <code>app/api/newsletter</code></td>
+        <td style="padding:6px;">No rate limiting on public form endpoints (input validation via zod is present)</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner action</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>npm audit</code></td>
+        <td style="padding:6px;">9 findings: 0 critical, 2 high, 6 moderate, 1 low — all in dev-only transitive deps (Prisma toolchain) or require a semver-major bump</td>
+        <td style="padding:6px;"><span style="background:#fff3e0;color:#d84315;padding:2px 8px;border-radius:10px;">High</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner action</span></td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Checked, no issues found:</b> all 20 admin API route files (isAdmin gating), Razorpay webhook signature verification (HMAC + timing-safe compare), checkout price computation (server always recomputes from DB, never trusts client amount), file upload endpoint (MIME allowlist excludes SVG, 5MB cap, admin-gated, no path traversal), <code>lib/auth.ts</code> (JWT strategy, bcrypt dummy-hash timing mitigation, secure cookie defaults), theme CSS injection (strict regex validation), client-bundle secret leakage (only <code>NEXT_PUBLIC_*</code> vars used client-side), <code>.env.local</code> gitignored and not tracked, CSRF exposure (NextAuth v5 <code>sameSite=lax</code> + <code>__Secure-</code> cookies, JSON-only mutating APIs).
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- GMAIL -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">3. Gmail — Last 24 Hours</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      No Vercel, Neon, Cloudinary, Razorpay, or domain/DNS alerts in the last 24 hours — infra looks quiet.
+      3 threads worth a look; the rest were personal banking alerts, vendor/accounting emails, or marketing (skipped).
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">Subject / Thread</th><th style="padding:6px;">Sender</th><th style="padding:6px;">Date</th><th style="padding:6px;">Recommended action</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">19 photo emails (no subject, "Sent from my iPhone", 5 photos each)</td>
+        <td style="padding:6px;">sirinijewellery123@gmail.com</td>
+        <td style="padding:6px;">Jul 1, 04:47–11:31</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Review</span> Likely new product photography staged for upload — check and add to <code>/admin/products</code> if new SKUs.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">"Anklet, Maangtika, Hathpan, Belt, Nath, Kalira, Sheeshphool" (+ 1 photo)</td>
+        <td style="padding:6px;">jihaan.savla@gmail.com</td>
+        <td style="padding:6px;">Jul 1, 14:57</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Review</span> Lists match the site's <b>Accessories</b> taxonomy terms exactly — looks like tagging/categorization help for the 191-product tagging backlog (HANDOFF.md pending item). Confirm intent and use for <code>/admin/products</code> tagging.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">"Security alert" — Claude for Gmail granted access</td>
+        <td style="padding:6px;">no-reply@accounts.google.com</td>
+        <td style="padding:6px;">Jul 1, 12:41</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">FYI only</span> Expected — this is the Gmail MCP connection used for this audit. No action needed unless unrecognized.</td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Skipped (not site-related):</b> HDFC Bank UPI/credit-card/cheque alerts and monthly statement (personal banking), Rasiklalsons monthly-statement request and Manyavar MSME vendor-portal notice (vendor/accounting, not the website), Income Tax e-verification confirmation, IndiaMart and Alibaba.com marketing emails.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <p style="text-align:center;font-size:11px;color:#a89c8f;margin-top:24px;">
+    Generated automatically · Sirini Jewellery daily audit · not committed or pushed to git
+  </p>
+
+</div>
+</body>
+</html>

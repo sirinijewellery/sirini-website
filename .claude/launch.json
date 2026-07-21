@@ -21,6 +21,20 @@
       "runtimeArgs": ["sirini-world/server.mjs"],
       "port": 4174,
       "autoPort": false
+    },
+    {
+      "name": "sfj-visits",
+      "runtimeExecutable": "npm",
+      "runtimeArgs": ["run", "dev", "--prefix", "D:/Owner/Desktop/sfjvisits", "--", "-p", "3010"],
+      "port": 3010,
+      "autoPort": false
+    },
+    {
+      "name": "os-visual",
+      "runtimeExecutable": "python",
+      "runtimeArgs": ["-m", "http.server", "4175", "--directory", "D:/Owner/Desktop/Claude"],
+      "port": 4175,
+      "autoPort": false
     }
   ]
 }

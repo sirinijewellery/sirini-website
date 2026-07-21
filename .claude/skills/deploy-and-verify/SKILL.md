@@ -35,6 +35,19 @@ until it is **verified live on production with evidence** — never assume.
   focus); `window.scrollTo()` may not dispatch the `scroll` listener. Verify those via CSSOM
   inspection or a manually `dispatchEvent(new Event('scroll'))`, not scripted focus/scroll.
 - Preview `screenshot`/`eval` can time out on the slow FS — retry; warm the route first.
+- **Turbopack's persistent dev cache serves STALE CSS after offline edits** (2026-07-14): edits
+  to `app/globals.css` made while the dev server was stopped can be silently ignored on the next
+  start (mtime touch doesn't help). If served CSS lacks your new rules, `Remove-Item -Recurse
+  -Force .next` and restart before concluding your change is wrong.
+- **A hidden Browser pane also FREEZES CSS animations** (2026-07-14): `getAnimations()` shows
+  `playState: "idle"`, `currentTime: 0` forever. Verify animation semantics by setting
+  `anim.currentTime = <ms>` manually and reading `getComputedStyle` at key timestamps.
+- **A hidden Browser pane suspends `requestAnimationFrame` entirely** (2026-07-11): if the
+  user doesn't have the pane visible, `document.visibilityState === 'hidden'`, animation
+  loops never run, and `preview_screenshot` + any Promise/rAF-based eval will time out
+  even though the page is healthy. Don't burn retries — check `document.visibilityState`
+  with a synchronous eval first. Verify hidden pages synchronously instead: call render
+  functions directly and sample canvas pixels via `getImageData`, or assert on DOM state.
 
 ## Gotcha: make a Cloudinary image actually change for users
 

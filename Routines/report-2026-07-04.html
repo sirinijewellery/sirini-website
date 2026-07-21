@@ -1,0 +1,177 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report — 2026-07-04</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f1ee;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#2b241f;">
+<div style="max-width:760px;margin:0 auto;padding:16px;">
+
+  <div style="background:linear-gradient(135deg,#3a2e26,#5c4735);border-radius:12px;padding:24px 20px;margin-bottom:20px;color:#fff;">
+    <h1 style="margin:0 0 6px 0;font-size:22px;letter-spacing:0.3px;">Sirini Jewellery — Daily Audit Report</h1>
+    <p style="margin:0;font-size:14px;opacity:0.85;">2026-07-04 · automated daily audit · sirinijewellery.com</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 12px 0;font-size:16px;color:#5c4735;">Summary</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="text-align:left;color:#8a7f74;">
+        <th style="padding:4px 6px;">Section</th>
+        <th style="padding:4px 6px;">Findings</th>
+        <th style="padding:4px 6px;">Auto-fixed</th>
+        <th style="padding:4px 6px;">Needs owner action</th>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">SEO</td>
+        <td style="padding:6px;">2</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span></td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">1</span> (1 informational, no action)</td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Security</td>
+        <td style="padding:6px;">3</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span></td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">3</span> (all previously known/tracked)</td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Gmail</td>
+        <td style="padding:6px;">4 actionable threads</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">2</span></td>
+      </tr>
+    </table>
+    <p style="margin:14px 0 0 0;font-size:12.5px;color:#8a7f74;">
+      No code changes were made or staged today. <code>npx tsc --noEmit</code> is clean and the working tree has no
+      new modifications from this run. The site remains in the hardened state established by the 2026-07-02 and
+      2026-07-03 passes (see <code>REVIEW-FINDINGS.md</code>) — this run found one small new SEO polish item and
+      re-confirmed everything else is unchanged.
+    </p>
+  </div>
+
+  <!-- SEO -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">1. SEO Audit</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Re-checked meta titles/descriptions, Open Graph/Twitter tags, JSON-LD, alt text, heading hierarchy, sitemap,
+      robots.txt, canonicals and font/image loading. One low-severity alt-text gap found (not auto-fixed — needs a
+      schema change, out of scope for a safe automated edit). A Search Console alert arrived overnight; investigated
+      and confirmed it describes intended behaviour, not a bug.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Finding</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>components/HeroCarousel.tsx:84,94</code></td>
+        <td style="padding:6px;">Every hero slide (desktop + mobile <code>&lt;Image&gt;</code>) shares the identical hardcoded <code>alt="Sirini Jewellery — handcrafted necklace set"</code>. <code>HeroSlideData</code> (<code>lib/queries/site.ts</code>) has no per-slide text field to draw from, so if the owner adds a second hero slide with a different product, both slides will describe themselves as a "necklace set." Only 1 slide is configured today, so no live impact yet.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Low</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs manual action</span> — add an optional <code>altText</code> column to <code>HeroSlide</code> + admin field in <code>HeroManager.tsx</code> (Prisma migration; not applied automatically in this run).</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">Search Console alert — "Excluded by 'noindex' tag"</td>
+        <td style="padding:6px;">Google Search Console emailed a new-reason-for-exclusion notice (received 2026-07-03 18:13). Traced to <code>app/shop/page.tsx</code>'s <code>generateMetadata()</code>: multi-filter shop combinations and paginated (<code>page&gt;1</code>) URLs are deliberately served <code>robots: {"{"} index:false, follow:true {"}"}</code> to avoid thin/duplicate content — this is intentional, correct SEO practice, and matches the documented logic at <code>app/shop/page.tsx:103-123</code>. No product or category page is affected.</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Informational</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">No action — working as intended</span></td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Checked, no new issues:</b> meta titles/descriptions on all page files (product pages use <code>productMetadata()</code> with owner-override support); OG/Twitter cards via <code>lib/seo.ts</code>; <code>ProductJsonLd.tsx</code> still deterministic and <code>&lt;</code>-escaped; alt text on every other public-facing image component (product cards, gallery, category grids, Instagram strip, reviews) is descriptive and dynamic; single <code>&lt;h1&gt;</code> per page confirmed (homepage hero, shop listing); <code>app/sitemap.ts</code>/<code>app/robots.ts</code> unchanged and correct; fonts use <code>display:"swap"</code> throughout <code>app/layout.tsx</code>.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- SECURITY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">2. Security Review</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      All admin API routes re-verified as <code>isAdmin</code>-gated (21 route files, one check per exported handler).
+      Upload endpoint, auth timing-safety, and JSON-LD escaping re-checked and unchanged. The 3 open items are the
+      same ones tracked since 2026-07-02/03 — no new vulnerabilities found.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Issue</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>npm audit</code></td>
+        <td style="padding:6px;">5 moderate findings, unchanged from prior runs: <code>@hono/node-server</code> / <code>@prisma/dev</code> (dev tooling), Next's bundled <code>postcss</code>. Fix requires <code>npm audit fix --force</code>, which would downgrade to <code>prisma@6.19.3</code> / <code>next@9.3.3</code> — not applied, as this codebase intentionally runs newer Next 16 / Prisma 7 canary builds (see <code>AGENTS.md</code>). 0 high/critical.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner action</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>app/api/contact</code>, <code>app/api/reviews/[productId]</code>, <code>app/api/coupon/validate</code></td>
+        <td style="padding:6px;">Still no rate limiting on public POST endpoints (zod validation present on all). Same open item since 2026-07-02 — needs a free Upstash account per HANDOFF.md pending decision #2.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner action</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>prisma/schema.prisma</code> (<code>Review.isPublished</code>)</td>
+        <td style="padding:6px;">Defaults to <code>true</code> — reviews via <code>POST /api/reviews/[productId]</code> publish instantly with no admin approval, and feed the Bestsellers rail. HANDOFF.md pending decision #1, still unanswered.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner decision</span></td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Checked, no issues found:</b> all 21 <code>/api/admin/*</code> route files gated on <code>isAdmin</code>;
+          upload endpoint (<code>app/api/admin/products/upload/route.ts</code>) MIME-allowlisted (SVG excluded), 5MB
+          cap, server-generated public_id; <code>lib/auth.ts</code> timing-safe dummy-hash compare, admin-login
+          hardening previously declined by owner (not re-pitched); no raw SQL in live routes; no secrets in
+          <code>NEXT_PUBLIC_*</code> vars; every <code>dangerouslySetInnerHTML</code> usage (JSON-LD × 6 components,
+          theme <code>&lt;style&gt;</code>) still properly escaped/sanitized; contact/coupon/review routes all
+          zod-validated.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- GMAIL -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">3. Gmail — Last 24 Hours</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      No Vercel, Neon, Cloudinary, or Razorpay alerts in the last day — infra quiet. Two items need attention: a new
+      batch of real product photos, and a supplier's accounts request. The GST clarification flagged urgent
+      yesterday appears to have already been actioned.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">Subject / Thread</th><th style="padding:6px;">Sender</th><th style="padding:6px;">Date</th><th style="padding:6px;">Recommended action</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">7 real iPhone product photos (IMG_5070–5590.JPG, no subject, "Sent from my iPhone")</td>
+        <td style="padding:6px;">sirinijewellery123@gmail.com</td>
+        <td style="padding:6px;">Jul 3, 09:22</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Review</span> Actual product photography (not the ChatGPT-render batches from prior days). Check and upload to <code>/admin/products</code> if these are new/restocked SKUs.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">Ledger Statement — request for June 2026 statement</td>
+        <td style="padding:6px;">nanjundaswamy.s@kushals.com (Kushal's accounts)</td>
+        <td style="padding:6px;">Jul 3, 13:31</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Needs reply</span> Supplier/partner asking for the 01–30 Jun 2026 ledger statement "on a priority basis" — business/accounts matter, not site-related; reply directly.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">GST REG-14/REG-04 clarification thread (OTP, draft, submission)</td>
+        <td style="padding:6px;">donotreply@gst.gov.in</td>
+        <td style="padding:6px;">Jul 3, 12:56–13:31</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Informational</span> Yesterday's report flagged this as urgent (deadline 13-07-2026). These 3 new messages (OTP for EVC signature → draft saved → form submitted) indicate the clarification response was filed on Jul 3. Worth a quick portal check nearer the personal-appearance date (10-07-2026) to confirm it was accepted.</td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Skipped (not site-related):</b> Search Console noindex alert (covered in SEO section above — benign);
+          HDFC Bank UPI/credit-card debit alerts and a cheque-clearance notice — personal/business banking, not a
+          payment-gateway or order alert; HDFC Business Regalia lounge-access voucher notice — promotional benefit;
+          JustDial "Profile Update Recommended" — marketing; 2× Tripo AI Discord newsletter emails — marketing.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <p style="text-align:center;font-size:11px;color:#a89c8f;margin-top:24px;">
+    Generated automatically · Sirini Jewellery daily audit · not committed or pushed to git
+  </p>
+
+</div>
+</body>
+</html>

@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report — 2026-07-05</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f1ec;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Helvetica,Arial,sans-serif;color:#2b2620;">
+<div style="max-width:720px;margin:0 auto;padding:20px 16px 60px;">
+
+  <div style="background:linear-gradient(135deg,#3d2b1f,#6b4a2f);border-radius:14px;padding:24px 20px;margin-bottom:20px;">
+    <h1 style="margin:0;color:#f4e8d8;font-size:22px;letter-spacing:0.3px;">Sirini Jewellery — Daily Audit Report</h1>
+    <p style="margin:6px 0 0;color:#d9c7a8;font-size:14px;">Saturday, 5 July 2026</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 18px 8px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h2 style="margin:0 0 12px;font-size:16px;color:#3d2b1f;">Summary</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="background:#f4f1ec;">
+        <th style="text-align:left;padding:8px 6px;border-radius:6px 0 0 6px;">Section</th>
+        <th style="text-align:center;padding:8px 6px;">Findings</th>
+        <th style="text-align:center;padding:8px 6px;">Auto-fixed</th>
+        <th style="text-align:center;padding:8px 6px;border-radius:0 6px 6px 0;">Needs you</th>
+      </tr>
+      <tr>
+        <td style="padding:8px 6px;">SEO</td>
+        <td style="text-align:center;padding:8px 6px;">3</td>
+        <td style="text-align:center;padding:8px 6px;color:#2f7a3d;font-weight:600;">2</td>
+        <td style="text-align:center;padding:8px 6px;color:#a67c00;font-weight:600;">1</td>
+      </tr>
+      <tr style="background:#f9f7f3;">
+        <td style="padding:8px 6px;">Security</td>
+        <td style="text-align:center;padding:8px 6px;">0 new</td>
+        <td style="text-align:center;padding:8px 6px;color:#2f7a3d;font-weight:600;">—</td>
+        <td style="text-align:center;padding:8px 6px;color:#a67c00;font-weight:600;">1 known</td>
+      </tr>
+      <tr>
+        <td style="padding:8px 6px;">Gmail</td>
+        <td style="text-align:center;padding:8px 6px;">13 threads</td>
+        <td style="text-align:center;padding:8px 6px;">—</td>
+        <td style="text-align:center;padding:8px 6px;color:#a67c00;font-weight:600;">4</td>
+      </tr>
+    </table>
+    <p style="font-size:12px;color:#7a7166;margin:12px 0 6px;">Code fixes are staged in the working tree only — nothing was committed or pushed. Review with <code style="background:#f4f1ec;padding:1px 4px;border-radius:3px;">git diff</code> before shipping.</p>
+  </div>
+
+  <!-- SEO -->
+  <div style="background:#fff;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h2 style="margin:0 0 4px;font-size:16px;color:#3d2b1f;">🔍 SEO</h2>
+    <p style="font-size:13px;color:#5a5248;margin:0 0 12px;">Overall: the SEO layer is already mature — full JSON-LD graph, deterministic structured data, dual sitemaps, clean single-H1 hierarchy, correct canonicals/noindex on thin facet pages. Only 2 low-severity gaps found, both fixed.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="background:#f4f1ec;">
+        <th style="text-align:left;padding:7px 5px;">File</th>
+        <th style="text-align:left;padding:7px 5px;">Issue</th>
+        <th style="text-align:center;padding:7px 5px;">Severity</th>
+        <th style="text-align:center;padding:7px 5px;">Status</th>
+      </tr>
+      <tr>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">components/HeroCarousel.tsx</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Hero image alt text was one static string reused for every slide regardless of which slide is showing</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;">Low</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">Fixed</span></td>
+      </tr>
+      <tr style="background:#fafafa;">
+        <td style="padding:7px 5px;border-top:1px solid #eee;">lib/seo.ts</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Product page OG image declared as 800×800 (square) but real photos are 4:5 portrait — mismatched dimension hint for social share previews</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;">Low</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">Fixed</span> — now 960×1200</td>
+      </tr>
+      <tr>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">lib/taxonomy.ts</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Legacy category slugs (plural) vs new taxonomy slugs (singular) still coexist — a data-consistency risk once product tagging finishes, not a code bug</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;">Low</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#fdf1d6;color:#a67c00;padding:2px 8px;border-radius:10px;font-weight:600;">Needs you</span></td>
+      </tr>
+    </table>
+    <p style="font-size:12px;color:#7a7166;margin:12px 0 0;">Verified already correct — no action needed: meta titles/descriptions, OG/Twitter tags, JSON-LD (Organization/LocalBusiness/WebSite/Product/Breadcrumb/FAQ/ItemList, all deterministic), sitemap.xml + image-sitemap.xml, robots.txt, canonical URLs + noindex on multi-filter pages, image alt text elsewhere, heading hierarchy, Core Web Vitals (preload hints, no CLS, trimmed Cloudinary sizes).</p>
+  </div>
+
+  <!-- SECURITY -->
+  <div style="background:#fff;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h2 style="margin:0 0 4px;font-size:16px;color:#3d2b1f;">🔒 Security</h2>
+    <p style="font-size:13px;color:#5a5248;margin:0 0 12px;">Full 10-point pass. <strong>Zero new vulnerabilities.</strong> Everything from the 2026-07-02/07-03 reviews (checkout totals, cron auth, contact form, coupon/order fixes) is confirmed still fixed. No code changes were needed this round.</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="background:#f4f1ec;">
+        <th style="text-align:left;padding:7px 5px;">Area</th>
+        <th style="text-align:left;padding:7px 5px;">Result</th>
+        <th style="text-align:center;padding:7px 5px;">Status</th>
+      </tr>
+      <tr>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Admin route auth</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">All 20 <code>/api/admin/*</code> routes check <code>isAdmin</code>; UI-only admin pages gated centrally by layout</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">OK</span></td>
+      </tr>
+      <tr style="background:#fafafa;">
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Input validation</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Zod/bounds validation present on every public + admin mutating route checked</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">OK</span></td>
+      </tr>
+      <tr>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">SQL injection</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">App code uses parameterized Prisma only. One raw query in a manual dev script (not attacker-reachable) — safe as-is</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">OK</span></td>
+      </tr>
+      <tr style="background:#fafafa;">
+        <td style="padding:7px 5px;border-top:1px solid #eee;">XSS / dangerouslySetInnerHTML</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">All 12 usages (JSON-LD, theme CSS) properly escape/sanitize CMS-editable content</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">OK</span></td>
+      </tr>
+      <tr>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">CSRF</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">NextAuth v5 defaults (httpOnly, SameSite=Lax JWT cookies) mitigate cross-site mutation on JSON APIs</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">OK</span></td>
+      </tr>
+      <tr style="background:#fafafa;">
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Secrets exposure</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">No non-<code>NEXT_PUBLIC_</code> env vars in client components; no hardcoded keys anywhere in repo history</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">OK</span></td>
+      </tr>
+      <tr>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">npm audit</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">0 critical, 0 high — 5 moderate, all dev-tooling only (unchanged since last fix)</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">OK</span></td>
+      </tr>
+      <tr style="background:#fafafa;">
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Auth config (auth.ts)</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">JWT strategy, timing-safe compare, no hardcoded secrets</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">OK</span></td>
+      </tr>
+      <tr>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">File upload (products/upload)</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">MIME allowlist (no SVG), 5MB cap, server-generated filename; Cloudinary rejects non-decodable images as defense-in-depth</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#e3f4e6;color:#2f7a3d;padding:2px 8px;border-radius:10px;font-weight:600;">OK</span></td>
+      </tr>
+      <tr style="background:#fafafa;">
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Rate limiting</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Still absent on contact/newsletter/coupon/checkout/login/reviews — known gap, needs a free Upstash account to implement</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#fdf1d6;color:#a67c00;padding:2px 8px;border-radius:10px;font-weight:600;">Needs you</span></td>
+      </tr>
+    </table>
+    <p style="font-size:12px;color:#7a7166;margin:12px 0 0;">Reminder: you previously said admin-login hardening (rate limiting / longer passwords / 2FA) isn't needed right now — not re-pitched here. Rate limiting on <em>public-facing</em> forms above is a separate, still-open item from prior reviews.</p>
+  </div>
+
+  <!-- GMAIL -->
+  <div style="background:#fff;border-radius:12px;padding:18px;margin-bottom:18px;box-shadow:0 1px 3px rgba(0,0,0,0.08);">
+    <h2 style="margin:0 0 4px;font-size:16px;color:#3d2b1f;">📧 Gmail — last 24 hours</h2>
+    <p style="font-size:13px;color:#5a5248;margin:0 0 12px;">13 threads found. 9 were newsletters/promos (Tripo3D, OpenAI, Shopify, Pinterest, Neon changelog, Photoroom viewer notices) and skipped. 4 need a look:</p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="background:#f4f1ec;">
+        <th style="text-align:left;padding:7px 5px;">Subject / From</th>
+        <th style="text-align:left;padding:7px 5px;">Date</th>
+        <th style="text-align:left;padding:7px 5px;">Recommended action</th>
+        <th style="text-align:center;padding:7px 5px;">Priority</th>
+      </tr>
+      <tr>
+        <td style="padding:7px 5px;border-top:1px solid #eee;"><strong>Vedant left a review for Sirini Jewellery Manufacturers</strong><br><span style="color:#8a8074;">Google Business Profile</span></td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Jul 4, 14:46</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Log into Google Business Profile and reply to the review — responding boosts local SEO ranking too</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#fdf1d6;color:#a67c00;padding:2px 8px;border-radius:10px;font-weight:600;">Medium</span></td>
+      </tr>
+      <tr style="background:#fafafa;">
+        <td style="padding:7px 5px;border-top:1px solid #eee;"><strong>*PLAN* — AI Marketing Agent proposal</strong><br><span style="color:#8a8074;">jihaan.savla@gmail.com</span></td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Jul 4, 09:36</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Proposal to build a Claude-Code-driven Meta Ads/Instagram/Pixel marketing agent with daily reports. Needs your review + a yes/no/questions reply</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#fdf1d6;color:#a67c00;padding:2px 8px;border-radius:10px;font-weight:600;">Medium</span></td>
+      </tr>
+      <tr>
+        <td style="padding:7px 5px;border-top:1px solid #eee;"><strong>2 photos, no subject (IMG_5686, IMG_5696)</strong><br><span style="color:#8a8074;">sirinijewellery123@gmail.com</span></td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Jul 4, 08:02 &amp; 09:26</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Sent from iPhone, no caption — likely product/reference photos. Check attachments and upload to admin if they're for a product listing</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#fdf1d6;color:#a67c00;padding:2px 8px;border-radius:10px;font-weight:600;">Low</span></td>
+      </tr>
+      <tr style="background:#fafafa;">
+        <td style="padding:7px 5px;border-top:1px solid #eee;"><strong>HDFC Bank Business Regalia — lounge access qualified</strong><br><span style="color:#8a8074;">HDFCBankBusinessRegaliaCreditCard@gyftr.com</span></td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Jul 4, 03:37</td>
+        <td style="padding:7px 5px;border-top:1px solid #eee;">Informational — Apr–Jun 2026 quarter airport lounge voucher qualified. No action needed unless you want to redeem it</td>
+        <td style="text-align:center;padding:7px 5px;border-top:1px solid #eee;"><span style="background:#eef2fb;color:#3b5bb0;padding:2px 8px;border-radius:10px;font-weight:600;">FYI</span></td>
+      </tr>
+    </table>
+  </div>
+
+  <p style="font-size:11.5px;color:#9a9182;text-align:center;margin-top:24px;">Generated automatically by the daily Sirini audit routine · code fixes staged but not committed · nothing pushed to production</p>
+
+</div>
+</body>
+</html>

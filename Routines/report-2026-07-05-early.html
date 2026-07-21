@@ -1,0 +1,214 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report (Early Morning) — 2026-07-05</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f1ee;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#2b241f;">
+<div style="max-width:760px;margin:0 auto;padding:16px;">
+
+  <div style="background:linear-gradient(135deg,#3a2e26,#5c4735);border-radius:12px;padding:24px 20px;margin-bottom:20px;color:#fff;">
+    <h1 style="margin:0 0 6px 0;font-size:22px;letter-spacing:0.3px;">Sirini Jewellery — Daily Audit Report (Early Morning)</h1>
+    <p style="margin:0;font-size:14px;opacity:0.85;">2026-07-05 · 5:15 AM automated run · sirinijewellery.com</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 12px 0;font-size:16px;color:#5c4735;">Summary</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="text-align:left;color:#8a7f74;">
+        <th style="padding:4px 6px;">Section</th>
+        <th style="padding:4px 6px;">Findings</th>
+        <th style="padding:4px 6px;">Auto-fixed</th>
+        <th style="padding:4px 6px;">Needs owner action</th>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">SEO</td>
+        <td style="padding:6px;">1</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">1</span></td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span></td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Security</td>
+        <td style="padding:6px;">3</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span></td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">3</span> (all previously known/tracked, no new vulnerabilities)</td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Gmail (24h)</td>
+        <td style="padding:6px;">12 threads scanned</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">2</span> actionable</td>
+      </tr>
+    </table>
+    <p style="margin:14px 0 0 0;font-size:12.5px;color:#8a7f74;">
+      One real fix shipped this run: a heading-hierarchy gap on every product detail page
+      (<code>app/shop/[slug]/ProductDetailClient.tsx</code>) where "Description" and "Details" were
+      marked up as <code>&lt;h3&gt;</code> directly under the page's <code>&lt;h1&gt;</code>, skipping
+      <code>&lt;h2&gt;</code> entirely. Changed both to <code>&lt;h2&gt;</code> — same Tailwind classes,
+      zero visual change, verified in a live preview (DOM now reads H1 → H2 → H2 → H2 → H3 for related-product
+      cards). <code>npx tsc --noEmit</code> passed clean. The change is staged (<code>git add</code>) but
+      <b>not committed</b>, per instructions — the owner should review and commit when ready. Everything else
+      checked (meta tags, JSON-LD, sitemap, robots.txt, admin auth, webhook verification, upload validation)
+      was already in the hardened state from prior review passes and needed no changes.
+    </p>
+  </div>
+
+  <!-- SEO -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">1. SEO Audit</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Checked meta titles/descriptions (<code>lib/seo.ts</code>, per-page <code>generateMetadata</code>), Open Graph
+      &amp; Twitter cards, JSON-LD determinism, image alt text, heading hierarchy (product, shop, home pages),
+      <code>app/sitemap.ts</code>, <code>app/robots.ts</code>, <code>app/image-sitemap.xml</code>,
+      <code>app/product-feed.xml</code>, canonical URLs, and font/image loading for Core Web Vitals.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Finding</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>app/shop/[slug]/ProductDetailClient.tsx:262,272</code></td>
+        <td style="padding:6px;">Product detail page had exactly one <code>&lt;h1&gt;</code> (product name) but its
+        "Description" and "Details" sub-sections were marked up as <code>&lt;h3&gt;</code> with no
+        <code>&lt;h2&gt;</code> anywhere on the page — a heading-level skip that muddies the page outline for
+        screen readers and search crawlers.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Low</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Fixed</span> — both changed to <code>&lt;h2&gt;</code> (identical classes, no visual change; verified live).</td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Checked, no issues found:</b> meta titles/descriptions on homepage, shop listing, and product detail
+          (<code>productMetadata()</code> builds a unique per-product title/description under 160 chars,
+          supports owner overrides); OG/Twitter cards centralized in <code>lib/seo.ts</code> with correct
+          <code>metadataBase</code>, canonical resolution ignoring stray <code>*.vercel.app</code> values;
+          <code>ProductJsonLd.tsx</code> and all 5 other JSON-LD components (<code>WebSiteJsonLd</code>,
+          <code>LocalBusinessJsonLd</code>, <code>FAQJsonLd</code>, <code>OrganizationJsonLd</code>,
+          <code>BreadcrumbJsonLd</code>, blog <code>BlogPosting</code>) remain fully deterministic
+          (<code>priceValidUntil</code> anchored to a fixed year-end date, no <code>Date.now()</code>/
+          <code>Math.random()</code> in output) and consistently <code>&lt;</code>-escaped against stored-XSS;
+          alt text on hero, product gallery, product cards, and category grids is descriptive and per-item
+          (hero slide alt text was already improved to include slide position in an uncommitted prior-session
+          change); <code>app/sitemap.ts</code> emits static, facet, blog, taxonomy-collection, and product routes
+          with real (non-churning) <code>lastModified</code> dates; <code>app/robots.ts</code> correctly
+          disallows <code>/admin/</code>, <code>/api/</code>, <code>/cart</code>, <code>/checkout</code>,
+          <code>/account</code>, <code>/wishlist</code>, <code>/order-confirmation</code> and references both
+          <code>sitemap.xml</code> and <code>image-sitemap.xml</code>; <code>image-sitemap.xml</code> and
+          <code>product-feed.xml</code> route handlers exist, escape XML entities, and set sane cache headers;
+          fonts load via <code>next/font/google</code> (self-hosted, no external font request, no
+          layout-shift-prone <code>&lt;link&gt;</code> tags); Cloudinary image loader (<code>next.config.ts</code>)
+          keeps the trimmed 4-width/3-size srcset ladder from the prior infra-cost fix.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- SECURITY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">2. Security Review</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Re-verified all 21 <code>/api/admin/*</code> route files for <code>isAdmin</code> gating, re-ran
+      <code>npm audit</code>, re-checked the upload endpoint, the Razorpay webhook signature verification, the
+      registration/review input validation, and every <code>dangerouslySetInnerHTML</code> usage in the app. No
+      new vulnerabilities found; the 3 open items below are unchanged carry-overs already tracked in
+      <code>REVIEW-FINDINGS.md</code> / <code>HANDOFF.md</code>, not new discoveries.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Issue</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>package-lock.json</code> (<code>npm audit</code>)</td>
+        <td style="padding:6px;">5 moderate findings, all dev-tooling/transitive: <code>@hono/node-server</code> /
+        <code>@prisma/dev</code> (middleware-bypass advisory in Prisma's dev CLI, not the deployed runtime) and
+        Next's bundled <code>postcss</code> (XSS in CSS stringify output, fix requires a Next major downgrade).
+        0 high/critical. <code>npm audit fix --force</code> would downgrade to <code>prisma@6.19.3</code> /
+        <code>next@9.3.3</code> — not applied, since this project intentionally runs Next 16 / Prisma 7 per
+        <code>AGENTS.md</code>.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner decision</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>app/api/contact</code>, <code>app/api/reviews/[productId]</code>, <code>app/api/newsletter</code>, <code>app/api/coupon/validate</code></td>
+        <td style="padding:6px;">Still no rate limiting on public POST endpoints (zod validation is present on all
+        of them). Same open item as prior reviews — needs a free Upstash account; HANDOFF.md pending decision #2,
+        previously deferred by the owner ("later").</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner action</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>prisma/schema.prisma:282</code> (<code>Review.isPublished</code>)</td>
+        <td style="padding:6px;">Defaults to <code>true</code> — reviews submitted via
+        <code>POST /api/reviews/[productId]</code> publish instantly with no admin approval step. HANDOFF.md
+        pending decision #1, still unanswered by the owner.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Needs owner decision</span></td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Checked, no issues found:</b> all 21 files under <code>app/api/admin/**/route.ts</code> contain an
+          <code>isAdmin</code> check (no misses); <code>app/api/webhooks/razorpay</code> verifies the
+          <code>x-razorpay-signature</code> HMAC with <code>crypto.timingSafeEqual</code> against the raw body
+          before touching the DB; <code>app/api/cron/daily-digest</code> uses a timing-safe secret compare and
+          fails closed (401) in production when <code>CRON_SECRET</code> is unset; upload endpoint
+          (<code>app/api/admin/products/upload/route.ts</code>) MIME-allowlists raster types only (SVG excluded
+          to block script-embedded stored XSS), caps at 5MB, and server-generates the Cloudinary public_id — no
+          path traversal; <code>app/api/auth/register</code> validates with zod (bcrypt cost 12, 72-byte password
+          cap to avoid bcrypt truncation surprises and oversized-input DoS) and relies on the DB unique constraint
+          rather than a check-then-insert race; <code>app/api/reviews/[productId]</code> validates with zod and
+          never exposes internal <code>userId</code> in the public GET response; every
+          <code>dangerouslySetInnerHTML</code> usage in the app (6 JSON-LD components + the sanitized admin
+          theme-override <code>&lt;style&gt;</code> tag in <code>app/layout.tsx</code>) either escapes
+          <code>&lt;</code> to <code><</code> or sources from a value sanitized upstream in
+          <code>lib/queries/theme.ts</code>; no raw/interpolated SQL anywhere in the app (Prisma query builder
+          throughout).
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- GMAIL -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">3. Gmail — Last 24 Hours</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      12 threads in the last 24h. No Vercel, Neon, Cloudinary, Razorpay, or domain/DNS alerts — infra is quiet.
+      No customer inquiries or order-related emails came in. Two items are genuinely worth the owner's attention;
+      the rest is marketing newsletters, an internal photo forward, and a personal bank notice.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">Subject / Thread</th><th style="padding:6px;">Sender</th><th style="padding:6px;">Date</th><th style="padding:6px;">Recommended action</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">"Vedant left a review for Sirini Jewellery Manufacturers"</td>
+        <td style="padding:6px;">businessprofile-noreply@google.com</td>
+        <td style="padding:6px;">Jul 4, 20:16 IST</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Reply requested</span> Google Business Profile review notification. Log in and respond to keep the profile active and build trust signals for local SEO.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">"*PLAN* — local AI Marketing Agent using Claude Code (Meta Ads/Instagram/Pixel)"</td>
+        <td style="padding:6px;">jihaan.savla@gmail.com</td>
+        <td style="padding:6px;">Jul 4, 15:06 IST</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Review proposal</span> Internal proposal to build a Claude Code-driven marketing agent connecting Meta Ads, Instagram insights, GA4, and the Meta Conversion API for automated daily ad-performance reporting. Needs the owner's go/no-go and Meta Business Manager access to proceed.</td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Skipped (not actionable / not site-related):</b> 2 self-forwarded iPhone product photos, no caption
+          (sirinijewellery123@gmail.com, Jul 4 — likely a secondary personal account forwarding shoot photos; low
+          priority, no immediate action); HDFC Bank Business Regalia lounge-access voucher notice — personal
+          account benefit, not payment-gateway related; 2× Tripo3D marketing newsletters; 1× OpenAI/ChatGPT
+          promo; 1× Shopify print-on-demand marketing email; 1× Pinterest recommendations digest; 1 self-sent
+          Sent-folder message (image-generation prompt draft, not a real inbound item).
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <p style="text-align:center;font-size:11px;color:#a89c8f;margin-top:24px;">
+    Generated automatically · Sirini Jewellery early-morning audit (5:15 AM run) · code fix staged, not committed or pushed
+  </p>
+
+</div>
+</body>
+</html>

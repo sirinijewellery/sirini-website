@@ -1,0 +1,79 @@
+<h2>Shop Filters Sidebar — How should mobile work?</h2>
+<p class="subtitle">On desktop (1024px+) the sidebar is already pinned open. The question is tablet &amp; phone.</p>
+
+<div class="cards">
+
+  <div class="card" data-choice="a" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf7f2;padding:16px;display:flex;gap:8px;align-items:flex-start;min-height:200px">
+      <div style="width:100px;background:#fff;border:1.5px solid #e5e7eb;border-radius:8px;padding:10px;font-size:10px;flex-shrink:0">
+        <div style="font-weight:700;color:#1a1208;margin-bottom:8px;font-size:9px;letter-spacing:.08em;text-transform:uppercase">Filters</div>
+        <div style="color:#c9a96e;font-size:9px;margin-bottom:4px">● Category</div>
+        <div style="color:#c9a96e;font-size:9px;margin-bottom:4px">● Occasion</div>
+        <div style="color:#c9a96e;font-size:9px;margin-bottom:4px">● Material</div>
+        <div style="color:#c9a96e;font-size:9px;margin-bottom:4px">● Price</div>
+        <div style="color:#c9a96e;font-size:9px">● Style</div>
+      </div>
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="aspect-ratio:3/4;background:#e8d5b0;border-radius:6px;font-size:9px;display:flex;align-items:center;justify-content:center;color:#8a8078">Product</div>
+        <div style="aspect-ratio:3/4;background:#e8d5b0;border-radius:6px;font-size:9px;display:flex;align-items:center;justify-content:center;color:#8a8078">Product</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>A — Persistent sidebar (always open)</h3>
+      <p>Sidebar stays visible on phone and tablet. Products are beside it in 2 columns. On 375px phones the sidebar would be ~110px wide — cards are narrow but the filters are always accessible.</p>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>Pros</h4><ul><li>Always accessible</li><li>No extra tap to open</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Very tight on small phones</li><li>Cards are cramped</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="b" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf7f2;padding:16px;min-height:200px">
+      <div style="display:flex;align-items:center;gap:6px;margin-bottom:10px">
+        <div style="background:#1a1208;color:#fff;border-radius:20px;padding:4px 12px;font-size:9px;display:flex;align-items:center;gap:4px">⚙ Filters &amp; Sort</div>
+        <div style="background:#c9a96e/10;color:#c9a96e;border:1px solid #c9a96e;border-radius:12px;padding:2px 8px;font-size:8px">Bridal ✕</div>
+      </div>
+      <div style="display:grid;grid-template-columns:1fr 1fr 1fr;gap:6px">
+        <div style="aspect-ratio:3/4;background:#e8d5b0;border-radius:6px;font-size:9px;display:flex;align-items:center;justify-content:center;color:#8a8078">Product</div>
+        <div style="aspect-ratio:3/4;background:#e8d5b0;border-radius:6px;font-size:9px;display:flex;align-items:center;justify-content:center;color:#8a8078">Product</div>
+        <div style="aspect-ratio:3/4;background:#e8d5b0;border-radius:6px;font-size:9px;display:flex;align-items:center;justify-content:center;color:#8a8078">Product</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>B — Full-width filter bar above products</h3>
+      <p>A sticky horizontal bar with an icon+label button that opens a full-screen filter drawer. Active chips show inline. Products get the full width in 3 columns.</p>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>Pros</h4><ul><li>Products at full width</li><li>Industry-standard mobile UX</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Filters need a tap to open</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+  <div class="card" data-choice="c" onclick="toggleSelect(this)">
+    <div class="card-image" style="background:#faf7f2;padding:16px;min-height:200px;display:flex;gap:8px">
+      <div style="width:28px;background:#fff;border-right:1.5px solid #e5e7eb;display:flex;flex-direction:column;align-items:center;padding-top:10px;gap:10px">
+        <div style="writing-mode:vertical-lr;transform:rotate(180deg);font-size:8px;font-weight:700;color:#1a1208;letter-spacing:.08em;text-transform:uppercase">Filters</div>
+        <div style="width:16px;height:1px;background:#e5e7eb"></div>
+        <div style="font-size:8px;color:#c9a96e">●</div>
+        <div style="font-size:8px;color:#c9a96e">●</div>
+        <div style="font-size:8px;color:#c9a96e">●</div>
+      </div>
+      <div style="flex:1;display:grid;grid-template-columns:1fr 1fr;gap:6px">
+        <div style="aspect-ratio:3/4;background:#e8d5b0;border-radius:6px;font-size:9px;display:flex;align-items:center;justify-content:center;color:#8a8078">Product</div>
+        <div style="aspect-ratio:3/4;background:#e8d5b0;border-radius:6px;font-size:9px;display:flex;align-items:center;justify-content:center;color:#8a8078">Product</div>
+      </div>
+    </div>
+    <div class="card-body">
+      <h3>C — Collapsed icon rail (expands to full sidebar)</h3>
+      <p>On mobile/tablet a narrow icon rail is always visible on the left. Tap any filter group and it expands to a full sidebar overlay. On desktop it starts fully open.</p>
+      <div class="pros-cons" style="margin-top:8px">
+        <div class="pros"><h4>Pros</h4><ul><li>Always present without stealing space</li><li>Feels premium / editorial</li></ul></div>
+        <div class="cons"><h4>Cons</h4><ul><li>Slightly less discoverable</li><li>More complex to build</li></ul></div>
+      </div>
+    </div>
+  </div>
+
+</div>
+
+<p class="subtitle" style="margin-top:16px">Click your preferred option, then tell me in the terminal.</p>

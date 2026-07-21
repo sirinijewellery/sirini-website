@@ -1,0 +1,37 @@
+[
+ {
+  "file": "ebgaramond-500-italic.woff2",
+  "family": "EB Garamond",
+  "style": "italic",
+  "weight": "500",
+  "kb": 26
+ },
+ {
+  "file": "ebgaramond-500-normal.woff2",
+  "family": "EB Garamond",
+  "style": "normal",
+  "weight": "500",
+  "kb": 43
+ },
+ {
+  "file": "ebgaramond-600-normal.woff2",
+  "family": "EB Garamond",
+  "style": "normal",
+  "weight": "600",
+  "kb": 43
+ },
+ {
+  "file": "dmsans-300-normal.woff2",
+  "family": "DM Sans",
+  "style": "normal",
+  "weight": "300",
+  "kb": 36
+ },
+ {
+  "file": "dmsans-400-normal.woff2",
+  "family": "DM Sans",
+  "style": "normal",
+  "weight": "400",
+  "kb": 36
+ }
+]

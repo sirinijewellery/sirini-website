@@ -1,0 +1,37 @@
+[
+ {
+  "file": "cormorant-500-italic.woff2",
+  "family": "Cormorant Garamond",
+  "style": "italic",
+  "weight": "500",
+  "kb": 23
+ },
+ {
+  "file": "cormorant-500-normal.woff2",
+  "family": "Cormorant Garamond",
+  "style": "normal",
+  "weight": "500",
+  "kb": 37
+ },
+ {
+  "file": "cormorant-600-normal.woff2",
+  "family": "Cormorant Garamond",
+  "style": "normal",
+  "weight": "600",
+  "kb": 37
+ },
+ {
+  "file": "jost-300-normal.woff2",
+  "family": "Jost",
+  "style": "normal",
+  "weight": "300",
+  "kb": 26
+ },
+ {
+  "file": "jost-400-normal.woff2",
+  "family": "Jost",
+  "style": "normal",
+  "weight": "400",
+  "kb": 26
+ }
+]

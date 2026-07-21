@@ -1,0 +1,244 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report (Midday)</title>
+<style>
+  * { box-sizing: border-box; }
+  body {
+    margin: 0;
+    padding: 16px;
+    background: #FAF7F4;
+    color: #2A2320;
+    font-family: -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, Helvetica, Arial, sans-serif;
+    line-height: 1.5;
+  }
+  .wrap { max-width: 900px; margin: 0 auto; }
+  header {
+    background: linear-gradient(135deg, #7A1F3D, #9C2A4E);
+    color: #fff;
+    border-radius: 12px;
+    padding: 20px;
+    margin-bottom: 20px;
+  }
+  header h1 { margin: 0 0 4px; font-size: 1.4rem; }
+  header p { margin: 0; opacity: 0.9; font-size: 0.9rem; }
+
+  .summary-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(130px, 1fr));
+    gap: 10px;
+    margin-bottom: 24px;
+  }
+  .stat {
+    background: #fff;
+    border: 1px solid #ECE3DC;
+    border-radius: 10px;
+    padding: 12px;
+    text-align: center;
+  }
+  .stat .n { font-size: 1.5rem; font-weight: 700; display: block; }
+  .stat .l { font-size: 0.75rem; color: #6b5f57; text-transform: uppercase; letter-spacing: 0.03em; }
+  .stat.fixed .n { color: #1a7f3c; }
+  .stat.manual .n { color: #a8710a; }
+  .stat.crit .n { color: #b32020; }
+
+  section { margin-bottom: 32px; }
+  h2 {
+    font-size: 1.15rem;
+    border-bottom: 2px solid #7A1F3D;
+    padding-bottom: 6px;
+    margin-bottom: 12px;
+    color: #7A1F3D;
+  }
+  .table-scroll { overflow-x: auto; border: 1px solid #ECE3DC; border-radius: 10px; }
+  table { width: 100%; border-collapse: collapse; background: #fff; font-size: 0.82rem; min-width: 560px; }
+  th, td { text-align: left; padding: 8px 10px; border-bottom: 1px solid #F0E9E3; vertical-align: top; }
+  th { background: #F7F1EC; font-size: 0.72rem; text-transform: uppercase; letter-spacing: 0.03em; color: #6b5f57; white-space: nowrap; }
+  tr:last-child td { border-bottom: none; }
+  code { background: #F3ECE6; padding: 1px 5px; border-radius: 4px; font-size: 0.78em; word-break: break-all; }
+
+  .badge {
+    display: inline-block;
+    padding: 2px 8px;
+    border-radius: 20px;
+    font-size: 0.72rem;
+    font-weight: 600;
+    white-space: nowrap;
+  }
+  .badge.ok { background: #E4F5E8; color: #1a7f3c; }
+  .badge.fixed { background: #E4F5E8; color: #1a7f3c; }
+  .badge.manual { background: #FFF3D6; color: #8a5a00; }
+  .badge.critical { background: #FBE2E2; color: #b32020; }
+  .badge.high { background: #FDE8D6; color: #b0530a; }
+  .badge.medium { background: #FFF3D6; color: #8a5a00; }
+  .badge.low { background: #EFF3EA; color: #4b6b3d; }
+
+  .note {
+    background: #F7F1EC;
+    border-left: 3px solid #7A1F3D;
+    padding: 10px 14px;
+    border-radius: 6px;
+    font-size: 0.85rem;
+    margin-top: 14px;
+  }
+  footer { text-align: center; color: #9a8d84; font-size: 0.75rem; margin-top: 20px; }
+
+  @media (prefers-color-scheme: dark) {
+    body { background: #17130f; color: #EDE6DF; }
+    .stat, table { background: #221c17; }
+    .stat, .table-scroll { border-color: #362c24; }
+    th { background: #2a231d; color: #b8a99c; }
+    td { border-bottom-color: #2a231d; }
+    code { background: #2a231d; }
+    .note { background: #2a231d; }
+    h2 { color: #e7a9bd; border-bottom-color: #9C2A4E; }
+  }
+</style>
+</head>
+<body>
+<div class="wrap">
+
+  <header>
+    <h1>Sirini Jewellery — Daily Audit Report (Midday)</h1>
+    <p>2026-07-16, 12:30pm run · SEO &amp; Security re-verification</p>
+  </header>
+
+  <div class="summary-grid">
+    <div class="stat"><span class="n">9</span><span class="l">Findings re-checked</span></div>
+    <div class="stat fixed"><span class="n">1</span><span class="l">Newly resolved</span></div>
+    <div class="stat manual"><span class="n">3</span><span class="l">Still needs owner action</span></div>
+    <div class="stat"><span class="n">5</span><span class="l">Verified OK</span></div>
+  </div>
+
+  <div class="note">
+    <strong>Context:</strong> the 00:xx run today (<code>report-2026-07-16.html</code>) already did a full
+    18+22 finding sweep across SEO and Security and left 6 code fixes staged/unstaged, uncommitted. No
+    commits landed on <code>main</code> between that run and this one (<code>git log</code> confirms). This
+    midday pass re-verifies every open item from that report against the current working tree rather than
+    re-running the entire audit from scratch, and spot-checks the three feature commits that shipped
+    yesterday evening (splash screen, branded loading states) for anything the morning sweep would have
+    missed. Full methodology is unchanged from the earlier report — see it for the complete finding list.
+  </div>
+
+  <section>
+    <h2>SEO — re-verification</h2>
+    <div class="table-scroll">
+    <table>
+      <tr><th>File</th><th>Item</th><th>Status</th></tr>
+      <tr>
+        <td><code>app/robots.ts</code>, <code>app/(auth)/layout.tsx</code></td>
+        <td>Earlier report flagged a robots.txt-disallow vs. page-noindex mismatch on <code>/login</code> and
+          <code>/register</code> as needing an owner decision. Since then <code>app/robots.ts</code> was
+          edited (uncommitted) to add both paths to <code>disallow</code>, and this run confirmed
+          <code>app/(auth)/layout.tsx</code> already exports <code>robots: {"{"} index: false, follow: false {"}"}</code>
+          for both pages — so the mismatch is now resolved with no further code needed. Also spot-checked
+          <code>app/cart/layout.tsx</code>, <code>checkout</code>, <code>account</code>, <code>wishlist</code>,
+          <code>order-confirmation</code> — all correctly noindexed and consistent with robots.ts.</td>
+        <td><span class="badge fixed">Now resolved</span></td>
+      </tr>
+      <tr>
+        <td><code>prisma/schema.prisma</code> (HeroSlide) + <code>HeroCarousel.tsx</code></td>
+        <td>No alt/caption field on HeroSlide, so hero alt text is still a hardcoded generic string. Unchanged
+          since the morning report — needs a schema + admin UI change, not a same-run fix.</td>
+        <td><span class="badge manual">Needs action</span></td>
+      </tr>
+      <tr>
+        <td><code>app/layout.tsx</code>, <code>components/BrandedLoader.tsx</code>, <code>app/loading.tsx</code>,
+          <code>app/shop/loading.tsx</code>, <code>app/shop/[slug]/loading.tsx</code></td>
+        <td>Spot-checked the splash-screen and skeleton-loader commits from yesterday evening
+          (<code>332ad9f</code>, <code>a1f6dff</code>, <code>4a93222</code>) for SEO/CWV regressions: splash
+          overlay is <code>aria-hidden</code>, fixed-position (doesn't participate in layout → no CLS
+          contribution), invisible for the first 800ms so fast loads never paint it, and dismissal is a
+          static inline script with no interpolated data. No new issue.</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>app/sitemap.ts</code>, <code>public/world.html</code></td>
+        <td>Re-confirmed <code>/world</code> is only served from <code>public/world.html</code> and is not
+          affected by the untracked <code>sfj-world/</code>, <code>sirini-world/</code> project folders at
+          repo root (separate standalone deliverables, outside <code>public/</code>, not part of the deployed
+          site or its sitemap).</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>app/robots.ts</code> npm-audit / postcss note, sitemap dedupe, canonical logic on
+          <code>shop/page.tsx</code>, JSON-LD determinism</td>
+        <td>Re-verified unchanged and still correct — no drift since the morning pass.</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+    </table>
+    </div>
+  </section>
+
+  <section>
+    <h2>Security — re-verification</h2>
+    <div class="table-scroll">
+    <table>
+      <tr><th>Area</th><th>Item</th><th>Status</th></tr>
+      <tr>
+        <td><code>app/api/search/route.ts</code></td>
+        <td>Morning report listed this public GET endpoint's missing rate limit as "needs action." The working
+          tree now has <code>enforceRateLimit(request, "search", 60, 10 * 60_000)</code> already added
+          (uncommitted) — confirmed complete, matches the pattern used by <code>checkout/failed</code> and
+          sibling routes.</td>
+        <td><span class="badge fixed">Now resolved</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/marketing-metrics/route.ts</code></td>
+        <td>Not previously itemized. Exposes order-aggregate metrics (counts/revenue, no PII) for an external
+          dashboard. Verified: fails closed if <code>MARKETING_METRICS_API_KEY</code> is unset, uses
+          <code>timingSafeEqual</code> for the shared-secret header (not a plain <code>!==</code>), and its one
+          raw SQL query passes the date bound as a tagged-template parameter (Prisma-parameterized, not string
+          concatenation) — no injection surface.</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/admin/messages/[id]/route.ts</code> and other recently-touched admin routes</td>
+        <td>Spot-checked auth gating on routes with newer mtimes — all still check
+          <code>session?.user?.isAdmin</code> on every handler.</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+      <tr>
+        <td><code>npm audit</code> — <code>postcss</code> (bundled in Next) and <code>@hono/node-server</code>
+          (via <code>@prisma/dev</code>)</td>
+        <td>Re-ran fresh: same 2 moderate advisories as the morning report, both build-time/dev-only tooling,
+          both require a breaking major downgrade (Next 16→9, Prisma 7→6) to auto-fix. Not safe to apply
+          unattended.</td>
+        <td><span class="badge manual">Needs action</span></td>
+      </tr>
+      <tr>
+        <td><code>app/api/auth/[...nextauth]/route.ts</code></td>
+        <td>No brute-force throttle on login. Unchanged — owner declined this hardening on 2026-07-02.</td>
+        <td><span class="badge manual">Noted only</span></td>
+      </tr>
+      <tr>
+        <td><code>npx tsc --noEmit</code></td>
+        <td>Ran clean against the full working tree (staged + unstaged changes from the morning run included)
+          — no type errors introduced.</td>
+        <td><span class="badge ok">OK</span></td>
+      </tr>
+    </table>
+    </div>
+    <div class="note">
+      <strong>No new critical/high findings.</strong> This run made no additional code edits — the search-route
+      rate limit and robots.txt/noindex items were already resolved in the working tree from the morning run;
+      this pass only confirmed and re-classified them.
+    </div>
+  </section>
+
+  <div class="note">
+    <strong>Full uncommitted diff (accumulated across today's runs, still nothing committed or pushed):</strong>
+    <code>app/api/checkout/failed/route.ts</code>, <code>app/api/search/route.ts</code>,
+    <code>app/blog/page.tsx</code>, <code>app/faq/page.tsx</code>, <code>app/shop/[slug]/page.tsx</code>,
+    <code>components/HeroCarousel.tsx</code>, <code>public/world.html</code>, <code>app/robots.ts</code>.
+    (<code>.claude/launch.json</code> and <code>.claude/skills/deploy-and-verify/SKILL.md</code> are also
+    modified in the working tree but are unrelated dev-tooling changes from other sessions, not audit fixes —
+    left untouched.) Review with <code>git status</code> / <code>git diff</code> and commit when ready.
+  </div>
+
+  <footer>Generated automatically by the daily Sirini Jewellery audit routine · sirinijewellery.com</footer>
+</div>
+</body>
+</html>

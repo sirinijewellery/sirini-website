@@ -1,0 +1,185 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Sirini Jewellery — Daily Audit Report (Midday) — 2026-07-05</title>
+</head>
+<body style="margin:0;padding:0;background:#f4f1ee;font-family:-apple-system,BlinkMacSystemFont,'Segoe UI',Roboto,Arial,sans-serif;color:#2b241f;">
+<div style="max-width:760px;margin:0 auto;padding:16px;">
+
+  <div style="background:linear-gradient(135deg,#3a2e26,#5c4735);border-radius:12px;padding:24px 20px;margin-bottom:20px;color:#fff;">
+    <h1 style="margin:0 0 6px 0;font-size:22px;letter-spacing:0.3px;">Sirini Jewellery — Daily Audit Report (Midday)</h1>
+    <p style="margin:0;font-size:14px;opacity:0.85;">2026-07-05 · 12:30 PM automated run · sirinijewellery.com</p>
+  </div>
+
+  <!-- SUMMARY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 12px 0;font-size:16px;color:#5c4735;">Summary</h2>
+    <table style="width:100%;border-collapse:collapse;font-size:13px;">
+      <tr style="text-align:left;color:#8a7f74;">
+        <th style="padding:4px 6px;">Section</th>
+        <th style="padding:4px 6px;">Findings</th>
+        <th style="padding:4px 6px;">Auto-fixed</th>
+        <th style="padding:4px 6px;">Needs owner action</th>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">SEO</td>
+        <td style="padding:6px;">2 (both informational)</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span> — nothing broken to fix</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span></td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Security</td>
+        <td style="padding:6px;">2 (both carry-over, already tracked)</td>
+        <td style="padding:6px;"><span style="color:#2e7d32;font-weight:600;">0</span></td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">0 new</span> — both are standing, owner-known items</td>
+      </tr>
+      <tr style="border-top:1px solid #eee;">
+        <td style="padding:6px;">Gmail (24h)</td>
+        <td style="padding:6px;">7 threads scanned</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="color:#b8860b;font-weight:600;">2</span> worth a look</td>
+      </tr>
+    </table>
+    <p style="margin:14px 0 0 0;font-size:12.5px;color:#8a7f74;">
+      <b>No code changes were made this run.</b> Full audits of both SEO and security surfaces (sitemap, robots.txt,
+      metadata helpers, JSON-LD determinism, image alt text, heading hierarchy, admin auth gates, input validation,
+      XSS/CSRF, secrets exposure, file upload, rate limiting, <code>npm audit</code>) found the site already in the
+      state left by the deep reviews on 2026-07-02/03 and the 2026-07-04 audits — nothing new to fix.
+      <code>npx tsc --noEmit</code> ran clean. Note: the working tree already had unrelated in-progress edits from
+      another session (hero OG-image dimensions in <code>lib/seo.ts</code>, an animation tweak in
+      <code>HeroCarousel.tsx</code>, and <code>/world</code> tweaks) — these were left untouched, not part of this
+      run, and not committed or staged by this audit.
+    </p>
+  </div>
+
+  <!-- SEO -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">1. SEO Audit</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Full pass across <code>lib/seo.ts</code>, <code>app/sitemap.ts</code>, <code>app/robots.ts</code>,
+      <code>app/layout.tsx</code>, every page's <code>generateMetadata</code>/<code>pageMetadata</code> usage,
+      <code>ProductJsonLd.tsx</code> + the other five JSON-LD components, image <code>alt</code> text across hero,
+      category, product-card, and gallery components, heading hierarchy on every public page, and internal
+      linking / breadcrumbs.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Finding</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>app/(account)/*</code>, <code>app/checkout</code>, <code>app/wishlist</code></td>
+        <td style="padding:6px;">These user-specific pages hardcode their metadata instead of calling <code>pageMetadata()</code> from <code>lib/seo.ts</code>. Not a real issue: all four already set <code>noindex</code> correctly and are also blocked in <code>robots.ts</code>, so search engines never see them either way — this is a code-style inconsistency, not an SEO gap.</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Low / informational</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">No action needed</span></td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>lib/seo.ts</code> (uncommitted, pre-existing edit)</td>
+        <td style="padding:6px;">Found mid-edit in the working tree: <code>productMetadata()</code>'s OG image dimensions were changed from <code>800×800</code> to <code>960×1200</code> (line 205) as part of another session's work, not this audit. The new aspect ratio matches Sirini's portrait product photography better than the old square crop — verified it's still paired with a real <code>alt</code> and doesn't break the Twitter/OG card schema. Flagging only so it isn't lost track of before the owner reviews and commits.</td>
+        <td style="padding:6px;">—</td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">Informational — pre-existing WIP, not touched</span></td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Verified clean, no action needed:</b> <code>app/sitemap.ts</code> covers home/shop/blog/static pages +
+          every product slug + faceted taxonomy URLs, with deterministic <code>lastModified</code> dates and no
+          admin/API leakage; <code>app/robots.ts</code> disallows <code>/admin/</code>, <code>/api/</code>,
+          <code>/cart</code>, <code>/checkout</code>, <code>/account</code>, <code>/wishlist</code>,
+          <code>/order-confirmation</code> and references both sitemaps; <code>ProductJsonLd.tsx</code> still uses
+          the deterministic <code>${'{'}year+1{'}'}-12-31</code> <code>priceValidUntil</code> (no <code>Date.now()</code>
+          regression) and is <code>&lt;</code>-escaped; every public page carries exactly one <code>&lt;h1&gt;</code>;
+          hero/category/product-card/gallery images all have descriptive, product-specific <code>alt</code> text;
+          breadcrumb nav + <code>BreadcrumbJsonLd</code> present on shop, product, and info pages; fonts load with
+          <code>display:swap</code>; canonical URLs set on home, shop, and every product page.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- SECURITY -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">2. Security Review</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Verified all 21 <code>/api/admin/*</code> route files gate on <code>isAdmin</code> before any mutation;
+      checked public-facing routes for Zod validation and raw-SQL risk; audited all 11
+      <code>dangerouslySetInnerHTML</code> usages for escaping; reviewed <code>lib/auth.ts</code> (JWT sessions,
+      bcrypt cost 12, timing-safe dummy-hash compare); checked the upload route's MIME allowlist/size cap; grepped
+      for any secret reaching a client bundle or a <code>NEXT_PUBLIC_*</code> var it shouldn't be in; re-ran
+      <code>npm audit</code>.
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">File</th><th style="padding:6px;">Issue</th><th style="padding:6px;">Severity</th><th style="padding:6px;">Status</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">No rate limiting on public POST routes (<code>/api/contact</code>, <code>/api/newsletter</code>, <code>/api/auth/register</code>, <code>/api/reviews/[productId]</code>, <code>/api/checkout/cod</code>)</td>
+        <td style="padding:6px;">Unchanged carry-over from HANDOFF.md's pending decision #2 (Upstash free-tier rate limiting). Not a new vulnerability introduced today — same standing item as every prior audit this week.</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium</span></td>
+        <td style="padding:6px;"><span style="background:#ffebee;color:#c62828;padding:2px 8px;border-radius:10px;">Owner decision pending</span> — recommend "yes" once traffic grows; low urgency at current volume.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;"><code>package-lock.json</code> (<code>npm audit</code>)</td>
+        <td style="padding:6px;">5 moderate findings, 0 high/critical — <code>@hono/node-server</code> (path/slash bypass) and <code>postcss</code> (CSS-stringify XSS), both transitive dev-tooling dependencies of <code>@prisma/dev</code> and Next's bundled build pipeline respectively. Neither is reachable at runtime on the deployed site. Fixing either requires <code>npm audit fix --force</code>, which would downgrade Prisma/Next below the versions this project intentionally pins (per <code>AGENTS.md</code>).</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Medium (dev-only, not exploitable in prod)</span></td>
+        <td style="padding:6px;"><span style="background:#e8f5e9;color:#2e7d32;padding:2px 8px;border-radius:10px;">No action recommended</span> — unchanged from prior audits; hold until stable Next/Prisma releases resolve it upstream.</td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Verified clean, no action needed:</b> all 21 admin API route files check <code>session?.user?.isAdmin</code>
+          before any Prisma call; no raw SQL string-interpolation anywhere (only parameterized/tagged-template
+          Prisma access); all 11 <code>dangerouslySetInnerHTML</code> sites are either <code>&lt;</code>-escaped
+          JSON-LD or the whitelist-sanitized theme <code>&lt;style&gt;</code> block; <code>lib/auth.ts</code> uses
+          JWT sessions, bcrypt (cost 12), and a constant-time dummy-hash compare with no privilege-escalation path
+          in callbacks; the upload route enforces a MIME allowlist (SVG excluded), a 5&nbsp;MB cap, and
+          server-generated filenames; no secret env var (Razorpay key secret, DB URL, NextAuth secret, Resend key)
+          is reachable from any client component or <code>NEXT_PUBLIC_*</code> var; NextAuth's built-in CSRF
+          protection covers all mutation routes and no mutating route uses GET; cron digest route still fails
+          closed (401) when <code>CRON_SECRET</code> is unset. Standing owner-deferred items unchanged: admin-login
+          rate limiting/password policy (owner declined 2026-07-02, see <code>REVIEW-FINDINGS.md</code>), review
+          moderation queue (pending decision #1).
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <!-- GMAIL -->
+  <div style="background:#fff;border-radius:12px;padding:18px 20px;margin-bottom:20px;box-shadow:0 1px 3px rgba(0,0,0,0.06);">
+    <h2 style="margin:0 0 4px 0;font-size:16px;color:#5c4735;">3. Gmail Check (last 24h)</h2>
+    <p style="margin:0 0 12px 0;font-size:12.5px;color:#8a7f74;">
+      Scanned <code>sirinijewellery@gmail.com</code> inbox, 2026-07-04 09:26 → 2026-07-05 03:20 IST. 7 threads
+      total; 3 newsletters/promotions skipped (2× Tripo3D 3D-printing marketing emails, 1× OpenAI "more access to
+      ChatGPT" promo).
+    </p>
+    <table style="width:100%;border-collapse:collapse;font-size:12.5px;">
+      <tr style="text-align:left;color:#8a7f74;border-bottom:1px solid #eee;">
+        <th style="padding:6px;">Subject</th><th style="padding:6px;">Sender</th><th style="padding:6px;">Date</th><th style="padding:6px;">Recommended action</th>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">*PLAN* — local AI Marketing Agent (Meta Ads / Instagram / GA4 via Claude Code)</td>
+        <td style="padding:6px;"><code>jihaan.savla@gmail.com</code></td>
+        <td style="padding:6px;">Jul 4, 9:36 AM</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Review &amp; decide</span> — detailed proposal to build a Claude-Code-driven marketing agent pulling Meta Ads/Instagram/GA4 data for daily reports and eventual campaign automation. Needs Meta Business Manager access, Instagram Business account, Meta Pixel + Conversion API, and GA4 to start; no paid tools required besides ad spend. Worth a reply either way since it's awaiting a go/no-go.</td>
+      </tr>
+      <tr style="border-bottom:1px solid #f4f1ee;">
+        <td style="padding:6px;">(no subject) — 1 photo attachment each, "Sent from my iPhone" (IMG_5686.JPG, IMG_5696.JPG)</td>
+        <td style="padding:6px;"><code>sirinijewellery123@gmail.com</code></td>
+        <td style="padding:6px;">Jul 4, 8:02 AM &amp; 9:26 AM</td>
+        <td style="padding:6px;"><span style="background:#fff8e1;color:#b8860b;padding:2px 8px;border-radius:10px;">Review</span> — two separate self-forwarded product photos, likely new stock/inventory shots. If new, upload via <code>/admin/products</code>.</td>
+      </tr>
+      <tr>
+        <td style="padding:6px;" colspan="4">
+          <b>Already informational / no action:</b> Photoroom "Saloni Fashion Jewellery viewed your design" ×2
+          (Jul 4, 10:49 AM) — automated viewer notification from the Photoroom design tool, no reply needed.
+        </td>
+      </tr>
+    </table>
+  </div>
+
+  <div style="text-align:center;font-size:11px;color:#a89b8c;padding:8px 0 20px;">
+    Generated automatically · scheduled task <code>midday-sirini-audit</code> · no commits or pushes made this run
+  </div>
+
+</div>
+</body>
+</html>
