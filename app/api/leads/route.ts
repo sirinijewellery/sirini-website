@@ -4,6 +4,7 @@ import { prisma } from "@/lib/prisma";
 import { enforceRateLimit } from "@/lib/rateLimit";
 import { emailSchema } from "@/lib/validation";
 import { isAuthorizedByApiKey } from "@/lib/apiKeyAuth";
+import { mintLeadCoupon } from "@/lib/mintLeadCoupon";
 
 const leadSchema = z.object({
   email: emailSchema,
@@ -30,13 +31,40 @@ export async function POST(request: Request) {
     return NextResponse.json({ error: "Invalid email" }, { status: 400 });
   }
 
+  // emailSchema already trims + lowercases, so parsed.data.email is normalized.
+  const email = parsed.data.email;
+
   await prisma.lead.upsert({
-    where: { email: parsed.data.email },
+    where: { email },
     update: {},
-    create: { email: parsed.data.email, source: parsed.data.source ?? "popup" },
+    create: { email, source: parsed.data.source ?? "popup" },
   });
 
-  return NextResponse.json({ ok: true });
+  // Mint (or fetch the existing, idempotent-per-email) welcome coupon so the
+  // popup can show a real code immediately. Called in-process — same server,
+  // no HTTP hop and no LEADS_API_KEY on the wire. Capturing the lead is the
+  // important part: a minting hiccup must NOT fail the request, so on any
+  // error we log and still return { ok: true } without a coupon. The existing
+  // "leads" rate limit above is the only throttle on this path — minting is
+  // idempotent per email and just a keyed lookup when the coupon exists.
+  try {
+    const coupon = await mintLeadCoupon({
+      email,
+      discountPercent: 10,
+      expiresInDays: 60,
+    });
+    return NextResponse.json({
+      ok: true,
+      coupon: {
+        code: coupon.code,
+        discountPercent: coupon.discountPercent,
+        expiresAt: coupon.expiresAt,
+      },
+    });
+  } catch (e) {
+    console.error("[Lead welcome-coupon mint error]", e);
+    return NextResponse.json({ ok: true });
+  }
 }
 
 export async function GET(request: Request) {
