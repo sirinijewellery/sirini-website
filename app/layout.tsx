@@ -18,6 +18,7 @@ import { FooterWrapper } from "@/components/FooterWrapper";
 import { WhatsAppWrapper } from "@/components/WhatsAppWrapper";
 import { GoogleAnalytics, GoogleTagManager } from "@next/third-parties/google";
 import { Analytics } from "@vercel/analytics/next";
+import { SpeedInsights } from "@vercel/speed-insights/next";
 import { baseMetadata } from "@/lib/seo";
 import { getRibbonMessages, getBusinessDetails } from "@/lib/queries/site";
 import { getThemeSettings, buildThemeOverrideCss } from "@/lib/queries/theme";
@@ -241,6 +242,11 @@ export default async function RootLayout({
           <GoogleAnalytics gaId={process.env.NEXT_PUBLIC_GA4_MEASUREMENT_ID} />
         )}
         <Analytics />
+        {/* Core Web Vitals from real visitors (LCP/CLS/INP/FCP/TTFB), reported
+            to Vercel Speed Insights. Analytics above counts page views; this
+            measures how fast those views actually felt. Both are needed —
+            without this the Speed Insights dashboard collects nothing at all. */}
+        <SpeedInsights />
       </body>
     </html>
   );
