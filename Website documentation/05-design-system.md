@@ -228,6 +228,20 @@ deepening on scroll)
 `.loader-breathe` (logo scale/opacity loop, 2.8s) · `.loader-line` (gold line
 sweep, 2.4s)
 
+### Light (the jewellery move)
+| Class | Effect |
+|---|---|
+| `.card-glint` | A soft white-and-gold light band sweeps diagonally across a product card image on hover — 900ms, one-shot, `cubic-bezier(0.16,1,0.3,1)`. Layers over `.card-tilt`/`.vignette-overlay` without competing: those *move* the card, this *lights* it. Pure opacity + background-position on a pseudo-element, so it's GPU-composited |
+| `.heading-shimmer` | One slow pass of warm gold across a section heading as it scrolls into view (2.2s, fires once via `.reveal.active`, never loops) |
+
+> **`.heading-shimmer` trap:** it clears `-webkit-text-fill-color` **only** — it
+> must never set `color: transparent`. The gradient's end stops are
+> `currentColor`, so clearing `color` would make the gradient
+> transparent→gold→transparent, i.e. an invisible heading with a gold band
+> sliding through it. For the same reason the reduced-motion guard has to
+> restore `-webkit-text-fill-color: currentColor`, not just stop the animation —
+> exactly the same class of trap as `.loader-fade-in`'s `visibility`.
+
 ### Decorative
 `.section-gold-rule` (40px gold line above section headings, draws itself in
 when the section reveals) · `.gradient-title-bg` (gradient underline on hover) ·

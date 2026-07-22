@@ -388,6 +388,73 @@ html.sirini-splash-done #sirini-splash {
    transform+opacity pairs, all guarded by prefers-reduced-motion.
    ════════════════════════════════════════════════════════════════ */
 
+/* ── Card glint — a soft gold light band crosses the product image on hover.
+   The brand move: jewellery catches light, so the cards should too. Sibling
+   of .hero-glint but faster and one-shot (fires per hover, not on a loop),
+   and it layers over .card-tilt / .vignette-overlay without competing —
+   those move the card, this lights it.
+   Pure opacity + translate on a pseudo-element = GPU-composited, no repaint. */
+.card-glint::after {
+  content: "";
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  z-index: 2;
+  opacity: 0;
+  background: linear-gradient(
+    100deg,
+    transparent 35%,
+    rgba(255, 255, 255, 0.28) 47%,
+    rgba(201, 169, 110, 0.42) 50%,
+    rgba(255, 255, 255, 0.28) 53%,
+    transparent 65%
+  );
+  background-size: 250% 100%;
+  background-position: 150% 0;
+}
+.group:hover .card-glint::after {
+  opacity: 1;
+  animation: cardGlint 900ms cubic-bezier(0.16, 1, 0.3, 1) forwards;
+}
+@keyframes cardGlint {
+  0%   { background-position: 150% 0; opacity: 0; }
+  35%  { opacity: 1; }
+  100% { background-position: -50% 0; opacity: 0; }
+}
+
+/* ── Heading shimmer — one slow pass of warm gold light across a section
+   heading as it scrolls into view. Fires once (via .reveal.active), never
+   loops, so it reads as light catching type rather than as a loading state.
+   Uses background-clip:text, so it needs a transparent fill; the gradient
+   bottoms out at currentColor at both ends to avoid a visible colour jump. */
+.heading-shimmer {
+  background-image: linear-gradient(
+    100deg,
+    currentColor 0%,
+    currentColor 40%,
+    #cba72f 50%,
+    currentColor 60%,
+    currentColor 100%
+  );
+  background-size: 250% 100%;
+  background-position: 150% 0;
+  -webkit-background-clip: text;
+  background-clip: text;
+  /* ONLY the glyph fill is cleared — `color` is deliberately left alone so the
+     `currentColor` stops above still resolve to the real text colour. Setting
+     `color: transparent` here would make the gradient transparent→gold→
+     transparent, i.e. an invisible heading with a gold band sliding through it. */
+  -webkit-text-fill-color: transparent;
+}
+.reveal.active .heading-shimmer,
+.heading-shimmer.active {
+  animation: headingShimmer 2200ms cubic-bezier(0.16, 1, 0.3, 1) 200ms forwards;
+}
+@keyframes headingShimmer {
+  from { background-position: 150% 0; }
+  to   { background-position: -50% 0; }
+}
+
 /* ── Slow editorial image zoom (product/category imagery) ──
    Apply to the <img>/<Image>; parent needs overflow-hidden. */
 .img-zoom {
@@ -829,6 +896,20 @@ textarea:not([data-slot]):focus {
   }
   .reveal.reveal-clip {
     clip-path: none !important;
+  }
+  /* Card glint is a pure light effect — nothing is lost by removing it. */
+  .card-glint::after {
+    display: none !important;
+    animation: none !important;
+  }
+  /* Heading shimmer must restore the glyph fill, not just stop animating:
+     the base rule clears -webkit-text-fill-color, so without this the
+     heading would render as invisible text. Same class of trap as
+     .loader-fade-in's visibility below. */
+  .heading-shimmer {
+    background-image: none !important;
+    -webkit-text-fill-color: currentColor !important;
+    animation: none !important;
   }
   .img-zoom,
   .card-lift,

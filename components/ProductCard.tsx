@@ -144,7 +144,7 @@ export function ProductCard({ product }: ProductCardProps) {
         ref={tiltRef}
         onMouseMove={handleTiltMove}
         onMouseLeave={handleTiltLeave}
-        className="relative aspect-[4/5] bg-surface-container overflow-hidden border border-outline-variant group-hover:border-primary/30 card-tilt mb-4"
+        className="relative aspect-[4/5] bg-surface-container overflow-hidden border border-outline-variant group-hover:border-primary/30 card-tilt card-glint mb-4"
       >
 
         {/* Primary image */}
