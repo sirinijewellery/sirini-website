@@ -150,6 +150,9 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
   // `title` is brand-free; the root layout's title template appends
   // "| Sirini Jewellery" to the <title>. Social cards aren't templated, so we
   // add the brand to the OG/Twitter titles explicitly (single brand, no dupes).
+  // Budget the templated suffix into the ~60-char SERP limit (same pattern as
+  // productMetadata() in lib/seo.ts) so facet titles don't get truncated.
+  const templatedSuffixLength = ` | ${siteConfig.name}`.length;
   const build = (title: string, description: string): Metadata => {
     const socialTitle = `${title} | ${siteConfig.name}`;
     return {
@@ -191,8 +194,11 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
   }
   if (params.category) {
     const label = categoryLabel(params.category);
+    const richTitle = `${label} — Buy Handcrafted Indian Jewellery Online`;
+    const shortTitle = `${label} — Handcrafted Jewellery`;
+    const title = richTitle.length + templatedSuffixLength <= 60 ? richTitle : shortTitle;
     return build(
-      `${label} — Buy Handcrafted Indian Jewellery Online`,
+      title,
       `Shop handcrafted ${label.toLowerCase()} — Kundan, Meenakari & gold-plated designs by Sirini Jewellery, Mumbai. Free shipping across India, COD available.`,
     );
   }
@@ -200,8 +206,11 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
     const label = params.collection
       .replace(/-/g, " ")
       .replace(/\b\w/g, (m) => m.toUpperCase());
+    const richTitle = `${label} Collection — Handcrafted Jewellery`;
+    const shortTitle = `${label} Collection Jewellery`;
+    const title = richTitle.length + templatedSuffixLength <= 60 ? richTitle : shortTitle;
     return build(
-      `${label} Collection — Handcrafted Jewellery`,
+      title,
       `Explore the ${label} collection by Sirini Jewellery — a curated edit of handcrafted Kundan, Meenakari & gold-plated pieces. Free shipping across India, COD available.`,
     );
   }
@@ -214,8 +223,11 @@ export async function generateMetadata({ searchParams }: ShopPageProps): Promise
   }
   if (params.stone) {
     const label = params.stone.replace(/-/g, " ").replace(/\b\w/g, (m) => m.toUpperCase());
+    const richTitle = `${label} Jewellery — Handcrafted Online`;
+    const shortTitle = `${label} Jewellery`;
+    const title = richTitle.length + templatedSuffixLength <= 60 ? richTitle : shortTitle;
     return build(
-      `${label} Jewellery — Handcrafted Online`,
+      title,
       `Shop handcrafted ${label.toLowerCase()} jewellery by Sirini Jewellery — Kundan, Meenakari & gold-plated designs, Mumbai. Free shipping across India, COD available.`,
     );
   }

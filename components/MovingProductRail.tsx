@@ -171,9 +171,9 @@ export function MovingProductRail({ products }: { products: RailProduct[] }) {
 
               {/* Info */}
               <div className="flex flex-col gap-1">
-                <h4 className="font-body-md text-body-md text-on-surface truncate">
+                <h3 className="font-body-md text-body-md text-on-surface truncate">
                   {product.name}
-                </h4>
+                </h3>
                 {product.reviewCount && product.reviewCount > 0 ? (
                   <div className="flex items-center gap-1 text-xs text-on-surface-variant">
                     <svg width="14" height="14" viewBox="0 0 24 24" fill="#C9A227" aria-hidden="true">

@@ -4,6 +4,7 @@ import { Mail, MessageCircle } from "lucide-react";
 import Link from "next/link";
 import { pageMetadata, siteConfig } from "@/lib/seo";
 import { getBusinessDetails } from "@/lib/queries/site";
+import { getShippingTime } from "@/lib/queries/content";
 import { BreadcrumbJsonLd } from "@/components/BreadcrumbJsonLd";
 
 export const metadata = pageMetadata(
@@ -13,9 +14,12 @@ export const metadata = pageMetadata(
 );
 
 export default async function ContactPage() {
-  const business = await getBusinessDetails();
+  const [business, shippingTime] = await Promise.all([getBusinessDetails(), getShippingTime()]);
   const whatsappNumber = business.whatsapp || process.env.NEXT_PUBLIC_WHATSAPP_NUMBER || "";
   const whatsappHref = `https://wa.me/${whatsappNumber}?text=${encodeURIComponent("Hi! I'd like to enquire about your jewellery.")}`;
+  // Sourced from the single shipping-time setting (lib/queries/content.ts) so this
+  // never drifts from /shipping, /faq, or the product JSON-LD after an admin edit.
+  const shippingAnswer = `${shippingTime.deliveryDays} business days across India.`;
 
   return (
     <div className="max-w-5xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-20">
@@ -99,7 +103,7 @@ export default async function ContactPage() {
             {[
               { q: "Do you offer gift wrapping?", a: "Yes! Add a note at checkout and we'll wrap it beautifully." },
               { q: "Can I customise an order?", a: "Reach out on WhatsApp for customisation requests." },
-              { q: "What are your shipping timelines?", a: "5–7 business days across India." },
+              { q: "What are your shipping timelines?", a: shippingAnswer },
             ].map((faq) => (
               <div key={faq.q} className="space-y-1">
                 <p className="font-sans text-sm font-medium text-foreground">{faq.q}</p>
@@ -139,7 +143,7 @@ export default async function ContactPage() {
                 name: "What are your shipping timelines?",
                 acceptedAnswer: {
                   "@type": "Answer",
-                  text: "5–7 business days across India.",
+                  text: shippingAnswer,
                 },
               },
             ],

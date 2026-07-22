@@ -274,10 +274,10 @@ export function ProductCard({ product }: ProductCardProps) {
 
       {/* ── Product info ─────────────────────────────────────────── */}
       <div className="flex flex-col gap-1">
-        <h4 className="font-sans text-sm text-on-surface leading-snug line-clamp-2">
+        <h3 className="font-sans text-sm text-on-surface leading-snug line-clamp-2">
           {/* inline span so the underline sweep hugs the text, not the column */}
           <span className="link-sweep">{product.name}</span>
-        </h4>
+        </h3>
         {product.tags && product.tags.length > 0 && (
           <div className="flex flex-wrap gap-1.5">
             {product.tags.includes("new-arrivals") && (

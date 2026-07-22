@@ -265,7 +265,12 @@ Full doc: **`Sirini Pending Tasks.docx`** on the Desktop (updated 2026-06-22).
 (from the pending tasks doc — just reply yes/no/etc. and Claude will build it)
 
 1. Customer reviews post live with no approval — want an **admin approval step**? (yes/no)
-2. Rate-limiting on forms to block bots (needs free Upstash account)? (yes/later)
+2. ✅ DONE — Rate-limiting on forms/public endpoints shipped via an in-memory
+   per-IP limiter (`lib/rateLimit.ts`), no Upstash needed. Applied across ~15
+   routes (contact, newsletter, auth/register, reviews, checkout, coupons,
+   leads, pincode/search, wishlist, addresses). Per-instance only (not globally
+   coordinated across Vercel's serverless instances) — acceptable tradeoff for
+   a zero-infra solution.
 3. When online-paid order is cancelled, flag "refund owed"? (yes/no)
 4. Delete stray personal files in the repo (`ABoutUSPage.png`, `Logo.jpeg`, `logo_proper.jpeg`, `IMPROVEMENTS.MD`, `marketing.txt`)? (yes/keep)
 5. TEST1 coupon (₹10,000, used up): delete/keep/reset?

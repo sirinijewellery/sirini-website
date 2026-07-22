@@ -8,8 +8,10 @@ import { categoryLabel } from "@/lib/taxonomy";
 
 const BASE_URL = SITE_URL;
 
+// force-dynamic opts this route out of caching entirely, so it always reflects
+// the live catalog on each crawl — a `revalidate` value would have no effect
+// here and was previously listed by mistake.
 export const dynamic = "force-dynamic";
-export const revalidate = 3600; // revalidate every hour
 
 export async function GET() {
   const [products, articles] = await Promise.all([
