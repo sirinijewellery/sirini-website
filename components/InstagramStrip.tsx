@@ -15,19 +15,19 @@ export async function InstagramStrip() {
     where: { category: "necklace-sets" },
     orderBy: { price: "desc" },
     take: 12,
-    select: { images: true },
+    select: { name: true, images: true },
   });
 
   // Collect one image per product: prefer the model shot, else the first image.
   const seen = new Set<string>();
-  const feed: string[] = [];
+  const feed: { src: string; name: string }[] = [];
   for (const p of products) {
     const imgs = parseImages(p.images);
     if (imgs.length === 0) continue;
     const pick = imgs.find((u) => /model/i.test(u)) ?? imgs[0];
     if (pick && !seen.has(pick)) {
       seen.add(pick);
-      feed.push(pick);
+      feed.push({ src: pick, name: p.name });
     }
     if (feed.length >= 6) break;
   }
@@ -54,7 +54,7 @@ export async function InstagramStrip() {
 
         {/* Feed grid — tiles stagger in on scroll */}
         <div className="grid grid-cols-3 md:grid-cols-6 gap-2 reveal stagger-grid">
-          {feed.map((src, i) => (
+          {feed.map(({ src, name }) => (
             <a
               key={src}
               href={INSTAGRAM_URL}
@@ -65,7 +65,7 @@ export async function InstagramStrip() {
             >
               <Image
                 src={src}
-                alt={`Sirini Jewellery on Instagram ${i + 1}`}
+                alt={`${name} — handcrafted necklace set by Sirini Jewellery`}
                 fill
                 sizes="(max-width: 768px) 33vw, 16vw"
                 className="object-cover transition-transform duration-500 group-hover:scale-110"

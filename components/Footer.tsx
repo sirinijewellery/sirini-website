@@ -94,9 +94,9 @@ export function Footer({ business }: { business: BusinessDetails }) {
             className="md:col-span-2 grid grid-cols-2 gap-x-8 gap-y-10 sm:grid-cols-4"
           >
             <div className="flex flex-col gap-3" aria-labelledby="footer-category">
-              <h4 id="footer-category" className={headingClass}>
+              <h3 id="footer-category" className={headingClass}>
                 Shop by Category
-              </h4>
+              </h3>
               {NAV_CATEGORIES.map((c) => (
                 <Link key={c.slug} href={`/shop?category=${c.slug}`} className={linkClass}>
                   {c.label}
@@ -105,9 +105,9 @@ export function Footer({ business }: { business: BusinessDetails }) {
             </div>
 
             <div className="flex flex-col gap-3" aria-labelledby="footer-occasion">
-              <h4 id="footer-occasion" className={headingClass}>
+              <h3 id="footer-occasion" className={headingClass}>
                 Shop by Occasion
-              </h4>
+              </h3>
               {OCCASIONS.map((o) => (
                 <Link key={o.slug} href={`/shop?occasion=${o.slug}`} className={linkClass}>
                   {o.label}
@@ -116,9 +116,9 @@ export function Footer({ business }: { business: BusinessDetails }) {
             </div>
 
             <div className="flex flex-col gap-3" aria-labelledby="footer-material">
-              <h4 id="footer-material" className={headingClass}>
+              <h3 id="footer-material" className={headingClass}>
                 Shop by Material
-              </h4>
+              </h3>
               {STYLES.map((s) => (
                 <Link key={s.slug} href={`/shop?style=${s.slug}`} className={linkClass}>
                   {s.label}
@@ -127,9 +127,9 @@ export function Footer({ business }: { business: BusinessDetails }) {
             </div>
 
             <div className="flex flex-col gap-3" aria-labelledby="footer-company">
-              <h4 id="footer-company" className={headingClass}>
+              <h3 id="footer-company" className={headingClass}>
                 Company &amp; Help
-              </h4>
+              </h3>
               {COMPANY_LINKS.map((l) => (
                 <Link key={l.href} href={l.href} className={linkClass}>
                   {l.label}
