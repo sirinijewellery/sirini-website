@@ -72,7 +72,6 @@ export function ProductJsonLd({ product, reviewSummary, reviews, deliveryDays, r
     name: product.name,
     description: product.description,
     sku: product.sku,
-    mpn: product.sku,
     image: product.images.map(botImageUrl),
     brand: {
       "@type": "Brand",
