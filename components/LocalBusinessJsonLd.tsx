@@ -14,7 +14,7 @@ export async function LocalBusinessJsonLd() {
     "@id": `${siteConfig.url}/#organization`,
     name: "Sirini Jewellery",
     url: siteConfig.url,
-    logo: "https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,q_auto,f_png,w_600/sirini-jewellery/logo-real.png",
+    logo: siteConfig.logo,
     image:
       "https://res.cloudinary.com/dp8a2lvxg/image/upload/q_auto,f_auto,w_1200/v1780555156/sirini-jewellery/brand/hero-model.jpg",
     description:

@@ -92,7 +92,7 @@ export default async function ArticlePage({ params }: Props) {
       url: siteConfig.url,
       logo: {
         "@type": "ImageObject",
-        url: "https://res.cloudinary.com/dp8a2lvxg/image/upload/e_trim,q_auto,f_png,w_600/sirini-jewellery/logo-real.png",
+        url: siteConfig.logo,
       },
     },
   };
